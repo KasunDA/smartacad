@@ -49,6 +49,7 @@ class MenuHeaderController extends Controller
             $menu_header = ($inputs['menu_header_id'][$i] > 0) ? MenuHeader::find($inputs['menu_header_id'][$i]) : new MenuHeader();
             $menu_header->menu_header = Str::upper($inputs['menu_header'][$i]);
             $menu_header->active = $inputs['active'][$i];
+            $menu_header->type = $inputs['type'][$i];
             $menu_header->sequence = $inputs['sequence'][$i];
             if($menu_header->save()){
                 $count = $count+1;

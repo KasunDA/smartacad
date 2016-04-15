@@ -117,6 +117,7 @@
                                                             @endforeach
                                                         </select>
                                                     </td>
+                                                    <td>{!! Form::text('type[]', $sub_most_menu_item->type, ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::text('sequence[]', $sub_most_menu_item->sequence, ['placeholder'=>'Order By', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>
                                                         <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_sub_most_menu_item">

@@ -56,13 +56,14 @@
                                     <thead>
                                     <tr>
                                         <th style="width: 2%;">#</th>
-                                        <th style="width: 20%;">Menu</th>
+                                        <th style="width: 15%;">Menu</th>
                                         <th style="width: 10%;">Menu Url</th>
                                         <th style="width: 15%;">Menu Icon</th>
                                         <th style="width: 15%;">Header Menu</th>
                                         <th style="width: 10%;">Status</th>
                                         <th style="width: 20%;">Role</th>
-                                        <th style="width: 4%;">Order</th>
+                                        <th style="width: 6%;">Type</th>
+                                        <th style="width: 6%;">Order</th>
                                         <th style="width: 4%;">Actions</th>
                                     </tr>
                                     </thead>
@@ -98,6 +99,7 @@
                                                         @endforeach
                                                     </select>
                                                 </td>
+                                                <td>{!! Form::text('type[]', $menu->type, ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>{!! Form::text('sequence[]', $menu->sequence, ['placeholder'=>'Order By', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>
                                                     <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_menu">
@@ -130,6 +132,7 @@
                                                     @endforeach
                                                 </select>
                                             </td>
+                                            <td>{!! Form::text('type[]', '', ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                             <td>{!! Form::text('sequence[]', '', ['placeholder'=>'Order By', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                             <td>
                                                 <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
@@ -142,13 +145,14 @@
                                     <tfoot>
                                     <tr>
                                         <th style="width: 2%;">#</th>
-                                        <th style="width: 20%;">Menu</th>
+                                        <th style="width: 15%;">Menu</th>
                                         <th style="width: 10%;">Menu Url</th>
                                         <th style="width: 15%;">Menu Icon</th>
                                         <th style="width: 15%;">Header Menu</th>
                                         <th style="width: 10%;">Status</th>
                                         <th style="width: 20%;">Role</th>
-                                        <th style="width: 4%;">Order</th>
+                                        <th style="width: 6%;">Type</th>
+                                        <th style="width: 6%;">Order</th>
                                         <th style="width: 4%;">Actions</th>
                                     </tr>
                                     </tfoot>

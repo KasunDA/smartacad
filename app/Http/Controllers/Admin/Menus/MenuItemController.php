@@ -57,6 +57,7 @@ class MenuItemController extends Controller
             $menu_item->menu_item_url = $inputs['menu_item_url'][$i];
             $menu_item->menu_item_icon = $inputs['menu_item_icon'][$i];
             $menu_item->active = $inputs['active'][$i];
+            $menu_item->type = $inputs['type'][$i];
             $menu_item->sequence = $inputs['sequence'][$i];
             $menu_item->menu_id = $inputs['menu_id'][$i];
 //            $count = ($menu_item->save()) ? $count+1 : '';

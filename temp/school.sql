@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 14, 2016 at 03:21 PM
+-- Generation Time: Apr 15, 2016 at 04:51 PM
 -- Server version: 5.6.17
 -- PHP Version: 5.5.12
 
@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS `menus` (
   `menu_url` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
   `active` int(10) unsigned NOT NULL DEFAULT '1',
   `sequence` int(10) unsigned NOT NULL,
+  `type` tinyint(4) NOT NULL DEFAULT '1',
   `icon` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `menu_header_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -45,9 +46,10 @@ CREATE TABLE IF NOT EXISTS `menus` (
 -- Dumping data for table `menus`
 --
 
-INSERT INTO `menus` (`menu_id`, `menu`, `menu_url`, `active`, `sequence`, `icon`, `menu_header_id`, `created_at`, `updated_at`) VALUES
-(1, 'SYSTEM', '#', 1, 1, 'fa fa-television', 1, '2016-03-29 23:33:49', '2016-03-29 23:33:49'),
-(2, 'PROFILE', '#', 1, 1, 'fa fa-book', 2, '2016-03-30 20:33:36', '2016-03-30 20:33:36');
+INSERT INTO `menus` (`menu_id`, `menu`, `menu_url`, `active`, `sequence`, `type`, `icon`, `menu_header_id`, `created_at`, `updated_at`) VALUES
+(1, 'SYSTEM', '#', 1, 1, 1, 'fa fa-television', 1, '2016-03-29 23:33:49', '2016-03-29 23:33:49'),
+(2, 'PROFILE', '#', 1, 1, 1, 'fa fa-book', 2, '2016-03-30 20:33:36', '2016-03-30 20:33:36'),
+(3, 'HOME', '/home', 1, 1, 2, 'fa fa-home', 4, '2016-04-15 11:02:49', '2016-04-15 11:02:49');
 
 -- --------------------------------------------------------
 
@@ -61,19 +63,21 @@ CREATE TABLE IF NOT EXISTS `menu_headers` (
   `menu_header` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `active` int(10) unsigned NOT NULL DEFAULT '1',
   `sequence` int(10) unsigned NOT NULL,
+  `type` tinyint(4) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`menu_header_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=4 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
 
 --
 -- Dumping data for table `menu_headers`
 --
 
-INSERT INTO `menu_headers` (`menu_header_id`, `menu_header`, `active`, `sequence`, `created_at`, `updated_at`) VALUES
-(1, 'SETUPS', 1, 10, '2016-03-29 23:30:39', '2016-03-30 20:33:06'),
-(2, 'ACCOUNT', 1, 9, '2016-03-30 20:33:06', '2016-03-30 20:33:06'),
-(3, 'RECORDS', 1, 8, '2016-03-31 07:45:49', '2016-03-31 07:45:49');
+INSERT INTO `menu_headers` (`menu_header_id`, `menu_header`, `active`, `sequence`, `type`, `created_at`, `updated_at`) VALUES
+(1, 'SETUPS', 1, 10, 1, '2016-03-29 23:30:39', '2016-03-30 20:33:06'),
+(2, 'ACCOUNT', 1, 9, 1, '2016-03-30 20:33:06', '2016-03-30 20:33:06'),
+(3, 'RECORDS', 1, 8, 1, '2016-03-31 07:45:49', '2016-03-31 07:45:49'),
+(4, 'PORTAL', 1, 1, 2, '2016-04-15 10:41:26', '2016-04-15 10:55:41');
 
 -- --------------------------------------------------------
 
@@ -89,24 +93,23 @@ CREATE TABLE IF NOT EXISTS `menu_items` (
   `menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `active` int(10) unsigned NOT NULL DEFAULT '1',
   `sequence` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `type` tinyint(4) NOT NULL DEFAULT '1',
   `menu_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`menu_item_id`),
   KEY `menu_items_menu_id_index` (`menu_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=8 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=7 ;
 
 --
 -- Dumping data for table `menu_items`
 --
 
-INSERT INTO `menu_items` (`menu_item_id`, `menu_item`, `menu_item_url`, `menu_item_icon`, `active`, `sequence`, `menu_id`, `created_at`, `updated_at`) VALUES
-(1, 'SETTINGS', '#', 'fa fa-cogs', 1, '1', 1, '2016-03-30 10:04:10', '2016-03-30 10:04:10'),
-(2, 'USERS', '#', 'fa fa-users', 1, '2', 1, '2016-03-30 10:47:28', '2016-03-30 10:47:28'),
-(3, 'VIEW ', '/profiles', 'fa fa-user', 1, '1', 2, '2016-03-30 20:35:07', '2016-03-31 12:24:54'),
-(4, 'EDIT', '/profiles/edit', 'fa fa-edit', 1, '2', 2, '2016-03-30 20:35:07', '2016-03-31 07:40:40'),
-(5, 'BAPTISMS', '#', 'fa fa-table', 1, '1', 3, '2016-03-31 07:48:52', '2016-03-31 07:48:52'),
-(6, 'CONFIRMATIONS', '#', 'fa fa-table', 1, '2', 3, '2016-03-31 07:49:27', '2016-03-31 07:49:27');
+INSERT INTO `menu_items` (`menu_item_id`, `menu_item`, `menu_item_url`, `menu_item_icon`, `active`, `sequence`, `type`, `menu_id`, `created_at`, `updated_at`) VALUES
+(1, 'SETTINGS', '#', 'fa fa-cogs', 1, '1', 1, 1, '2016-03-30 10:04:10', '2016-03-30 10:04:10'),
+(2, 'USERS', '#', 'fa fa-users', 1, '2', 1, 1, '2016-03-30 10:47:28', '2016-03-30 10:47:28'),
+(3, 'VIEW ', '/profiles', 'fa fa-user', 1, '1', 1, 2, '2016-03-30 20:35:07', '2016-03-31 12:24:54'),
+(4, 'EDIT', '/profiles/edit', 'fa fa-edit', 1, '2', 1, 2, '2016-03-30 20:35:07', '2016-03-31 07:40:40');
 
 -- --------------------------------------------------------
 
@@ -308,7 +311,9 @@ CREATE TABLE IF NOT EXISTS `roles_menus` (
 
 INSERT INTO `roles_menus` (`role_id`, `menu_id`) VALUES
 (1, 1),
-(1, 2);
+(1, 2),
+(1, 3),
+(2, 3);
 
 -- --------------------------------------------------------
 
@@ -331,7 +336,9 @@ CREATE TABLE IF NOT EXISTS `roles_menu_headers` (
 INSERT INTO `roles_menu_headers` (`role_id`, `menu_header_id`) VALUES
 (1, 1),
 (1, 2),
-(1, 3);
+(1, 3),
+(1, 4),
+(2, 4);
 
 -- --------------------------------------------------------
 
@@ -355,9 +362,7 @@ INSERT INTO `roles_menu_items` (`role_id`, `menu_item_id`) VALUES
 (1, 1),
 (1, 2),
 (1, 3),
-(1, 4),
-(1, 5),
-(1, 6);
+(1, 4);
 
 -- --------------------------------------------------------
 
@@ -382,13 +387,7 @@ INSERT INTO `roles_sub_menu_items` (`role_id`, `sub_menu_item_id`) VALUES
 (1, 2),
 (1, 3),
 (1, 4),
-(1, 5),
-(1, 6),
-(1, 7),
-(1, 8),
-(1, 9),
-(1, 10),
-(1, 11);
+(1, 5);
 
 -- --------------------------------------------------------
 
@@ -454,6 +453,7 @@ CREATE TABLE IF NOT EXISTS `sub_menu_items` (
   `sub_menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `active` int(10) unsigned NOT NULL DEFAULT '1',
   `sequence` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `tyep` tinyint(4) NOT NULL DEFAULT '1',
   `menu_item_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -465,18 +465,12 @@ CREATE TABLE IF NOT EXISTS `sub_menu_items` (
 -- Dumping data for table `sub_menu_items`
 --
 
-INSERT INTO `sub_menu_items` (`sub_menu_item_id`, `sub_menu_item`, `sub_menu_item_url`, `sub_menu_item_icon`, `active`, `sequence`, `menu_item_id`, `created_at`, `updated_at`) VALUES
-(1, 'MANAGE MENUS', '#', 'fa fa-list', 1, '1', 1, '2016-03-30 10:05:26', '2016-03-30 10:05:26'),
-(2, 'PERMISSIONS', '#', 'fa fa-lock', 1, '2', 1, '2016-03-30 10:21:39', '2016-03-30 10:41:46'),
-(3, 'ROLES', '#', 'fa fa-users', 1, '3', 1, '2016-03-30 10:41:35', '2016-03-30 10:41:46'),
-(4, 'CREATE', '/users/create', 'fa fa-user', 1, '1', 2, '2016-03-30 10:49:22', '2016-03-30 10:49:22'),
-(5, 'MANAGE', '/users', 'fa fa-users', 1, '2', 2, '2016-03-30 10:49:22', '2016-03-30 10:49:22'),
-(6, 'CREATE', '/baptisms/create', 'fa fa-plus', 1, '2', 5, '2016-03-31 07:50:58', '2016-03-31 07:51:43'),
-(7, 'MANAGE', '/baptisms', 'fa fa-list', 1, '1', 5, '2016-03-31 07:50:58', '2016-03-31 07:51:43'),
-(8, 'MANAGE', '/parishes', 'fa fa-list', 1, '1', 7, '2016-03-31 07:54:46', '2016-03-31 07:54:46'),
-(9, 'CREATE', '/parishes/create', 'fa fa-plus', 1, '2', 7, '2016-03-31 07:54:47', '2016-03-31 07:54:47'),
-(10, 'CREATE', '/confirmations/create', 'fa fa-plus', 1, '2', 6, '2016-03-31 08:14:00', '2016-03-31 08:14:00'),
-(11, 'MANAGE', '/confirmations', 'fa fa-list', 1, '1', 6, '2016-03-31 08:14:00', '2016-03-31 08:14:00');
+INSERT INTO `sub_menu_items` (`sub_menu_item_id`, `sub_menu_item`, `sub_menu_item_url`, `sub_menu_item_icon`, `active`, `sequence`, `tyep`, `menu_item_id`, `created_at`, `updated_at`) VALUES
+(1, 'MANAGE MENUS', '#', 'fa fa-list', 1, '1', 1, 1, '2016-03-30 10:05:26', '2016-03-30 10:05:26'),
+(2, 'PERMISSIONS', '#', 'fa fa-lock', 1, '2', 1, 1, '2016-03-30 10:21:39', '2016-03-30 10:41:46'),
+(3, 'ROLES', '#', 'fa fa-users', 1, '3', 1, 1, '2016-03-30 10:41:35', '2016-03-30 10:41:46'),
+(4, 'CREATE', '/users/create', 'fa fa-user', 1, '1', 1, 2, '2016-03-30 10:49:22', '2016-03-30 10:49:22'),
+(5, 'MANAGE', '/users', 'fa fa-users', 1, '2', 1, 2, '2016-03-30 10:49:22', '2016-03-30 10:49:22');
 
 -- --------------------------------------------------------
 
@@ -492,6 +486,7 @@ CREATE TABLE IF NOT EXISTS `sub_most_menu_items` (
   `sub_most_menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `active` int(10) unsigned NOT NULL DEFAULT '1',
   `sequence` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `type` tinyint(4) NOT NULL DEFAULT '1',
   `sub_menu_item_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -503,16 +498,16 @@ CREATE TABLE IF NOT EXISTS `sub_most_menu_items` (
 -- Dumping data for table `sub_most_menu_items`
 --
 
-INSERT INTO `sub_most_menu_items` (`sub_most_menu_item_id`, `sub_most_menu_item`, `sub_most_menu_item_url`, `sub_most_menu_item_icon`, `active`, `sequence`, `sub_menu_item_id`, `created_at`, `updated_at`) VALUES
-(1, 'Header', '/menu-headers', 'fa fa-list', 1, '1', 1, '2016-03-30 10:15:33', '2016-03-30 10:15:33'),
-(2, 'Menu', '/menus', 'fa fa-list', 1, '2', 1, '2016-03-30 10:16:39', '2016-03-30 10:16:39'),
-(3, 'Menu Items', '/menu-items', 'fa fa-list', 1, '3', 1, '2016-03-30 10:17:42', '2016-03-30 10:18:54'),
-(4, 'Sub Menu', '/sub-menu-items', 'fa fa-list', 1, '4', 1, '2016-03-30 10:18:54', '2016-03-30 10:18:54'),
-(5, 'Sub-most Menu', '/sub-most-menu-items', 'fa fa-list', 1, '5', 1, '2016-03-30 10:19:42', '2016-03-30 10:25:09'),
-(6, 'Manage', '/permissions', 'fa fa-list', 1, '1', 2, '2016-03-30 10:24:08', '2016-03-30 10:25:56'),
-(7, 'Assign', '/permissions/roles-permissions/', 'fa fa-users', 1, '2', 2, '2016-03-30 10:34:38', '2016-03-30 10:35:07'),
-(8, 'Manage', '/roles', 'fa fa-table', 1, '1', 3, '2016-03-30 10:43:20', '2016-03-30 10:43:20'),
-(9, 'Assign', '/roles/users-roles', 'fa fa-users', 1, '2', 3, '2016-03-30 10:43:20', '2016-03-30 10:43:20');
+INSERT INTO `sub_most_menu_items` (`sub_most_menu_item_id`, `sub_most_menu_item`, `sub_most_menu_item_url`, `sub_most_menu_item_icon`, `active`, `sequence`, `type`, `sub_menu_item_id`, `created_at`, `updated_at`) VALUES
+(1, 'Header', '/menu-headers', 'fa fa-list', 1, '1', 1, 1, '2016-03-30 10:15:33', '2016-03-30 10:15:33'),
+(2, 'Menu', '/menus', 'fa fa-list', 1, '2', 1, 1, '2016-03-30 10:16:39', '2016-03-30 10:16:39'),
+(3, 'Menu Items', '/menu-items', 'fa fa-list', 1, '3', 1, 1, '2016-03-30 10:17:42', '2016-03-30 10:18:54'),
+(4, 'Sub Menu', '/sub-menu-items', 'fa fa-list', 1, '4', 1, 1, '2016-03-30 10:18:54', '2016-03-30 10:18:54'),
+(5, 'Sub-most Menu', '/sub-most-menu-items', 'fa fa-list', 1, '5', 1, 1, '2016-03-30 10:19:42', '2016-03-30 10:25:09'),
+(6, 'Manage', '/permissions', 'fa fa-list', 1, '1', 1, 2, '2016-03-30 10:24:08', '2016-03-30 10:25:56'),
+(7, 'Assign', '/permissions/roles-permissions/', 'fa fa-users', 1, '2', 1, 2, '2016-03-30 10:34:38', '2016-03-30 10:35:07'),
+(8, 'Manage', '/roles', 'fa fa-table', 1, '1', 1, 3, '2016-03-30 10:43:20', '2016-03-30 10:43:20'),
+(9, 'Assign', '/roles/users-roles', 'fa fa-users', 1, '2', 1, 3, '2016-03-30 10:43:20', '2016-03-30 10:43:20');
 
 -- --------------------------------------------------------
 
@@ -548,7 +543,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 INSERT INTO `users` (`user_id`, `password`, `email`, `first_name`, `last_name`, `user_type_id`, `verified`, `status`, `gender`, `phone_no`, `dob`, `avatar`, `verification_code`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, '$2y$10$WxnznaDHI5AIhp6RrAVSWulVP7xpqH.z3RO9blwhI9QlxjaYxUFaO', 'admin@gmail.com', 'Emmanuel', 'Okafor', 1, 1, 1, NULL, '08061539278', NULL, NULL, NULL, 'H992RUNtWwYZLSM63yzc3N98tGX6PrBh0xXLARTCrZon2mZQV6ik2ZaKh3RY', NULL, '2016-04-14 12:10:49');
+(1, '$2y$10$WxnznaDHI5AIhp6RrAVSWulVP7xpqH.z3RO9blwhI9QlxjaYxUFaO', 'admin@gmail.com', 'Emmanuel', 'Okafor', 1, 1, 1, 'Male', '08061539278', '2016-04-14', NULL, NULL, 'XF0NdSWAQvLH5ngMdPSHD3AwcvwGqqwmas3yO8r1eKx4DqiDfs5BHJwfbVw7', NULL, '2016-04-15 12:13:14');
 
 -- --------------------------------------------------------
 
@@ -609,15 +604,15 @@ ALTER TABLE `roles_menu_items`
 -- Constraints for table `roles_sub_menu_items`
 --
 ALTER TABLE `roles_sub_menu_items`
-  ADD CONSTRAINT `roles_sub_menu_items_sub_menu_item_id_foreign` FOREIGN KEY (`sub_menu_item_id`) REFERENCES `sub_menu_items` (`sub_menu_item_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `roles_sub_menu_items_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `roles_sub_menu_items_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `roles_sub_menu_items_sub_menu_item_id_foreign` FOREIGN KEY (`sub_menu_item_id`) REFERENCES `sub_menu_items` (`sub_menu_item_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `roles_sub_most_menu_items`
 --
 ALTER TABLE `roles_sub_most_menu_items`
-  ADD CONSTRAINT `roles_sub_most_menu_items_sub_most_menu_item_id_foreign` FOREIGN KEY (`sub_most_menu_item_id`) REFERENCES `sub_most_menu_items` (`sub_most_menu_item_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `roles_sub_most_menu_items_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `roles_sub_most_menu_items_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `roles_sub_most_menu_items_sub_most_menu_item_id_foreign` FOREIGN KEY (`sub_most_menu_item_id`) REFERENCES `sub_most_menu_items` (`sub_most_menu_item_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `role_user`

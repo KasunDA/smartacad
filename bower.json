@@ -1,0 +1,22 @@
+{
+  "name": "SMS",
+  "description": "This is an school Management system",
+  "main": "server.js",
+  "authors": [
+    "Okafor Emmanuel C"
+  ],
+  "license": "ISC",
+  "moduleType": [],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "font-awesome": "^4.6.1"
+  }
+}

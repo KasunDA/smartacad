@@ -24,7 +24,7 @@ class SubMenuItem extends Model
      * The attributes that are mass assignable.
      * @var array
      */
-    protected $fillable = ['sub_menu_item', 'sub_menu_item_url', 'sub_menu_item_icon', 'active', 'sequence', 'menu_item_id'];
+    protected $fillable = ['sub_menu_item', 'sub_menu_item_url', 'sub_menu_item_icon', 'active','type', 'sequence', 'menu_item_id'];
 
     /**
      * A Menu Item belongs to a Menu

@@ -24,6 +24,7 @@ $(function () {
         clone_row.children(':nth-child(7)').html(new_role.html());
 
         clone_row.children(':nth-child(8)').children('input').val('');
+        clone_row.children(':nth-child(9)').children('input').val('');
         clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-sm remove_menu"><span class="fa fa-times"></span> Remove</button>');
     });
 

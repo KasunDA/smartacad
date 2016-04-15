@@ -105,8 +105,9 @@
                                     {!! Form::close() !!}
                                 </div>
                                 <div id="avatar" class="tab-pane {{ (session('active') == 'avatar') ? 'active' : '' }}">
-                                    <form action="#" role="form">
+                                    <form action="/profiles/avatar" role="form" method="post" enctype="multipart/form-data">
                                         <div class="form-group">
+                                            {{ csrf_field() }}
                                             <div class="fileinput fileinput-new" data-provides="fileinput">
                                                 <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
                                                     <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image" alt="" /> </div>
@@ -115,13 +116,13 @@
                                                     <span class="btn default btn-file">
                                                     <span class="fileinput-new"> Select image </span>
                                                     <span class="fileinput-exists"> Change </span>
-                                                    <input type="file" name="..."> </span>
+                                                    <input type="file" name="avatar"></span>
                                                     <a href="javascript:;" class="btn default fileinput-exists" data-dismiss="fileinput"> Remove </a>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="margin-top-10">
-                                            <a href="javascript:;" class="btn green"> Submit </a>
+                                            <button type="submit" class="btn green"> Submit </button>
                                             <a href="javascript:;" class="btn default"> Cancel </a>
                                         </div>
                                     </form>

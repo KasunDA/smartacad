@@ -52,6 +52,7 @@ class MenuController extends Controller
             $menu->menu_url = $inputs['menu_url'][$i];
             $menu->icon = $inputs['icon'][$i];
             $menu->active = $inputs['active'][$i];
+            $menu->type = $inputs['type'][$i];
             $menu->sequence = $inputs['sequence'][$i];
             $menu->menu_header_id = $inputs['menu_header_id'][$i];
             if($menu->save()){

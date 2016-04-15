@@ -58,6 +58,7 @@ class SubMenuItemController extends Controller
             $sub_menu_item->sub_menu_item_url = $inputs['sub_menu_item_url'][$i];
             $sub_menu_item->sub_menu_item_icon = $inputs['sub_menu_item_icon'][$i];
             $sub_menu_item->active = $inputs['active'][$i];
+            $sub_menu_item->type = $inputs['type'][$i];
             $sub_menu_item->sequence = $inputs['sequence'][$i];
             $sub_menu_item->menu_item_id = $inputs['menu_item_id'][$i];
 //            $count = ($sub_menu_item->save()) ? $count + 1 : '';

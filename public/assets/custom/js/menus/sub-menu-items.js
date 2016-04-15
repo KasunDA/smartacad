@@ -23,6 +23,7 @@ $(function () {
         new_role.children('select').attr('name', 'role_id['+count+'][]');
         clone_row.children(':nth-child(7)').html(new_role.html());
         clone_row.children(':nth-child(8)').children('input').val('');
+        clone_row.children(':nth-child(9)').children('input').val('');
 
         clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-sm remove_sub_menu_item"><span class="fa fa-times"></span> Remove</button>');
     });

@@ -23,10 +23,20 @@
 |
 */
 
+
 Route::group(['middleware' => ['web']], function () {
+
     Route::get('/', function () {
         return view('welcome');
     });
+
+    Route::get('/home', function () {
+        return view('front.index');
+    });
+
+    Route::controllers([
+        'home' => 'Front\HomeController'
+    ]);
 
     Route::controllers([
         'auth' => 'Auth\AuthController',

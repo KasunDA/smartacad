@@ -26,4 +26,6 @@ MAIL_ENCRYPTION=null
 AWS_ACCESS_KEY_ID=AKIAJJVMETFDIFQTGZVA
 AWS_SECRET_ACCESS_KEY=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
 AWS_BUCKET=ekaruz
-AMAZON_PATH=https://s3-us-west-2.amazonaws.com/analyser/
+AWS_REGION=oregon
+AMAZON_PATH=https://s3-us-west-2.amazonaws.com/ekaruz/
+

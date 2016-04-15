@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Storage;
 use Validator;
 
 
@@ -27,7 +28,7 @@ class ProfileController extends Controller
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
@@ -47,6 +48,7 @@ class ProfileController extends Controller
             'phone_no' => 'required|min:10',
         ], $messages);
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -68,8 +70,7 @@ class ProfileController extends Controller
         $inputs = $request->all();
         $user = Auth::user();
 
-        if ($this->validator($inputs)->fails())
-        {
+        if ($this->validator($inputs)->fails()) {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
             return redirect('/profiles/edit')->withErrors($this->validator($inputs))->withInput();
         }
@@ -77,7 +78,7 @@ class ProfileController extends Controller
         $user->update($inputs);
         $this->setFlashMessage(' Your profile has been successfully updated.', 1);
 
-        return redirect('/profiles/view');
+        return redirect('/profiles');
     }
 
     /**
@@ -130,22 +131,32 @@ class ProfileController extends Controller
         session()->put('active', 'password');
 
         //Validate if the password match the current password
-        if (! Hash::check($inputs['password'], $user->password) ) {
+        if (!Hash::check($inputs['password'], $user->password)) {
             return redirect('/profiles/edit')->withErrors([
-                'password' => 'Warning!!! '.$user->fullNames().', Your Old Password Credential did not match your current'
+                'password' => 'Warning!!! ' . $user->fullNames() . ', Your Old Password Credential did not match your current'
             ]);
         }
-        if($request->password_confirmation !== $request->new_password){
+        if ($request->password_confirmation !== $request->new_password) {
             return redirect('/profiles/edit')->withErrors([
-                'password' => 'Warning!!! '.$user->fullNames().', Your New and Confirm Password Credential did not match'
+                'password' => 'Warning!!! ' . $user->fullNames() . ', Your New and Confirm Password Credential did not match'
             ]);
         }
 //         Store the password...
         $user->fill(['password' => Hash::make($request->new_password)])->save();
         // Set the flash message
-        $this->setFlashMessage('Changed!!! '.$user->fullNames().' Your password change was successful.', 1);
+        $this->setFlashMessage('Changed!!! ' . $user->fullNames() . ' Your password change was successful.', 1);
         //Keep track of selected tab
         session()->put('active', 'info');
         return redirect('/profiles/');
+    }
+
+    public function postAvatar(Request $request)
+    {
+        if ($request->file('avatar')) {
+            $file = $request->file('avatar');
+            $name = $file->getClientOriginalName();
+            $key = 'avatar/' . $name;
+            Storage::put($key, file_get_contents($file));
+        }
     }
 }

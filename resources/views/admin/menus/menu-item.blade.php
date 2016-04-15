@@ -77,13 +77,14 @@
                                             <thead>
                                             <tr>
                                                 <th style="width: 1%;">#</th>
-                                                <th style="width: 20%;">Menu item</th>
+                                                <th style="width: 15%;">Menu item</th>
                                                 <th style="width: 10%;">Menu item url</th>
                                                 <th style="width: 13%;">Icon</th>
                                                 <th style="width: 15%;">Parent menu</th>
                                                 <th style="width: 10%;">Status</th>
                                                 <th style="width: 20%;">Role</th>
-                                                <th style="width: 4%;">Order</th>
+                                                <th style="width: 6%;">Order</th>
+                                                <th style="width: 6%;">Order</th>
                                                 <th style="width: 4%;">actions</th>
                                             </tr>
                                             </thead>
@@ -120,6 +121,7 @@
                                                                 @endforeach
                                                             </select>
                                                         </td>
+                                                        <td>{!! Form::text('type[]', $menu_item->type, ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                         <td>{!! Form::text('sequence[]', $menu_item->sequence, ['placeholder'=>'Order By', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                         <td>
                                                             <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_menu_item">
@@ -153,6 +155,7 @@
                                                             @endforeach
                                                         </select>
                                                     </td>
+                                                    <td>{!! Form::text('type[]', '', ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::text('sequence[]', '', ['placeholder'=>'Order By', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>
                                                         <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
@@ -165,13 +168,14 @@
                                             <tfoot>
                                             <tr>
                                                 <th style="width: 1%;">#</th>
-                                                <th style="width: 20%;">Menu item</th>
+                                                <th style="width: 15%;">Menu item</th>
                                                 <th style="width: 10%;">Menu item url</th>
                                                 <th style="width: 13%;">Icon</th>
                                                 <th style="width: 15%;">Parent menu</th>
                                                 <th style="width: 10%;">Status</th>
                                                 <th style="width: 20%;">Role</th>
-                                                <th style="width: 4%;">Order</th>
+                                                <th style="width: 6%;">Order</th>
+                                                <th style="width: 6%;">Order</th>
                                                 <th style="width: 4%;">actions</th>
                                             </tr>
                                             </tfoot>

@@ -55,9 +55,10 @@
                                 <thead>
                                 <tr>
                                     <th style="width: 2%;" class="text-center">#</th>
-                                    <th style="width: 40%;">Title</th>
+                                    <th style="width: 30%;">Title</th>
                                     <th style="width: 10%;">Status</th>
                                     <th style="width: 30%;">Role</th>
+                                    <th style="width: 10%;">Type</th>
                                     <th style="width: 10%;">Order</th>
                                     <th style="width: 8%;">Actions</th>
                                 </tr>
@@ -86,6 +87,7 @@
                                                     @endforeach
                                                 </select>
                                             </td>
+                                            <td>{!! Form::text('type[]', $menu_header->type, ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                             <td>{!! Form::text('sequence[]', $menu_header->sequence, ['placeholder'=>'Order By', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                             <td>
                                                 <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_menu_header">
@@ -110,6 +112,7 @@
                                                 @endforeach
                                             </select>
                                         </td>
+                                        <td>{!! Form::text('type[]', '', ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                         <td>{!! Form::text('sequence[]', '', ['placeholder'=>'Order By', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                         <td>
                                             <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
@@ -122,9 +125,10 @@
                                 <tfoot>
                                 <tr>
                                     <th style="width: 2%;" class="text-center">#</th>
-                                    <th style="width: 40%;">Title</th>
+                                    <th style="width: 30%;">Title</th>
                                     <th style="width: 10%;">Status</th>
                                     <th style="width: 30%;">Role</th>
+                                    <th style="width: 10%;">Type</th>
                                     <th style="width: 10%;">Order</th>
                                     <th style="width: 8%;">Actions</th>
                                 </tr>

@@ -24,7 +24,7 @@ class Menu extends Model
      *
      * @var array
      */
-    protected $fillable = ['menu', 'menu_url','icon', 'active', 'sequence','menu_header_id'];
+    protected $fillable = ['menu', 'menu_url','icon', 'active','type', 'sequence','menu_header_id'];
 
     /**
      * A Menu Item belongs to a Menu

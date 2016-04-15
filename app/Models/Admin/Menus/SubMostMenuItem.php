@@ -24,7 +24,7 @@ class SubMostMenuItem extends Model
      * The attributes that are mass assignable.
      * @var array
      */
-    protected $fillable = ['sub_most_menu_item', 'sub_most_menu_item_url', 'sub_most_menu_item_icon', 'active', 'sequence', 'sub_menu_item_id'];
+    protected $fillable = ['sub_most_menu_item', 'sub_most_menu_item_url', 'sub_most_menu_item_icon', 'active', 'type','sequence', 'sub_menu_item_id'];
 
     /**
      * A Menu Item belongs to a Menu

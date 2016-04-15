@@ -82,7 +82,8 @@
                                                 <th style="width: 9%;">Icon</th>
                                                 <th style="width: 15%;">Parent Menu</th>
                                                 <th style="width: 10%;">Status</th>
-                                                <th style="width: 25%;">Role</th>
+                                                <th style="width: 20%;">Role</th>
+                                                <th style="width: 5%;">Type</th>
                                                 <th style="width: 5%;">Order</th>
                                                 <th style="width: 5%;">actions</th>
                                             </tr>
@@ -120,6 +121,7 @@
                                                                 @endforeach
                                                             </select>
                                                         </td>
+                                                        <td>{!! Form::text('type[]', $sub_menu_item->type, ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                         <td>{!! Form::text('sequence[]', $sub_menu_item->sequence, ['placeholder'=>'Order By', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                         <td>
                                                             <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_sub_menu_item">
@@ -154,6 +156,7 @@
                                                             @endforeach
                                                         </select>
                                                     </td>
+                                                    <td>{!! Form::text('type[]', '', ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::text('sequence[]', '', ['placeholder'=>'Order By', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>
                                                         <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
@@ -171,7 +174,8 @@
                                                 <th style="width: 9%;">Icon</th>
                                                 <th style="width: 15%;">Parent Menu</th>
                                                 <th style="width: 10%;">Status</th>
-                                                <th style="width: 25%;">Role</th>
+                                                <th style="width: 20%;">Role</th>
+                                                <th style="width: 5%;">Type</th>
                                                 <th style="width: 5%;">Order</th>
                                                 <th style="width: 5%;">actions</th>
                                             </tr>
