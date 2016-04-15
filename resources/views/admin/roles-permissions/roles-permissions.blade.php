@@ -4,6 +4,8 @@
     <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
 @endsection
 
+@section('title', 'Assign Permission')
+
 @section('breadcrumb')
     <li>
         <a href="{{ url('/') }}">Home</a>
@@ -208,7 +210,7 @@
     <script src="{{ asset('assets/custom/js/roles-permissions/permissions.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/permissions/roles-permissions"]');
+            setTabActive('[href="/permissions/roles-permissions/"]');
         });
     </script>
 @endsection

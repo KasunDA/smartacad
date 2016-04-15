@@ -102,24 +102,25 @@
                                     {!! Form::close() !!}
                                 </div>
                                 <div id="tab_2-2" class="tab-pane {{ (session('active') == 'avatar') ? 'active' : '' }}">
-                                    <form action="#" role="form">
+                                    <form action="/users/avatar" role="form" method="post" enctype="multipart/form-data">
+                                        {{ csrf_field() }}
+                                        {!! Form::hidden('user_id', $user->user_id) !!}
                                         <div class="form-group">
                                             <div class="fileinput fileinput-new" data-provides="fileinput">
                                                 <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
                                                     <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image" alt="" /> </div>
                                                 <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px;"> </div>
                                                 <div>
-                                                                    <span class="btn default btn-file">
-                                                                        <span class="fileinput-new"> Select image </span>
-                                                                        <span class="fileinput-exists"> Change </span>
-                                                                        <input type="file" name="..."> </span>
+                                                    <span class="btn default btn-file">
+                                                    <span class="fileinput-new"> Select image </span>
+                                                    <span class="fileinput-exists"> Change </span>
+                                                    <input type="file" name="avatar"></span>
                                                     <a href="javascript:;" class="btn default fileinput-exists" data-dismiss="fileinput"> Remove </a>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="margin-top-10">
-                                            <a href="javascript:;" class="btn green"> Submit </a>
-                                            <a href="javascript:;" class="btn default"> Cancel </a>
+                                            <button type="submit" class="btn green"> Submit </button>
                                         </div>
                                     </form>
                                 </div>

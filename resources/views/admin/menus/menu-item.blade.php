@@ -83,7 +83,7 @@
                                                 <th style="width: 15%;">Parent menu</th>
                                                 <th style="width: 10%;">Status</th>
                                                 <th style="width: 20%;">Role</th>
-                                                <th style="width: 6%;">Order</th>
+                                                <th style="width: 6%;">Type</th>
                                                 <th style="width: 6%;">Order</th>
                                                 <th style="width: 4%;">actions</th>
                                             </tr>
@@ -174,7 +174,7 @@
                                                 <th style="width: 15%;">Parent menu</th>
                                                 <th style="width: 10%;">Status</th>
                                                 <th style="width: 20%;">Role</th>
-                                                <th style="width: 6%;">Order</th>
+                                                <th style="width: 6%;">Type</th>
                                                 <th style="width: 6%;">Order</th>
                                                 <th style="width: 4%;">actions</th>
                                             </tr>

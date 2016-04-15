@@ -44,7 +44,11 @@
                         <div class="col-md-3">
                             <ul class="list-unstyled profile-nav">
                                 <li>
-                                    <img src="{{ asset('assets/pages/media/profile/people19.png') }}" class="img-responsive pic-bordered" alt="" />
+                                    @if(!$user->avatar)
+                                        <img src="{{ asset('/uploads/no-image.jpg') }}" class="img-responsive pic-bordered" alt="{{ $user->fullNames() }}"/>
+                                    @else
+                                        <img src="{{ $user->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $user->fullNames() }}"/>
+                                    @endif
                                     <a href="{{ url('/profiles/edit/') }}" class="profile-edit"> edit </a>
                                 </li>
                                 <li>

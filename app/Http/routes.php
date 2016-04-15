@@ -38,6 +38,8 @@ Route::group(['middleware' => ['web']], function () {
         'home' => 'Front\HomeController'
     ]);
 
+    Route::auth();
+
     Route::controllers([
         'auth' => 'Auth\AuthController',
         'dashboard' => 'Admin\DashboardController',
@@ -54,10 +56,6 @@ Route::group(['middleware' => ['web']], function () {
         'roles' => 'Admin\RolesAndPermission\RolesController',
         'permissions' => 'Admin\RolesAndPermission\PermissionsController',
         'profiles' => 'Admin\Users\ProfileController',
-
-        'baptisms' => 'Admin\Records\Sacraments\BaptismController',
-        'confirmations' => 'Admin\Records\Sacraments\ConfirmationController',
-        'parishes' => 'Admin\Parish\ParishController',
     ]);
 });
 

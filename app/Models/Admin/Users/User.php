@@ -29,6 +29,11 @@ class User extends Authenticatable
     protected $dates = ['dob'];
 
     /**
+     * Path to the files
+     */
+    public $avatar_path = 'uploads/users/';
+
+    /**
      * Format The Date of Birth Before Inserting
      * @param $date
      */
@@ -56,6 +61,13 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token', 'status', 'verified', 'verification_code',
     ];
+
+    /**
+     * User Avatar full avatar path
+     */
+    public function getAvatarPath(){
+        return ($this->avatar) ? DIRECTORY_SEPARATOR . $this->avatar_path . $this->avatar : false;
+    }
 
     /**
      * Concatenate the first, last and the other names to get full names

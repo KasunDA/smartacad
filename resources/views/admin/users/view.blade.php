@@ -44,8 +44,12 @@
                         <div class="col-md-3">
                             <ul class="list-unstyled profile-nav">
                                 <li>
-                                    <img src="{{ asset('assets/pages/media/profile/people19.png') }}" class="img-responsive pic-bordered" alt="" />
-                                    <a href="{{ url('/users/edit/'.$hashIds->encode($user->user_id)) }}" class="profile-edit"> edit </a>
+                                    @if(!$userView->avatar)
+                                        <img src="{{ asset('/uploads/no-image.jpg') }}" class="img-responsive pic-bordered" alt="{{ $userView->fullNames() }}"/>
+                                    @else
+                                        <img src="{{ $userView->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $userView->fullNames() }}"/>
+                                    @endif
+                                    <a href="{{ url('/users/edit/'.$hashIds->encode($userView->user_id)) }}" class="profile-edit"> edit </a>
                                 </li>
                                 <li>
                                     <a href="javascript:;"> Messages
@@ -57,9 +61,9 @@
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-8 profile-info">
-                                    <h1 class="font-green sbold uppercase">{{ $user->fullNames() }}</h1>
+                                    <h1 class="font-green sbold uppercase">{{ $userView->fullNames() }}</h1>
                                     <h4>
-                                        {{ $user->userType()->first()->user_type }}
+                                        {{ $userView->userType()->first()->user_type }}
                                     </h4>
                                     <ul class="list-inline">
                                         <li>
@@ -75,23 +79,23 @@
                                             <table class="table table-stripped table-bordered">
                                                 <tr>
                                                     <td>Email</td>
-                                                    <td>{{ $user->email }}</td>
+                                                    <td>{{ $userView->email }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Mobile</td>
-                                                    <td>{{ $user->phone_no }}</td>
+                                                    <td>{{ $userView->phone_no }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Sex</td>
-                                                    <td>{!! ($user->gender) ? $user->gender : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    <td>{!! ($userView->gender) ? $userView->gender : '<span class="label label-danger">nil</span>' !!}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Date Of Birth</td>
-                                                    <td>{!! ($user->dob) ? $user->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    <td>{!! ($userView->dob) ? $userView->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Age</td>
-                                                    <td>{!! ($user->dob) ? $user->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    <td>{!! ($userView->dob) ? $userView->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
                                                 </tr>
                                             </table>
                                         </div>

@@ -123,7 +123,6 @@
                                         </div>
                                         <div class="margin-top-10">
                                             <button type="submit" class="btn green"> Submit </button>
-                                            <a href="javascript:;" class="btn default"> Cancel </a>
                                         </div>
                                     </form>
                                 </div>

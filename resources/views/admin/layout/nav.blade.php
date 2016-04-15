@@ -4,7 +4,11 @@
         <!-- BEGIN NOTIFICATION DROPDOWN -->
         <li class="dropdown dropdown-user">
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                <img alt="" class="img-circle" src="{{ asset('../assets/layouts/layout/img/avatar3_small.jpg') }}" />
+                @if(Auth::user()->getAvatarPath())
+                    <img alt="" class="img-circle" src="{{ Auth::user()->getAvatarPath() }}" />
+                @else
+                    <img alt="" class="img-circle" src="{{ asset('/uploads/no-image.jpg') }}" />
+                @endif
                 <span class="username username-hide-on-mobile">
                     @if(Auth::check()) {{ Auth::user()->fullNames() }} @endif
                 </span>
@@ -22,7 +26,7 @@
                 </li>
                 <li>
                     <a href="{{ url('/auth/logout') }}">
-                        <i class="icon-key"></i> Log Out </a>
+                        <i class="fa fa-power-off"></i> Log Out </a>
                 </li>
             </ul>
         </li>

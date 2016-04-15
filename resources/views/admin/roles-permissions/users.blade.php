@@ -4,7 +4,7 @@
     <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
 @endsection
 
-@section('title', 'Manage Users Roles')
+@section('title', 'Assign Users Roles')
 
 @section('breadcrumb')
     <li>

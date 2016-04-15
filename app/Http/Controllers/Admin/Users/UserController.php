@@ -7,6 +7,7 @@ use App\Models\Admin\Users\User;
 use App\Models\Admin\Users\UserType;
 use Faker\Provider\Image;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Input;
@@ -135,7 +136,7 @@ class UserController extends Controller
      */
     public function getChange()
     {
-        return view('users.change-password');
+        return view('admin.users.change-password');
     }
 
     /**
@@ -146,20 +147,16 @@ class UserController extends Controller
     public function postChange(Request $request)
     {
         $inputs = $request->all();
-        $decodeId = $this->getHashIds()->decode($inputs['id']);
-        $user = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
-
-        //Keep track of selected tab
-        session()->put('active', 'password');
+        $user = Auth::user();
 
         //Validate if the password match the current password
         if (! Hash::check($inputs['password'], $user->password) ) {
-            return redirect('/users/edit/'.$this->getHashIds()->encode($user->user_id ))->withErrors([
+            return redirect('/users/change')->withErrors([
                 'password' => 'Warning!!! '.$user->first_name.', Your Old Password Credential did not match your current'
             ]);
         }
         if($request->password_confirmation !== $request->new_password){
-            return redirect('/users/edit/'.$this->getHashIds()->encode($user->user_id ))->withErrors([
+            return redirect('/users/change')->withErrors([
                 'password' => 'Warning!!! '.$user->first_name.', Your New and Confirm Password Credential did not match'
             ]);
         }
@@ -168,7 +165,7 @@ class UserController extends Controller
         // Set the flash message
         $this->setFlashMessage('Changed!!! '.$user->first_name.' Your password change was successful.', 1);
         // redirect to the create a new inmate page
-        return redirect('/users/edit/'.$this->getHashIds()->encode($inputs['user_id']));
+        return redirect('/users/change/');
     }
 
     /**
@@ -200,9 +197,8 @@ class UserController extends Controller
     public function getView($encodeId)
     {
         $decodeId = $this->getHashIds()->decode($encodeId);
-        $user = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
-        $type = 'User';
-        return view('admin.users.view', compact('user', 'type'));
+        $userView = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
+        return view('admin.users.view', compact('userView'));
     }
 
     /**
@@ -282,6 +278,29 @@ class UserController extends Controller
             'user_type_id' => $data['user_type_id'],
             'verification_code' => $data['verification_code']
         ]);
+    }
+
+    /**
+     * Profile Picture Upload
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postAvatar(Request $request)
+    {
+        $inputs = Input::all();
+        if ($request->file('avatar')) {
+            $file = $request->file('avatar');
+            $filename = $file->getClientOriginalName();
+            $img_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+            $user = (empty($inputs['user_id'])) ? abort(403) : User::findOrFail($inputs['user_id']);
+            $user->avatar = $user->user_id . '_avatar.' . $img_ext;
+            Input::file('avatar')->move($user->avatar_path, $user->user_id . '_avatar.' . $img_ext);
+
+            $user->save();
+            $this->setFlashMessage($user->fullNames() . '  profile picture has been successfully uploaded.', 1);
+            return redirect('/users/view/'.$this->getHashIds()->encode($inputs['user_id']));
+        }
     }
 
     /**

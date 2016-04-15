@@ -150,13 +150,25 @@ class ProfileController extends Controller
         return redirect('/profiles/');
     }
 
+    /**
+     * Profile Picture Upload
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+    */
     public function postAvatar(Request $request)
     {
         if ($request->file('avatar')) {
             $file = $request->file('avatar');
-            $name = $file->getClientOriginalName();
-            $key = 'avatar/' . $name;
-            Storage::put($key, file_get_contents($file));
+            $filename = $file->getClientOriginalName();
+            $img_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+            $user = Auth::user();
+            $user->avatar = $user->user_id . '_avatar.' . $img_ext;
+            Input::file('avatar')->move($user->avatar_path, $user->user_id . '_avatar.' . $img_ext);
+
+            $user->save();
+            $this->setFlashMessage(' Your profile picture has been successfully uploaded.', 1);
+            return redirect('/profiles');
         }
     }
 }
