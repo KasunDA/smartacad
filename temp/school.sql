@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 16, 2016 at 12:31 AM
+-- Generation Time: Apr 16, 2016 at 11:06 PM
 -- Server version: 5.6.26
 -- PHP Version: 5.6.12
 
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `menu_items` (
   `menu_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menu_items`
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `permissions` (
   `uri` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `permissions`
@@ -159,40 +159,51 @@ INSERT INTO `permissions` (`permission_id`, `name`, `display_name`, `description
 (1, 'AuthController@getLogin', 'User Login', '', 'auth/login/', '2016-03-30 10:28:56', '2016-03-30 10:28:56'),
 (2, 'AuthController@getLogout', 'User Logout', '', 'auth/logout/', '2016-03-30 10:28:56', '2016-03-30 10:28:56'),
 (3, 'AuthController@getRegister', 'Register a user', '', 'auth/register/', '2016-03-30 10:28:56', '2016-03-30 10:28:56'),
-(4, 'DashboardController@getIndex', 'View dashboard information', '', 'dashboard/index/', '2016-03-30 10:28:56', '2016-03-30 10:28:56'),
-(5, 'DashboardController@getIndexDashboard', 'View dashboard information', '', 'dashboard', '2016-03-30 10:28:56', '2016-03-30 10:28:56'),
-(6, 'MenuController@getDelete', 'Delete Menu', '', 'menus/delete/', '2016-03-30 10:28:56', '2016-03-30 10:28:56'),
-(7, 'MenuController@getIndex', 'Manage menu', '', 'menus/index/', '2016-03-30 10:28:56', '2016-03-30 10:28:56'),
-(8, 'MenuController@getIndexMenus', 'Manage Menu', '', 'menus', '2016-03-30 10:28:56', '2016-03-30 10:28:56'),
-(9, 'MenuHeaderController@getDelete', 'delete Menu header', '', 'menu-headers/delete/', '2016-03-30 10:28:56', '2016-03-30 10:28:56'),
-(10, 'MenuHeaderController@getIndex', 'Manage menu header', '', 'menu-headers/index/', '2016-03-30 10:28:57', '2016-03-30 10:28:57'),
-(11, 'MenuHeaderController@getIndexMenu-headers', 'Manage menu header', '', 'menu-headers', '2016-03-30 10:28:57', '2016-03-30 10:28:57'),
-(12, 'MenuItemController@getDelete', 'Delete Menu-items', '', 'menu-items/delete/', '2016-03-30 10:28:57', '2016-03-30 10:28:57'),
-(13, 'MenuItemController@getIndex', 'Manage menu items', '', 'menu-items/index/', '2016-03-30 10:28:57', '2016-03-30 10:28:57'),
-(14, 'MenuItemController@getIndexMenu-items', 'Manage menu items', '', 'menu-items', '2016-03-30 10:28:57', '2016-03-30 10:28:57'),
-(15, 'PermissionsController@getIndex', 'Manage Permissions', '', 'permissions/index/', '2016-03-30 10:28:57', '2016-03-30 10:28:57'),
-(16, 'PermissionsController@getIndexPermissions', 'Manage Permissions', '', 'permissions', '2016-03-30 10:28:57', '2016-03-30 10:28:57'),
-(17, 'PermissionsController@getRolesPermissions', 'assign Permissions', '', 'permissions/roles-permissions/', '2016-03-30 10:28:57', '2016-03-30 10:36:42'),
-(18, 'RolesController@getDelete', 'Delete roles', '', 'roles/delete/', '2016-03-30 10:28:57', '2016-03-30 10:36:42'),
-(19, 'RolesController@getIndex', 'Manage roles', '', 'roles/index/', '2016-03-30 10:28:57', '2016-03-30 10:36:42'),
-(20, 'RolesController@getIndexRoles', 'Manage roles', '', 'roles', '2016-03-30 10:28:57', '2016-03-30 10:36:42'),
-(21, 'RolesController@getUsersRoles', 'Manage users roles', '', 'roles/users-roles/', '2016-03-30 10:28:57', '2016-03-30 10:36:42'),
-(22, 'SubMenuItemController@getDelete', 'Delete sub menu items', '', 'sub-menu-items/delete/', '2016-03-30 10:28:57', '2016-03-30 10:36:42'),
-(23, 'SubMenuItemController@getIndex', 'Manage sub menu items', '', 'sub-menu-items/index/', '2016-03-30 10:28:57', '2016-03-30 10:36:42'),
-(24, 'SubMenuItemController@getIndexSub-menu-items', 'Manage sub menu items', '', 'sub-menu-items', '2016-03-30 10:28:57', '2016-03-30 10:36:42'),
-(25, 'SubMostMenuItemController@getDelete', 'Delete sub most menu items', '', 'sub-most-menu-items/delete/', '2016-03-30 10:28:57', '2016-03-30 10:36:43'),
-(26, 'SubMostMenuItemController@getIndex', 'Manage sub most menu items', '', 'sub-most-menu-items/index/', '2016-03-30 10:28:57', '2016-03-30 10:36:43'),
-(27, 'SubMostMenuItemController@getIndexSub-most-menu-items', 'Manage sub most menu items', '', 'sub-most-menu-items', '2016-03-30 10:28:57', '2016-03-30 10:36:43'),
-(28, 'UserController@getChange', 'Change user', '', 'users/change/', '2016-03-30 10:28:57', '2016-03-30 10:38:03'),
-(29, 'UserController@getCreate', 'Create a new user', '', 'users/create/', '2016-03-30 10:28:57', '2016-03-30 10:38:03'),
-(30, 'UserController@getEdit', 'Edit existing user', '', 'users/edit/', '2016-03-30 10:28:57', '2016-03-30 10:38:03'),
-(31, 'UserController@getIndex', 'Manage users', '', 'users/index/', '2016-03-30 10:28:58', '2016-03-30 10:38:03'),
-(32, 'UserController@getIndexUsers', 'Manage users', '', 'users', '2016-03-30 10:28:58', '2016-03-30 10:38:03'),
-(33, 'UserController@getShow', 'View user profile', '', 'users/show/', '2016-03-30 10:28:58', '2016-03-30 10:38:03'),
-(34, 'UserController@getStatus', 'View users status', '', 'users/status/', '2016-03-30 10:28:58', '2016-03-30 10:40:13'),
-(35, 'UserTypeController@getDelete', 'Delete user types', '', 'user-types/delete/', '2016-03-30 10:28:58', '2016-03-30 10:40:13'),
-(36, 'UserTypeController@getIndex', 'Manage User types', '', 'user-types/index/', '2016-03-30 10:28:58', '2016-03-30 10:40:13'),
-(37, 'UserTypeController@getIndexUser-types', 'Manage User types', '', 'user-types', '2016-03-30 10:28:58', '2016-03-30 10:40:13');
+(4, 'AuthController@logout', '', '', 'logout', '2016-03-30 10:28:56', '2016-04-16 18:12:07'),
+(5, 'AuthController@showLoginForm', '', '', 'login', '2016-03-30 10:28:56', '2016-04-16 18:12:07'),
+(6, 'AuthController@showRegistrationForm', '', '', 'register', '2016-03-30 10:28:56', '2016-04-16 18:12:07'),
+(7, 'DashboardController@getIndex', '', '', 'dashboard/index/', '2016-03-30 10:28:56', '2016-04-16 18:12:07'),
+(8, 'DashboardController@getIndexDashboard', '', '', 'dashboard', '2016-03-30 10:28:56', '2016-04-16 18:12:07'),
+(9, 'HomeController@getIndex', '', '', 'home', '2016-03-30 10:28:56', '2016-04-16 18:12:07'),
+(10, 'HomeController@getIndexHome/index/', '', '', 'home/index/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(11, 'MenuController@getDelete', '', '', 'menus/delete/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(12, 'MenuController@getIndex', '', '', 'menus/index/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(13, 'MenuController@getIndexMenus', '', '', 'menus', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(14, 'MenuHeaderController@getDelete', '', '', 'menu-headers/delete/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(15, 'MenuHeaderController@getIndex', '', '', 'menu-headers/index/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(16, 'MenuHeaderController@getIndexMenu-headers', '', '', 'menu-headers', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(17, 'MenuItemController@getDelete', '', '', 'menu-items/delete/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(18, 'MenuItemController@getIndex', '', '', 'menu-items/index/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(19, 'MenuItemController@getIndexMenu-items', '', '', 'menu-items', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(20, 'PasswordController@reset', '', '', 'password/reset', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(21, 'PasswordController@sendResetLinkEmail', '', '', 'password/email', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(22, 'PasswordController@showResetForm', '', '', 'password/reset/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(23, 'PermissionsController@getIndex', '', '', 'permissions/index/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(24, 'PermissionsController@getIndexPermissions', '', '', 'permissions', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(25, 'PermissionsController@getRolesPermissions', '', '', 'permissions/roles-permissions/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(26, 'ProfileController@getEdit', '', '', 'profiles/edit/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(27, 'ProfileController@getIndex', '', '', 'profiles/index/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(28, 'ProfileController@getIndexProfiles', '', '', 'profiles', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(29, 'RolesController@getDelete', '', '', 'roles/delete/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(30, 'RolesController@getIndex', '', '', 'roles/index/', '2016-03-30 10:28:57', '2016-04-16 18:12:07'),
+(31, 'RolesController@getIndexRoles', '', '', 'roles', '2016-03-30 10:28:58', '2016-04-16 18:12:07'),
+(32, 'RolesController@getUsersRoles', '', '', 'roles/users-roles/', '2016-03-30 10:28:58', '2016-04-16 18:12:07'),
+(33, 'SubMenuItemController@getDelete', '', '', 'sub-menu-items/delete/', '2016-03-30 10:28:58', '2016-04-16 18:12:07'),
+(34, 'SubMenuItemController@getIndex', '', '', 'sub-menu-items/index/', '2016-03-30 10:28:58', '2016-04-16 18:12:07'),
+(35, 'SubMenuItemController@getIndexSub-menu-items', '', '', 'sub-menu-items', '2016-03-30 10:28:58', '2016-04-16 18:12:07'),
+(36, 'SubMostMenuItemController@getDelete', '', '', 'sub-most-menu-items/delete/', '2016-03-30 10:28:58', '2016-04-16 18:12:07'),
+(37, 'SubMostMenuItemController@getIndex', '', '', 'sub-most-menu-items/index/', '2016-03-30 10:28:58', '2016-04-16 18:12:07'),
+(38, 'SubMostMenuItemController@getIndexSub-most-menu-items', '', '', 'sub-most-menu-items', '2016-04-16 18:12:07', '2016-04-16 18:12:07'),
+(39, 'UserController@getChange', '', '', 'users/change/', '2016-04-16 18:12:07', '2016-04-16 18:12:07'),
+(40, 'UserController@getCreate', '', '', 'users/create/', '2016-04-16 18:12:07', '2016-04-16 18:12:07'),
+(41, 'UserController@getEdit', '', '', 'users/edit/', '2016-04-16 18:12:07', '2016-04-16 18:12:07'),
+(42, 'UserController@getIndex', '', '', 'users/index/', '2016-04-16 18:12:07', '2016-04-16 18:12:07'),
+(43, 'UserController@getIndexUsers', '', '', 'users', '2016-04-16 18:12:07', '2016-04-16 18:12:07'),
+(44, 'UserController@getStatus', '', '', 'users/status/', '2016-04-16 18:12:07', '2016-04-16 18:12:07'),
+(45, 'UserController@getView', '', '', 'users/view/', '2016-04-16 18:12:07', '2016-04-16 18:12:07'),
+(46, 'UserTypeController@getDelete', '', '', 'user-types/delete/', '2016-04-16 18:12:07', '2016-04-16 18:12:07'),
+(47, 'UserTypeController@getIndex', '', '', 'user-types/index/', '2016-04-16 18:12:07', '2016-04-16 18:12:07'),
+(48, 'UserTypeController@getIndexUser-types', '', '', 'user-types', '2016-04-16 18:12:07', '2016-04-16 18:12:07');
 
 -- --------------------------------------------------------
 
@@ -246,7 +257,11 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 (34, 1),
 (35, 1),
 (36, 1),
-(37, 1);
+(37, 1),
+(1, 3),
+(4, 3),
+(9, 3),
+(10, 3);
 
 -- --------------------------------------------------------
 
@@ -262,7 +277,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
   `user_type_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `roles`
@@ -270,7 +285,8 @@ CREATE TABLE IF NOT EXISTS `roles` (
 
 INSERT INTO `roles` (`role_id`, `name`, `display_name`, `description`, `user_type_id`, `created_at`, `updated_at`) VALUES
 (1, 'developer', 'Developer', 'The software developer', 2, '2016-03-29 23:30:11', '2016-03-31 13:09:43'),
-(2, 'super_admin', 'Super Admin', 'System Administrator', 1, '2016-03-30 10:51:57', '2016-03-31 13:08:59');
+(2, 'super_admin', 'Super Admin', 'System Administrator', 1, '2016-03-30 10:51:57', '2016-03-31 13:08:59'),
+(3, 'parent', 'Parent', 'Parent', 3, '2016-04-16 18:25:54', '2016-04-16 18:25:54');
 
 -- --------------------------------------------------------
 
@@ -400,7 +416,8 @@ CREATE TABLE IF NOT EXISTS `role_user` (
 --
 
 INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
-(1, 1);
+(1, 1),
+(2, 3);
 
 -- --------------------------------------------------------
 
@@ -419,7 +436,7 @@ CREATE TABLE IF NOT EXISTS `sub_menu_items` (
   `menu_item_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `sub_menu_items`
@@ -489,15 +506,15 @@ CREATE TABLE IF NOT EXISTS `users` (
   `remember_token` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`user_id`, `password`, `email`, `first_name`, `last_name`, `user_type_id`, `verified`, `status`, `gender`, `phone_no`, `dob`, `avatar`, `verification_code`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, '$2y$10$J6VM0.ySq0icTRaDtXjjI.i7MWJy6UUlPDgmJ3ygFUxDxJ/MeAk5G', 'admin@gmail.com', 'Emmanuel', 'Okafor', 1, 1, 1, 'Male', '08061539278', '2016-04-14', '1_avatar.jpg', NULL, 'XF0NdSWAQvLH5ngMdPSHD3AwcvwGqqwmas3yO8r1eKx4DqiDfs5BHJwfbVw7', NULL, '2016-04-15 20:49:39'),
-(2, '$2y$10$J6VM0.ySq0icTRaDtXjjI.i7MWJy6UUlPDgmJ3ygFUxDxJ/MeAk5G', 'user@gmail.com', 'John', 'Mario', 2, 1, 1, 'Male', '08022443355', '2010-12-10', '2_avatar.jpg', NULL, 'XF0NdSWAQvLH5ngMdPSHD3AwcvwGqqwmas3yO8r1eKx4DqiDfs5BHJwfbVw7', NULL, '2016-04-15 21:19:56');
+(1, '$2y$10$J6VM0.ySq0icTRaDtXjjI.i7MWJy6UUlPDgmJ3ygFUxDxJ/MeAk5G', 'admin@gmail.com', 'Emmanuel', 'Okafor', 1, 1, 1, 'Male', '08061539278', '2016-04-14', '1_avatar.jpg', NULL, 'ot3NzxCn3YItlV19d30SA4bWS93IFKMC3Hu7pS5KQzM1cBE51yPR8mFlDcYn', NULL, '2016-04-16 19:53:50'),
+(2, '$2y$10$J6VM0.ySq0icTRaDtXjjI.i7MWJy6UUlPDgmJ3ygFUxDxJ/MeAk5G', 'parent@gmail.com', 'John', 'Mario', 3, 1, 1, 'Male', '08022443355', '2010-12-10', '2_avatar.jpg', NULL, 'K6UqxlqmItGWW7AjT8oQy5ioRwxhiHiGuR336AA8I8Zeo5zAIF13qdTmqYDI', NULL, '2016-04-16 19:53:31');
 
 -- --------------------------------------------------------
 
@@ -510,15 +527,16 @@ CREATE TABLE IF NOT EXISTS `user_types` (
   `user_type` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `user_types`
 --
 
 INSERT INTO `user_types` (`user_type_id`, `user_type`, `created_at`, `updated_at`) VALUES
-(1, 'Super Admin', NULL, NULL),
-(2, 'Admin', NULL, NULL);
+(1, 'Super Admin', '2016-04-06 23:00:00', NULL),
+(2, 'Admin', '2016-04-20 23:00:00', NULL),
+(3, 'Parent', '2016-04-28 08:29:31', NULL);
 
 --
 -- Indexes for dumped tables
@@ -654,22 +672,22 @@ ALTER TABLE `menu_headers`
 -- AUTO_INCREMENT for table `menu_items`
 --
 ALTER TABLE `menu_items`
-  MODIFY `menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=7;
+  MODIFY `menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `permission_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=38;
+  MODIFY `permission_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=49;
 --
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `role_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+  MODIFY `role_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT for table `sub_menu_items`
 --
 ALTER TABLE `sub_menu_items`
-  MODIFY `sub_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=12;
+  MODIFY `sub_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `sub_most_menu_items`
 --
@@ -679,12 +697,12 @@ ALTER TABLE `sub_most_menu_items`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
+  MODIFY `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `user_types`
 --
 ALTER TABLE `user_types`
-  MODIFY `user_type_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+  MODIFY `user_type_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 --
 -- Constraints for dumped tables
 --

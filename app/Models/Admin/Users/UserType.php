@@ -26,6 +26,10 @@ class UserType extends Model
         'user_type'
     ];
 
+    /**
+     * Parent User Type ID
+    */
+    const PARENT = 3;
 
     /**
      * A User Type has many Users

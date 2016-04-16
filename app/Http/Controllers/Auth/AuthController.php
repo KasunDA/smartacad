@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\Admin\RolesAndPermissions\Role;
+use App\Models\Admin\Users\UserType;
 use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
@@ -111,6 +112,9 @@ class AuthController extends Controller
 
         if (Auth::guard($this->getGuard())->attempt($credentials, $request->has('remember'))) {
 //            dd(Auth::user());
+            if(Auth::user()->user_type_id === UserType::PARENT)
+                // redirect to the PARENT / STUDENT page
+                return redirect('/home');
             return $this->handleUserWasAuthenticated($request, $throttles);
         }
 

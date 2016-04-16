@@ -13,15 +13,6 @@ use App\Http\Controllers\Controller;
 class SubMostMenuItemController extends Controller
 {
     /**
-     *
-     * Make sure the user is logged in
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
-    /**
      * Display a listing of the Menu Items for Master Records.
      * @param String $encodeId
      * @return Response

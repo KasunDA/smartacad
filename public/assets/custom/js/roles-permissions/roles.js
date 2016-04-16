@@ -6,14 +6,17 @@ $(function () {
     $('.add_role').click(function (e) {
         e.preventDefault();
         var clone_row = $('#role_table tbody tr:last-child').clone();
+        var new_user_types = $('#new_user_types').clone();
 
         $('#role_table tbody').append(clone_row);
+
 
         clone_row.children(':nth-child(1)').html(parseInt(clone_row.children(':nth-child(1)').html()) + 1);
         clone_row.children(':nth-child(2)').children('input').val('');
         clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
         clone_row.children(':nth-child(3)').children('input').val('');
         clone_row.children(':nth-child(4)').children('input').val('');
+        clone_row.children(':nth-child(5)').html(new_user_types.html());
         clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-sm remove_role"><span class="fa fa-times"></span> Remove</button>');
     });
 

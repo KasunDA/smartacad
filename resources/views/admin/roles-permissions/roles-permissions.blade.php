@@ -64,9 +64,8 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <i class="icon-list font-green"></i>
-                            <label style="font-size: small" class="pull-left"><input type="checkbox"
-                                                                                     class="permissions_all" value="0"
-                                                                                     name=""/>
+                            <label style="font-size: small" class="pull-left">
+                                <input type="checkbox" id="checkAll"/>
                                 <span>SELECT ALL PERMISSIONS</span>
                             </label>
                         </div>
@@ -90,19 +89,17 @@
                                                                 <input checked type="checkbox" name="permission_id[]"
                                                                        value="{{ $permissions[$i]->permission_id }}"
                                                                        class="permissions_check_box color_border"/>
-                                                                <span class="label label-danger">Remove</span>
+                                                                <span class="badge badge-danger">Remove</span>
                                                             @else
                                                                 <input type="checkbox" name="permission_id[]"
                                                                        value="{{ $permissions[$i]->permission_id }}"
                                                                        class="permissions_check_box"/>
-                                                                <span class="label label-success">Add</span>
+                                                                <span class="badge badge-success">Add</span>
                                                             @endif
                                                         </label>
                                                     </div>
                                                     <div class="list-item-content">
-                                                        <h3 class="uppercase">
-                                                            <a href="javascript:;">{{$permissions[$i]->display_name}}</a>
-                                                        </h3>
+                                                        <span class="small"> {{$permissions[$i]->name}} </span>
                                                     </div>
                                                 </li>
                                             @endfor
@@ -125,19 +122,17 @@
                                                                 <input checked type="checkbox" name="permission_id[]"
                                                                        value="{{ $permissions[$j]->permission_id }}"
                                                                        class="permissions_check_box color_border"/>
-                                                                <span class="label label-danger">Remove</span>
+                                                                <span class="badge badge-danger">Remove</span>
                                                             @else
                                                                 <input type="checkbox" name="permission_id[]"
                                                                        value="{{ $permissions[$j]->permission_id }}"
                                                                        class="permissions_check_box"/>
-                                                                <span class="label label-success">Add</span>
+                                                                <span class="badge badge-success">Add</span>
                                                             @endif
                                                         </label>
                                                     </div>
                                                     <div class="list-item-content">
-                                                        <h3 class="uppercase">
-                                                            <a href="javascript:;">{{$permissions[$j]->display_name}}</a>
-                                                        </h3>
+                                                        <span class="small"> {{$permissions[$j]->name}} </span>
                                                     </div>
                                                 </li>
                                             @endfor
@@ -160,19 +155,17 @@
                                                                 <input checked type="checkbox" name="permission_id[]"
                                                                        value="{{ $permissions[$k]->permission_id }}"
                                                                        class="permissions_check_box color_border"/>
-                                                                <span class="label label-danger">Remove</span>
+                                                                <span class="badge badge-danger">Remove</span>
                                                             @else
                                                                 <input type="checkbox" name="permission_id[]"
                                                                        value="{{ $permissions[$k]->permission_id }}"
                                                                        class="permissions_check_box"/>
-                                                                <span class="label label-success">Add</span>
+                                                                <span class="badge badge-success">Add</span>
                                                             @endif
                                                         </label>
                                                     </div>
                                                     <div class="list-item-content">
-                                                        <h3 class="uppercase">
-                                                            <a href="javascript:;">{{$permissions[$k]->display_name}}</a>
-                                                        </h3>
+                                                        <span class="small"> {{$permissions[$k]->name}} </span>
                                                     </div>
                                                 </li>
                                             @endfor
@@ -183,9 +176,7 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-primary pull-right" type="submit"><i class="fa fa-save"></i> Save
-                    record
-                </button>
+                <button class="btn btn-primary pull-right" type="submit"><i class="fa fa-save"></i> Save Record </button>
             </form>
         </div>
     </div>

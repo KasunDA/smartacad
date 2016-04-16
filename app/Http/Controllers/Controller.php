@@ -8,10 +8,23 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+
+    /**
+     *
+     * Make sure the user is logged in and Has Permission
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+        //Check if the user has permission to perform such action
+        $this->checkPermission();
+    }
 
     /**
      * Set The HashIds Secret Key, Length and Possible Characters Combinations
@@ -48,5 +61,21 @@ class Controller extends BaseController
                         <i class="'.$class2.'"></i> <strong>' . $msg . '</strong>'.
             '</div>';
         \Session::flash('flash_message', $output);
+    }
+
+    /**
+     * Check if the user has permission to perform such action
+     * @return Response
+     */
+    protected function checkPermission(){
+        if(Auth::check()) {
+            $action = Route::currentRouteAction();
+            $permission = substr($action, strripos($action, '\\') + 1);
+            $method = explode('@', $permission)[1];
+            if (substr($method, 0, 4) !== 'post' && !Auth::user()->can($permission)) {
+                //        dd(Auth::user()->can($permission));
+                abort(403);
+            }
+        }
     }
 }

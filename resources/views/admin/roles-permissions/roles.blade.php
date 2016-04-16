@@ -92,6 +92,7 @@
                                         </td>
                                         <td>{!! Form::text('display_name[]', ''  , ['placeholder'=>'Role Display name', 'class'=>'form-control','required'=>'required']) !!} </td>
                                         <td>{!! Form::text('description[]', ''  , ['placeholder'=>'Role Description', 'class'=>'form-control']) !!} </td>
+                                        <td>{!! Form::select('user_type_id[]', $user_types, '', ['class'=>'form-control selectpicker']) !!} </td>
                                         <td>
                                             <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
                                                 <span class="fa fa-times"></span> Remove
@@ -109,6 +110,14 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="hide" id="new_user_types">
+        <select class="form-control" name="user_type_id[]">
+            <option value="">Select User Type</option>
+            @foreach($user_types as $key => $value)
+                <option value="{{ $key }}">{{ $value }}</option>
+            @endforeach
+        </select>
     </div>
     <!-- END CONTENT BODY -->
     @endsection

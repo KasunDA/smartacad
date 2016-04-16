@@ -13,14 +13,6 @@ use Illuminate\Support\Str;
 
 class SubMenuItemController extends Controller
 {
-    /**
-     *
-     * Make sure the user is logged in
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     /**
      * Display a listing of the Menu Items for Master Records.

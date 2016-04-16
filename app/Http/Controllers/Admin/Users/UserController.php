@@ -27,15 +27,6 @@ class UserController extends Controller
     protected $redirectTo = '/users';
 
     /**
-     *
-     * Make sure the user is logged in
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
-    /**
      * Get a validator for an incoming registration request.
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator

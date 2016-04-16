@@ -17,15 +17,6 @@ use Validator;
 class ProfileController extends Controller
 {
     /**
-     *
-     * Make sure the user is logged in
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
-    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array $data
