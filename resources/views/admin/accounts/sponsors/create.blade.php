@@ -32,7 +32,7 @@
                 </div>
                 <div class="portlet-body form">
                     @include('errors.errors')
-                    <form method="POST" action="{{ url('/guardians/create') }}" accept-charset="UTF-8" class="form-horizontal" role="form">
+                    <form method="POST" action="{{ url('/sponsors/create') }}" accept-charset="UTF-8" class="form-horizontal" role="form">
                         {!! csrf_field() !!}
                         <div class="form-body">
                             <div class="form-group">
@@ -95,7 +95,7 @@
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/guardians/create"]');
+            setTabActive('[href="/sponsors/create"]');
         });
     </script>
 @endsection

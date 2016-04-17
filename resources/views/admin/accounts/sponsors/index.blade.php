@@ -7,7 +7,7 @@
 <!-- END PAGE LEVEL STYLES -->
 @endsection
 
-@section('title', 'Manage User')
+@section('title', 'Manage Sponsors')
 
 @section('breadcrumb')
     <li>

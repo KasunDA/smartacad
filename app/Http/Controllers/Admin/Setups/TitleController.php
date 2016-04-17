@@ -34,6 +34,7 @@ class TitleController extends Controller
         for($i = 0; $i < count($inputs['title_id']); $i++){
             $titles = ($inputs['title_id'][$i] > 0) ? Title::find($inputs['title_id'][$i]) : new Title();
             $titles->title = $inputs['title'][$i];
+            $titles->title_abbr = $inputs['title_abbr'][$i];
             $count = ($titles->save()) ? $count+1 : '';
         }
         // Set the flash message

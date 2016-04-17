@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Title extends Model
 {
+    protected $connection = 'admin_mysql';
+
     /**
      * The database table used by the model.
      *
@@ -17,13 +19,21 @@ class Title extends Model
      * @var int
      */
     protected $primaryKey = 'title_id';
+
+    /**
+     * disable the time stamps
+     * @var bool
+     */
+    public $timestamps = false;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'title'
+        'title',
+        'title_abbr'
     ];
 
     /**

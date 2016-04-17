@@ -6,10 +6,12 @@ $(function () {
 
     $(document.body).on('change', '#checkAll', function () {
         var check_boxes = $('.permissions_check_box');
+        //console.log(check_boxes);
         if($(this).is(':checked')){
             $(this).parent().parent().next().html('UN-CHECK ALL');
             $(this).parent().parent().next().prop('class', 'label label-danger');
 
+            check_boxes.prop('checked', true);
             check_boxes.parent('span').prop('class', 'checked');
             check_boxes.parent().parent().next().html('Remove');
             check_boxes.parent().parent().next().prop('class', 'badge badge-danger');
@@ -18,6 +20,7 @@ $(function () {
             $(this).parent().parent().next().html('CHECK ALL');
             $(this).parent().parent().next().prop('class', 'label label-success');
 
+            check_boxes.prop('checked', false);
             check_boxes.parent('span').removeProp('class');
             check_boxes.parent().parent().next().html('Add');
             check_boxes.parent().parent().next().prop('class', 'badge badge-success');

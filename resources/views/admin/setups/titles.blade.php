@@ -3,7 +3,7 @@
 @section('layout-style')
 @endsection
 
-@section('title', 'User Type')
+@section('title', 'Title')
 
 @section('breadcrumb')
     <li>
@@ -11,7 +11,7 @@
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
     <li>
-        <a href="{{ url('/user-types') }}">Titles</a>
+        <a href="{{ url('/titles') }}">Titles</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
@@ -42,8 +42,7 @@
                             {!! Form::open([
                                 'method'=>'POST',
                                 'class'=>'form',
-                                'role'=>'form',
-                                'id'=>'menu_form'
+                                'role'=>'form'
                             ])
                         !!}
                             <div class="table-responsive">
@@ -51,8 +50,9 @@
                                     <thead>
                                     <tr>
                                         <th style="width: 5%;">s/no</th>
-                                        <th style="width: 55%;">User Type</th>
-                                        <th style="width: 40%;">Actions</th>
+                                        <th style="width: 50%;">Title</th>
+                                        <th style="width: 25%;">Title Abbr.</th>
+                                        <th style="width: 20%;">Actions</th>
                                     </tr>
                                     </thead>
                                     @if(count($titles) > 0)
@@ -64,6 +64,9 @@
                                                 <td>
                                                     {!! Form::text('title[]', $title->title, ['placeholder'=>'Title', 'class'=>'form-control', 'required'=>'required']) !!}
                                                     {!! Form::hidden('title_id[]', $title->title_id, ['class'=>'form-control']) !!}
+                                                </td>
+                                                <td>
+                                                    {!! Form::text('title_abbr[]', $title->title_abbr, ['placeholder'=>'Title Abbr.', 'class'=>'form-control', 'required'=>'required']) !!}
                                                 </td>
                                                 <td>
                                                     <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_title">
@@ -81,6 +84,9 @@
                                                 {!! Form::hidden('title_id[]', '-1', ['class'=>'form-control']) !!}
                                             </td>
                                             <td>
+                                                {!! Form::text('title_abbr[]', '', ['placeholder'=>'Title Abbr.', 'class'=>'form-control', 'required'=>'required']) !!}
+                                            </td>
+                                            <td>
                                                 <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
                                                     <span class="fa fa-times"></span> Remove
                                                 </button>
@@ -90,8 +96,9 @@
                                     <tfoot>
                                     <tr>
                                         <th style="width: 5%;">s/no</th>
-                                        <th style="width: 55%;">User Type</th>
-                                        <th style="width: 40%;">Actions</th>
+                                        <th style="width: 50%;">Title</th>
+                                        <th style="width: 25%;">Title Abbr.</th>
+                                        <th style="width: 20%;">Actions</th>
                                     </tr>
                                     </tfoot>
                                 </table>

@@ -7,7 +7,7 @@
 <!-- END PAGE LEVEL STYLES -->
 @endsection
 
-@section('title', 'Manage User')
+@section('title', 'Manage Schools')
 
 @section('breadcrumb')
     <li>
@@ -15,12 +15,12 @@
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
     <li>
-        <span>Manage Sponsors</span>
+        <span>Manage Schools</span>
     </li>
 @stop
 
 @section('content')
-    <h3 class="page-title"> Manage Sponsors</h3>
+    <h3 class="page-title"> Manage Schools</h3>
 
     <div class="row">
         <div class="col-md-12">
@@ -28,36 +28,68 @@
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="icon-list font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">Registered Sponsored</span>
+                        <span class="caption-subject font-green bold uppercase">Registered Schools</span>
                     </div>
                     <div class="tools">
                     </div>
                 </div>
                 <div class="portlet-body">
                     <div class="row">
-                        <table class="table table-striped table-bordered table-hover">
+                        <table class="table table-striped table-bordered table-hover" id="schools_datatable">
                             <thead>
                             <tr>
                                 <th style="width: 1%;">#</th>
-                                <th style="width: 10%;">First Name</th>
-                                <th style="width: 10%;">Last Name</th>
-                                <th style="width: 19%;">Email</th>
-                                <th style="width: 10%;">Mobile</th>
+                                <th style="width: 39%;">School Name</th>
+                                <th style="width: 10%;">Mobile No.</th>
+                                <th style="width: 15%;">Email</th>
+                                <th style="width: 15%;">Website</th>
                                 <th style="width: 10%;">Status</th>
                                 <th style="width: 5%;">View</th>
                                 <th style="width: 5%;">Edit</th>
                             </tr>
                             </thead>
                             <tbody>
-
+                            @if(count($schools) > 0)
+                                <?php $i = 1; ?>
+                                @foreach($schools as $school)
+                                    <tr class="odd gradeX">
+                                        <td class="center">{{$i++}}</td>
+                                        <td>{{ $school->full_name }}</td>
+                                        <td>{{ $school->phone_no }}</td>
+                                        <td>{!! ($school->email) ? $school->email : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>{!! ($school->website) ? $school->website : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>
+                                            @if($school->status_id === 1)
+                                                <button value="{{ $school->schools_id }}" rel="2" class="btn btn-success btn-rounded btn-condensed btn-xs school_status">
+                                                    Deactivate
+                                                </button>
+                                            @else
+                                                <button value="{{ $school->schools_id }}" rel="1" class="btn btn-danger btn-rounded btn-condensed btn-xs school_status">
+                                                    Activate
+                                                </button>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a target="_blank" href="{{ url('/schools/view/'.$hashIds->encode($school->schools_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                                                <span class="fa fa-eye-slash"></span>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url('/schools/edit/'.$hashIds->encode($school->schools_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                                                <span class="fa fa-edit"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
                             </tbody>
                             <tfoot>
                             <tr>
                                 <th style="width: 1%;">#</th>
-                                <th style="width: 10%;">First Name</th>
-                                <th style="width: 10%;">Last Name</th>
-                                <th style="width: 19%;">Email</th>
-                                <th style="width: 10%;">Mobile</th>
+                                <th style="width: 39%;">School Name</th>
+                                <th style="width: 10%;">Mobile No.</th>
+                                <th style="width: 15%;">Email</th>
+                                <th style="width: 15%;">Website</th>
                                 <th style="width: 10%;">Status</th>
                                 <th style="width: 5%;">View</th>
                                 <th style="width: 5%;">Edit</th>
@@ -73,8 +105,10 @@
 
     @endsection
     @section('page-level-js')
-            <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
     <script type="text/javascript" src="{{ asset('assets/global/plugins/select2/js/select2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/global/plugins/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js') }}"></script>
     <!-- END PAGE LEVEL PLUGINS -->
 @endsection
 
@@ -85,10 +119,11 @@
 
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/accounts/sponsors.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/schools/school.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/sponsors"]');
+            setTabActive('[href="/schools"]');
+            TableManaged.init();
         });
     </script>
 @endsection

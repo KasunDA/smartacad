@@ -22,7 +22,7 @@ class RedirectIfAuthenticated
             if(Auth::user()->user_type_id === UserType::PARENT)
                 // redirect to the PARENT / STUDENT page
                 return redirect('/home');
-            return redirect('/dashboard');
+            return redirect()->intended('/dashboard');
         }
 
         return $next($request);

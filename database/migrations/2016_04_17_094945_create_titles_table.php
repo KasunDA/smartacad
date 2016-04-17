@@ -12,10 +12,10 @@ class CreateTitlesTable extends Migration
      */
     public function up()
     {
-        Schema::create('titles', function (Blueprint $table) {
+        Schema::connection('admin_mysql')->create('titles', function (Blueprint $table) {
             $table->increments('title_id');
             $table->string('title', 150);
-            $table->timestamps();
+            $table->string('title_abbr', 15);
         });
     }
 
@@ -26,6 +26,6 @@ class CreateTitlesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('titles');
+        Schema::connection('admin_mysql')->drop('titles');
     }
 }
