@@ -70,7 +70,6 @@
             <div class="page-bar">
                 <ul class="page-breadcrumb">
                     @yield('breadcrumb')
-
                     <li><i class="fa fa-calendar"></i> <?php echo '  ' . date("D, jS M, Y");  ?></li>
                     <li><i class="glyphicon glyphicon-time"></i> <span id="timer"></span></li>
                 </ul>

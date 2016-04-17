@@ -7,8 +7,8 @@
 
 @section('breadcrumb')
     <li>
-        <a href="{{ url('/dashboard') }}">Dashboard</a>
         <i class="fa fa-dashboard"></i>
+        <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
     <li>
         <a href="{{ url('/user-types') }}">Titles</a>
@@ -124,7 +124,7 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/setups/titles.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/setups/title.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/titles"]');

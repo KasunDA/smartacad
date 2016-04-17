@@ -61,7 +61,7 @@ Route::group(['middleware' => ['web']], function () {
         'titles' => 'Admin\Setups\TitleController',
 
 
-        'guardians' => 'Admin\Accounts\GuardianController',
+        'sponsors' => 'Admin\Accounts\SponsorController',
     ]);
 });
 

@@ -23,7 +23,7 @@ class Controller extends BaseController
     {
         $this->middleware('auth');
         //Check if the user has permission to perform such action
-        $this->checkPermission();
+//        $this->checkPermission();
     }
 
     /**

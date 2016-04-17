@@ -18,7 +18,7 @@ class TitleController extends Controller
     public function getIndex()
     {
         $titles = Title::all();
-        return view('admin.setups.title', compact('titles'));
+        return view('admin.setups.titles', compact('titles'));
     }
 
     /**
@@ -40,7 +40,7 @@ class TitleController extends Controller
         if($count > 0)
             $this->setFlashMessage($count . ' User Type has been successfully updated.', 1);
         // redirect to the create a new inmate page
-        return redirect('/user-types');
+        return redirect('/titles');
     }
 
     /**
@@ -55,7 +55,7 @@ class TitleController extends Controller
 
         if($delete){
             //Delete its Equivalent Users Record
-            $this->setFlashMessage('  Deleted!!! '.$titles->title.' User Type have been deleted.', 1);
+            $this->setFlashMessage('  Deleted!!! '.$titles->title.' Title have been deleted.', 1);
         }else{
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
