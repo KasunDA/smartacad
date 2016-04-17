@@ -32,6 +32,6 @@ class CreateSchoolsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('schools');
+        Schema::connection('admin_mysql')->drop('schools');
     }
 }

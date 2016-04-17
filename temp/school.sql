@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 17, 2016 at 01:15 PM
+-- Generation Time: Apr 17, 2016 at 03:17 PM
 -- Server version: 5.6.17
 -- PHP Version: 5.5.12
 
@@ -49,7 +49,6 @@ CREATE TABLE IF NOT EXISTS `menus` (
 INSERT INTO `menus` (`menu_id`, `menu`, `menu_url`, `active`, `sequence`, `type`, `icon`, `menu_header_id`, `created_at`, `updated_at`) VALUES
 (1, 'SYSTEM', '#', 1, 1, 1, 'fa fa-television', 1, '2016-03-29 23:33:49', '2016-03-29 23:33:49'),
 (2, 'PROFILE', '#', 1, 3, 1, 'fa fa-book', 2, '2016-03-30 20:33:36', '2016-04-17 08:01:21'),
-(3, 'HOME', '/home', 1, 1, 2, 'fa fa-home', 4, '2016-04-15 11:02:49', '2016-04-15 11:02:49'),
 (4, 'SPONSORS', '#', 1, 1, 1, 'fa fa-users', 2, '2016-04-17 08:01:21', '2016-04-17 09:57:51');
 
 -- --------------------------------------------------------
@@ -100,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `menu_items` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`menu_item_id`),
   KEY `menu_items_menu_id_index` (`menu_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=8 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=9 ;
 
 --
 -- Dumping data for table `menu_items`
@@ -109,11 +108,12 @@ CREATE TABLE IF NOT EXISTS `menu_items` (
 INSERT INTO `menu_items` (`menu_item_id`, `menu_item`, `menu_item_url`, `menu_item_icon`, `active`, `sequence`, `type`, `menu_id`, `created_at`, `updated_at`) VALUES
 (1, 'SETTINGS', '#', 'fa fa-cogs', 1, '1', 1, 1, '2016-03-30 10:04:10', '2016-03-30 10:04:10'),
 (2, 'USERS', '#', 'fa fa-users', 1, '2', 1, 1, '2016-03-30 10:47:28', '2016-03-30 10:47:28'),
-(3, 'VIEW ', '/profiles', 'fa fa-user', 1, '1', 1, 2, '2016-03-30 20:35:07', '2016-03-31 12:24:54'),
-(4, 'EDIT', '/profiles/edit', 'fa fa-edit', 1, '2', 1, 2, '2016-03-30 20:35:07', '2016-03-31 07:40:40'),
+(3, 'MY SCHOOL', '#', 'fa fa-home', 1, '1', 1, 2, '2016-03-30 20:35:07', '2016-04-17 11:09:15'),
+(4, 'PERSONAL', '#', 'fa fa-user', 1, '2', 1, 2, '2016-03-30 20:35:07', '2016-04-17 11:07:12'),
 (5, 'MANAGE', '/sponsors', 'fa fa-list', 1, '1', 1, 4, '2016-04-17 08:05:55', '2016-04-17 10:04:19'),
 (6, 'ADD NEW', '/sponsors/create', 'fa fa-user', 1, '2', 1, 4, '2016-04-17 08:05:55', '2016-04-17 10:04:19'),
-(7, 'RECORDS', '#', 'fa fa-book', 1, '3', 1, 1, '2016-04-17 09:18:47', '2016-04-17 09:19:02');
+(7, 'RECORDS', '#', 'fa fa-book', 1, '3', 1, 1, '2016-04-17 09:18:47', '2016-04-17 09:19:02'),
+(8, 'SCHOOLS', '#', 'fa fa-home', 1, '1', 1, 1, '2016-04-17 10:46:04', '2016-04-17 11:09:15');
 
 -- --------------------------------------------------------
 
@@ -147,8 +147,7 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 ('2016_03_03_195659_create_all_menus_table', 1),
 ('2016_03_05_060819_entrust_setup_tables', 1),
 ('2016_03_15_050508_create_roles_menus_assoc_tables', 1),
-('2016_04_17_094945_create_titles_table', 2),
-('2016_04_17_104628_create_sponsor_table', 3);
+('2016_04_17_094945_create_titles_table', 2);
 
 -- --------------------------------------------------------
 
@@ -340,8 +339,6 @@ CREATE TABLE IF NOT EXISTS `roles_menus` (
 INSERT INTO `roles_menus` (`role_id`, `menu_id`) VALUES
 (1, 1),
 (1, 2),
-(1, 3),
-(2, 3),
 (1, 4),
 (2, 4);
 
@@ -398,7 +395,11 @@ INSERT INTO `roles_menu_items` (`role_id`, `menu_item_id`) VALUES
 (1, 6),
 (2, 6),
 (1, 7),
-(2, 7);
+(2, 7),
+(1, 8),
+(2, 8),
+(2, 3),
+(2, 4);
 
 -- --------------------------------------------------------
 
@@ -425,7 +426,17 @@ INSERT INTO `roles_sub_menu_items` (`role_id`, `sub_menu_item_id`) VALUES
 (1, 4),
 (1, 5),
 (1, 6),
-(2, 6);
+(2, 6),
+(1, 7),
+(2, 7),
+(1, 8),
+(2, 8),
+(1, 9),
+(2, 9),
+(1, 10),
+(2, 10),
+(1, 11),
+(2, 11);
 
 -- --------------------------------------------------------
 
@@ -481,26 +492,6 @@ INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `sponsors`
---
-
-DROP TABLE IF EXISTS `sponsors`;
-CREATE TABLE IF NOT EXISTS `sponsors` (
-  `sponsor_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `titles` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `address` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `city` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `state_id` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `country_id` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `user_id` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`sponsor_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `sub_menu_items`
 --
 
@@ -518,7 +509,7 @@ CREATE TABLE IF NOT EXISTS `sub_menu_items` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`sub_menu_item_id`),
   KEY `sub_menu_items_menu_item_id_index` (`menu_item_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=12 ;
 
 --
 -- Dumping data for table `sub_menu_items`
@@ -530,7 +521,12 @@ INSERT INTO `sub_menu_items` (`sub_menu_item_id`, `sub_menu_item`, `sub_menu_ite
 (3, 'ROLES', '#', 'fa fa-users', 1, '3', 1, 1, '2016-03-30 10:41:35', '2016-03-30 10:41:46'),
 (4, 'CREATE', '/users/create', 'fa fa-user', 1, '1', 1, 2, '2016-03-30 10:49:22', '2016-03-30 10:49:22'),
 (5, 'MANAGE', '/users', 'fa fa-users', 1, '2', 1, 2, '2016-03-30 10:49:22', '2016-03-30 10:49:22'),
-(6, 'TITLES', '/titles', 'fa fa-plus', 1, '1', 1, 7, '2016-04-17 09:22:55', '2016-04-17 09:22:55');
+(6, 'TITLES', '/titles', 'fa fa-plus', 1, '1', 1, 7, '2016-04-17 09:22:55', '2016-04-17 09:22:55'),
+(7, 'MANAGE', '/schools', 'fa fa-list', 1, '1', 1, 8, '2016-04-17 10:47:21', '2016-04-17 10:47:21'),
+(8, 'CREATE', '/schools/create', 'fa fa-plus', 1, '2', 1, 8, '2016-04-17 10:47:58', '2016-04-17 10:47:58'),
+(9, 'VIEW', '/profiles', 'fa fa-eye', 1, '1', 1, 4, '2016-04-17 11:06:59', '2016-04-17 11:06:59'),
+(10, 'EDIT', '/profiles/edit', 'fa fa-edit', 1, '2', 1, 4, '2016-04-17 11:07:00', '2016-04-17 11:07:00'),
+(11, 'UPDATE', '/schools/edit', 'fa fa-edit', 1, '1', 1, 3, '2016-04-17 11:08:39', '2016-04-17 11:08:39');
 
 -- --------------------------------------------------------
 
