@@ -1,15 +1,19 @@
 @extends('admin.layout.default')
 
 @section('layout-style')
-    <!-- BEGIN PAGE LEVEL STYLES -->
-    <link href="{{ asset('assets/global/plugins/select2/css/select2.css') }}" rel="stylesheet" type="text/css"/>
-    <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css') }}" rel="stylesheet" type="text/css"/>
-    <!-- END PAGE LEVEL STYLES -->
+<!-- BEGIN PAGE LEVEL STYLES -->
+<link href="{{ asset('assets/global/plugins/select2/css/select2.css') }}" rel="stylesheet" type="text/css"/>
+<link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css') }}" rel="stylesheet" type="text/css"/>
+<!-- END PAGE LEVEL STYLES -->
 @endsection
 
 @section('title', 'Manage User')
 
 @section('breadcrumb')
+    <li>
+        <a href="{{ url('/') }}">Home</a>
+        <i class="fa fa-home"></i>
+    </li>
     <li>
         <a href="{{ url('/dashboard') }}">Dashboard</a>
         <i class="fa fa-dashboard"></i>
@@ -38,17 +42,17 @@
                     <div class="row">
                         <table class="table table-striped table-bordered table-hover" id="users_datatable">
                             <thead>
-                                <tr>
-                                    <th style="width: 1%;">#</th>
-                                    <th style="width: 25%;">Names</th>
-                                    <th style="width: 19%;">Email</th>
-                                    <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 5%;">Gender</th>
-                                    <th style="width: 20%;">User Type</th>
-                                    <th style="width: 10%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
-                                </tr>
+                            <tr>
+                                <th style="width: 1%;">#</th>
+                                <th style="width: 25%;">Names</th>
+                                <th style="width: 19%;">Email</th>
+                                <th style="width: 10%;">Mobile</th>
+                                <th style="width: 5%;">Gender</th>
+                                <th style="width: 20%;">User Type</th>
+                                <th style="width: 10%;">Status</th>
+                                <th style="width: 5%;">View</th>
+                                <th style="width: 5%;">Edit</th>
+                            </tr>
                             </thead>
                             <tbody>
                             @if(count($users) > 0)
@@ -87,17 +91,17 @@
                             @endif
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <th style="width: 1%;">#</th>
-                                    <th style="width: 25%;">Names</th>
-                                    <th style="width: 19%;">Email</th>
-                                    <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 5%;">Gender</th>
-                                    <th style="width: 20%;">User Type</th>
-                                    <th style="width: 10%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
-                                </tr>
+                            <tr>
+                                <th style="width: 1%;">#</th>
+                                <th style="width: 25%;">Names</th>
+                                <th style="width: 19%;">Email</th>
+                                <th style="width: 10%;">Mobile</th>
+                                <th style="width: 5%;">Gender</th>
+                                <th style="width: 20%;">User Type</th>
+                                <th style="width: 10%;">Status</th>
+                                <th style="width: 5%;">View</th>
+                                <th style="width: 5%;">Edit</th>
+                            </tr>
                             </tfoot>
 
                         </table>
@@ -107,9 +111,9 @@
         </div>
     </div>
 
-@endsection
-@section('page-level-js')
-    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    @endsection
+    @section('page-level-js')
+            <!-- BEGIN PAGE LEVEL PLUGINS -->
     <script type="text/javascript" src="{{ asset('assets/global/plugins/select2/js/select2.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('assets/global/plugins/datatables/media/js/jquery.dataTables.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js') }}"></script>
@@ -123,10 +127,10 @@
 
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/users/user.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/accounts/guardians.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/users"]');
+            setTabActive('[href="/guardians"]');
             TableManaged.init();
         });
     </script>

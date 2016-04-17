@@ -11,14 +11,14 @@
         <i class="fa fa-dashboard"></i>
     </li>
     <li>
-        <a href="{{ url('/user-types') }}">User Types</a>
+        <a href="{{ url('/user-types') }}">Titles</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page-title"> User Types</h3>
+    <h3 class="page-title"> Titles</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -26,14 +26,14 @@
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="icon-list font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">User Types</span>
+                        <span class="caption-subject font-green bold uppercase">Titles</span>
                     </div>
                 </div>
                 <div class="portlet-body">
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_user_type"> Add New
+                                <button class="btn green add_title"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -47,7 +47,7 @@
                             ])
                         !!}
                             <div class="table-responsive">
-                                <table class="table table-bordered table-striped table-actions" id="menu_table">
+                                <table class="table table-bordered table-striped table-actions" id="title_table">
                                     <thead>
                                     <tr>
                                         <th style="width: 5%;">s/no</th>
@@ -55,18 +55,18 @@
                                         <th style="width: 40%;">Actions</th>
                                     </tr>
                                     </thead>
-                                    @if(count($user_types) > 0)
+                                    @if(count($titles) > 0)
                                         <tbody>
                                         <?php $i = 1; ?>
-                                        @foreach($user_types as $user_type)
+                                        @foreach($titles as $title)
                                             <tr>
                                                 <td class="text-center">{{$i++}} </td>
                                                 <td>
-                                                    {!! Form::text('user_type[]', $user_type->user_type, ['placeholder'=>'User Type', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                    {!! Form::hidden('user_type_id[]', $user_type->user_type_id, ['class'=>'form-control']) !!}
+                                                    {!! Form::text('title[]', $title->title, ['placeholder'=>'Title', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                    {!! Form::hidden('title_id[]', $title->title_id, ['class'=>'form-control']) !!}
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_user_type">
+                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_title">
                                                         <span class="fa fa-trash-o"></span> Delete
                                                     </button>
                                                 </td>
@@ -77,8 +77,8 @@
                                         <tr>
                                             <td class="text-center">1</td>
                                             <td>
-                                                {!! Form::text('user_type[]', '', ['placeholder'=>'User Type', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                {!! Form::hidden('user_type_id[]', '-1', ['class'=>'form-control']) !!}
+                                                {!! Form::text('title[]', '', ['placeholder'=>'Title', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                {!! Form::hidden('title_id[]', '-1', ['class'=>'form-control']) !!}
                                             </td>
                                             <td>
                                                 <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
@@ -124,10 +124,10 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/users/user_type.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/setups/titles.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/user-types"]');
+            setTabActive('[href="/titles"]');
         });
     </script>
 @endsection

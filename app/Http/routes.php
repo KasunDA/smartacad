@@ -56,6 +56,12 @@ Route::group(['middleware' => ['web']], function () {
         'roles' => 'Admin\RolesAndPermission\RolesController',
         'permissions' => 'Admin\RolesAndPermission\PermissionsController',
         'profiles' => 'Admin\Users\ProfileController',
+
+        //setup records
+        'titles' => 'Admin\Setups\TitleController',
+
+
+        'guardians' => 'Admin\Accounts\GuardianController',
     ]);
 });
 
