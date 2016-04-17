@@ -57,9 +57,10 @@ Route::group(['middleware' => ['web']], function () {
         'permissions' => 'Admin\RolesAndPermission\PermissionsController',
         'profiles' => 'Admin\Users\ProfileController',
 
+        'schools' => 'School\SchoolController',
+
         //setup records
         'titles' => 'Admin\Setups\TitleController',
-
 
         'sponsors' => 'Admin\Accounts\SponsorController',
     ]);

@@ -20,6 +20,7 @@ class CreateSponsorTable extends Migration
             $table->string('state_id', 150);
             $table->string('country_id', 150);
             $table->string('user_id', 150);
+            $table->string('school_id', 150);
             $table->timestamps();
         });
     }
