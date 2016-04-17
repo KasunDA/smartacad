@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 17, 2016 at 06:46 PM
+-- Generation Time: Apr 17, 2016 at 10:30 PM
 -- Server version: 5.6.26
 -- PHP Version: 5.6.12
 
@@ -26,6 +26,32 @@ USE `schools`;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `school_databases`
+--
+
+DROP TABLE IF EXISTS `school_databases`;
+CREATE TABLE IF NOT EXISTS `school_databases` (
+  `school_database_id` int(10) unsigned NOT NULL,
+  `host` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `database` varchar(225) COLLATE utf8_unicode_ci NOT NULL,
+  `username` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `password` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `schools_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `school_databases`
+--
+
+INSERT INTO `school_databases` (`school_database_id`, `host`, `database`, `username`, `password`, `schools_id`, `created_at`, `updated_at`) VALUES
+(1, '127.0.0.1', 'solid_steps', 'root', '', 1, '2016-04-17 19:14:48', '2016-04-17 19:14:48'),
+(2, '127.0.0.1', 'jokers_db', 'root', '', 2, '2016-04-17 19:16:38', '2016-04-17 19:16:38');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `schools`
 --
 
@@ -44,16 +70,15 @@ CREATE TABLE IF NOT EXISTS `schools` (
   `status_id` int(10) unsigned NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `schools`
 --
 
 INSERT INTO `schools` (`schools_id`, `name`, `full_name`, `phone_no`, `email`, `motto`, `website`, `address`, `logo`, `admin_id`, `status_id`, `created_at`, `updated_at`) VALUES
-(1, 'sss', 'sss', '01923893484', '', '', '', '             ssss                                                           \n                                    \n                                    ', NULL, NULL, 2, '2016-04-17 14:37:21', '2016-04-17 14:37:21'),
-(2, 'Jokers', 'Douche Bag', '01893044554', 'joker@douche.bag', 'Light is Power', 'www.joker.douche', 'Malawi.com', '2_logo.jpg', NULL, 1, '2016-04-17 14:57:27', '2016-04-17 15:45:09'),
-(3, 'Seun Adeleke', 'Seun Adeleke Memorial High', '02830374944', 'Seun@Adeleke.Rollar', '', 'www.Seun.Adeleke', 'Seun Adeleke Close, Surulere', '3_logo.png', NULL, 1, '2016-04-17 15:18:14', '2016-04-17 15:18:14');
+(1, 'Solid Steps', 'Solid Steps Memorial High', '02830374944', 'solid@steps.high', '', 'www.solidsteps.international', 'Ekotun Egbe, Lagos', '1_logo.png', NULL, 1, '2016-04-17 15:18:14', '2016-04-17 15:18:14'),
+(2, 'Jokers', 'Douche Bag', '01893044554', 'joker@douche.bag', 'Light is Power', 'www.joker.douche', 'Malawi.com', '2_logo.jpg', NULL, 2, '2016-04-17 14:57:27', '2016-04-17 15:48:05');
 
 -- --------------------------------------------------------
 
@@ -83,6 +108,13 @@ INSERT INTO `titles` (`title_id`, `title`, `title_abbr`) VALUES
 --
 
 --
+-- Indexes for table `school_databases`
+--
+ALTER TABLE `school_databases`
+  ADD PRIMARY KEY (`school_database_id`),
+  ADD KEY `school_databases_schools_id_index` (`schools_id`);
+
+--
 -- Indexes for table `schools`
 --
 ALTER TABLE `schools`
@@ -101,10 +133,15 @@ ALTER TABLE `titles`
 --
 
 --
+-- AUTO_INCREMENT for table `school_databases`
+--
+ALTER TABLE `school_databases`
+  MODIFY `school_database_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+--
 -- AUTO_INCREMENT for table `schools`
 --
 ALTER TABLE `schools`
-  MODIFY `schools_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
+  MODIFY `schools_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `titles`
 --
@@ -240,7 +277,8 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 ('2016_03_15_050508_create_roles_menus_assoc_tables', 1),
 ('2016_04_17_094945_create_titles_table', 2),
 ('2016_04_17_104628_create_sponsor_table', 3),
-('2016_04_17_121149_create_schools_table', 4);
+('2016_04_17_121149_create_schools_table', 4),
+('2016_04_17_195404_create_school_databases_table', 5);
 
 -- --------------------------------------------------------
 

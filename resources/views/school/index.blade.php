@@ -39,10 +39,11 @@
                             <thead>
                             <tr>
                                 <th style="width: 1%;">#</th>
-                                <th style="width: 39%;">School Name</th>
+                                <th style="width: 34%;">School Name</th>
                                 <th style="width: 10%;">Mobile No.</th>
                                 <th style="width: 15%;">Email</th>
                                 <th style="width: 15%;">Website</th>
+                                <th style="width: 5%;">D.B</th>
                                 <th style="width: 10%;">Status</th>
                                 <th style="width: 5%;">View</th>
                                 <th style="width: 5%;">Edit</th>
@@ -58,6 +59,11 @@
                                         <td>{{ $school->phone_no }}</td>
                                         <td>{!! ($school->email) ? $school->email : '<span class="label label-danger">nil</span>' !!}</td>
                                         <td>{!! ($school->website) ? $school->website : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>
+                                            <a href="{{ url('/schools/db-config/'.$hashIds->encode($school->schools_id)) }}" class="btn btn-default btn-rounded btn-condensed btn-xs">
+                                                <span class="fa fa-gears"></span>
+                                            </a>
+                                        </td>
                                         <td>
                                             @if($school->status_id === 1)
                                                 <button value="{{ $school->schools_id }}" rel="2" class="btn btn-success btn-rounded btn-condensed btn-xs school_status">
@@ -86,10 +92,11 @@
                             <tfoot>
                             <tr>
                                 <th style="width: 1%;">#</th>
-                                <th style="width: 39%;">School Name</th>
+                                <th style="width: 34%;">School Name</th>
                                 <th style="width: 10%;">Mobile No.</th>
                                 <th style="width: 15%;">Email</th>
                                 <th style="width: 15%;">Website</th>
+                                <th style="width: 5%;">D.B</th>
                                 <th style="width: 10%;">Status</th>
                                 <th style="width: 5%;">View</th>
                                 <th style="width: 5%;">Edit</th>

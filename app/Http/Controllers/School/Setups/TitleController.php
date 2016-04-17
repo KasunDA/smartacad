@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Setups;
+namespace App\Http\Controllers\School\Setups;
 
-use App\Models\Admin\Setups\Title;
+use App\Models\School\Setups\Title;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -18,7 +18,7 @@ class TitleController extends Controller
     public function getIndex()
     {
         $titles = Title::all();
-        return view('admin.setups.titles', compact('titles'));
+        return view('school.setups.titles', compact('titles'));
     }
 
     /**

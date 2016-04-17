@@ -60,7 +60,7 @@ Route::group(['middleware' => ['web']], function () {
         'schools' => 'School\SchoolController',
 
         //setup records
-        'titles' => 'Admin\Setups\TitleController',
+        'titles' => 'School\Setups\TitleController',
 
         'sponsors' => 'Admin\Accounts\SponsorController',
     ]);

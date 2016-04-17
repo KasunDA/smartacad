@@ -51,4 +51,13 @@ class School extends Model
     public function getLogoPath(){
         return ($this->logo) ? DIRECTORY_SEPARATOR . $this->logo_path . $this->logo : false;
     }
+
+    /**
+     * A School has one Database
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+
+    public function database(){
+        return $this->hasOne('App\Models\School\SchoolDatabase', 'schools_id');
+    }
 }

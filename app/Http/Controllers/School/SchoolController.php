@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\School;
 
+use App\Models\Admin\Users\User;
 use App\Models\School\School;
+use App\Models\School\SchoolDatabase;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
@@ -67,7 +71,6 @@ class SchoolController extends Controller
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
             return redirect('/schools/create')->withErrors($this->validator($inputs))->withInput();
         }
-
         // Store the School...
         $school = School::create($inputs);
 
@@ -155,6 +158,80 @@ class SchoolController extends Controller
             $this->setFlashMessage($school->name . ' have successfully been updated.', 1);
             // redirect to the create bill page and enable the take roll call link
         }
+        return redirect('/schools');
+    }
+
+    /**
+     * Display form for creating a new school
+     * @return Response
+     */
+    public function getSearch(){
+        $schools = School::orderBy('full_name')->get();
+
+        return view('school.search', compact('schools'));
+    }
+
+    /**
+     * Display form for creating a new school
+     * @param  Request  $request
+     * @return Response
+     */
+    public function postSearch(Request $request){
+        $inputs = $request->all();
+        $school = School::findOrFail($inputs['schools_id']);
+        $db = $school->database()->first();
+
+        if($db){
+            Config::set('database.connections.' . $db->database, array(
+                'driver'    => 'mysql',
+                'host'      => $db->host,
+                'database'  => $db->database,
+                'username'  => $db->username,
+                'password'  => $db->password,
+                'charset'   => 'utf8',
+                'collation' => 'utf8_general_ci',
+                'prefix'    => '',
+            ));
+            $users = DB::connection($db->database)->select('select * from users');
+        }
+        $schools = School::orderBy('full_name')->get();
+
+        return view('school.search', compact('schools', 'users'));
+    }
+
+    /**
+     * Display form for creating a school database configuration
+     * @param $encodeId
+     * @return Response
+     */
+    public function getDbConfig($encodeId){
+        $decodeId = $this->getHashIds()->decode($encodeId);
+        $school = (empty($decodeId)) ? abort(403) : School::findOrFail($decodeId[0]);
+        $db = $school->database()->first();
+
+        return view('school.db-config', compact('school', 'db'));
+    }
+
+    /**
+     * Insert or Update the school database configuration
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postDbConfig(Request $request)
+    {
+        $inputs = $request->all();
+        $school = School::findOrFail($inputs['schools_id']);
+        $db = $school->database()->first();
+        $database = ($db) ? SchoolDatabase::find($db->school_database_id) : new SchoolDatabase();
+        $database->host = $inputs['host'];
+        $database->database = $inputs['database'];
+        $database->username = $inputs['username'];
+        $database->password = $inputs['password'];
+        $database->schools_id = $inputs['schools_id'];
+        if($database->save())
+        // Set the flash message
+            $this->setFlashMessage($school->name . ' Database has been successfully configured.', 1);
+        // redirect to the create a new inmate page
         return redirect('/schools');
     }
 }
