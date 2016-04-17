@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 17, 2016 at 12:24 PM
+-- Generation Time: Apr 17, 2016 at 01:15 PM
 -- Server version: 5.6.17
 -- PHP Version: 5.5.12
 
@@ -50,7 +50,7 @@ INSERT INTO `menus` (`menu_id`, `menu`, `menu_url`, `active`, `sequence`, `type`
 (1, 'SYSTEM', '#', 1, 1, 1, 'fa fa-television', 1, '2016-03-29 23:33:49', '2016-03-29 23:33:49'),
 (2, 'PROFILE', '#', 1, 3, 1, 'fa fa-book', 2, '2016-03-30 20:33:36', '2016-04-17 08:01:21'),
 (3, 'HOME', '/home', 1, 1, 2, 'fa fa-home', 4, '2016-04-15 11:02:49', '2016-04-15 11:02:49'),
-(4, 'GUARDIANS', '#', 1, 1, 1, 'fa fa-users', 2, '2016-04-17 08:01:21', '2016-04-17 08:04:19');
+(4, 'SPONSORS', '#', 1, 1, 1, 'fa fa-users', 2, '2016-04-17 08:01:21', '2016-04-17 09:57:51');
 
 -- --------------------------------------------------------
 
@@ -111,8 +111,8 @@ INSERT INTO `menu_items` (`menu_item_id`, `menu_item`, `menu_item_url`, `menu_it
 (2, 'USERS', '#', 'fa fa-users', 1, '2', 1, 1, '2016-03-30 10:47:28', '2016-03-30 10:47:28'),
 (3, 'VIEW ', '/profiles', 'fa fa-user', 1, '1', 1, 2, '2016-03-30 20:35:07', '2016-03-31 12:24:54'),
 (4, 'EDIT', '/profiles/edit', 'fa fa-edit', 1, '2', 1, 2, '2016-03-30 20:35:07', '2016-03-31 07:40:40'),
-(5, 'MANAGE', '/guardians', 'fa fa-list', 1, '1', 1, 4, '2016-04-17 08:05:55', '2016-04-17 08:05:55'),
-(6, 'ADD NEW', '/guardians/create', 'fa fa-user', 1, '2', 1, 4, '2016-04-17 08:05:55', '2016-04-17 08:05:55'),
+(5, 'MANAGE', '/sponsors', 'fa fa-list', 1, '1', 1, 4, '2016-04-17 08:05:55', '2016-04-17 10:04:19'),
+(6, 'ADD NEW', '/sponsors/create', 'fa fa-user', 1, '2', 1, 4, '2016-04-17 08:05:55', '2016-04-17 10:04:19'),
 (7, 'RECORDS', '#', 'fa fa-book', 1, '3', 1, 1, '2016-04-17 09:18:47', '2016-04-17 09:19:02');
 
 -- --------------------------------------------------------
@@ -147,7 +147,8 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 ('2016_03_03_195659_create_all_menus_table', 1),
 ('2016_03_05_060819_entrust_setup_tables', 1),
 ('2016_03_15_050508_create_roles_menus_assoc_tables', 1),
-('2016_04_17_094945_create_titles_table', 2);
+('2016_04_17_094945_create_titles_table', 2),
+('2016_04_17_104628_create_sponsor_table', 3);
 
 -- --------------------------------------------------------
 
@@ -480,6 +481,26 @@ INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `sponsors`
+--
+
+DROP TABLE IF EXISTS `sponsors`;
+CREATE TABLE IF NOT EXISTS `sponsors` (
+  `sponsor_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `titles` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `address` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `city` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `state_id` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `country_id` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `user_id` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`sponsor_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `sub_menu_items`
 --
 
@@ -561,14 +582,16 @@ CREATE TABLE IF NOT EXISTS `titles` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`title_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=4 ;
 
 --
 -- Dumping data for table `titles`
 --
 
 INSERT INTO `titles` (`title_id`, `title`, `created_at`, `updated_at`) VALUES
-(1, 'Mr', NULL, NULL);
+(1, 'Mr', NULL, NULL),
+(2, 'Mrs', '2016-04-17 09:29:45', '2016-04-17 09:29:45'),
+(3, 'Dr', '2016-04-17 09:30:30', '2016-04-17 09:30:30');
 
 -- --------------------------------------------------------
 
