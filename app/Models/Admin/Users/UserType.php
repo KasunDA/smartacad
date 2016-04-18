@@ -23,7 +23,7 @@ class UserType extends Model
      * @var array
      */
     protected $fillable = [
-        'user_type'
+        'user_type','type'
     ];
 
     /**

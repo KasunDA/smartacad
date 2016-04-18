@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Accounts;
 
-use App\Models\Admin\Setups\Title;
+use App\Models\Admin\Users\User;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -10,18 +10,14 @@ use App\Http\Controllers\Controller;
 
 class SponsorController extends Controller
 {
-    public function getIndex(){
-        $guardians =  [];
-        return view('admin.accounts.sponsors.index', compact('guardians'));
+    /**
+     * Display a listing of the Users.
+     * @return Response
+     */
+    public function getIndex()
+    {
+        $users = User::where('user_type_id',3)->get();
+        return view('admin.accounts.sponsors.index', compact('users'));
     }
 
-    public function getCreate(){
-        $titles = Title::all();
-        return view('admin.accounts.sponsors.create', compact('titles'));
-    }
-
-    public function postCreate(Request $request){
-        $data = $request->all();
-        dd($data);
-    }
 }

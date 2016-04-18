@@ -4,7 +4,7 @@
     <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
 @endsection
 
-@section('title', 'Create User')
+@section('title', 'Create Account')
 
 @section('breadcrumb')
     <li>
@@ -12,13 +12,13 @@
         <i class="fa fa-home"></i>
     </li>
     <li>
-        <span>Add Guardian</span>
+        <span>Add Account</span>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page-title"> Add Guardian</h3>
+    <h3 class="page-title"> Add Account</h3>
 
     <div class="row">
         <div class="col-md-offset-2 col-md-8">
@@ -27,13 +27,14 @@
                 <div class="portlet-title">
                     <div class="caption font-red-sunglo">
                         <i class="icon-user font-red-sunglo"></i>
-                        <span class="caption-subject bold uppercase"> Add Guardian</span>
+                        <span class="caption-subject bold uppercase"> Add Account</span>
                     </div>
                 </div>
                 <div class="portlet-body form">
                     @include('errors.errors')
-                    <form method="POST" action="{{ url('/sponsors/create') }}" accept-charset="UTF-8" class="form-horizontal" role="form">
+                    <form method="POST" action="{{ url('/accounts/create') }}" accept-charset="UTF-8" class="form-horizontal" role="form">
                         {!! csrf_field() !!}
+                        <input type="hidden" name="user_type_id" value="3"/>
                         <div class="form-body">
                             <div class="form-group">
                                 <label>Title</label>
@@ -73,9 +74,21 @@
                                     <input type="text" class="form-control input-lg" placeholder="Mobile" name="phone_no" value="{{ old('phone_no') }}"> </div>
                             </div>
 
+                            <div class="form-group">
+                                <label>User Type</label>
+                                <div>
+                                    <select name="user_type_id" class="form-control input-lg selectpicker">
+                                        <option value="">Noting Selected</option>
+                                        @foreach($user_types as $user_type)
+                                            <option value="{{$user_type->user_type_id}}">{{$user_type->user_type}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="form-actions">
-                            <button type="submit" class="btn blue pull-right">Create</button>
+                            <button type="submit" class="btn blue pull-right btn-lg">Create</button>
                         </div>
                     </form>
                 </div>

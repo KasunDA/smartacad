@@ -11,6 +11,7 @@ $(function () {
 
         clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
         clone_row.children(':nth-child(2)').children('input').val('');
+        clone_row.children(':nth-child(3)').children('input').val('');
         clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
         clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-sm remove_user_type"><span class="fa fa-times"></span> Remove</button>');
     });

@@ -27,32 +27,6 @@ class UserController extends Controller
     protected $redirectTo = '/users';
 
     /**
-     * Get a validator for an incoming registration request.
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        $messages = [
-            'first_name.required' => 'The First Name is Required!',
-            'last_name.required' => 'The Last Name is Required!',
-            'user_type_id.required' => 'The User Type is Required!',
-            'phone_no.required' => 'The Mobile Number is Required!',
-            'gender.required' => 'The Gender is Required!',
-            'email.required' => 'A Valid E-Mail Address is Required!',
-            'email.unique' => 'This E-Mail Address Has Been Taken or Assigned Already!',
-        ];
-        return Validator::make($data, [
-            'first_name' => 'required|max:100|min:2',
-            'last_name' => 'required|max:100|min:2',
-            'gender' => 'required',
-            'email' => 'required|email|max:255|unique:users,email',
-            'phone_no' => 'required',
-            'user_type_id' => 'required',
-        ], $messages);
-    }
-
-    /**
      * Display a listing of the Users.
      * @return Response
      */
@@ -248,27 +222,6 @@ class UserController extends Controller
             // redirect to the create Committee page and enable the take roll call link
             return redirect('/users');
         }
-    }
-
-    /**
-     * Create a new user instance after a valid registration.
-     * @param  array  $data
-     * @return User
-     */
-    protected function newUser(array $data)
-    {
-        return User::create([
-            'email' => $data['email'],
-            'verified' => 1,
-//            'password' => Hash::make($data['password']),
-            'password' => Hash::make('password'),
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'phone_no' => $data['phone_no'],
-            'gender' => $data['gender'],
-            'user_type_id' => $data['user_type_id'],
-            'verification_code' => $data['verification_code']
-        ]);
     }
 
     /**

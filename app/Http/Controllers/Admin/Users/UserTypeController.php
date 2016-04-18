@@ -34,6 +34,7 @@ class UserTypeController extends Controller
         for($i = 0; $i < count($inputs['user_type_id']); $i++){
             $user_type = ($inputs['user_type_id'][$i] > 0) ? UserType::find($inputs['user_type_id'][$i]) : new UserType();
             $user_type->user_type = $inputs['user_type'][$i];
+            $user_type->type = $inputs['type'][$i];
             $count = ($user_type->save()) ? $count+1 : '';
         }
         // Set the flash message

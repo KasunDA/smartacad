@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin\Users\User;
 use Hashids\Hashids;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use Validator;
 
 class Controller extends BaseController
 {
@@ -77,5 +80,49 @@ class Controller extends BaseController
                 abort(403);
             }
         }
+    }
+
+    /**
+     * Create a new user instance after a valid registration.
+     * @param  array  $data
+     * @return User
+     */
+    protected function newUser(array $data)
+    {
+        return User::create([
+            'email' => $data['email'],
+            'verified' => 1,
+//            'password' => Hash::make($data['password']),
+            'password' => Hash::make('password'),
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'phone_no' => $data['phone_no'],
+            'user_type_id' => $data['user_type_id'],
+            'verification_code' => $data['verification_code']
+        ]);
+    }
+
+    /**
+     * Get a validator for an incoming registration request.
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator(array $data)
+    {
+        $messages = [
+            'first_name.required' => 'The First Name is Required!',
+            'last_name.required' => 'The Last Name is Required!',
+            'user_type_id.required' => 'The User Type is Required!',
+            'phone_no.required' => 'The Mobile Number is Required!',
+            'email.required' => 'A Valid E-Mail Address is Required!',
+            'email.unique' => 'This E-Mail Address Has Been Taken or Assigned Already!',
+        ];
+        return Validator::make($data, [
+            'first_name' => 'required|max:100|min:2',
+            'last_name' => 'required|max:100|min:2',
+            'email' => 'required|email|max:255|unique:users,email',
+            'phone_no' => 'required',
+            'user_type_id' => 'required',
+        ], $messages);
     }
 }

@@ -15,13 +15,13 @@
         <i class="fa fa-circle"></i>
     </li>
     <li>
-        <span>Manage Sponsors</span>
+        <span>Manage Staff</span>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page-title"> Manage Sponsors</h3>
+    <h3 class="page-title"> Manage Staff</h3>
 
     <div class="row">
         <div class="col-md-12">
@@ -29,7 +29,7 @@
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="icon-list font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">Registered Sponsors</span>
+                        <span class="caption-subject font-green bold uppercase">Registered Staff</span>
                     </div>
                     <div class="tools">
                     </div>

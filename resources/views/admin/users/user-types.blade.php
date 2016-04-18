@@ -51,8 +51,9 @@
                                     <thead>
                                     <tr>
                                         <th style="width: 5%;">s/no</th>
-                                        <th style="width: 55%;">User Type</th>
-                                        <th style="width: 40%;">Actions</th>
+                                        <th style="width: 40%;">User Type</th>
+                                        <th style="width: 40%;">Type</th>
+                                        <th style="width: 10%;">Actions</th>
                                     </tr>
                                     </thead>
                                     @if(count($user_types) > 0)
@@ -64,6 +65,9 @@
                                                 <td>
                                                     {!! Form::text('user_type[]', $user_type->user_type, ['placeholder'=>'User Type', 'class'=>'form-control', 'required'=>'required']) !!}
                                                     {!! Form::hidden('user_type_id[]', $user_type->user_type_id, ['class'=>'form-control']) !!}
+                                                </td>
+                                                <td>
+                                                    {!! Form::text('type[]', $user_type->type, ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}
                                                 </td>
                                                 <td>
                                                     <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_user_type">
@@ -90,8 +94,9 @@
                                     <tfoot>
                                     <tr>
                                         <th style="width: 5%;">s/no</th>
-                                        <th style="width: 55%;">User Type</th>
-                                        <th style="width: 40%;">Actions</th>
+                                        <th style="width: 40%;">User Type</th>
+                                        <th style="width: 40%;">Type</th>
+                                        <th style="width: 10%;">Actions</th>
                                     </tr>
                                     </tfoot>
                                 </table>
