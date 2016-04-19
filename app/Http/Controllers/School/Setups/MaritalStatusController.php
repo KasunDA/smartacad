@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\School\Setups;
 
-use App\Models\School\Setups\Title;
+use App\Models\School\Setups\MaritalStatus;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-class TitleController extends Controller
+class MaritalStatusController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,8 +17,8 @@ class TitleController extends Controller
      */
     public function getIndex()
     {
-        $titles = Title::all();
-        return view('school.setups.titles', compact('titles'));
+        $marital_statuses = MaritalStatus::all();
+        return view('school.setups.marital-status', compact('marital_statuses'));
     }
 
     /**
@@ -31,17 +31,17 @@ class TitleController extends Controller
         $inputs = $request->all();
         $count = 0;
 
-        for($i = 0; $i < count($inputs['title_id']); $i++){
-            $titles = ($inputs['title_id'][$i] > 0) ? Title::find($inputs['title_id'][$i]) : new Title();
-            $titles->title = $inputs['title'][$i];
-            $titles->title_abbr = $inputs['title_abbr'][$i];
-            $count = ($titles->save()) ? $count+1 : '';
+        for($i = 0; $i < count($inputs['marital_status_id']); $i++){
+            $marital_status = ($inputs['marital_status_id'][$i] > 0) ? MaritalStatus::find($inputs['marital_status_id'][$i]) : new MaritalStatus();
+            $marital_status->marital_status = $inputs['marital_status'][$i];
+            $marital_status->marital_status_abbr = $inputs['marital_status_abbr'][$i];
+            $count = ($marital_status->save()) ? $count+1 : '';
         }
         // Set the flash message
         if($count > 0)
             $this->setFlashMessage($count . ' User Type has been successfully updated.', 1);
         // redirect to the create a new inmate page
-        return redirect('/titles');
+        return redirect('/marital-statuses');
     }
 
     /**
@@ -50,13 +50,13 @@ class TitleController extends Controller
      */
     public function getDelete($id)
     {
-        $titles = Title::findOrFail($id);
+        $marital_statuses = MaritalStatus::findOrFail($id);
         //Delete The Warder Record
-        $delete = ($titles !== null) ? $titles->delete() : null;
+        $delete = ($marital_statuses !== null) ? $marital_statuses->delete() : null;
 
         if($delete){
             //Delete its Equivalent Users Record
-            $this->setFlashMessage('  Deleted!!! '.$titles->title.' Title have been deleted.', 1);
+            $this->setFlashMessage('  Deleted!!! '.$marital_statuses->marital_status.' Salutation have been deleted.', 1);
         }else{
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }

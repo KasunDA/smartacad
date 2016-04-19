@@ -3,7 +3,7 @@
 @section('layout-style')
 @endsection
 
-@section('title', 'Title')
+@section('marital_status', 'Marital Status')
 
 @section('breadcrumb')
     <li>
@@ -11,29 +11,29 @@
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
     <li>
-        <a href="{{ url('/titles') }}">Titles</a>
+        <a href="{{ url('/marital_status') }}">Marital Status</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page-title"> Titles</h3>
+    <h3 class="page-marital_status"> Marital Status</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
             <div class="portlet light bordered">
-                <div class="portlet-title">
+                <div class="portlet-marital_status">
                     <div class="caption">
                         <i class="icon-list font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">Titles</span>
+                        <span class="caption-subject font-green bold uppercase">Marital Status</span>
                     </div>
                 </div>
                 <div class="portlet-body">
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_title"> Add New
+                                <button class="btn green add_marital_status"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -46,30 +46,30 @@
                             ])
                         !!}
                             <div class="table-responsive">
-                                <table class="table table-bordered table-striped table-actions" id="title_table">
+                                <table class="table table-bordered table-striped table-actions" id="marital_status_table">
                                     <thead>
                                     <tr>
                                         <th style="width: 5%;">s/no</th>
-                                        <th style="width: 50%;">Title</th>
-                                        <th style="width: 25%;">Title Abbr.</th>
+                                        <th style="width: 50%;">Marital Status</th>
+                                        <th style="width: 25%;">Marital Status Abbr.</th>
                                         <th style="width: 20%;">Actions</th>
                                     </tr>
                                     </thead>
-                                    @if(count($titles) > 0)
+                                    @if(count($marital_statuses) > 0)
                                         <tbody>
                                         <?php $i = 1; ?>
-                                        @foreach($titles as $title)
+                                        @foreach($marital_statuses as $marital_status)
                                             <tr>
                                                 <td class="text-center">{{$i++}} </td>
                                                 <td>
-                                                    {!! Form::text('title[]', $title->title, ['placeholder'=>'Title', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                    {!! Form::hidden('title_id[]', $title->title_id, ['class'=>'form-control']) !!}
+                                                    {!! Form::text('marital_status[]', $marital_status->marital_status, ['placeholder'=>'Marital Status', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                    {!! Form::hidden('marital_status_id[]', $marital_status->marital_status_id, ['class'=>'form-control']) !!}
                                                 </td>
                                                 <td>
-                                                    {!! Form::text('title_abbr[]', $title->title_abbr, ['placeholder'=>'Title Abbr.', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                    {!! Form::text('marital_status_abbr[]', $marital_status->marital_status_abbr, ['placeholder'=>'Marital Status Abbr.', 'class'=>'form-control', 'required'=>'required']) !!}
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_title">
+                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_marital_status">
                                                         <span class="fa fa-trash-o"></span> Delete
                                                     </button>
                                                 </td>
@@ -80,11 +80,11 @@
                                         <tr>
                                             <td class="text-center">1</td>
                                             <td>
-                                                {!! Form::text('title[]', '', ['placeholder'=>'Title', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                {!! Form::hidden('title_id[]', '-1', ['class'=>'form-control']) !!}
+                                                {!! Form::text('marital_status[]', '', ['placeholder'=>'Marital Status', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                {!! Form::hidden('marital_status_id[]', '-1', ['class'=>'form-control']) !!}
                                             </td>
                                             <td>
-                                                {!! Form::text('title_abbr[]', '', ['placeholder'=>'Title Abbr.', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                {!! Form::text('marital_status_abbr[]', '', ['placeholder'=>'Marital Status Abbr.', 'class'=>'form-control', 'required'=>'required']) !!}
                                             </td>
                                             <td>
                                                 <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
@@ -96,8 +96,8 @@
                                     <tfoot>
                                     <tr>
                                         <th style="width: 5%;">s/no</th>
-                                        <th style="width: 50%;">Title</th>
-                                        <th style="width: 25%;">Title Abbr.</th>
+                                        <th style="width: 50%;">Marital Status</th>
+                                        <th style="width: 25%;">Marital Status Abbr.</th>
                                         <th style="width: 20%;">Actions</th>
                                     </tr>
                                     </tfoot>
@@ -131,10 +131,10 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/setups/title.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/setups/marital-status.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/titles"]');
+            setTabActive('[href="/marital-statuses"]');
         });
     </script>
 @endsection

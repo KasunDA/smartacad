@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Admin\Accounts;
 
 use App\Models\Admin\RolesAndPermissions\Role;
-use App\Models\Admin\Users\User;
 use App\Models\Admin\Users\UserType;
-use App\Models\School\Setups\Title;
+use App\Models\School\Setups\Salutation;
 use Illuminate\Http\Request;
-
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Validator;
@@ -27,9 +25,9 @@ class AccountsController extends Controller
      */
     public function getCreate()
     {
-        $titles = Title::all();
+        $salutations = Salutation::all();
         $user_types = UserType::where('type',2)->orderBy('user_type')->get();
-        return view('admin.accounts.create', compact('user_types','titles'));
+        return view('admin.accounts.create', compact('user_types','salutations'));
     }
 
     /**

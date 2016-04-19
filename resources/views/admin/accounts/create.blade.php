@@ -41,8 +41,8 @@
                                 <div>
                                     <select name="user_type_id" class="form-control input-lg selectpicker">
                                         <option value="">Noting Selected</option>
-                                        @foreach($titles as $title)
-                                            <option value="{{$title->title}}">{{$title->title}}</option>
+                                        @foreach($salutations as $salutation)
+                                            <option value="{{$salutations->salutation_id}}">{{$title->salutation}}</option>
                                         @endforeach
                                     </select>
                                 </div>

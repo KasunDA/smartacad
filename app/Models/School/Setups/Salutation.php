@@ -4,7 +4,7 @@ namespace App\Models\School\Setups;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Title extends Model
+class Salutation extends Model
 {
     protected $connection = 'admin_mysql';
 
@@ -13,12 +13,12 @@ class Title extends Model
      *
      * @var string
      */
-    protected $table = 'titles';
+    protected $table = 'salutations';
     /**
      * The table permissions primary key
      * @var int
      */
-    protected $primaryKey = 'title_id';
+    protected $primaryKey = 'salutation_id';
 
     /**
      * disable the time stamps
@@ -32,8 +32,8 @@ class Title extends Model
      * @var array
      */
     protected $fillable = [
-        'title',
-        'title_abbr'
+        'salutation',
+        'salutations_abbr'
     ];
 
     /**
