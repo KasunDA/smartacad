@@ -34,3 +34,4 @@ AWS_BUCKET=ekaruz
 AWS_REGION=oregon
 AMAZON_PATH=https://s3-us-west-2.amazonaws.com/ekaruz/
 
+SCHOOL_ID=1

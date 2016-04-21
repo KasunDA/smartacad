@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin\Users\User;
+use App\Models\School\School;
 use Hashids\Hashids;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
@@ -18,6 +19,8 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
 
+    public $school_profile;
+
     /**
      *
      * Make sure the user is logged in and Has Permission
@@ -25,6 +28,7 @@ class Controller extends BaseController
     public function __construct()
     {
         $this->middleware('auth');
+        $this->school_profile = School::findOrFail(env('SCHOOL_ID'));
         //Check if the user has permission to perform such action
 //        $this->checkPermission();
     }

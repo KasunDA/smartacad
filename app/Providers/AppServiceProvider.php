@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Admin\Menus\MenuHeader;
+use App\Models\School\School;
 use Hashids\Hashids;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -33,6 +34,11 @@ class AppServiceProvider extends ServiceProvider
             view()->share('school_name', 'Solid Step International School');
             view()->share('active_headers', $active_headers);
             view()->share('active_home_menu', $active_home_menu);
+        }
+        //Set The School Info. into a variable school
+        if(env('SCHOOL_ID')){
+            $school = School::findOrFail(env('SCHOOL_ID'));
+            view()->share('school_profile', $school);
         }
 //      Set The HashIds Secret Key, Length and Possible Characters Combinations To Be Accessible to every View
         view()->share('hashIds', new Hashids(env('APP_KEY'), 15, env('APP_CHAR')));

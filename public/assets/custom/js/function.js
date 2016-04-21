@@ -67,7 +67,7 @@ function getDependentListBox(parent, child, url) {
         if (parent.val() == '') {
             child.val('');
         } else {
-            parent.parent().next().html('<img src="/images/loading.gif" alt="Loading Image"/>');
+            parent.parent().next().html('<img src="/assets/custom/img/admin/loading.gif" alt="Loading Image"/>');
             $.ajax({
                 type: "get",
                 async: true,

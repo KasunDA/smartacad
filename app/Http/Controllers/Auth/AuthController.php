@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\Admin\RolesAndPermissions\Role;
+use App\Models\Admin\Users\User;
 use App\Models\Admin\Users\UserType;
-use App\Models\Users\User;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Validator;
@@ -74,6 +73,7 @@ class AuthController extends Controller
     {
         return User::create([
             'email' => $data['email'],
+            'username' => $data['username'],
             'password' => Hash::make('password'),
             'verified' => 1,
             'verification_code' => $data['verification_code'],

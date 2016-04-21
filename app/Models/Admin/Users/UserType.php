@@ -27,11 +27,6 @@ class UserType extends Model
     ];
 
     /**
-     * Parent User Type ID
-    */
-    const PARENT = 3;
-
-    /**
      * A User Type has many Users
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

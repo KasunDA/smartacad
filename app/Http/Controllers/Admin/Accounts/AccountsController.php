@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers\Admin\Accounts;
 
+use App\Models\Admin\Accounts\Sponsor;
+use App\Models\Admin\Accounts\Staff;
 use App\Models\Admin\RolesAndPermissions\Role;
+use App\Models\Admin\Users\User;
 use App\Models\Admin\Users\UserType;
 use App\Models\School\Setups\Salutation;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Validator;
 
 class AccountsController extends Controller
@@ -20,12 +25,38 @@ class AccountsController extends Controller
 
 
     /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param  array $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator(array $data)
+    {
+        $messages = [
+            'first_name.required' => 'The First Name is Required!',
+            'other_name.required' => 'The Last Name is Required!',
+            'salutation_id.required' => 'Salutation is Required!',
+            'user_type_id.required' => 'The User Type is Required!',
+            'email.required' => 'An E-Mail Address is Required!',
+            'email.email' => 'A Valid E-Mail Address is Required!',
+            'email.unique' => 'This E-Mail Address Has Been Taken or Assigned Already!',
+        ];
+        return Validator::make($data, [
+            'salutation_id' => 'required',
+            'first_name' => 'required|max:100|min:2',
+            'other_name' => 'required|max:100|min:2',
+            'email' => 'required|email|max:255|unique:users,email',
+            'user_type_id' => 'required',
+        ], $messages);
+    }
+
+    /**
      * Show the form for creating a new resource.
      * @return Response
      */
     public function getCreate()
     {
-        $salutations = Salutation::all();
+        $salutations = Salutation::orderBy('salutation')->get();
         $user_types = UserType::where('type',2)->orderBy('user_type')->get();
         return view('admin.accounts.create', compact('user_types','salutations'));
     }
@@ -46,35 +77,51 @@ class AccountsController extends Controller
             return redirect('/accounts/create')->withErrors($this->validator($input))->withInput();
         }
 
-        //Set the verification code to any random 40 characters and password to random 8 characters
-        $verification_code = str_random(40);
-        $password = str_random(8);
-        $input['verification_code'] = $verification_code;
-        $input['password'] = $password;
-        $temp = '.';
+//        dd($input);
 
-        // Store the User...
-        $user = $this->newUser($input);
+        // Store the Record...
+        $input['created_by'] = Auth::user()->user_id;
+        if($input['user_type_id'] == Sponsor::USER_TYPE) {
+            $sponsor = Sponsor::create($input);
+            if($sponsor){
+                if($this->createAccount($sponsor, $input['user_type_id'])){
+                    $sponsor->sponsor_no = $sponsor->generateNo();
+                    $sponsor->save();
+                }
 
-        $role = Role::where('user_type_id', $input['user_type_id'])->first();
-        $user->attachRole($role);
-        ///////////////////////////////////////////////////////// mail sending using $user object ///////////////////////////////////////////
-//        if($user){
-//            //Assign a role to the user
-//            //Verification Mail Sending
-//            $content = 'Welcome to printivo, kindly click on the verify link below to complete your registration. Thank You';
-//            $content .= "Here are your credentials <br> Username: <strong>" . $user->email . "</strong> <br>";
-//            $content .= "Password: <strong>" . $password . "</strong> ";
-//            $result = Mail::send('emails.verify', ['user'=>$user, 'content'=>$content], function($message) use($user) {
-//                $message->from(env('APP_MAIL'), env('APP_NAME'));
-//                $message->subject("Account Verification");
-//                $message->to($user->email);
-//            });
-//            if($result) $temp = ' and a mail has been sent to '.$user->email;
-//        }
+            }
+        }elseif($input['user_type_id'] == Staff::USER_TYPE) {
+            $staff = Staff::create($input);
+            if($staff){
+                if($this->createAccount($staff, $input['user_type_id'])){
+                    $staff->staff_no = $staff->generateNo();
+                    $staff->save();
+                }
+            }
+        }
+
         // Set the flash message
-        $this->setFlashMessage('Saved!!! '.$user->email.' have successfully been saved'.$temp, 1);
+        $this->setFlashMessage('Saved!!! '.$input['first_name'].' have successfully been saved', 1);
         // redirect to the create new warder page
         return redirect('accounts/create');
+    }
+
+    /**
+     * Create a new user instance after a valid registration.
+    */
+    private function createAccount($sponsor, $user_type){
+        $user = new User();
+        $role = Role::where('user_type_id', $user_type)->first();
+        $user->username = $sponsor->generateNo();
+        $user->email = $sponsor->email;
+        $user->password = Hash::make('password');
+        $user->verified = 1;
+        $user->display_name = $sponsor->fullNames();
+        $user->verification_code = $verification_code = str_random(40);
+        $user->user_type_id = $user_type;
+        $user->save();
+        if($user->user_id) $user->attachRole($role);
+
+        return $user;
     }
 }

@@ -16,7 +16,6 @@
     </li>
 @stop
 
-
 @section('content')
     <h3 class="page-title"> Add Account</h3>
 
@@ -39,10 +38,11 @@
                             <div class="form-group">
                                 <label>Title</label>
                                 <div>
-                                    <select name="user_type_id" class="form-control input-lg selectpicker">
+                                    <select name="salutation_id" class="form-control input-lg selectpicker">
                                         <option value="">Noting Selected</option>
+
                                         @foreach($salutations as $salutation)
-                                            <option value="{{$salutations->salutation_id}}">{{$title->salutation}}</option>
+                                            <option value="{{$salutation->salutation_id}}">{{$salutation->salutation}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -58,7 +58,7 @@
                                 <label>Last name</label>
                                 <div class="input-icon input-icon-lg">
                                     <i class="fa fa-user"></i>
-                                    <input type="text" class="form-control input-lg" required name="last_name" placeholder="Last name" value="{{ old('last_name') }}"> </div>
+                                    <input type="text" class="form-control input-lg" required name="other_name" placeholder="Other name" value="{{ old('other_name') }}"> </div>
                             </div>
                             <div class="form-group">
                                 <label>Email</label>
@@ -108,7 +108,7 @@
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/sponsors/create"]');
+            setTabActive('[href="/accounts/create"]');
         });
     </script>
 @endsection

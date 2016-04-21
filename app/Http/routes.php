@@ -34,6 +34,12 @@ Route::group(['middleware' => ['web']], function () {
         return view('front.index');
     });
 
+    //Dependent List Box
+    Route::group(array('prefix'=>'list-box'), function(){
+        // Ajax Get Local Governments Based on the state
+        Route::get('/lga/{id}', 'Admin\ListBoxController@lga');
+    });
+
     Route::controllers([
         'home' => 'Front\HomeController'
     ]);

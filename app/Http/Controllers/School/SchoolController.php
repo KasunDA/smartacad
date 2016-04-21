@@ -118,10 +118,14 @@ class SchoolController extends Controller
      * @param String $encodeId
      * @return Response
      */
-    public function getEdit($encodeId)
+    public function getEdit($encodeId = null)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
-        $school = (empty($decodeId)) ? abort(403) : School::findOrFail($decodeId[0]);
+        if($encodeId === null){
+            $school = $this->school_profile;
+        }else{
+            $decodeId = $this->getHashIds()->decode($encodeId);
+            $school = (empty($decodeId)) ? abort(403) : School::findOrFail($decodeId[0]);
+        }
         return view('school.edit', compact('school'));
     }
 

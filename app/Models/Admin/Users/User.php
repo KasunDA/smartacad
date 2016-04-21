@@ -23,25 +23,9 @@ class User extends Authenticatable
     protected $table = 'users';
 
     /**
-     * Dates To Be Treated As Carbon Instance
-     * @var array
-     */
-    protected $dates = ['dob'];
-
-    /**
      * Path to the files
      */
     public $avatar_path = 'uploads/users/';
-
-    /**
-     * Format The Date of Birth Before Inserting
-     * @param $date
-     */
-    public function setDobAttribute($date)
-    {
-        $this->attributes['dob'] = ($date) ? Carbon::createFromFormat('Y-m-d', $date) : null;
-    }
-
 
     /**
      * The attributes that are mass assignable.
@@ -49,8 +33,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'email', 'first_name', 'last_name', 'user_type_id', 'verified',
-        'status', 'gender', 'phone_no', 'dob', 'avatar', 'password', 'verification_code'
+        'email', 'display_name', 'user_type_id', 'verified', 'username',
+        'status', 'avatar', 'password', 'verification_code'
     ];
 
     /**
@@ -59,7 +43,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'status', 'verified', 'verification_code',
+        'password', 'remember_token', 'username', 'status', 'verified', 'verification_code',
     ];
 
     /**
@@ -75,7 +59,7 @@ class User extends Authenticatable
      */
     public function fullNames()
     {
-        return ucwords(strtolower($this->first_name . ' ' . $this->last_name));
+        return ucwords(strtolower($this->display_name));
     }
 
     /**
@@ -85,6 +69,22 @@ class User extends Authenticatable
      */
     public function userType(){
         return $this->belongsTo('App\Models\Admin\Users\UserType');
+    }
+
+    /**
+     * A User belongs to a Staff
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function staff(){
+        return $this->belongsTo('App\Models\Admin\Accounts\Staff', 'username', 'staff_no');
+    }
+
+    /**
+     * A User belongs to a Sponsor
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function sponsor(){
+        return $this->belongsTo('App\Models\Admin\Accounts\Sponsor', 'username', 'sponsor_no');
     }
 
     /**

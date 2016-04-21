@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin\Users;
 
 use App\Http\Controllers\Controller;
+use App\Models\School\Setups\Lga;
+use App\Models\School\Setups\Salutation;
+use App\Models\School\Setups\State;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -41,6 +44,17 @@ class ProfileController extends Controller
     }
 
     /**
+     * Displays the user profiles details
+     * @return \Illuminate\View\View
+     */
+    public function getIndex()
+    {
+        $user = Auth::user();
+        $staff = $user->staff()->first();
+        return view('admin.profile.view', compact('user', 'staff'));
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return Response
@@ -48,7 +62,13 @@ class ProfileController extends Controller
     public function getEdit()
     {
         $user = Auth::user();
-        return view('admin.profile.edit', compact('user'));
+        $staff = $user->staff()->first();
+        $lga = $staff->lga()->first();
+        $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->put('', 'Nothing Selected');
+        $states = State::orderBy('state')->lists('state', 'state_id')->put('', 'Nothing Selected');
+        $lgas = ($staff->lga_id !== null) ? Lga::where('state_id', $staff->lga()->first()->state_id)->lists('lga', 'lga_id')->put('', 'Nothing Selected') : null;
+
+        return view('admin.profile.edit', compact('user', 'staff', 'salutations', 'states', 'lga', 'lgas'));
     }
 
     /**
@@ -60,26 +80,20 @@ class ProfileController extends Controller
     {
         $inputs = $request->all();
         $user = Auth::user();
+//        $user = (empty($inputs['staff_id'])) ? abort(403) : Staff::findOrFail($inputs['staff_id']);
+        $staff = $user->staff()->first();
 
         if ($this->validator($inputs)->fails()) {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
             return redirect('/profiles/edit')->withErrors($this->validator($inputs))->withInput();
         }
 
-        $user->update($inputs);
-        $this->setFlashMessage(' Your profile has been successfully updated.', 1);
+        $staff->update($inputs);
+        $user->display_name = $staff->fullNames();
+        $user->save();
+        $this->setFlashMessage($staff->fullNames() . ', Your Profile has been successfully updated.', 1);
 
         return redirect('/profiles');
-    }
-
-    /**
-     * Displays the user profiles details
-     * @return \Illuminate\View\View
-     */
-    public function getIndex()
-    {
-        $user = Auth::user();
-        return view('admin.profile.view', compact('user'));
     }
 
     /**
