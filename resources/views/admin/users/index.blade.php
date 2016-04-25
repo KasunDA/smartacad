@@ -41,9 +41,8 @@
                                 <tr>
                                     <th style="width: 1%;">#</th>
                                     <th style="width: 25%;">Names</th>
+                                    <th style="width: 10%;">Username</th>
                                     <th style="width: 19%;">Email</th>
-                                    <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 5%;">Gender</th>
                                     <th style="width: 20%;">User Type</th>
                                     <th style="width: 10%;">Status</th>
                                     <th style="width: 5%;">View</th>
@@ -57,9 +56,8 @@
                                     <tr class="odd gradeX">
                                         <td class="center">{{$i++}}</td>
                                         <td>{{ $user->fullNames() }}</td>
+                                        <td>{{ $user->username }}</td>
                                         <td>{{ $user->email }}</td>
-                                        <td>{{ $user->phone_no }}</td>
-                                        <td>{!! ($user->gender) ? $user->gender : '<span class="label label-danger">nil</span>' !!}</td>
                                         <td>{{ $user->userType()->first()->user_type }}</td>
                                         <td>
                                             @if($user->status === 1)
@@ -90,9 +88,8 @@
                                 <tr>
                                     <th style="width: 1%;">#</th>
                                     <th style="width: 25%;">Names</th>
+                                    <th style="width: 10%;">Username</th>
                                     <th style="width: 19%;">Email</th>
-                                    <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 5%;">Gender</th>
                                     <th style="width: 20%;">User Type</th>
                                     <th style="width: 10%;">Status</th>
                                     <th style="width: 5%;">View</th>

@@ -61,19 +61,17 @@
                                     <input type="text" class="form-control input-lg" required name="other_name" placeholder="Other name" value="{{ old('other_name') }}"> </div>
                             </div>
                             <div class="form-group">
+                                <label>Active Mobile Number</label>
+                                <div class="input-icon input-icon-lg">
+                                    <i class="fa fa-phone"></i>
+                                    <input type="text" class="form-control input-lg" required placeholder="Active Mobile Number" name="phone_no" value="{{ old('phone_no') }}"> </div>
+                            </div>
+                            <div class="form-group">
                                 <label>Email</label>
                                 <div class="input-icon input-icon-lg">
                                     <i class="fa fa-envelope"></i>
-                                    <input type="email" class="form-control input-lg" required placeholder="Email" name="email" value="{{ old('email') }}"> </div>
+                                    <input type="email" class="form-control input-lg" placeholder="Email" name="email" value="{{ old('email') }}"> </div>
                             </div>
-
-                            <div class="form-group">
-                                <label>Mobile</label>
-                                <div class="input-icon input-icon-lg">
-                                    <i class="fa fa-phone"></i>
-                                    <input type="text" class="form-control input-lg" placeholder="Mobile" name="phone_no" value="{{ old('phone_no') }}"> </div>
-                            </div>
-
                             <div class="form-group">
                                 <label>User Type</label>
                                 <div>

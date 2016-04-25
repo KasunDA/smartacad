@@ -10,7 +10,7 @@
     <link href="{{ asset('assets/layouts/layout/css/custom.min.css') }}" rel="stylesheet" type="text/css"/>
 @endsection
 
-@section('title', '404 Not Found')
+@section('title', 'Error: 305')
 
 @section('breadcrumb')
     <li>
@@ -24,28 +24,26 @@
         <i class="fa fa-angle-right"></i>
     </li>
     <li>
-        <a href="#">404 Page Not Found</a>
+        <a href="#">Error: 305</a>
     </li>
 @endsection
 
 @section('content')
     <div class="page-title">
-        <h2><span class="fa fa-unlink"></span> 404 Page Not Found</h2>
+        <h2><span class="fa fa-warning"></span> 305 Invalid Record Request</h2>
     </div>
 
     <!-- BEGIN PAGE CONTENT-->
     <div class="row">
-        <div class="col-md-12 page-404">
+        <div class="col-md-12 page-500">
             <div class="number">
-                404
+                305
             </div>
             <div class="details">
-                <h3>Oops! You're lost.</h3>
+                <h3>Oops! Invalid Record Request.</h3>
                 <p>
-                    We can not find the page you're looking for.<br/>
-                    <a href="/">Return home </a><br/>
-                    The link you followed may be broken, or the page may have been removed.<br/>
-                    Please wait a moment and try again or use navigation side bar.<br/>
+                    You have for and invalid record which does not exist on our system<br/>
+                    Kindly Contact your system administrator for assistance<br/>
                 </p>
 
             </div>
@@ -56,7 +54,7 @@
     @endsection
 
     @section('layout-script')
-    <!-- BEGIN PAGE LEVEL PLUGINS -->
+            <!-- BEGIN PAGE LEVEL PLUGINS -->
     <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->

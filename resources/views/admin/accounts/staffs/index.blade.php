@@ -7,7 +7,7 @@
     <!-- END PAGE LEVEL STYLES -->
 @endsection
 
-@section('title', 'Manage User')
+@section('title', 'Manage Staffs')
 
 @section('breadcrumb')
     <li>
@@ -21,7 +21,7 @@
 
 
 @section('content')
-    <h3 class="page-title"> Manage Staff</h3>
+    <h3 class="page-title"> Manage Staffs</h3>
 
     <div class="row">
         <div class="col-md-12">
@@ -29,54 +29,54 @@
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="icon-list font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">Registered Staff</span>
+                        <span class="caption-subject font-green bold uppercase">Registered Staffs</span>
                     </div>
                     <div class="tools">
                     </div>
                 </div>
                 <div class="portlet-body">
                     <div class="row">
-                        <table class="table table-striped table-bordered table-hover">
+                        <table class="table table-striped table-bordered table-hover" id="staffs_datatable">
                             <thead>
                                 <tr>
                                     <th style="width: 1%;">#</th>
-                                    <th style="width: 25%;">Names</th>
-                                    <th style="width: 19%;">Email</th>
+                                    <th style="width: 20%;">Full Name</th>
                                     <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 10%;">Registered on</th>
-                                    <th style="width: 10%;">Status</th>
+                                    <th style="width: 19%;">Email</th>
+                                    <th style="width: 5%;">Gender</th>
+                                    <th style="width: 15%;">Registered By</th>
+                                    <th style="width: 15%;">Registered On</th>
+                                    <th style="width: 5%;">Status</th>
                                     <th style="width: 5%;">View</th>
                                     <th style="width: 5%;">Edit</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            @if(count($users) > 0)
+                            @if(count($staffs) > 0)
                                 <?php $i = 1; ?>
-                                @foreach($users as $user)
+                                @foreach($staffs as $staff)
                                     <tr class="odd gradeX">
                                         <td class="center">{{$i++}}</td>
-                                        <td>{{ $user->fullNames() }}</td>
-                                        <td>{{ $user->email }}</td>
-                                        <td>{{ $user->phone_no }}</td>
-                                        <td>{{ $user->created_At }}</td>
+                                        <td>{{ $staff->fullNames() }}</td>
+                                        <td>{{ $staff->phone_no }}</td>
+                                        <td>{{ $staff->email }}</td>
+                                        <td>{!! ($staff->gender) ? $staff->gender : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>{{ $staff->createdBy()->first()->fullNames() }}</td>
+                                        <td>{{ $staff->created_at->format('jS M, Y') }}</td>
                                         <td>
-                                            @if($user->status === 1)
-                                                <button value="{{ $user->user_id }}" rel="2" class="btn btn-success btn-rounded btn-condensed btn-xs user_status">
-                                                    Deactivate
-                                                </button>
+                                            @if($staff->user()->first()->status === 1)
+                                                <label class="label label-success">Activated</label>
                                             @else
-                                                <button value="{{ $user->user_id }}" rel="1" class="btn btn-danger btn-rounded btn-condensed btn-xs user_status">
-                                                    Activate
-                                                </button>
+                                                <label class="label label-danger">Deactivated</label>
                                             @endif
                                         </td>
                                         <td>
-                                            <a target="_blank" href="{{ url('/users/view/'.$hashIds->encode($user->user_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                                            <a target="_blank" href="{{ url('/staffs/view/'.$hashIds->encode($staff->staff_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
                                                 <span class="fa fa-eye-slash"></span>
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="{{ url('/users/edit/'.$hashIds->encode($user->user_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                                            <a href="{{ url('/staffs/edit/'.$hashIds->encode($staff->staff_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
                                                 <span class="fa fa-edit"></span>
                                             </a>
                                         </td>
@@ -87,11 +87,13 @@
                             <tfoot>
                                 <tr>
                                     <th style="width: 1%;">#</th>
-                                    <th style="width: 25%;">Names</th>
-                                    <th style="width: 19%;">Email</th>
+                                    <th style="width: 20%;">Full Name</th>
                                     <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 10%;">Registered on</th>
-                                    <th style="width: 10%;">Status</th>
+                                    <th style="width: 19%;">Email</th>
+                                    <th style="width: 5%;">Gender</th>
+                                    <th style="width: 15%;">Registered By</th>
+                                    <th style="width: 15%;">Registered On</th>
+                                    <th style="width: 5%;">Status</th>
                                     <th style="width: 5%;">View</th>
                                     <th style="width: 5%;">Edit</th>
                                 </tr>
@@ -120,10 +122,10 @@
 
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/users/user.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/accounts/staffs.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/users"]');
+            setTabActive('[href="/staffs"]');
             TableManaged.init();
         });
     </script>

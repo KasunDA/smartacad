@@ -163,7 +163,8 @@ class UserController extends Controller
     {
         $decodeId = $this->getHashIds()->decode($encodeId);
         $userView = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
-        return view('admin.users.view', compact('userView'));
+        $account = $userView->account()->first();
+        return view('admin.users.view', compact('userView', 'account'));
     }
 
     /**
@@ -176,7 +177,7 @@ class UserController extends Controller
         $decodeId = $this->getHashIds()->decode($encodeId);
 
         $user = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
-        $user_types = UserType::all();
+        $user_types = UserType::where('type', 2)->lists('user_type', 'user_type_id')->put('', 'Nothing Selected');
 
         return view('admin.users.edit', compact('user','user_types'));
     }
@@ -192,27 +193,31 @@ class UserController extends Controller
         session()->put('active', 'info');
 
         $inputs = $request->all();
-        $user = (empty($inputs['user_id'])) ? abort(305) : User::findOrFail($inputs['user_id']);
+        $user = (empty($inputs['user_id'])) ? abort(403) : User::findOrFail($inputs['user_id']);
         $messages = [
-            'first_name.required' => 'The First Name is Required!',
-            'last_name.required' => 'The Last Name is Required!',
-            'gender.required' => 'Gender is Required!',
+            'status.required' => 'The User Status is Required!',
+//            'user_type_id.required' => 'The User Type is Required!',
             'email.required' => 'A Valid E-Mail Address is Required!',
-            'email.unique' => 'This E-Mail Address Has Been Taken or Assigned Already!',
-            'phone_no.required' => 'The Mobile Number is Required!',
+            'email.unique' => 'This E-Mail Address Has Already Been Assigned!',
+            'username.unique' => 'The Mobile Number Has Already Been Assigned!',
+            'username.required' => 'The Mobile Number is Required!',
         ];
         $validator = Validator::make($inputs, [
-            'first_name' => 'required|max:100|min:2',
-            'last_name' => 'required|max:100|min:2',
             'email' => 'required|email|max:255|unique:users,email,'.$user->user_id.',user_id',
-            'phone_no' => 'required',
-            'gender' => 'required',
+            'username' => 'required|max:15|min:11|unique:users,username,'.$user->user_id.',user_id',
+//            'user_type_id' => 'required',
+            'status' => 'required',
         ], $messages);
         //Validate Request Inputs
         if ($validator->fails()) {
             $this->setFlashMessage('  Error!!! You have error(s) while filling the form.', 2);
             return redirect('/users/edit/'.$this->getHashIds()->encode($inputs['user_id']))->withErrors($validator)->withInput();
         }
+        //Update The Account Record
+        $account = $user->account()->first();
+        $account->email = $inputs['email'];
+        $account->phone_no = $inputs['username'];
+        $account->save();
         // Update the user record
         $user->update($inputs);
 

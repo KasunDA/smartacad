@@ -62,7 +62,7 @@ class ProfileController extends Controller
     public function getEdit()
     {
         $user = Auth::user();
-        $staff = $user->staff()->first();
+        $staff = $user->account()->first();
         $lga = $staff->lga()->first();
         $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->put('', 'Nothing Selected');
         $states = State::orderBy('state')->lists('state', 'state_id')->put('', 'Nothing Selected');

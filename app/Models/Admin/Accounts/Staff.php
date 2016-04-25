@@ -85,6 +85,22 @@ class Staff extends Model
     }
 
     /**
+     * A Staff belongs to a User
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user(){
+        return $this->belongsTo('App\Models\Admin\Users\User', 'phone_no', 'username');
+    }
+
+    /**
+     * A Staff was created by a User
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdBy(){
+        return $this->belongsTo('App\Models\Admin\Users\User', 'created_by', 'user_id');
+    }
+
+    /**
      * A Sponsor belongs to a Salutation
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -7,7 +7,7 @@
     <!-- END PAGE LEVEL STYLES -->
 @endsection
 
-@section('title', 'Manage User')
+@section('title', 'Manage Sponsors')
 
 @section('breadcrumb')
     <li>
@@ -36,47 +36,45 @@
                 </div>
                 <div class="portlet-body">
                     <div class="row">
-                        <table class="table table-striped table-bordered table-hover">
+                        <table class="table table-striped table-bordered table-hover" id="sponsor_datatable">
                             <thead>
-                                <tr>
-                                    <th style="width: 1%;">#</th>
-                                    <th style="width: 25%;">Names</th>
-                                    <th style="width: 19%;">Email</th>
-                                    <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 10%;">Registered on</th>
-                                    <th style="width: 10%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
-                                </tr>
+                            <tr>
+                                <th style="width: 1%;">#</th>
+                                <th style="width: 20%;">Full Name</th>
+                                <th style="width: 15%;">Mobile</th>
+                                <th style="width: 19%;">Email</th>
+                                <th style="width: 15%;">Registered By</th>
+                                <th style="width: 15%;">Registered On</th>
+                                <th style="width: 5%;">Status</th>
+                                <th style="width: 5%;">View</th>
+                                <th style="width: 5%;">Edit</th>
+                            </tr>
                             </thead>
                             <tbody>
-                            @if(count($users) > 0)
+                            @if(count($sponsors) > 0)
                                 <?php $i = 1; ?>
-                                @foreach($users as $user)
+                                @foreach($sponsors as $sponsor)
                                     <tr class="odd gradeX">
                                         <td class="center">{{$i++}}</td>
-                                        <td>{{ $user->fullNames() }}</td>
-                                        <td>{{ $user->email }}</td>
-                                        <td>{{ $user->phone_no }}</td>
-                                        <td>{{ $user->created_At }}</td>
+                                        <td>{{ $sponsor->fullNames() }}</td>
+                                        <td>{{ $sponsor->phone_no }}</td>
+                                        <td>{{ $sponsor->email }}</td>
+                                        <td>{{ $sponsor->createdBy()->first()->fullNames() }}</td>
+                                        <td>{{ $sponsor->created_at->format('jS M, Y') }}</td>
                                         <td>
-                                            @if($user->status === 1)
-                                                <button value="{{ $user->user_id }}" rel="2" class="btn btn-success btn-rounded btn-condensed btn-xs user_status">
-                                                    Deactivate
-                                                </button>
+                                            @if($sponsor->user()->first()->status === 1)
+                                                <label class="label label-success">Activated</label>
                                             @else
-                                                <button value="{{ $user->user_id }}" rel="1" class="btn btn-danger btn-rounded btn-condensed btn-xs user_status">
-                                                    Activate
-                                                </button>
+                                                <label class="label label-danger">Deactivated</label>
                                             @endif
                                         </td>
                                         <td>
-                                            <a target="_blank" href="{{ url('/users/view/'.$hashIds->encode($user->user_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                                            <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($sponsor->sponsor_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
                                                 <span class="fa fa-eye-slash"></span>
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="{{ url('/users/edit/'.$hashIds->encode($user->user_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                                            <a href="{{ url('/sponsors/edit/'.$hashIds->encode($sponsor->sponsor_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
                                                 <span class="fa fa-edit"></span>
                                             </a>
                                         </td>
@@ -85,16 +83,17 @@
                             @endif
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <th style="width: 1%;">#</th>
-                                    <th style="width: 25%;">Names</th>
-                                    <th style="width: 19%;">Email</th>
-                                    <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 10%;">Registered on</th>
-                                    <th style="width: 10%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
-                                </tr>
+                            <tr>
+                                <th style="width: 1%;">#</th>
+                                <th style="width: 20%;">Full Name</th>
+                                <th style="width: 15%;">Mobile</th>
+                                <th style="width: 19%;">Email</th>
+                                <th style="width: 15%;">Registered By</th>
+                                <th style="width: 15%;">Registered On</th>
+                                <th style="width: 5%;">Status</th>
+                                <th style="width: 5%;">View</th>
+                                <th style="width: 5%;">Edit</th>
+                            </tr>
                             </tfoot>
 
                         </table>
@@ -120,10 +119,10 @@
 
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/users/user.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/accounts/sponsors.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/users"]');
+            setTabActive('[href="/sponsors"]');
             TableManaged.init();
         });
     </script>

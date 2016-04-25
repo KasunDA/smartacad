@@ -13,6 +13,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Validator;
 
 class AccountsController extends Controller
@@ -37,15 +38,17 @@ class AccountsController extends Controller
             'other_name.required' => 'The Last Name is Required!',
             'salutation_id.required' => 'Salutation is Required!',
             'user_type_id.required' => 'The User Type is Required!',
-            'email.required' => 'An E-Mail Address is Required!',
+            'phone_no.required' => 'A Mobile Number is Required!',
+            'phone_no.unique' => 'The Mobile Number Has Already Been Assigned!',
             'email.email' => 'A Valid E-Mail Address is Required!',
-            'email.unique' => 'This E-Mail Address Has Been Taken or Assigned Already!',
+            'email.unique' => 'This E-Mail Address Has Already Been Assigned!',
         ];
         return Validator::make($data, [
             'salutation_id' => 'required',
             'first_name' => 'required|max:100|min:2',
             'other_name' => 'required|max:100|min:2',
-            'email' => 'required|email|max:255|unique:users,email',
+            'phone_no' => 'required|max:15|min:11|unique:users,username',
+            'email' => 'email|max:255|unique:users,email',
             'user_type_id' => 'required',
         ], $messages);
     }
@@ -109,18 +112,37 @@ class AccountsController extends Controller
     /**
      * Create a new user instance after a valid registration.
     */
-    private function createAccount($sponsor, $user_type){
+    private function createAccount($data, $user_type){
         $user = new User();
         $role = Role::where('user_type_id', $user_type)->first();
-        $user->username = $sponsor->generateNo();
-        $user->email = $sponsor->email;
+//        $user->username = $data->generateNo();
+        $user->username = $data->phone_no;
+        $user->email = $data->email;
         $user->password = Hash::make('password');
         $user->verified = 1;
-        $user->display_name = $sponsor->fullNames();
+        $user->display_name = $data->fullNames();
         $user->verification_code = $verification_code = str_random(40);
         $user->user_type_id = $user_type;
         $user->save();
-        if($user->user_id) $user->attachRole($role);
+
+        if($user->user_id) {
+            $user->attachRole($role);
+
+            //Sending of SMS
+            // TODO
+            //$data->phone_no
+
+            //Verification Mail Sending
+//            $content = 'Welcome to Smart Edu Application.
+//            SmartEdu is a solution uniquely tailored to meet the needs of Educators, Parents and Students.
+//            SmartEdu helps Educators and Parents monitor and improve student academic performance.Thank You';
+//            Mail::send('emails.account', ['user' => $user, 'content' => $content], function ($message) use ($user) {
+//                $message->from(env('APP_MAIL'), env('APP_NAME'));
+//                $message->subject("Account Creation");
+//                $message->to($user->email);
+//            });
+        }
+
 
         return $user;
     }

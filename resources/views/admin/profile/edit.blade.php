@@ -90,7 +90,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Other Names</label>
-                                        {!! Form::text('last_name', $staff->other_name, ['placeholder'=>'Other Names', 'class'=>'form-control', 'required'=>'required']) !!}
+                                        {!! Form::text('other_name', $staff->other_name, ['placeholder'=>'Other Names', 'class'=>'form-control', 'required'=>'required']) !!}
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Email</label>
@@ -101,7 +101,7 @@
                                         {!! Form::text('phone_no', $staff->phone_no, ['placeholder'=>'Mobile No', 'class'=>'form-control', 'required'=>'required']) !!}
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label">Mobile Number</label>
+                                        <label class="control-label">Mobile Number 2</label>
                                         {!! Form::text('phone_no2', $staff->phone_no2, ['placeholder'=>'Mobile No 2', 'class'=>'form-control']) !!}
                                     </div>
                                     <div class="form-group">

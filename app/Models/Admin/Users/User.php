@@ -2,6 +2,9 @@
 
 namespace App\Models\Admin\Users;
 
+use App\Models\Admin\Accounts\Sponsor;
+use App\Models\Admin\Accounts\Staff;
+use App\Models\Admin\Accounts\Student;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
@@ -72,19 +75,17 @@ class User extends Authenticatable
     }
 
     /**
-     * A User belongs to a Staff
+     * A User belongs to an Account
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function staff(){
-        return $this->belongsTo('App\Models\Admin\Accounts\Staff', 'username', 'staff_no');
-    }
-
-    /**
-     * A User belongs to a Sponsor
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function sponsor(){
-        return $this->belongsTo('App\Models\Admin\Accounts\Sponsor', 'username', 'sponsor_no');
+    public function account(){
+        if($this->user_type_id === Student::USER_TYPE){
+            return $this->belongsTo('App\Models\Admin\Accounts\Student', 'username', 'phone_no');
+        }elseif($this->user_type_id === Sponsor::USER_TYPE){
+            return $this->belongsTo('App\Models\Admin\Accounts\Sponsor', 'username', 'phone_no');
+        }else{
+            return $this->belongsTo('App\Models\Admin\Accounts\Staff', 'username', 'phone_no');
+        }
     }
 
     /**

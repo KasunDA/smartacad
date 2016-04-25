@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 21, 2016 at 11:51 PM
+-- Generation Time: Apr 26, 2016 at 12:46 AM
 -- Server version: 5.6.26
 -- PHP Version: 5.6.12
 
@@ -2614,7 +2614,8 @@ CREATE TABLE IF NOT EXISTS `role_user` (
 --
 
 INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
-(1, 1);
+(1, 1),
+(2, 3);
 
 -- --------------------------------------------------------
 
@@ -2807,12 +2808,19 @@ CREATE TABLE IF NOT EXISTS `sponsors` (
   `phone_no` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `phone_no2` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `address` text COLLATE utf8_unicode_ci,
-  `lga_id` tinyint(4) DEFAULT NULL,
-  `salutation_id` tinyint(4) DEFAULT NULL,
+  `lga_id` int(11) DEFAULT NULL,
+  `salutation_id` int(11) DEFAULT NULL,
   `created_by` int(10) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `sponsors`
+--
+
+INSERT INTO `sponsors` (`sponsor_id`, `sponsor_no`, `first_name`, `other_name`, `email`, `dob`, `phone_no`, `phone_no2`, `address`, `lga_id`, `salutation_id`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 'SPN00001', 'Dakuku', 'PeterSide', 'dijha@ymail.com', '1991-11-04', '028303742244', '', 'Rumu Okolo community High School Road', 693, 3, 1, '2016-04-25 18:16:43', '2016-04-25 21:43:42');
 
 -- --------------------------------------------------------
 
@@ -2832,8 +2840,8 @@ CREATE TABLE IF NOT EXISTS `staffs` (
   `phone_no` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `phone_no2` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `address` text COLLATE utf8_unicode_ci,
-  `lga_id` tinyint(4) DEFAULT NULL,
-  `salutation_id` tinyint(4) DEFAULT NULL,
+  `lga_id` int(11) DEFAULT NULL,
+  `salutation_id` int(11) DEFAULT NULL,
   `created_by` int(10) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -2844,7 +2852,7 @@ CREATE TABLE IF NOT EXISTS `staffs` (
 --
 
 INSERT INTO `staffs` (`staff_id`, `staff_no`, `first_name`, `other_name`, `email`, `dob`, `gender`, `phone_no`, `phone_no2`, `address`, `lga_id`, `salutation_id`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 'STF00001', 'John', 'Doe', 'admin@gmail.com', '1994-03-16', 'Female', '01923893484', '', 'Ahmadu Bello Way, Kaduna, Kaduna State', 127, 3, 1, '2016-04-21 19:41:55', '2016-04-21 20:40:01');
+(1, 'STF00001', 'John', 'Doe', 'admin@gmail.com', '1989-12-15', 'Male', '08011223344', '8389378673', 'Ikunna Street, off Ilewe road, Igundo, Lagos', 71, 3, 1, '2016-04-21 19:41:55', '2016-04-25 21:25:36');
 
 -- --------------------------------------------------------
 
@@ -2966,14 +2974,15 @@ CREATE TABLE IF NOT EXISTS `users` (
   `remember_token` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`user_id`, `username`, `display_name`, `password`, `email`, `avatar`, `user_type_id`, `verified`, `status`, `verification_code`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'STF00001', 'John Doe', '$2y$10$J6VM0.ySq0icTRaDtXjjI.i7MWJy6UUlPDgmJ3ygFUxDxJ/MeAk5G', 'admin@gmail.com', '1_avatar.jpg', 1, 1, 1, NULL, 'uPMv7hYCF6NeQ9xn6dFrzzaOOi69VWYqLtoGayAYcdUF588IVceA6zUzhdcC', NULL, '2016-04-21 20:40:01');
+(1, '08011223344', 'John Doe', '$2y$10$J6VM0.ySq0icTRaDtXjjI.i7MWJy6UUlPDgmJ3ygFUxDxJ/MeAk5G', 'admin@gmail.com', '1_avatar.jpg', 1, 1, 1, NULL, 'uPMv7hYCF6NeQ9xn6dFrzzaOOi69VWYqLtoGayAYcdUF588IVceA6zUzhdcC', NULL, '2016-04-25 21:25:36'),
+(2, '028303742244', 'Dakuku PeterSide', '$2y$10$TRM/.N05DzR87mJGr9ppW.Wa1j0gzl4WmIdI7S0P6LvIVdzec0ocu', 'dijha@ymail.com', NULL, 3, 1, 1, 'ud3Nm8ZyLK5ecatcEHAldz1CoXn2hlLcXbtFcO73', NULL, '2016-04-25 18:16:43', '2016-04-25 21:34:35');
 
 --
 -- Indexes for dumped tables
@@ -3109,8 +3118,8 @@ ALTER TABLE `user_types`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `users_email_unique` (`email`),
-  ADD KEY `users_user_type_id_index` (`user_type_id`),
-  ADD KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`) USING BTREE,
+  ADD KEY `users_user_type_id_index` (`user_type_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -3145,7 +3154,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `sponsors`
 --
 ALTER TABLE `sponsors`
-  MODIFY `sponsor_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `sponsor_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `staffs`
 --
@@ -3170,7 +3179,7 @@ ALTER TABLE `user_types`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+  MODIFY `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
 --
 -- Constraints for dumped tables
 --

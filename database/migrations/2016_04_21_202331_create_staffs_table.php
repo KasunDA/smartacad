@@ -23,8 +23,8 @@ class CreateStaffsTable extends Migration
             $table->string('phone_no', 20)->nullable();
             $table->string('phone_no2', 20)->nullable();
             $table->text('address')->nullable();
-            $table->smallInteger('lga_id')->index()->unsigned()->nullable();
-            $table->smallInteger('salutation_id')->index()->unsigned()->nullable();
+            $table->integer('lga_id')->index()->unsigned()->nullable();
+            $table->integer('salutation_id')->index()->unsigned()->nullable();
             $table->integer('created_by', 10)->index()->unsigned();
             $table->timestamps();
         });

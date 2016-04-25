@@ -37,7 +37,7 @@
         <div class="tabbable-line tabbable-full-width">
             <ul class="nav nav-tabs">
                 <li class="active">
-                    <a href="#tab_1_1" data-toggle="tab"> Modify Profile </a>
+                    <a href="#tab_1_1" data-toggle="tab"> Modify User Info </a>
                 </li>
             </ul>
             <div class="tab-content">
@@ -66,31 +66,22 @@
                                                 'role'=>'form'
                                             ])
                                         !!}
-                                    <div class="form-group">
-                                        <label class="control-label">First Name</label>
-                                        {!! Form::text('first_name', $user->first_name, ['placeholder'=>'First Name', 'class'=>'form-control', 'required'=>'required']) !!}
-                                        {!! Form::hidden('user_id', $user->user_id) !!}
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label">Last Name</label>
-                                        {!! Form::text('last_name', $user->last_name, ['placeholder'=>'Last Name', 'class'=>'form-control', 'required'=>'required']) !!}
-                                    </div>
+                                    {!! Form::hidden('user_id', $user->user_id) !!}
                                     <div class="form-group">
                                         <label class="control-label">Email</label>
-                                        {!! Form::text('email2', $user->email, ['placeholder'=>'Email', 'class'=>'form-control', 'required'=>'required', 'disabled'=>true]) !!}
-                                        {!! Form::hidden('email', $user->email) !!}
+                                        {!! Form::text('email', $user->email, ['placeholder'=>'Email', 'class'=>'form-control', 'required'=>'required']) !!}
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Mobile Number</label>
-                                        {!! Form::text('phone_no', $user->phone_no, ['placeholder'=>'Mobile No', 'class'=>'form-control', 'required'=>'required']) !!}
+                                        {!! Form::text('username', $user->username, ['placeholder'=>'Mobile No', 'class'=>'form-control', 'required'=>'required']) !!}
                                     </div>
+                                    {{--<div class="form-group">--}}
+                                        {{--<label class="control-label">User Type</label>--}}
+                                        {{--{!! Form::select('user_type_id', $user_types, $user->user_type_id, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}--}}
+                                    {{--</div>--}}
                                     <div class="form-group">
-                                        <label class="control-label">Gender</label>
-                                        {!! Form::select('gender', [''=>'Nothing Selected', 'Male'=>'Male', 'Female'=>'Female'], $user->gender, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label">Date Of Birth</label>
-                                        <input class="form-control input-medium date-picker" data-date-format="yyyy-mm-dd" name="dob" size="16" type="text" value="{!! ($user->dob) ?  $user->dob->format('Y-m-d') : '' !!}" />
+                                        <label class="control-label">Status</label>
+                                        {!! Form::select('status', [''=>'Nothing Selected', '1'=>'Activate', '2'=>'Deactivate'], $user->status, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
                                     </div>
                                     <div class="margiv-top-10">
                                         <button class="btn green"> Update Info </button>
