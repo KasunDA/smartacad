@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Accounts\Sponsor;
+use App\Models\Admin\Accounts\Staff;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -17,6 +19,8 @@ class DashboardController extends Controller
      */
     public function getIndex()
     {
-        return view('admin.dashboard');
+        $sponsors_count = Sponsor::count();
+        $staff_count = Staff::count();
+        return view('admin.dashboard', compact('sponsors_count','staff_count'));
     }
 }
