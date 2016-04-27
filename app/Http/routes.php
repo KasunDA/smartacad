@@ -27,7 +27,7 @@
 Route::group(['middleware' => ['web']], function () {
 
     Route::get('/', function () {
-        return view('welcome');
+        return redirect('/auth/login');
     });
 
     Route::get('/home', function () {

@@ -19,16 +19,16 @@ SET time_zone = "+00:00";
 --
 -- Database: `schools`
 --
-DROP DATABASE `schools`;
-CREATE DATABASE IF NOT EXISTS `schools` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `schools`;
+DROP DATABASE `solidste_portal_admin`;
+CREATE DATABASE IF NOT EXISTS `solidste_portal_admin` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `solidste_portal_admin`;
 
 DELIMITER $$
 --
 -- Procedures
 --
 DROP PROCEDURE IF EXISTS `proc_annualClassPositionViews`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_annualClassPositionViews`(IN `ClassID` INT, IN `AcademicYearID` INT)
+CREATE PROCEDURE `proc_annualClassPositionViews`(IN `ClassID` INT, IN `AcademicYearID` INT)
 BEGIN
 #Create a Temporary Table to Hold The Values
 		DROP TEMPORARY TABLE IF EXISTS AnnualClassPositionResultTable;
@@ -136,7 +136,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_assignSubject2Classlevels`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_assignSubject2Classlevels`(IN `LevelID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
+CREATE PROCEDURE `proc_assignSubject2Classlevels`(IN `LevelID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
 BEGIN
 		DECLARE done1 BOOLEAN DEFAULT FALSE;
 		DECLARE ClassID INT;
@@ -158,7 +158,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_assignSubject2Classrooms`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_assignSubject2Classrooms`(IN `ClassID` INT, `LevelID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
+CREATE PROCEDURE `proc_assignSubject2Classrooms`(IN `ClassID` INT, `LevelID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
 BEGIN
 #Create a Temporary Table to Hold The Values
 		DROP TEMPORARY TABLE IF EXISTS SubjectTemp;
@@ -232,7 +232,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_assignSubject2Students`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_assignSubject2Students`(IN `subjectClasslevelID` INT)
+CREATE PROCEDURE `proc_assignSubject2Students`(IN `subjectClasslevelID` INT)
 BEGIN
 		SELECT classlevel_id, class_id, academic_term_id
 		INTO @ClassLevelID, @ClassID, @AcademicTermID
@@ -271,7 +271,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_cloneSubjectsAssigned`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_cloneSubjectsAssigned`(IN `TermFromID` INT, IN `TermToID` INT)
+CREATE PROCEDURE `proc_cloneSubjectsAssigned`(IN `TermFromID` INT, IN `TermToID` INT)
 BEGIN
 -- Check to see if records already exist in subject classlevel table for the TermToID academic term
 		SET @Exist = (SELECT COUNT(*) FROM subject_classlevels WHERE academic_term_id=TermToID);
@@ -322,7 +322,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_examsDetailsReportViews`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_examsDetailsReportViews`(IN `AcademicID` INT, IN `TypeID` INT)
+CREATE PROCEDURE `proc_examsDetailsReportViews`(IN `AcademicID` INT, IN `TypeID` INT)
 BEGIN
 -- Create Temporary Table
 		DROP TEMPORARY TABLE IF EXISTS ExamsDetailsResultTable;
@@ -423,7 +423,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_insertAttendDetails`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_insertAttendDetails`(IN `AttendID` INT, `StudentIDS` VARCHAR(225))
+CREATE PROCEDURE `proc_insertAttendDetails`(IN `AttendID` INT, `StudentIDS` VARCHAR(225))
 BEGIN
 # Delete The Record if it exists
 		SELECT COUNT(*) INTO @Exist FROM attend_details WHERE attend_id=AttendID;
@@ -452,7 +452,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_insertWeeklyReportDetail`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_insertWeeklyReportDetail`(IN `WeeklyReportID` INT)
+CREATE PROCEDURE `proc_insertWeeklyReportDetail`(IN `WeeklyReportID` INT)
 BEGIN
 # Delete The Record if it exists
 		SELECT weekly_detail_setup_id, subject_classlevel_id, marked_status, notification_status
@@ -475,7 +475,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_processExams`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_processExams`(IN `TermID` INT)
+CREATE PROCEDURE `proc_processExams`(IN `TermID` INT)
 BEGIN
 			Block0: BEGIN
 -- Delete the exams details record for that term if its has not been marked already
@@ -553,7 +553,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_processItemVariable`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_processItemVariable`(IN `ItemVariableID` INT)
+CREATE PROCEDURE `proc_processItemVariable`(IN `ItemVariableID` INT)
 BEGIN
 		SELECT item_id, student_id, class_id, academic_term_id, price
 		INTO @ItemID, @StudentID, @ClassID, @AcademicTermID, @Price
@@ -609,7 +609,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_processTerminalFees`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_processTerminalFees`(IN `ProcessID` INT)
+CREATE PROCEDURE `proc_processTerminalFees`(IN `ProcessID` INT)
 BEGIN
 		SELECT academic_term_id
 		INTO @AcademicTermID
@@ -644,7 +644,7 @@ BEGIN
 	END$$
 
 DROP PROCEDURE IF EXISTS `proc_processWeeklyReportCA`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_processWeeklyReportCA`(IN `TermID` INT)
+CREATE PROCEDURE `proc_processWeeklyReportCA`(IN `TermID` INT)
 Block0: BEGIN
 #Create a Temporary Table to Hold The Values for manupulations
 /*DROP TEMPORARY TABLE IF EXISTS SubjectCAResultTable;
@@ -768,7 +768,7 @@ VALUES(StudentID, StudentName, ClassID, SubjectID, SubjectName, SubClassLevel, T
 	END Block0$$
 
 DROP PROCEDURE IF EXISTS `proc_terminalClassPositionViews`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc_terminalClassPositionViews`(IN `cla_id` INT, IN `term_id` INT)
+CREATE PROCEDURE `proc_terminalClassPositionViews`(IN `cla_id` INT, IN `term_id` INT)
 Block0: BEGIN
 		SET @Output = 0;
 		SET @Average = 0;
@@ -866,7 +866,7 @@ Block0: BEGIN
 -- Functions
 --
 DROP FUNCTION IF EXISTS `func_annualExamsViews`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `func_annualExamsViews`(`StudentID` INT, `AcademicYearID` INT) RETURNS int(11)
+CREATE FUNCTION `func_annualExamsViews`(`StudentID` INT, `AcademicYearID` INT) RETURNS int(11)
 BEGIN
     SET @Output = 0;
 #Create a Temporary Table to Hold The Values
@@ -960,7 +960,7 @@ BEGIN
 	END$$
 
 DROP FUNCTION IF EXISTS `fun_getAttendSummary`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `fun_getAttendSummary`(TermID INT, ClassID INT) RETURNS int(11)
+CREATE FUNCTION `fun_getAttendSummary`(TermID INT, ClassID INT) RETURNS int(11)
 Block0: BEGIN
 		SET @Output = 0;
 #Create a Temporary Table to Hold The Values
@@ -996,7 +996,7 @@ Block0: BEGIN
 	END Block0$$
 
 DROP FUNCTION IF EXISTS `fun_getClassHeadTutor`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `fun_getClassHeadTutor`(ClassLevelID INT, YearID INT) RETURNS int(3)
+CREATE FUNCTION `fun_getClassHeadTutor`(ClassLevelID INT, YearID INT) RETURNS int(3)
     DETERMINISTIC
 Block0: BEGIN
 		SET @Output = 0;
@@ -1047,7 +1047,7 @@ Block0: BEGIN
 	END Block0$$
 
 DROP FUNCTION IF EXISTS `fun_getClasslevelSub`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `fun_getClasslevelSub`(`TermID` INT, `LevelID` INT) RETURNS int(11)
+CREATE FUNCTION `fun_getClasslevelSub`(`TermID` INT, `LevelID` INT) RETURNS int(11)
     DETERMINISTIC
 Block0: BEGIN
 		SET @Output = 0;
@@ -1100,7 +1100,7 @@ Block0: BEGIN
 	END Block0$$
 
 DROP FUNCTION IF EXISTS `fun_getSubjectClasslevel`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `fun_getSubjectClasslevel`(`term_id` INT) RETURNS int(11)
+CREATE FUNCTION `fun_getSubjectClasslevel`(`term_id` INT) RETURNS int(11)
     DETERMINISTIC
 Block0: BEGIN
 		SET @Output = 0;
@@ -1165,19 +1165,19 @@ Block0: BEGIN
 	END Block0$$
 
 DROP FUNCTION IF EXISTS `getCurrentTermID`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `getCurrentTermID`() RETURNS int(11)
+CREATE FUNCTION `getCurrentTermID`() RETURNS int(11)
 BEGIN
 		RETURN (SELECT academic_term_id FROM academic_terms WHERE term_status_id=1 LIMIT 1);
 	END$$
 
 DROP FUNCTION IF EXISTS `getCurrentYearID`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `getCurrentYearID`() RETURNS int(11)
+CREATE FUNCTION `getCurrentYearID`() RETURNS int(11)
 BEGIN
 		RETURN (SELECT academic_year_id FROM academic_years WHERE year_status_id=1 LIMIT 1);
 	END$$
 
 DROP FUNCTION IF EXISTS `SPLIT_STR`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `SPLIT_STR`(
+CREATE FUNCTION `SPLIT_STR`(
 	x VARCHAR(255),
 	delim VARCHAR(12),
 	pos INT
@@ -2216,12 +2216,13 @@ ALTER TABLE `schools`
 -- AUTO_INCREMENT for table `states`
 --
 ALTER TABLE `states`
-  MODIFY `state_id` int(3) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=38;--
+  MODIFY `state_id` int(3) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=38;
+--
 -- Database: `solid_steps`
 --
-DROP DATABASE `solid_steps`;
-CREATE DATABASE IF NOT EXISTS `solid_steps` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `solid_steps`;
+DROP DATABASE `solidste_portal`;
+CREATE DATABASE IF NOT EXISTS `solidste_portal` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `solidste_portal`;
 
 -- --------------------------------------------------------
 
