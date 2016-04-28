@@ -14,14 +14,13 @@ class UserTableSeeder extends Seeder
     public function run()
     {
         DB::table('user_types')->insert([
-            ['user_type' => 'Super Admin'], ['user_type' => 'Admin']
+            ['user_type' => 'Developer'], ['user_type' => 'Super Admin']
         ]);
 
         DB::table('users')->insert([
             'email' => 'admin@gmail.com',
-            'first_name' => 'Emmanuel',
-            'last_name'=> 'Okafor',
-            'phone_no' => '08061539278',
+            'display_name' => 'Okafor Emmanuel',
+            'username' => 'admin',
             'verified' => 1,
             'status' => 1,
             'user_type_id' => 1,

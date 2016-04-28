@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
             view()->share('active_home_menu', $active_home_menu);
         }
         //Set The School Info. into a variable school
-        if(env('SCHOOL_ID')){
+        if(env('SCHOOL_ID') && Schema::connection('admin_mysql')->hasTable('schools') && School::count() > 0){
             $school = School::findOrFail(env('SCHOOL_ID'));
             view()->share('school_profile', $school);
         }

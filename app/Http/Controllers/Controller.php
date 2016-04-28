@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Validator;
 
 class Controller extends BaseController
@@ -28,7 +29,10 @@ class Controller extends BaseController
     public function __construct()
     {
         $this->middleware('auth');
-        $this->school_profile = School::findOrFail(env('SCHOOL_ID'));
+        if( Schema::connection('admin_mysql')->hasTable('schools') ){
+            $this->school_profile = School::findOrFail(env('SCHOOL_ID'));
+        }
+
         //Check if the user has permission to perform such action
 //        $this->checkPermission();
     }

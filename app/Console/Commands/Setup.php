@@ -45,9 +45,9 @@ class Setup extends Command
         Artisan::call('db:seed');
         $this->info('DB seeder successful');
 
-        $this->info('Path to sql file : '.$path_to_sql);
-        exec('mysql -u ' . env('DB_USERNAME') . ' -p ' . env('DB_PASSWORD')
-            . ' ' . env('DB_DATABASE') . ' < '.$path_to_sql);
-        $this->info('Database default records successfully inserted');
+//        $this->info('Path to sql file : '.$path_to_sql);
+//        exec('mysql -u ' . env('DB_USERNAME') . ' -p ' . env('DB_PASSWORD')
+//            . ' ' . env('DB_DATABASE') . ' < '.$path_to_sql);
+//        $this->info('Database default records successfully inserted');
     }
 }

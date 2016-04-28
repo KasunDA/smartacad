@@ -25,7 +25,7 @@ class CreateStaffsTable extends Migration
             $table->text('address')->nullable();
             $table->integer('lga_id')->index()->unsigned()->nullable();
             $table->integer('salutation_id')->index()->unsigned()->nullable();
-            $table->integer('created_by', 10)->index()->unsigned();
+            $table->integer('created_by')->index()->unsigned();
             $table->timestamps();
         });
     }

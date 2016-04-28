@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sponsor extends Model
 {
-    //
     /**
      * The table users primary key
      * @var string
