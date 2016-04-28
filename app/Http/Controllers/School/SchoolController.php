@@ -53,7 +53,8 @@ class SchoolController extends Controller
      * @return Response
      */
     public function getCreate(){
-        return view('school.create');
+        $admins = User::where('user_type_id',2)->orderBy('email')->get();
+        return view('school.create', compact('admins'));
     }
 
     /**
@@ -126,7 +127,8 @@ class SchoolController extends Controller
             $decodeId = $this->getHashIds()->decode($encodeId);
             $school = (empty($decodeId)) ? abort(403) : School::findOrFail($decodeId[0]);
         }
-        return view('school.edit', compact('school'));
+        $admins = User::where('user_type_id',2)->orderBy('email')->get();
+        return view('school.edit', compact('school','admins'));
     }
 
     /**

@@ -2616,7 +2616,7 @@ CREATE TABLE IF NOT EXISTS `role_user` (
 
 INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 (1, 1),
-(2, 3);
+(2, 2);
 
 -- --------------------------------------------------------
 

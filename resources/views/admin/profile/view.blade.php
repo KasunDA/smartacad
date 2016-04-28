@@ -2,11 +2,12 @@
 
 @section('layout-style')
         <!-- BEGIN PAGE LEVEL PLUGINS -->
-<link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet"
+      type="text/css"/>
 <!-- END PAGE LEVEL PLUGINS -->
 <!-- BEGIN THEME GLOBAL STYLES -->
 <!-- BEGIN PAGE LEVEL STYLES -->
-<link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css"/>
 <!-- END PAGE LEVEL STYLES -->
 @endsection
 
@@ -45,9 +46,11 @@
                             <ul class="list-unstyled profile-nav">
                                 <li>
                                     @if(!$user->avatar)
-                                        <img src="{{ asset('/uploads/no-image.jpg') }}" class="img-responsive pic-bordered" alt="{{ $user->fullNames() }}"/>
+                                        <img src="{{ asset('/uploads/no-image.jpg') }}"
+                                             class="img-responsive pic-bordered" alt="{{ $user->fullNames() }}"/>
                                     @else
-                                        <img src="{{ $user->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $user->fullNames() }}"/>
+                                        <img src="{{ $user->getAvatarPath() }}" class="img-responsive pic-bordered"
+                                             alt="{{ $user->fullNames() }}"/>
                                     @endif
                                     <a href="{{ url('/profiles/edit/') }}" class="profile-edit"> edit </a>
                                 </li>
@@ -69,55 +72,60 @@
                                         <li>
                                             <i class="fa fa-map-marker"></i> Nigeria
                                         </li>
+                                        <li>
+                                            <i class="fa fa-envelope"></i> {{ $user->email }}
+                                        </li>
                                     </ul>
 
                                     <div class="portlet sale-summary">
                                         <div class="portlet-title">
-                                            <div class="caption font-red sbold"> User Information </div>
+                                            <div class="caption font-red sbold"> User Information</div>
                                         </div>
                                         <div class="portlet-body">
-                                            <table class="table table-stripped table-bordered">
-                                                <tr>
-                                                    <td>Title: </td>
-                                                    <td>{{ $staff->salutation()->first()->salutation }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Email: </td>
-                                                    <td>{{ $staff->email }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Mobile Number 1: </td>
-                                                    <td>{{ $staff->phone_no }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Mobile Number 2: </td>
-                                                    <td>{!! ($staff->phone_no2) ? $staff->phone_no2 : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Gender: </td>
-                                                    <td>{!! ($staff->gender) ? $staff->gender : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>State Of Origin: </td>
-                                                    <td>{!! ($staff->lga()->first()) ? $staff->lga()->first()->state()->first()->state .' State' : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>L. G. A.: </td>
-                                                    <td>{!! ($staff->lga()->first()) ? $staff->lga()->first()->lga : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Date Of Birth: </td>
-                                                    <td>{!! ($staff->dob) ? $staff->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Age: </td>
-                                                    <td>{!! ($staff->dob) ? $staff->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Address: </td>
-                                                    <td>{!! ($staff->address) ? $staff->address : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                            </table>
+                                            @if($staff)
+                                                <table class="table table-stripped table-bordered">
+                                                    <tr>
+                                                        <td>Title:</td>
+                                                        <td>{{ $staff->salutation()->first()->salutation }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Email:</td>
+                                                        <td>{{ $staff->email }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Mobile Number 1:</td>
+                                                        <td>{{ $staff->phone_no }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Mobile Number 2:</td>
+                                                        <td>{!! ($staff->phone_no2) ? $staff->phone_no2 : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Gender:</td>
+                                                        <td>{!! ($staff->gender) ? $staff->gender : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>State Of Origin:</td>
+                                                        <td>{!! ($staff->lga()->first()) ? $staff->lga()->first()->state()->first()->state .' State' : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>L. G. A.:</td>
+                                                        <td>{!! ($staff->lga()->first()) ? $staff->lga()->first()->lga : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Date Of Birth:</td>
+                                                        <td>{!! ($staff->dob) ? $staff->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Age:</td>
+                                                        <td>{!! ($staff->dob) ? $staff->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Address:</td>
+                                                        <td>{!! ($staff->address) ? $staff->address : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                </table>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -132,7 +140,8 @@
 
 
 @section('layout-script')
-    <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}"
+            type="text/javascript"></script>
     <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/gmaps/gmaps.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>

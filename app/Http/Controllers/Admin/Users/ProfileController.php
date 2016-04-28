@@ -51,7 +51,6 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         $staff = $user->staff()->first();
-        dd($staff);
         return view('admin.profile.view', compact('user', 'staff'));
     }
 
@@ -64,10 +63,15 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         $staff = $user->account()->first();
-        $lga = $staff->lga()->first();
-        $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->put('', 'Nothing Selected');
-        $states = State::orderBy('state')->lists('state', 'state_id')->put('', 'Nothing Selected');
-        $lgas = ($staff->lga_id !== null) ? Lga::where('state_id', $staff->lga()->first()->state_id)->lists('lga', 'lga_id')->put('', 'Nothing Selected') : null;
+        if($staff){
+            $lga = $staff->lga()->first();
+            $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->put('', 'Nothing Selected');
+            $states = State::orderBy('state')->lists('state', 'state_id')->put('', 'Nothing Selected');
+            $lgas = ($staff->lga_id !== null) ? Lga::where('state_id', $staff->lga()->first()->state_id)->lists('lga', 'lga_id')->put('', 'Nothing Selected') : null;
+
+        }else{
+            session()->put('active', 'avatar');
+        }
 
         return view('admin.profile.edit', compact('user', 'staff', 'salutations', 'states', 'lga', 'lgas'));
     }

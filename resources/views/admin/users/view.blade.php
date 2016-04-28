@@ -2,11 +2,12 @@
 
 @section('layout-style')
         <!-- BEGIN PAGE LEVEL PLUGINS -->
-<link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet"
+      type="text/css"/>
 <!-- END PAGE LEVEL PLUGINS -->
 <!-- BEGIN THEME GLOBAL STYLES -->
 <!-- BEGIN PAGE LEVEL STYLES -->
-<link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css"/>
 <!-- END PAGE LEVEL STYLES -->
 @endsection
 
@@ -41,11 +42,14 @@
                             <ul class="list-unstyled profile-nav">
                                 <li>
                                     @if(!$userView->avatar)
-                                        <img src="{{ asset('/uploads/no-image.jpg') }}" class="img-responsive pic-bordered" alt="{{ $userView->fullNames() }}"/>
+                                        <img src="{{ asset('/uploads/no-image.jpg') }}"
+                                             class="img-responsive pic-bordered" alt="{{ $userView->fullNames() }}"/>
                                     @else
-                                        <img src="{{ $userView->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $userView->fullNames() }}"/>
+                                        <img src="{{ $userView->getAvatarPath() }}" class="img-responsive pic-bordered"
+                                             alt="{{ $userView->fullNames() }}"/>
                                     @endif
-                                    <a href="{{ url('/users/edit/'.$hashIds->encode($userView->user_id)) }}" class="profile-edit"> edit </a>
+                                    <a href="{{ url('/users/edit/'.$hashIds->encode($userView->user_id)) }}"
+                                       class="profile-edit"> edit </a>
                                 </li>
                                 <li>
                                     <a href="javascript:;"> Messages
@@ -65,55 +69,63 @@
                                         <li>
                                             <i class="fa fa-map-marker"></i> Nigeria
                                         </li>
+                                        <li>
+                                            <i class="fa fa-envelope"></i> {{ $userView->email }}
+                                        </li>
                                     </ul>
-
-                                    <div class="portlet sale-summary">
-                                        <div class="portlet-title">
-                                            <div class="caption font-red sbold"> USERNAME: {{ $userView->username }} || User Information </div>
-                                        </div>
-                                        <div class="portlet-body">
-                                            <table class="table table-stripped table-bordered">
-                                                <tr>
-                                                    <td>Email</td>
-                                                    <td>{{ $userView->email }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Mobile No.</td>
-                                                    <td>{{ $account->phone_no }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Mobile No 2.</td>
-                                                    <td>{!! ($account->phone_no2) ? $account->phone_no2 : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Gender</td>
-                                                    <td>{!! ($account->gender) ? $account->gender : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Date Of Birth</td>
-                                                    <td>{!! ($account->dob) ? $account->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Age</td>
-                                                    <td>{!! ($account->dob) ? $account->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                                @if($account->lga)
+                                    @if(Auth::user()->hasRole('developer'))
+                                        <div class="portlet sale-summary">
+                                            <div class="portlet-title">
+                                                <div class="caption font-red sbold"> USERNAME: {{ $userView->username }}
+                                                    || User Information
+                                                </div>
+                                            </div>
+                                            <div class="portlet-body">
+                                                <table class="table table-stripped table-bordered">
                                                     <tr>
-                                                        <td>State</td>
-                                                        <td>{{ $account->lga()->first()->state()->first()->state }}</td>
+                                                        <td>Email</td>
+                                                        <td>{{ $userView->email }}</td>
                                                     </tr>
-                                                    <tr>
-                                                        <td>L.G.A.</td>
-                                                        <td>{{ $account->lga()->first()->lga }}</td>
-                                                    </tr>
-                                                @endif
-                                                <tr>
-                                                    <td>Address.</td>
-                                                    <td>{!! ($account->address) ? $account->address . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
-                                            </table>
+                                                    @if($account)
+                                                        <tr>
+                                                            <td>Mobile No.</td>
+                                                            <td>{{ $account->phone_no }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Mobile No 2.</td>
+                                                            <td>{!! ($account->phone_no2) ? $account->phone_no2 : '<span class="label label-danger">nil</span>' !!}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Gender</td>
+                                                            <td>{!! ($account->gender) ? $account->gender : '<span class="label label-danger">nil</span>' !!}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Date Of Birth</td>
+                                                            <td>{!! ($account->dob) ? $account->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Age</td>
+                                                            <td>{!! ($account->dob) ? $account->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
+                                                        </tr>
+                                                        @if($account->lga)
+                                                            <tr>
+                                                                <td>State</td>
+                                                                <td>{{ $account->lga()->first()->state()->first()->state }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>L.G.A.</td>
+                                                                <td>{{ $account->lga()->first()->lga }}</td>
+                                                            </tr>
+                                                        @endif
+                                                        <tr>
+                                                            <td>Address.</td>
+                                                            <td>{!! ($account->address) ? $account->address . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
+                                                        </tr>
+                                                    @endif
+                                                </table>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -125,7 +137,8 @@
 @endsection
 
 @section('layout-script')
-    <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}"
+            type="text/javascript"></script>
     <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/gmaps/gmaps.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>

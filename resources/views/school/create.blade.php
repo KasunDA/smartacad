@@ -96,14 +96,23 @@
                                     </div>
                                 </div>
                             </div>
-                            {{--<div class="form-group">--}}
-                                {{--<label>Admin</label>--}}
-                                {{--<div>--}}
-                                    {{--<select name="user_type_id" class="form-control input-lg selectpicker">--}}
-                                        {{--<option value="1">Admin User List</option>--}}
-                                    {{--</select>--}}
-                                {{--</div>--}}
-                            {{--</div>--}}
+                            @if(Auth::user()->hasRole('developer'))
+                                <div class="form-group">
+                                    <label>Admin</label>
+                                    <div>
+                                        <select name="admin_id" class="form-control input-lg selectpicker">
+                                            <option value="">Select Admin</option>
+                                            @foreach($admins as $admin)
+                                                @if($school->admin_id == $admin->user_id)
+                                                    <option selected value="{{ $admin->user_id}}">{{$admin->fullNames() }}</option>
+                                                @else
+                                                    <option value="{{ $admin->user_id}}">{{$admin->email }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                         <div class="form-actions">
                             <button type="submit" class="btn blue pull-right">Create</button>
