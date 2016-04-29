@@ -19,9 +19,10 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('first_name',45);
             $table->string('last_name',45);
-            $table->string('middle_name')->nullable();
+            $table->string('middle_name', 45)->nullable();
             $table->string('gender', 10)->nullable();
             $table->string('phone_no', 15)->unique()->nullable();
+            $table->string('phone_no2', 15)->nullable();
             $table->date('dob')->nullable();
             $table->string('avatar')->nullable();
             $table->integer('lga_id')->nullable()->unsigned()->index();

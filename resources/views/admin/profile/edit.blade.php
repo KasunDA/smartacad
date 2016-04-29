@@ -53,7 +53,7 @@
                     <div class="row profile-account">
                         <div class="col-md-3">
                             <ul class="ver-inline-menu tabbable margin-bottom-10">
-                                @if($staff)
+                                @if($user)
                                 <li class="{{ (session('active') == 'info') ? 'active' : '' }} {{ (!session()->has('active')) ? 'active' : '' }}">
                                     <a data-toggle="tab" href="#info">
                                         <i class="fa fa-cog"></i> Personal info </a>
@@ -74,53 +74,51 @@
                         <div class="col-md-6">
                             @include('errors.errors')
                             <div class="tab-content">
-                                @if($staff)
+                                @if($user)
                                     <div id="info"
                                          class="tab-pane {{ (session('active') == 'info') ? 'active' : '' }} {{ (!session()->has('active')) ? 'active' : '' }} )">
-                                        {!! Form::open([
-                                                'method'=>'POST',
-                                                'class'=>'form',
-                                                'role'=>'form'
-                                            ])
-                                        !!}
-                                        {{--<input type="hidden" name="staff_id" value="{{ $staff->staff_id }}">--}}
+                                        <form action="/profiles/edit" role="form" method="post" class="form">
+                                            {{ csrf_field() }}
                                         <div class="form-group">
                                             <label class="control-label">Title</label>
-                                            @if($staff->salutation_id === null)
+                                            @if($user->salutation_id === null)
                                                 {!! Form::select('salutation_id', $salutations, old('salutation_id'), ['class'=>'form-control input-lg selectpicker']) !!}
                                             @else
-                                                {!! Form::select('salutation_id', $salutations, $staff->salutation_id, ['class'=>'form-control input-lg selectpicker']) !!}
+                                                {!! Form::select('salutation_id', $salutations, $user->salutation_id, ['class'=>'form-control input-lg selectpicker']) !!}
                                             @endif
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">First Name</label>
-                                            {!! Form::text('first_name', $staff->first_name, ['placeholder'=>'First Name', 'class'=>'form-control', 'required'=>'required']) !!}
+                                            {!! Form::text('first_name', $user->first_name, ['placeholder'=>'First Name', 'class'=>'form-control', 'required'=>'required']) !!}
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label">Other Names</label>
-                                            {!! Form::text('other_name', $staff->other_name, ['placeholder'=>'Other Names', 'class'=>'form-control', 'required'=>'required']) !!}
+                                            <label class="control-label">Last Name</label>
+                                            {!! Form::text('last_name', $user->last_name, ['placeholder'=>'Last Name', 'class'=>'form-control', 'required'=>'required']) !!}
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Middle Name</label>
+                                            {!! Form::text('middle_name', $user->middle_name, ['placeholder'=>'Middle Name', 'class'=>'form-control']) !!}
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">Email</label>
-                                            {!! Form::text('email', $staff->email, ['placeholder'=>'Email', 'class'=>'form-control', 'required'=>'required', 'disabled'=>true]) !!}
+                                            {!! Form::text('email', $user->email, ['placeholder'=>'Email', 'class'=>'form-control', 'required'=>'required', 'disabled'=>true]) !!}
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">Mobile Number</label>
-                                            {!! Form::text('phone_no', $staff->phone_no, ['placeholder'=>'Mobile No', 'class'=>'form-control', 'required'=>'required']) !!}
+                                            {!! Form::text('phone_no', $user->phone_no, ['placeholder'=>'Mobile No', 'class'=>'form-control', 'required'=>'required']) !!}
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">Mobile Number 2</label>
-                                            {!! Form::text('phone_no2', $staff->phone_no2, ['placeholder'=>'Mobile No 2', 'class'=>'form-control']) !!}
+                                            {!! Form::text('phone_no2', $user->phone_no2, ['placeholder'=>'Mobile No 2', 'class'=>'form-control']) !!}
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">Gender</label>
-                                            {!! Form::select('gender', [''=>'Gender', 'Male'=>'Male', 'Female'=>'Female'], $staff->gender, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
+                                            {!! Form::select('gender', [''=>'Gender', 'Male'=>'Male', 'Female'=>'Female'], $user->gender, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">Date Of Birth </label>
-                                            <input class="form-control date-picker" data-date-format="yyyy-mm-dd"
-                                                   name="dob" type="text"
-                                                   value="{!! ($staff->dob) ?  $staff->dob->format('Y-m-d') : '' !!}"/>
+                                            <input class="form-control date-picker" data-date-format="yyyy-mm-dd" name="dob" type="text"
+                                                   value="{!! ($user->dob) ?  $user->dob->format('Y-m-d') : old('dob') !!}"/>
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">State </label>
@@ -148,12 +146,12 @@
                                             <label>Contact Address</label>
                                             <textarea class="form-control input-lg" rows="3" required
                                                       placeholder="Contact Address"
-                                                      name="address">{{ $staff->address }}</textarea>
+                                                      name="address">{{ $user->address }}</textarea>
                                         </div>
                                         <div class="margiv-top-10">
                                             <button class="btn green"> Update Info</button>
                                         </div>
-                                        {!! Form::close() !!}
+                                        </form>
                                     </div>
                                 @endif
                                 <div id="avatar" class="tab-pane {{ (session('active') == 'avatar') ? 'active' : '' }}">

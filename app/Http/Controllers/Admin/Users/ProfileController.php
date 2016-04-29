@@ -50,8 +50,7 @@ class ProfileController extends Controller
     public function getIndex()
     {
         $user = Auth::user();
-        $staff = $user->staff()->first();
-        return view('admin.profile.view', compact('user', 'staff'));
+        return view('admin.profile.view', compact('user'));
     }
 
     /**
@@ -62,18 +61,17 @@ class ProfileController extends Controller
     public function getEdit()
     {
         $user = Auth::user();
-        $staff = $user->account()->first();
-        if($staff){
-            $lga = $staff->lga()->first();
+        if($user){
+            $lga = $user->lga()->first();
             $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->put('', 'Nothing Selected');
             $states = State::orderBy('state')->lists('state', 'state_id')->put('', 'Nothing Selected');
-            $lgas = ($staff->lga_id !== null) ? Lga::where('state_id', $staff->lga()->first()->state_id)->lists('lga', 'lga_id')->put('', 'Nothing Selected') : null;
+            $lgas = ($user->lga_id !== null) ? Lga::where('state_id', $user->lga()->first()->state_id)->lists('lga', 'lga_id')->put('', 'Nothing Selected') : null;
 
         }else{
             session()->put('active', 'avatar');
         }
 
-        return view('admin.profile.edit', compact('user', 'staff', 'salutations', 'states', 'lga', 'lgas'));
+        return view('admin.profile.edit', compact('user', 'salutations', 'states', 'lga', 'lgas'));
     }
 
     /**
@@ -85,18 +83,35 @@ class ProfileController extends Controller
     {
         $inputs = $request->all();
         $user = Auth::user();
-//        $user = (empty($inputs['staff_id'])) ? abort(403) : Staff::findOrFail($inputs['staff_id']);
-        $staff = $user->staff()->first();
+        $messages = [
+            'salutation_id.required' => 'Title is Required!',
+            'first_name.required' => 'First Name is Required!',
+            'last_name.required' => 'Last Name is Required!',
+//            'email.unique' => 'This E-Mail Address Has Already Been Assigned!',
+            'phone_no.unique' => 'The Mobile Number Has Already Been Assigned!',
+            'gender.required' => 'Gender is Required!',
+            'dob.required' => 'Date of Birth is Required!',
+            'address.required' => 'Contact Address is Required!',
+        ];
+        $validator = Validator::make($inputs, [
+            'salutation_id' => 'required',
+            'first_name' => 'required',
+            'last_name' => 'required',
+//            'email' => 'required|email|max:255|unique:users,email,'.$user->user_id.',user_id',
+            'phone_no' => 'required|max:15|min:11|unique:users,phone_no,'.$user->user_id.',user_id',
+            'gender' => 'required',
+            'dob' => 'required',
+            'address' => 'required',
+        ], $messages);
 
-        if ($this->validator($inputs)->fails()) {
+        if ($validator->fails()) {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/profiles/edit')->withErrors($this->validator($inputs))->withInput();
+            return redirect('/profiles/edit')->withErrors($validator)->withInput();
         }
 
-        $staff->update($inputs);
-        $user->display_name = $staff->fullNames();
-        $user->save();
-        $this->setFlashMessage($staff->fullNames() . ', Your Profile has been successfully updated.', 1);
+        $user->update($inputs);
+        // :: TODO //Update Address
+        $this->setFlashMessage($user->fullNames() . ', Your Profile has been successfully updated.', 1);
 
         return redirect('/profiles');
     }

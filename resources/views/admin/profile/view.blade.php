@@ -82,50 +82,50 @@
                                             <div class="caption font-red sbold"> User Information</div>
                                         </div>
                                         <div class="portlet-body">
-                                            @if($staff)
-                                                <table class="table table-stripped table-bordered">
-                                                    <tr>
-                                                        <td>Title:</td>
-                                                        <td>{{ $staff->salutation()->first()->salutation }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Email:</td>
-                                                        <td>{{ $staff->email }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Mobile Number 1:</td>
-                                                        <td>{{ $staff->phone_no }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Mobile Number 2:</td>
-                                                        <td>{!! ($staff->phone_no2) ? $staff->phone_no2 : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Gender:</td>
-                                                        <td>{!! ($staff->gender) ? $staff->gender : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
+                                            <table class="table table-stripped table-bordered">
+                                                <tr>
+                                                    <td>Title:</td>
+                                                    <td>{!! ($user->salutation_id) ? $user->salutation()->first()->salutation : '<span class="label label-danger">nil</span>' !!}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Email:</td>
+                                                    <td>{{ $user->email }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Mobile Number 1:</td>
+                                                    <td>{{ $user->phone_no }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Mobile Number 2:</td>
+                                                    <td>{!! ($user->phone_no2) ? $user->phone_no2 : '<span class="label label-danger">nil</span>' !!}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Gender:</td>
+                                                    <td>{!! ($user->gender) ? $user->gender : '<span class="label label-danger">nil</span>' !!}</td>
+                                                </tr>
+                                                @if($user->lga)
                                                     <tr>
                                                         <td>State Of Origin:</td>
-                                                        <td>{!! ($staff->lga()->first()) ? $staff->lga()->first()->state()->first()->state .' State' : '<span class="label label-danger">nil</span>' !!}</td>
+                                                        <td>{!! ($user->lga()->first()) ? $user->lga()->first()->state()->first()->state .' State' : '<span class="label label-danger">nil</span>' !!}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>L. G. A.:</td>
-                                                        <td>{!! ($staff->lga()->first()) ? $staff->lga()->first()->lga : '<span class="label label-danger">nil</span>' !!}</td>
+                                                        <td>{!! ($user->lga()->first()) ? $user->lga()->first()->lga : '<span class="label label-danger">nil</span>' !!}</td>
                                                     </tr>
-                                                    <tr>
-                                                        <td>Date Of Birth:</td>
-                                                        <td>{!! ($staff->dob) ? $staff->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Age:</td>
-                                                        <td>{!! ($staff->dob) ? $staff->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Address:</td>
-                                                        <td>{!! ($staff->address) ? $staff->address : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                </table>
-                                            @endif
+                                                @endif
+                                                <tr>
+                                                    <td>Date Of Birth:</td>
+                                                    <td>{!! ($user->dob) ? $user->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Age:</td>
+                                                    <td>{!! ($user->dob) ? $user->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Address:</td>
+                                                    <td>{!! ($user->address) ? $user->address : '<span class="label label-danger">nil</span>' !!}</td>
+                                                </tr>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>

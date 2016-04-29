@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.1.14
+-- version 4.4.14
 -- http://www.phpmyadmin.net
 --
--- Host: 127.0.0.1
--- Generation Time: Apr 29, 2016 at 08:30 AM
--- Server version: 5.6.17
--- PHP Version: 5.5.12
+-- Host: localhost
+-- Generation Time: Apr 29, 2016 at 10:07 AM
+-- Server version: 5.6.26
+-- PHP Version: 5.6.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -14,11 +14,13 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Database: `solid_steps`
 --
+CREATE DATABASE IF NOT EXISTS `solid_steps` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `solid_steps`;
 
 -- --------------------------------------------------------
 
@@ -28,7 +30,7 @@ SET time_zone = "+00:00";
 
 DROP TABLE IF EXISTS `menus`;
 CREATE TABLE IF NOT EXISTS `menus` (
-  `menu_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `menu_id` int(10) unsigned NOT NULL,
   `menu` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `menu_url` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
   `active` int(10) unsigned NOT NULL DEFAULT '1',
@@ -37,10 +39,8 @@ CREATE TABLE IF NOT EXISTS `menus` (
   `icon` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `menu_header_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`menu_id`),
-  KEY `menus_menu_header_id_index` (`menu_header_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=7 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menus`
@@ -61,15 +61,14 @@ INSERT INTO `menus` (`menu_id`, `menu`, `menu_url`, `active`, `sequence`, `type`
 
 DROP TABLE IF EXISTS `menu_headers`;
 CREATE TABLE IF NOT EXISTS `menu_headers` (
-  `menu_header_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `menu_header_id` int(10) unsigned NOT NULL,
   `menu_header` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `active` int(10) unsigned NOT NULL DEFAULT '1',
   `sequence` int(10) unsigned NOT NULL,
   `type` int(10) unsigned NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`menu_header_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menu_headers`
@@ -89,7 +88,7 @@ INSERT INTO `menu_headers` (`menu_header_id`, `menu_header`, `active`, `sequence
 
 DROP TABLE IF EXISTS `menu_items`;
 CREATE TABLE IF NOT EXISTS `menu_items` (
-  `menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `menu_item_id` int(10) unsigned NOT NULL,
   `menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
@@ -98,10 +97,8 @@ CREATE TABLE IF NOT EXISTS `menu_items` (
   `type` int(10) unsigned NOT NULL DEFAULT '1',
   `menu_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`menu_item_id`),
-  KEY `menu_items_menu_id_index` (`menu_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=10 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menu_items`
@@ -155,16 +152,14 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 
 DROP TABLE IF EXISTS `permissions`;
 CREATE TABLE IF NOT EXISTS `permissions` (
-  `permission_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `permission_id` int(10) unsigned NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `display_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `uri` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`permission_id`),
-  UNIQUE KEY `permissions_name_unique` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=67 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `permissions`
@@ -247,9 +242,7 @@ INSERT INTO `permissions` (`permission_id`, `name`, `display_name`, `description
 DROP TABLE IF EXISTS `permission_role`;
 CREATE TABLE IF NOT EXISTS `permission_role` (
   `permission_id` int(10) unsigned NOT NULL,
-  `role_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`permission_id`,`role_id`),
-  KEY `permission_role_role_id_foreign` (`role_id`)
+  `role_id` int(10) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -403,17 +396,14 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 
 DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
-  `role_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `role_id` int(10) unsigned NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `display_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_type_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`role_id`),
-  UNIQUE KEY `roles_name_unique` (`name`),
-  KEY `roles_user_type_id_index` (`user_type_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `roles`
@@ -422,8 +412,8 @@ CREATE TABLE IF NOT EXISTS `roles` (
 INSERT INTO `roles` (`role_id`, `name`, `display_name`, `description`, `user_type_id`, `created_at`, `updated_at`) VALUES
 (1, 'developer', 'Developer', 'The software developer', 1, '2016-03-29 22:30:11', '2016-04-28 21:36:59'),
 (2, 'super_admin', 'Super Admin', 'System Administrator', 2, '2016-03-30 09:51:57', '2016-04-28 22:33:03'),
-(3, 'sponsor', 'Sponsor', 'Sponsor', 6, '2016-04-16 17:25:54', '2016-04-28 21:36:59'),
-(4, 'staff', 'Staff', 'Staff', 5, '2016-04-16 17:25:54', '2016-04-28 21:36:59');
+(3, 'sponsor', 'Sponsor', 'Sponsor', 3, '2016-04-16 17:25:54', '2016-04-28 21:36:59'),
+(4, 'staff', 'Staff', 'Staff', 4, '2016-04-16 17:25:54', '2016-04-28 21:36:59');
 
 -- --------------------------------------------------------
 
@@ -434,9 +424,7 @@ INSERT INTO `roles` (`role_id`, `name`, `display_name`, `description`, `user_typ
 DROP TABLE IF EXISTS `roles_menus`;
 CREATE TABLE IF NOT EXISTS `roles_menus` (
   `role_id` int(10) unsigned NOT NULL,
-  `menu_id` int(10) unsigned DEFAULT NULL,
-  KEY `roles_menus_role_id_index` (`role_id`),
-  KEY `roles_menus_menu_id_index` (`menu_id`)
+  `menu_id` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -466,9 +454,7 @@ INSERT INTO `roles_menus` (`role_id`, `menu_id`) VALUES
 DROP TABLE IF EXISTS `roles_menu_headers`;
 CREATE TABLE IF NOT EXISTS `roles_menu_headers` (
   `role_id` int(10) unsigned NOT NULL,
-  `menu_header_id` int(10) unsigned DEFAULT NULL,
-  KEY `roles_menu_headers_role_id_index` (`role_id`),
-  KEY `roles_menu_headers_menu_header_id_index` (`menu_header_id`)
+  `menu_header_id` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -494,9 +480,7 @@ INSERT INTO `roles_menu_headers` (`role_id`, `menu_header_id`) VALUES
 DROP TABLE IF EXISTS `roles_menu_items`;
 CREATE TABLE IF NOT EXISTS `roles_menu_items` (
   `role_id` int(10) unsigned NOT NULL,
-  `menu_item_id` int(10) unsigned DEFAULT NULL,
-  KEY `roles_menu_items_role_id_index` (`role_id`),
-  KEY `roles_menu_items_menu_item_id_index` (`menu_item_id`)
+  `menu_item_id` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -528,9 +512,7 @@ INSERT INTO `roles_menu_items` (`role_id`, `menu_item_id`) VALUES
 DROP TABLE IF EXISTS `roles_sub_menu_items`;
 CREATE TABLE IF NOT EXISTS `roles_sub_menu_items` (
   `role_id` int(10) unsigned NOT NULL,
-  `sub_menu_item_id` int(10) unsigned DEFAULT NULL,
-  KEY `roles_sub_menu_items_role_id_index` (`role_id`),
-  KEY `roles_sub_menu_items_sub_menu_item_id_index` (`sub_menu_item_id`)
+  `sub_menu_item_id` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -569,9 +551,7 @@ INSERT INTO `roles_sub_menu_items` (`role_id`, `sub_menu_item_id`) VALUES
 DROP TABLE IF EXISTS `roles_sub_most_menu_items`;
 CREATE TABLE IF NOT EXISTS `roles_sub_most_menu_items` (
   `role_id` int(10) unsigned NOT NULL,
-  `sub_most_menu_item_id` int(10) unsigned DEFAULT NULL,
-  KEY `roles_sub_most_menu_items_role_id_index` (`role_id`),
-  KEY `roles_sub_most_menu_items_sub_most_menu_item_id_index` (`sub_most_menu_item_id`)
+  `sub_most_menu_item_id` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -598,9 +578,7 @@ INSERT INTO `roles_sub_most_menu_items` (`role_id`, `sub_most_menu_item_id`) VAL
 DROP TABLE IF EXISTS `role_user`;
 CREATE TABLE IF NOT EXISTS `role_user` (
   `user_id` int(10) unsigned NOT NULL,
-  `role_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`user_id`,`role_id`),
-  KEY `role_user_role_id_foreign` (`role_id`)
+  `role_id` int(10) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -610,7 +588,7 @@ CREATE TABLE IF NOT EXISTS `role_user` (
 INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 (1, 1),
 (2, 2),
-(2, 4);
+(3, 3);
 
 -- --------------------------------------------------------
 
@@ -620,7 +598,7 @@ INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 
 DROP TABLE IF EXISTS `sponsors`;
 CREATE TABLE IF NOT EXISTS `sponsors` (
-  `sponsor_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `sponsor_id` int(10) unsigned NOT NULL,
   `sponsor_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `first_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `other_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
@@ -633,12 +611,8 @@ CREATE TABLE IF NOT EXISTS `sponsors` (
   `salutation_id` int(10) unsigned DEFAULT NULL,
   `created_by` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`sponsor_id`),
-  KEY `sponsors_lga_id_index` (`lga_id`),
-  KEY `sponsors_salutation_id_index` (`salutation_id`),
-  KEY `sponsors_created_by_index` (`created_by`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -648,7 +622,7 @@ CREATE TABLE IF NOT EXISTS `sponsors` (
 
 DROP TABLE IF EXISTS `staffs`;
 CREATE TABLE IF NOT EXISTS `staffs` (
-  `staff_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `staff_id` int(10) unsigned NOT NULL,
   `staff_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `first_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `other_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
@@ -663,12 +637,8 @@ CREATE TABLE IF NOT EXISTS `staffs` (
   `user_id` int(11) NOT NULL,
   `created_by` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`staff_id`),
-  KEY `staffs_lga_id_index` (`lga_id`),
-  KEY `staffs_salutation_id_index` (`salutation_id`),
-  KEY `staffs_created_by_index` (`created_by`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -678,7 +648,7 @@ CREATE TABLE IF NOT EXISTS `staffs` (
 
 DROP TABLE IF EXISTS `sub_menu_items`;
 CREATE TABLE IF NOT EXISTS `sub_menu_items` (
-  `sub_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `sub_menu_item_id` int(10) unsigned NOT NULL,
   `sub_menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
@@ -687,10 +657,8 @@ CREATE TABLE IF NOT EXISTS `sub_menu_items` (
   `type` int(10) unsigned NOT NULL DEFAULT '1',
   `menu_item_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`sub_menu_item_id`),
-  KEY `sub_menu_items_menu_item_id_index` (`menu_item_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=14 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `sub_menu_items`
@@ -719,7 +687,7 @@ INSERT INTO `sub_menu_items` (`sub_menu_item_id`, `sub_menu_item`, `sub_menu_ite
 
 DROP TABLE IF EXISTS `sub_most_menu_items`;
 CREATE TABLE IF NOT EXISTS `sub_most_menu_items` (
-  `sub_most_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `sub_most_menu_item_id` int(10) unsigned NOT NULL,
   `sub_most_menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_most_menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_most_menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
@@ -728,10 +696,8 @@ CREATE TABLE IF NOT EXISTS `sub_most_menu_items` (
   `type` int(10) unsigned NOT NULL DEFAULT '1',
   `sub_menu_item_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`sub_most_menu_item_id`),
-  KEY `sub_most_menu_items_sub_menu_item_id_index` (`sub_menu_item_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=10 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `sub_most_menu_items`
@@ -756,32 +722,36 @@ INSERT INTO `sub_most_menu_items` (`sub_most_menu_item_id`, `sub_most_menu_item`
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
-  `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
   `password` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `username` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `phone_no` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `display_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `first_name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `last_name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `middle_name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `gender` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  `phone_no2` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_type_id` int(10) unsigned NOT NULL,
+  `lga_id` int(10) unsigned DEFAULT NULL,
+  `salutation_id` int(10) unsigned DEFAULT NULL,
   `verified` int(10) unsigned NOT NULL DEFAULT '0',
   `status` int(10) unsigned NOT NULL DEFAULT '1',
   `avatar` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `verification_code` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `remember_token` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`user_id`),
-  UNIQUE KEY `users_username_unique` (`username`),
-  UNIQUE KEY `users_email_unique` (`email`),
-  KEY `users_user_type_id_index` (`user_type_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `password`, `username`, `email`, `display_name`, `user_type_id`, `verified`, `status`, `avatar`, `verification_code`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, '$2y$10$WgHQSaszEOSJpz2HsoUToeJoyCxh7fGuc3ZoLJA.NubXU42L6E3SG', 'admin', 'admin@gmail.com', 'Okafor Emmanuel', 1, 1, 1, '1_avatar.jpg', NULL, 'GEyuy1dUY3rbhgPewOeRhLSywDzJaIMGkA5VALIhu6jlKP9vuQfCos1V3u3J', NULL, '2016-04-28 22:29:23'),
-(2, '$2y$10$BfT.VLvBtBsdJfeIBZ972.JEwXY77M9dLnLW2ekFjNdBMtfFRXwua', 'Bamidele', 'bamidelemike2003@yahoo.com', '', 2, 1, 1, '2_avatar.jpg', 'x9pxH08aB60ZKwe12DDKbiD3V5628TyGMd1v8Q5I', NULL, '2016-04-28 22:21:05', '2016-04-28 22:57:40');
+INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `last_name`, `middle_name`, `gender`, `dob`, `phone_no2`, `user_type_id`, `lga_id`, `salutation_id`, `verified`, `status`, `avatar`, `verification_code`, `remember_token`, `created_at`, `updated_at`) VALUES
+(1, '$2y$10$WgHQSaszEOSJpz2HsoUToeJoyCxh7fGuc3ZoLJA.NubXU42L6E3SG', '08011223344', 'admin@gmail.com', 'Emma', 'Okafor', '', 'Male', '2016-04-05', '', 1, 0, 1, 1, 1, '1_avatar.jpg', NULL, 'I2diQuzfQGWG8q0WOFsvM5pX5tcSRll1j98UXuhmwM9EaaLoU4zSEUDJbhDr', NULL, '2016-04-29 06:57:22'),
+(2, '$2y$10$BfT.VLvBtBsdJfeIBZ972.JEwXY77M9dLnLW2ekFjNdBMtfFRXwua', NULL, 'bamidelemike2003@yahoo.com', 'Bamidele', '', NULL, NULL, NULL, NULL, 2, NULL, 0, 1, 1, '2_avatar.jpg', 'x9pxH08aB60ZKwe12DDKbiD3V5628TyGMd1v8Q5I', NULL, '2016-04-28 22:21:05', '2016-04-28 22:57:40'),
+(3, '$2y$10$x0Sxpsf6TvhtB2qTekuyGuejOwaAQHufm9RlyeDmruxgs/kVVSPCy', '01893044554', 'admin2@gmail.com', 'Dakuku', 'Peterside', NULL, 'Male', NULL, NULL, 3, NULL, 0, 1, 1, '3_avatar.jpg', 'KFpnV50LIeoWOtzSagWAlVDIgDLANafUYCwV9JC1', NULL, '2016-04-29 06:08:42', '2016-04-29 06:29:37');
 
 -- --------------------------------------------------------
 
@@ -791,13 +761,12 @@ INSERT INTO `users` (`user_id`, `password`, `username`, `email`, `display_name`,
 
 DROP TABLE IF EXISTS `user_types`;
 CREATE TABLE IF NOT EXISTS `user_types` (
-  `user_type_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_type_id` int(10) unsigned NOT NULL,
   `user_type` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `type` int(11) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`user_type_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=7 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `user_types`
@@ -806,9 +775,205 @@ CREATE TABLE IF NOT EXISTS `user_types` (
 INSERT INTO `user_types` (`user_type_id`, `user_type`, `type`, `created_at`, `updated_at`) VALUES
 (1, 'Developer', 1, NULL, NULL),
 (2, 'Super Admin', 2, NULL, NULL),
-(5, 'Staff', 2, '2016-04-28 21:35:15', '2016-04-28 21:35:15'),
-(6, 'Sponsor', 2, '2016-04-28 21:35:55', '2016-04-28 21:35:55');
+(3, 'Staff', 2, '2016-04-28 21:35:15', '2016-04-28 21:35:15'),
+(4, 'Sponsor', 2, '2016-04-28 21:35:55', '2016-04-28 21:35:55');
 
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `menus`
+--
+ALTER TABLE `menus`
+  ADD PRIMARY KEY (`menu_id`),
+  ADD KEY `menus_menu_header_id_index` (`menu_header_id`);
+
+--
+-- Indexes for table `menu_headers`
+--
+ALTER TABLE `menu_headers`
+  ADD PRIMARY KEY (`menu_header_id`);
+
+--
+-- Indexes for table `menu_items`
+--
+ALTER TABLE `menu_items`
+  ADD PRIMARY KEY (`menu_item_id`),
+  ADD KEY `menu_items_menu_id_index` (`menu_id`);
+
+--
+-- Indexes for table `permissions`
+--
+ALTER TABLE `permissions`
+  ADD PRIMARY KEY (`permission_id`),
+  ADD UNIQUE KEY `permissions_name_unique` (`name`);
+
+--
+-- Indexes for table `permission_role`
+--
+ALTER TABLE `permission_role`
+  ADD PRIMARY KEY (`permission_id`,`role_id`),
+  ADD KEY `permission_role_role_id_foreign` (`role_id`);
+
+--
+-- Indexes for table `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`role_id`),
+  ADD UNIQUE KEY `roles_name_unique` (`name`),
+  ADD KEY `roles_user_type_id_index` (`user_type_id`);
+
+--
+-- Indexes for table `roles_menus`
+--
+ALTER TABLE `roles_menus`
+  ADD KEY `roles_menus_role_id_index` (`role_id`),
+  ADD KEY `roles_menus_menu_id_index` (`menu_id`);
+
+--
+-- Indexes for table `roles_menu_headers`
+--
+ALTER TABLE `roles_menu_headers`
+  ADD KEY `roles_menu_headers_role_id_index` (`role_id`),
+  ADD KEY `roles_menu_headers_menu_header_id_index` (`menu_header_id`);
+
+--
+-- Indexes for table `roles_menu_items`
+--
+ALTER TABLE `roles_menu_items`
+  ADD KEY `roles_menu_items_role_id_index` (`role_id`),
+  ADD KEY `roles_menu_items_menu_item_id_index` (`menu_item_id`);
+
+--
+-- Indexes for table `roles_sub_menu_items`
+--
+ALTER TABLE `roles_sub_menu_items`
+  ADD KEY `roles_sub_menu_items_role_id_index` (`role_id`),
+  ADD KEY `roles_sub_menu_items_sub_menu_item_id_index` (`sub_menu_item_id`);
+
+--
+-- Indexes for table `roles_sub_most_menu_items`
+--
+ALTER TABLE `roles_sub_most_menu_items`
+  ADD KEY `roles_sub_most_menu_items_role_id_index` (`role_id`),
+  ADD KEY `roles_sub_most_menu_items_sub_most_menu_item_id_index` (`sub_most_menu_item_id`);
+
+--
+-- Indexes for table `role_user`
+--
+ALTER TABLE `role_user`
+  ADD PRIMARY KEY (`user_id`,`role_id`),
+  ADD KEY `role_user_role_id_foreign` (`role_id`);
+
+--
+-- Indexes for table `sponsors`
+--
+ALTER TABLE `sponsors`
+  ADD PRIMARY KEY (`sponsor_id`),
+  ADD KEY `sponsors_lga_id_index` (`lga_id`),
+  ADD KEY `sponsors_salutation_id_index` (`salutation_id`),
+  ADD KEY `sponsors_created_by_index` (`created_by`);
+
+--
+-- Indexes for table `staffs`
+--
+ALTER TABLE `staffs`
+  ADD PRIMARY KEY (`staff_id`),
+  ADD KEY `staffs_lga_id_index` (`lga_id`),
+  ADD KEY `staffs_salutation_id_index` (`salutation_id`),
+  ADD KEY `staffs_created_by_index` (`created_by`);
+
+--
+-- Indexes for table `sub_menu_items`
+--
+ALTER TABLE `sub_menu_items`
+  ADD PRIMARY KEY (`sub_menu_item_id`),
+  ADD KEY `sub_menu_items_menu_item_id_index` (`menu_item_id`);
+
+--
+-- Indexes for table `sub_most_menu_items`
+--
+ALTER TABLE `sub_most_menu_items`
+  ADD PRIMARY KEY (`sub_most_menu_item_id`),
+  ADD KEY `sub_most_menu_items_sub_menu_item_id_index` (`sub_menu_item_id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `users_email_unique` (`email`),
+  ADD UNIQUE KEY `phone_no` (`phone_no`),
+  ADD KEY `users_user_type_id_index` (`user_type_id`),
+  ADD KEY `salutation_id` (`salutation_id`),
+  ADD KEY `lga_id` (`lga_id`);
+
+--
+-- Indexes for table `user_types`
+--
+ALTER TABLE `user_types`
+  ADD PRIMARY KEY (`user_type_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `menus`
+--
+ALTER TABLE `menus`
+  MODIFY `menu_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=7;
+--
+-- AUTO_INCREMENT for table `menu_headers`
+--
+ALTER TABLE `menu_headers`
+  MODIFY `menu_header_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT for table `menu_items`
+--
+ALTER TABLE `menu_items`
+  MODIFY `menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10;
+--
+-- AUTO_INCREMENT for table `permissions`
+--
+ALTER TABLE `permissions`
+  MODIFY `permission_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=67;
+--
+-- AUTO_INCREMENT for table `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `role_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT for table `sponsors`
+--
+ALTER TABLE `sponsors`
+  MODIFY `sponsor_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `staffs`
+--
+ALTER TABLE `staffs`
+  MODIFY `staff_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `sub_menu_items`
+--
+ALTER TABLE `sub_menu_items`
+  MODIFY `sub_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=14;
+--
+-- AUTO_INCREMENT for table `sub_most_menu_items`
+--
+ALTER TABLE `sub_most_menu_items`
+  MODIFY `sub_most_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10;
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
+--
+-- AUTO_INCREMENT for table `user_types`
+--
+ALTER TABLE `user_types`
+  MODIFY `user_type_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
 --
 -- Constraints for dumped tables
 --

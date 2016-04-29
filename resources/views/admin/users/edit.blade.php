@@ -71,17 +71,46 @@
                                             ])
                                         !!}
                                     {!! Form::hidden('user_id', $user->user_id) !!}
+
                                     <div class="form-group">
-                                        <label class="control-label">Email</label>
-                                        {!! Form::text('email', $user->email, ['placeholder'=>'Email', 'class'=>'form-control', 'required'=>'required']) !!}
+                                        <label>First name</label>
+                                        <div class="input-icon input-icon-lg">
+                                            <i class="fa fa-user"></i>
+                                            <input type="text" class="form-control input-lg" required name="first_name" placeholder="First name" value="{{ $user->first_name }}">
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label">Mobile Number</label>
-                                        {!! Form::text('username', $user->username, ['placeholder'=>'Mobile No', 'class'=>'form-control', 'required'=>'required']) !!}
+                                        <label>Last name</label>
+                                        <div class="input-icon input-icon-lg">
+                                            <i class="fa fa-user"></i>
+                                            <input type="text" class="form-control input-lg" required name="last_name" placeholder="Last name" value="{{ $user->last_name }}">
+                                        </div>
                                     </div>
+
+                                    <div class="form-group">
+                                        <label>Gender</label>
+                                        <div>
+                                            {!! Form::select('gender', [''=>'Nothing Selected', 'Male'=>'Male', 'Female'=>'Female'], $user->gender, ['class'=>'form-control selectpicker input-lg', 'required'=>'required']) !!}
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <div class="input-icon input-icon-lg">
+                                            <i class="fa fa-envelope"></i>
+                                            <input type="email" class="form-control input-lg" required placeholder="Email" name="email" value="{{ $user->email }}"> </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Mobile</label>
+                                        <div class="input-icon input-icon-lg">
+                                            <i class="fa fa-phone"></i>
+                                            <input type="text" class="form-control input-lg" placeholder="Mobile" name="phone_no" value="{{ $user->phone_no }}"> </div>
+                                    </div>
+
                                     <div class="form-group">
                                         <label class="control-label">Status</label>
-                                        {!! Form::select('status', [''=>'Nothing Selected', '1'=>'Activate', '2'=>'Deactivate'], $user->status, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
+                                        {!! Form::select('status', [''=>'Nothing Selected', '1'=>'Activate', '2'=>'Deactivate'], $user->status, ['class'=>'form-control selectpicker input-lg', 'required'=>'required']) !!}
                                     </div>
                                     <div class="margiv-top-10">
                                         <button class="btn green"> Update Info</button>

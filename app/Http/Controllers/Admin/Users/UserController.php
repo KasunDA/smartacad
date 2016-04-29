@@ -27,6 +27,32 @@ class UserController extends Controller
     protected $redirectTo = '/users';
 
     /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator(array $data)
+    {
+        $messages = [
+            'first_name.required' => 'First Name is Required!',
+            'last_name.required' => 'Last Name is Required!',
+            'email.unique' => 'This E-Mail Address Has Already Been Assigned!',
+            'phone_no.unique' => 'The Mobile Number Has Already Been Assigned!',
+            'gender.required' => 'Gender is Required!',
+            'user_type_id.required' => 'User Type is Required!',
+        ];
+        return Validator::make($data, [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'gender' => 'required',
+            'email' => 'required|email|max:255|unique:users,email',
+            'phone_no' => 'max:15|min:11|unique:users,phone_no',
+            'user_type_id' => 'required',
+        ], $messages);
+    }
+
+    /**
      * Display a listing of the Users.
      * @return Response
      */
@@ -42,7 +68,7 @@ class UserController extends Controller
      */
     public function getCreate()
     {
-        $user_types = UserType::orderBy('user_type')->get();
+        $user_types = UserType::where('type', 2)->orderBy('user_type')->get();
         return view('admin.users.create', compact('user_types'));
     }
 
@@ -90,7 +116,7 @@ class UserController extends Controller
 //            if($result) $temp = ' and a mail has been sent to '.$user->email;
 //        }
         // Set the flash message
-        $this->setFlashMessage('Saved!!! '.$user->email.' have successfully been saved'.$temp, 1);
+        $this->setFlashMessage('Saved!!! '.$user->fullNames().' have successfully been saved'.$temp, 1);
         // redirect to the create new warder page
         return redirect('users/create');
     }
@@ -163,8 +189,7 @@ class UserController extends Controller
     {
         $decodeId = $this->getHashIds()->decode($encodeId);
         $userView = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
-        $account = $userView->account()->first();
-        return view('admin.users.view', compact('userView', 'account'));
+        return view('admin.users.view', compact('userView'));
     }
 
     /**
@@ -196,16 +221,18 @@ class UserController extends Controller
         $user = (empty($inputs['user_id'])) ? abort(403) : User::findOrFail($inputs['user_id']);
         $messages = [
             'status.required' => 'The User Status is Required!',
-//            'user_type_id.required' => 'The User Type is Required!',
-            'email.required' => 'A Valid E-Mail Address is Required!',
+            'first_name.required' => 'First Name is Required!',
+            'last_name.required' => 'Last Name is Required!',
             'email.unique' => 'This E-Mail Address Has Already Been Assigned!',
-            'username.unique' => 'The Mobile Number Has Already Been Assigned!',
-            'username.required' => 'The Mobile Number is Required!',
+            'phone_no.unique' => 'The Mobile Number Has Already Been Assigned!',
+            'gender.required' => 'Gender is Required!',
         ];
         $validator = Validator::make($inputs, [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'gender' => 'required',
             'email' => 'required|email|max:255|unique:users,email,'.$user->user_id.',user_id',
-            'username' => 'required|max:15|min:11|unique:users,username,'.$user->user_id.',user_id',
-//            'user_type_id' => 'required',
+            'phone_no' => 'required|max:15|min:11|unique:users,phone_no,'.$user->user_id.',user_id',
             'status' => 'required',
         ], $messages);
         //Validate Request Inputs
@@ -213,11 +240,6 @@ class UserController extends Controller
             $this->setFlashMessage('  Error!!! You have error(s) while filling the form.', 2);
             return redirect('/users/edit/'.$this->getHashIds()->encode($inputs['user_id']))->withErrors($validator)->withInput();
         }
-        //Update The Account Record
-        $account = $user->account()->first();
-        $account->email = $inputs['email'];
-        $account->phone_no = $inputs['username'];
-        $account->save();
         // Update the user record
         $user->update($inputs);
 

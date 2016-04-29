@@ -76,8 +76,7 @@
                                     @if(Auth::user()->hasRole('developer'))
                                         <div class="portlet sale-summary">
                                             <div class="portlet-title">
-                                                <div class="caption font-red sbold"> USERNAME: {{ $userView->username }}
-                                                    || User Information
+                                                <div class="caption font-red sbold"> User Information
                                                 </div>
                                             </div>
                                             <div class="portlet-body">
@@ -86,42 +85,40 @@
                                                         <td>Email</td>
                                                         <td>{{ $userView->email }}</td>
                                                     </tr>
-                                                    @if($account)
+                                                    <tr>
+                                                        <td>Mobile No.</td>
+                                                        <td>{{ $userView->phone_no }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Mobile No 2.</td>
+                                                        <td>{!! ($userView->phone_no2) ? $userView->phone_no2 : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Gender</td>
+                                                        <td>{!! ($userView->gender) ? $userView->gender : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Date Of Birth</td>
+                                                        <td>{!! ($userView->dob) ? $userView->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Age</td>
+                                                        <td>{!! ($userView->dob) ? $userView->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
+                                                    @if($userView->lga)
                                                         <tr>
-                                                            <td>Mobile No.</td>
-                                                            <td>{{ $account->phone_no }}</td>
+                                                            <td>State</td>
+                                                            <td>{{ $userView->lga()->first()->state()->first()->state }}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>Mobile No 2.</td>
-                                                            <td>{!! ($account->phone_no2) ? $account->phone_no2 : '<span class="label label-danger">nil</span>' !!}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Gender</td>
-                                                            <td>{!! ($account->gender) ? $account->gender : '<span class="label label-danger">nil</span>' !!}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Date Of Birth</td>
-                                                            <td>{!! ($account->dob) ? $account->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Age</td>
-                                                            <td>{!! ($account->dob) ? $account->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
-                                                        </tr>
-                                                        @if($account->lga)
-                                                            <tr>
-                                                                <td>State</td>
-                                                                <td>{{ $account->lga()->first()->state()->first()->state }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>L.G.A.</td>
-                                                                <td>{{ $account->lga()->first()->lga }}</td>
-                                                            </tr>
-                                                        @endif
-                                                        <tr>
-                                                            <td>Address.</td>
-                                                            <td>{!! ($account->address) ? $account->address . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
+                                                            <td>L.G.A.</td>
+                                                            <td>{{ $userView->lga()->first()->lga }}</td>
                                                         </tr>
                                                     @endif
+                                                    <tr>
+                                                        <td>Address:</td>
+                                                        <td>{!! ($userView->address) ? $userView->address : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    </tr>
                                                 </table>
                                             </div>
                                         </div>
