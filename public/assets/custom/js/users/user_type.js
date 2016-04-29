@@ -3,6 +3,7 @@
  */
 
 $(function () {
+
     $('.add_user_type').click(function(e){
         e.preventDefault();
         var clone_row = $('#menu_table tbody tr:last-child').clone();
@@ -22,35 +23,44 @@ $(function () {
 
     $(document.body).on('click', '.delete_user_type',function(e){
         e.preventDefault();
-        var box = $("#confirm-remove-row");
 
         var parent = $(this).parent().parent();
         var user_type = parent.children(':nth-child(2)').children('input').val();
         var user_type_id = parent.children(':nth-child(2)').children('input[type=hidden]').val();
 
-        $("#menu_value").text('User Type '+user_type);
-        $("#confirm_user_type_delete").val(user_type_id);
-        box.addClass("open");
-    });
-    $(document.body).on('click', '#confirm_user_type_delete',function(e){
-        //e.preventDefault();
-        var box = $("#confirm-remove-row");
-        var user_type_id = $(this).val();
-        $.ajax({
-            type: 'GET',
-            async: true,
-            url: '/user-types/delete/' + user_type_id,
-            success: function(data,textStatus){
-                box.removeClass("open");
-                window.location.replace('/user-types');
-            },
-            error: function(xhr,textStatus,error){
-                alert(textStatus + ' ' + xhr);
+        bootbox.dialog({
+            message: "Are You sure You want to permanently delete user type  "+user_type,
+            title: "Warning Alert",
+            buttons: {
+                danger: {
+                    label: "NO",
+                    className: "btn-default",
+                    callback: function() {
+                        $(this).hide();
+                    }
+                },
+                success: {
+                    label: "YES",
+                    className: "btn-success",
+                    callback: function() {
+                        $.ajax({
+                            type: 'GET',
+                            async: true,
+                            url: '/user-types/delete/' + user_type_id,
+                            success: function(data,textStatus){
+                                window.location.replace('/user-types');
+                            },
+                            error: function(xhr,textStatus,error){
+                                bootbox.alert("Error encountered pls try again later..", function() {
+                                    $(this).hide();
+                                });
+                            }
+                        });
+                    }
+                }
             }
         });
-        return false;
     });
-
 });
 
 
