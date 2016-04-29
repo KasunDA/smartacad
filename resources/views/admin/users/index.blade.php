@@ -36,7 +36,7 @@
                 </div>
                 <div class="portlet-body">
                     <div class="row">
-                        <table class="table table-striped table-bordered table-hover" id="users_datatable">
+                        <table class="table table-striped table-bordered table-hover" id="">
                             <thead>
                                 <tr>
                                     <th style="width: 1%;">#</th>
