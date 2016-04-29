@@ -127,9 +127,8 @@
                                             <div class="fileinput fileinput-new" data-provides="fileinput">
                                                 <div class="fileinput-new thumbnail"
                                                      style="width: 200px; height: 150px;">
-                                                    @if($user)
-                                                        <img src="{{ $user->getAvatarPath() }}"
-                                                             class="img-responsive pic-bordered"
+                                                    @if($user->avatar)
+                                                        <img src="{{ $user->getAvatarPath() }}" class="img-responsive pic-bordered"
                                                              alt="{{ $user->fullNames() }}"/>
                                                     @else
                                                         <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image"

@@ -22,7 +22,6 @@ class StaffController extends Controller
     public function getIndex()
     {
         $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
-        dd($staffs);
         return view('admin.accounts.staffs.index', compact('staffs'));
     }
 }

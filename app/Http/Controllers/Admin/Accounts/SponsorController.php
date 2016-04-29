@@ -22,7 +22,6 @@ class SponsorController extends Controller
     public function getIndex()
     {
         $sponsors = User::where('user_type_id', Sponsor::USER_TYPE)->get();
-        dd($sponsors);
         return view('admin.accounts.sponsors.index', compact('sponsors'));
     }
 }

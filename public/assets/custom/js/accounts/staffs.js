@@ -2,7 +2,7 @@
  * Created by Emmanuel on 4/17/2016.
  */
 
-$(function(){
+$(function () {
     // Ajax Get Local Governments Based on the state
     getDependentListBox($('#state_id'), $('#lga_id'), '/list-box/lga/');
 });
@@ -29,7 +29,7 @@ var TableManaged = function () {
                 "search": "Search:",
                 "zeroRecords": "No matching records found",
                 "paginate": {
-                    "previous":"Prev",
+                    "previous": "Prev",
                     "next": "Next",
                     "last": "Last",
                     "first": "First"
@@ -64,8 +64,6 @@ var TableManaged = function () {
                 "orderable": true
             }, {
                 "orderable": true
-            }, {
-                "orderable": false
             }, {
                 "orderable": false
             }],

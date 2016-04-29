@@ -44,7 +44,6 @@
                                     <th style="width: 10%;">Mobile</th>
                                     <th style="width: 19%;">Email</th>
                                     <th style="width: 5%;">Gender</th>
-                                    <th style="width: 15%;">Registered By</th>
                                     <th style="width: 15%;">Registered On</th>
                                     <th style="width: 5%;">Status</th>
                                     <th style="width: 5%;">View</th>
@@ -61,24 +60,24 @@
                                         <td>{{ $staff->phone_no }}</td>
                                         <td>{{ $staff->email }}</td>
                                         <td>{!! ($staff->gender) ? $staff->gender : '<span class="label label-danger">nil</span>' !!}</td>
-                                        <td>{{ $staff->createdBy()->first()->fullNames() }}</td>
+                                        {{--<td>{{ $staff->createdBy()->first()->fullNames() }}</td>--}}
                                         <td>{{ $staff->created_at->format('jS M, Y') }}</td>
                                         <td>
-                                            @if($staff->user()->first()->status === 1)
+                                            @if($staff->status === 1)
                                                 <label class="label label-success">Activated</label>
                                             @else
                                                 <label class="label label-danger">Deactivated</label>
                                             @endif
                                         </td>
                                         <td>
-                                            <a target="_blank" href="{{ url('/staffs/view/'.$hashIds->encode($staff->staff_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-eye-slash"></span>
-                                            </a>
+                                            {{--<a target="_blank" href="{{ url('/staffs/view/'.$hashIds->encode($staff->staff_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">--}}
+                                                {{--<span class="fa fa-eye-slash"></span>--}}
+                                            {{--</a>--}}
                                         </td>
                                         <td>
-                                            <a href="{{ url('/staffs/edit/'.$hashIds->encode($staff->staff_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-edit"></span>
-                                            </a>
+                                            {{--<a href="{{ url('/staffs/edit/'.$hashIds->encode($staff->staff_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">--}}
+                                                {{--<span class="fa fa-edit"></span>--}}
+                                            {{--</a>--}}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -91,7 +90,6 @@
                                     <th style="width: 10%;">Mobile</th>
                                     <th style="width: 19%;">Email</th>
                                     <th style="width: 5%;">Gender</th>
-                                    <th style="width: 15%;">Registered By</th>
                                     <th style="width: 15%;">Registered On</th>
                                     <th style="width: 5%;">Status</th>
                                     <th style="width: 5%;">View</th>

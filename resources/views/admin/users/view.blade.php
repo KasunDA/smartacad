@@ -73,7 +73,6 @@
                                             <i class="fa fa-envelope"></i> {{ $userView->email }}
                                         </li>
                                     </ul>
-                                    @if(Auth::user()->hasRole('developer'))
                                         <div class="portlet sale-summary">
                                             <div class="portlet-title">
                                                 <div class="caption font-red sbold"> User Information
@@ -122,7 +121,6 @@
                                                 </table>
                                             </div>
                                         </div>
-                                    @endif
                                 </div>
                             </div>
                         </div>

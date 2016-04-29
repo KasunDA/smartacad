@@ -43,7 +43,6 @@
                                 <th style="width: 20%;">Full Name</th>
                                 <th style="width: 15%;">Mobile</th>
                                 <th style="width: 19%;">Email</th>
-                                <th style="width: 15%;">Registered By</th>
                                 <th style="width: 15%;">Registered On</th>
                                 <th style="width: 5%;">Status</th>
                                 <th style="width: 5%;">View</th>
@@ -59,24 +58,23 @@
                                         <td>{{ $sponsor->fullNames() }}</td>
                                         <td>{{ $sponsor->phone_no }}</td>
                                         <td>{{ $sponsor->email }}</td>
-                                        <td>{{ $sponsor->createdBy()->first()->fullNames() }}</td>
                                         <td>{{ $sponsor->created_at->format('jS M, Y') }}</td>
                                         <td>
-                                            @if($sponsor->user()->first()->status === 1)
+                                            @if($sponsor->status === 1)
                                                 <label class="label label-success">Activated</label>
                                             @else
                                                 <label class="label label-danger">Deactivated</label>
                                             @endif
                                         </td>
                                         <td>
-                                            <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($sponsor->sponsor_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-eye-slash"></span>
-                                            </a>
+                                            {{--<a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($sponsor->sponsor_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">--}}
+                                                {{--<span class="fa fa-eye-slash"></span>--}}
+                                            {{--</a>--}}
                                         </td>
                                         <td>
-                                            <a href="{{ url('/sponsors/edit/'.$hashIds->encode($sponsor->sponsor_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-edit"></span>
-                                            </a>
+                                            {{--<a href="{{ url('/sponsors/edit/'.$hashIds->encode($sponsor->sponsor_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">--}}
+                                                {{--<span class="fa fa-edit"></span>--}}
+                                            {{--</a>--}}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -88,7 +86,6 @@
                                 <th style="width: 20%;">Full Name</th>
                                 <th style="width: 15%;">Mobile</th>
                                 <th style="width: 19%;">Email</th>
-                                <th style="width: 15%;">Registered By</th>
                                 <th style="width: 15%;">Registered On</th>
                                 <th style="width: 5%;">Status</th>
                                 <th style="width: 5%;">View</th>
