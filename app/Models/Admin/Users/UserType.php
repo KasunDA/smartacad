@@ -34,4 +34,13 @@ class UserType extends Model
     public function users(){
         return $this->hasMany('App\Models\Admin\Users\User');
     }
+
+    /**
+     * A User Type has many Users
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function roles(){
+        return $this->belongsTo('App\Models\Admin\RolesAndPermissions\Role', 'user_type_id');
+    }
 }

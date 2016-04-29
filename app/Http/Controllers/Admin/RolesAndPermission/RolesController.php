@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class RolesController extends Controller
 {
@@ -35,7 +36,7 @@ class RolesController extends Controller
         $inputs = $request->all();
         $count = 0;
 
-        for($i = 0; $i < count($inputs['role_id']); $i++){
+        for ($i = 0; $i < count($inputs['role_id']); $i++) {
             $role = ($inputs['role_id'][$i] > 0) ? Role::find($inputs['role_id'][$i]) : new Role();
             $role->name = $inputs['name'][$i];
             $role->display_name = $inputs['display_name'][$i];
@@ -45,7 +46,7 @@ class RolesController extends Controller
             $count++;
         }
         // Set the flash message
-        if($count > 0)
+        if ($count > 0)
             $this->setFlashMessage($count . ' Roles has been successfully updated.', 1);
         // redirect to the modify a new user role page
         return redirect('/roles');
@@ -61,10 +62,10 @@ class RolesController extends Controller
         //Delete The Warder Record
         $delete = ($roles !== null) ? $roles->delete() : null;
 
-        if($delete){
+        if ($delete) {
             //Delete its Equivalent Users Record
-            $this->setFlashMessage('  Deleted!!! '.$roles->menu_header.' role have been deleted.', 1);
-        }else{
+            $this->setFlashMessage('  Deleted!!! ' . $roles->menu_header . ' role have been deleted.', 1);
+        } else {
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
     }
@@ -74,12 +75,24 @@ class RolesController extends Controller
      * @param $encodeId
      * @return Response
      */
-    public function getUsersRoles($encodeId=null){
+    public function getUsersRoles($encodeId = null)
+    {
         $decodeId = ($encodeId === null) ? Role::DEFAULT_ROLE : $this->getHashIds()->decode($encodeId)[0];
         $role = Role::findorFail($decodeId);
-
-        $roles = Role::orderBy('display_name')->lists('display_name', 'role_id');
-        $users = ($encodeId === null) ? User::orderBy('email')->get() : $users = $role->users()->orderBy('email')->get();;
+        if (!Auth::user()->hasRole('developer')) {
+            $user_types = UserType::where('type', 2)->get();
+            $arr = [];
+            foreach ($user_types as $user_type) {
+                $user_type = $user_type->roles()->first();
+                $the_role[$user_type->role_id] = $user_type->display_name;
+                $arr = $the_role;
+            }
+            $roles = collect($arr);
+            $users = User::where('user_type_id', 2)->get();
+        } else {
+            $roles = Role::orderBy('display_name')->lists('display_name', 'role_id');
+            $users = ($encodeId === null) ? User::orderBy('email')->get() : $users = $role->users()->orderBy('email')->get();;
+        }
         return view('admin.roles-permissions.users', compact('users', 'roles', 'role', 'encodeId'));
     }
 
@@ -88,13 +101,14 @@ class RolesController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function postUsersRoles(Request $request){
+    public function postUsersRoles(Request $request)
+    {
         $inputs = $request->all();
-        for($i = 0; $i < count($inputs['user_id']); $i++){
+        for ($i = 0; $i < count($inputs['user_id']); $i++) {
             $user = ($inputs['user_id'][$i] > 0) ? User::find($inputs['user_id'][$i]) : null;
 
-            (isset($inputs['role_id']['role'.$inputs['user_id'][$i]]))
-                ? $user->roles()->sync($inputs['role_id']['role'.$inputs['user_id'][$i]]) : $user->roles()->sync([]);
+            (isset($inputs['role_id']['role' . $inputs['user_id'][$i]]))
+                ? $user->roles()->sync($inputs['role_id']['role' . $inputs['user_id'][$i]]) : $user->roles()->sync([]);
         }
 
         // Set the flash message
