@@ -3,7 +3,7 @@
 @section('layout-style')
 @endsection
 
-@section('marital_status', 'Marital Status')
+@section('title', 'Marital Status')
 
 @section('breadcrumb')
     <li>
@@ -11,7 +11,7 @@
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
     <li>
-        <a href="{{ url('/marital_status') }}">Marital Status</a>
+        <a href="{{ url('/marital-status') }}">Marital Status</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop

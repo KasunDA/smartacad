@@ -72,6 +72,13 @@ Route::group(['middleware' => ['web']], function () {
         'accounts' => 'Admin\Accounts\AccountsController',
         'sponsors' => 'Admin\Accounts\SponsorController',
         'staffs' => 'Admin\Accounts\StaffController',
+
+        //Master Record
+        'academic-years' => 'Admin\MasterRecords\AcademicYearsController',
+        'academic-terms' => 'Admin\MasterRecords\AcademicTermsController',
+        'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
+        'school-subjects' => 'School\Setups\Subjects\SchoolSubjectsController',
+
     ]);
 });
 

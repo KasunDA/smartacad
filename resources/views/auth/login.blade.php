@@ -131,7 +131,7 @@ License: You must have a valid license purchased only from themeforest(the above
                     </div>
                     <div class="col-xs-7 bs-reset">
                         <div class="login-copyright text-right">
-                            <p>Copyright &copy; Keenthemes 2015</p>
+                            <p>Copyright &copy; {{ env('DEVELOPER_SITE_NAME') }} {{ date('Y') }}</p>
                         </div>
                     </div>
                 </div>

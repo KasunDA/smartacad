@@ -202,7 +202,7 @@ class UserController extends Controller
         $decodeId = $this->getHashIds()->decode($encodeId);
 
         $user = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
-        $user_types = UserType::where('type', 2)->lists('user_type', 'user_type_id')->put('', 'Nothing Selected');
+        $user_types = UserType::where('type', 2)->lists('user_type', 'user_type_id')->prepend('Select User Type', '');
 
         return view('admin.users.edit', compact('user','user_types'));
     }

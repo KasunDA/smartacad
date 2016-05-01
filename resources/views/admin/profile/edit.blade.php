@@ -10,8 +10,7 @@
 
 @section('layout-style')
         <!-- BEGIN PAGE LEVEL PLUGINS -->
-<link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet"
-      type="text/css"/>
+<link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet" type="text/css"/>
 
 <!-- END PAGE LEVEL PLUGINS -->
 <!-- BEGIN THEME GLOBAL STYLES -->
@@ -124,7 +123,7 @@
                                             <label class="control-label">State </label>
 
                                             <div>
-                                                @if($lga === null)
+                                                @if(is_null($lga))
                                                     {!! Form::select('state_id', $states, old('state_id'), ['class'=>'form-control', 'id'=>'state_id']) !!}
                                                 @else
                                                     {!! Form::select('state_id', $states, $lga->state_id, ['class'=>'form-control', 'id'=>'state_id']) !!}
@@ -135,7 +134,7 @@
                                             <label class="control-label">L.G.A </label>
 
                                             <div>
-                                                @if($lga == null)
+                                                @if(is_null($lga))
                                                     {!! Form::select('lga_id', [''=>'Nothing Selected'], '', ['class'=>'form-control', 'id'=>'lga_id']) !!}
                                                 @else
                                                     {!! Form::select('lga_id', $lgas, $lga->lga_id, ['class'=>'form-control', 'id'=>'lga_id']) !!}
@@ -222,17 +221,13 @@
 @endsection
 
 @section('page-level-js')
-    <script src="{{ asset('assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"
-            type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/bootstrap-select/js/bootstrap-select.js') }}"
-            type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/bootstrap-select/js/bootstrap-select.js') }}" type="text/javascript"></script>
 @endsection
 
 @section('layout-script')
-    <script src="{{ asset('assets/pages/scripts/components-date-time-pickers.min.js') }}"
-            type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}"
-            type="text/javascript"></script>
+    <script src="{{ asset('assets/pages/scripts/components-date-time-pickers.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>

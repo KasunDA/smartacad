@@ -140,19 +140,6 @@ class User extends Authenticatable
         return $this->belongsTo('App\Models\Admin\Users\UserType');
     }
 
-    /**
-     * A User belongs to an Account
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-//    public function account(){
-//        if($this->user_type_id === Student::USER_TYPE){
-//            return $this->belongsTo('App\Models\Admin\Accounts\Student', 'username', 'phone_no');
-//        }elseif($this->user_type_id === Sponsor::USER_TYPE){
-//            return $this->belongsTo('App\Models\Admin\Accounts\Sponsor', 'username', 'phone_no');
-//        }else{
-//            return $this->belongsTo('App\Models\Admin\Accounts\Staff', 'username', 'phone_no');
-//        }
-//    }
 
     /**
      * Get the roles associated with the given User
@@ -162,10 +149,4 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Models\Admin\RolesAndPermissions\Role', 'role_user', 'user_id', 'role_id');
     }
-
-
-
-//    public function staff(){
-//        return $this->hasMany('App\Models\Admin\Accounts\Staff');
-//    }
 }
