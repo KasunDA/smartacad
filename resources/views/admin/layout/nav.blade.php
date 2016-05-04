@@ -10,7 +10,7 @@
                     <img alt="" class="img-circle" src="{{ asset('/uploads/no-image.jpg') }}" />
                 @endif
                 <span class="username username-hide-on-mobile">
-                    @if(Auth::check()) {{ Auth::user()->email }} @endif
+                    @if(Auth::check()) {{ Auth::user()->simpleName() }} @endif
                 </span>
                 <i class="fa fa-angle-down"></i>
             </a>

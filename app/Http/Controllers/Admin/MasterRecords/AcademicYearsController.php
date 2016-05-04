@@ -30,7 +30,11 @@ class AcademicYearsController extends Controller
     public function postIndex(Request $request)
     {
         $inputs = $request->all();
-        $count = 0;
+        $count = $status = 0;
+
+        // ::TODO Validate TO Make Sure Only One Status is Set
+//        for($j=0; $j<count($inputs['status']); $j++)
+//            if($inputs['status'][$j] === 1) $status++;
 
         for($i = 0; $i < count($inputs['academic_year_id']); $i++){
             $academic_year = ($inputs['academic_year_id'][$i] > 0) ? AcademicYear::find($inputs['academic_year_id'][$i]) : new AcademicYear();

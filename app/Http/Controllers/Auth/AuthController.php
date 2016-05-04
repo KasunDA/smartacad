@@ -88,10 +88,23 @@ class AuthController extends Controller
      */
     public function postLogin(Request $request)
     {
-//        dd($request->all());
-        $this->validate($request, [
-            $this->loginUsername() => 'required', 'password' => 'required',
-        ]);
+        $login = $request->input('login');
+        //Check login field
+        $login_type = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_no';
+        //Merge login field into the request with either email or phone_no as key
+        $request->merge([$login_type => $login]);
+        //Validate and set the credentials
+        if($login_type == 'email'){
+            $this->validate($request, [
+                'email' => 'required|email', 'password' => 'required',
+            ]);
+            $credentials = $request->only('email', 'password');
+        }else{
+            $this->validate($request, [
+                'phone_no' => 'required', 'password' => 'required',
+            ]);
+            $credentials = $request->only('phone_no', 'password');
+        }
 
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
@@ -102,7 +115,7 @@ class AuthController extends Controller
             return $this->sendLockoutResponse($request);
         }
 
-        $credentials = $this->getCredentials($request);
+//        $credentials = $this->getCredentials($request);
 
         //////////////////////////////////////////////// start: KHEENGZ CUSTOM CODE ////////////////////////////////////////////
         // Allow Only Active Users Where status and verified is 1
@@ -127,6 +140,7 @@ class AuthController extends Controller
 
         return $this->sendFailedLoginResponse($request);
     }
+
 
     /**
      * Handle a registration request for the application.

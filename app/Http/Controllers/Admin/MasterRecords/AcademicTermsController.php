@@ -34,6 +34,10 @@ class AcademicTermsController extends Controller
         $inputs = $request->all();
         $count = 0;
 
+        // ::TODO Validate TO Make Sure Only One Status is Set
+//        for($j=0; $j<count($inputs['status']); $j++)
+//            if($inputs['status'][$j] === 1) $status++;
+
         for($i = 0; $i < count($inputs['academic_term_id']); $i++){
             $academic_term = ($inputs['academic_term_id'][$i] > 0) ? AcademicTerm::find($inputs['academic_term_id'][$i]) : new AcademicTerm();
             $academic_term->academic_term = $inputs['academic_term'][$i];

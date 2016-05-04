@@ -74,8 +74,8 @@ License: You must have a valid license purchased only from themeforest(the above
                     <div class="row">
                         <div class="col-xs-6">
                             <input class="form-control form-control-solid placeholder-no-fix form-group"
-                                   value="{{ old('email') }}" type="email" autocomplete="off" placeholder="Email"
-                                   name="email" required/></div>
+                                   value="{{ old('login') }}" type="text" autocomplete="off" placeholder="Email or Phone Number"
+                                   name="login" required/></div>
                         <div class="col-xs-6">
                             <input class="form-control form-control-solid placeholder-no-fix form-group" type="password"
                                    autocomplete="off" placeholder="Password" name="password" required/></div>
