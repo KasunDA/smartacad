@@ -39,8 +39,8 @@ class AcademicYear extends Model
     /**
      * Get The Current Academic Year
      */
-    public function currentYear(){
+    public static function currentYear(){
 
-        return $this->where('status', 1)->first();
+        return AcademicYear::where('status', 1)->first();
     }
 }

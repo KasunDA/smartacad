@@ -102,6 +102,7 @@ class UserController extends Controller
         $role = Role::where('user_type_id', $input['user_type_id'])->first();
         $user->attachRole($role);
         ///////////////////////////////////////////////////////// mail sending using $user object ///////////////////////////////////////////
+        // TODO Sending of SMS
 //        if($user){
 //            //Assign a role to the user
 //            //Verification Mail Sending

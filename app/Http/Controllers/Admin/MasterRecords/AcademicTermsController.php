@@ -18,6 +18,7 @@ class AcademicTermsController extends Controller
      */
     public function getIndex()
     {
+        dd(AcademicTerm::currentTerm()->examSetupBy()->first());
         $academic_terms = AcademicTerm::all();
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Academic Year', '');
         return view('admin.master-records.academic-terms', compact('academic_terms', 'academic_years'));
@@ -32,27 +33,30 @@ class AcademicTermsController extends Controller
     public function postIndex(Request $request)
     {
         $inputs = $request->all();
-        $count = 0;
+        $count = $status =0;
 
-        // ::TODO Validate TO Make Sure Only One Status is Set
-//        for($j=0; $j<count($inputs['status']); $j++)
-//            if($inputs['status'][$j] === 1) $status++;
+        // Validate TO Make Sure Only One Status is Set
+        for($j=0; $j<count($inputs['status']); $j++)
+            if($inputs['status'][$j] === '1') $status++;
 
-        for($i = 0; $i < count($inputs['academic_term_id']); $i++){
-            $academic_term = ($inputs['academic_term_id'][$i] > 0) ? AcademicTerm::find($inputs['academic_term_id'][$i]) : new AcademicTerm();
-            $academic_term->academic_term = $inputs['academic_term'][$i];
-            $academic_term->status = $inputs['status'][$i];
-            $academic_term->academic_year_id = $inputs['academic_year_id'][$i];
-            $academic_term->term_type_id = $inputs['term_type_id'][$i];
-            $academic_term->term_begins = $inputs['term_begins'][$i];
-            $academic_term->term_ends = $inputs['term_ends'][$i];
-            if($academic_term->save()){
-                $count = $count+1;
+        if($status > 1 || $status < 1) {
+            $this->setFlashMessage('Note!!! An Academic Term (Only One) Must Be Set To Active At Any Point In Time.', 2);
+        }else{
+            for($i = 0; $i < count($inputs['academic_term_id']); $i++){
+                $academic_term = ($inputs['academic_term_id'][$i] > 0) ? AcademicTerm::find($inputs['academic_term_id'][$i]) : new AcademicTerm();
+                $academic_term->academic_term = $inputs['academic_term'][$i];
+                $academic_term->status = $inputs['status'][$i];
+                $academic_term->academic_year_id = $inputs['academic_year_id'][$i];
+                $academic_term->term_type_id = $inputs['term_type_id'][$i];
+                $academic_term->term_begins = $inputs['term_begins'][$i];
+                $academic_term->term_ends = $inputs['term_ends'][$i];
+                if($academic_term->save()){
+                    $count = $count+1;
+                }
             }
+            // Set the flash message
+            if($count > 0) $this->setFlashMessage($count . ' Academic Term has been successfully updated.', 1);
         }
-        // Set the flash message
-        if($count > 0)
-            $this->setFlashMessage($count . ' Academic Term has been successfully updated.', 1);
         // redirect to the create a new inmate page
         return redirect('/academic-terms');
     }

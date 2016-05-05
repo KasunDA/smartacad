@@ -128,8 +128,6 @@ class AccountsController extends Controller
         if($user->user_id) {
             $user->attachRole($role);
 
-            //Sending of SMS
-            // TODO
             //$data->phone_no
 
             //Verification Mail Sending

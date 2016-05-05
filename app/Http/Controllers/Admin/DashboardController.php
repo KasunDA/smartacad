@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Accounts\Staff;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
-use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -19,8 +19,8 @@ class DashboardController extends Controller
      */
     public function getIndex()
     {
-        $sponsors_count = Sponsor::count();
-        $staff_count = Staff::count();
+        $sponsors_count = User::where('user_type_id', Sponsor::USER_TYPE)->count();
+        $staff_count = User::where('user_type_id', Staff::USER_TYPE)->count();
         return view('admin.dashboard', compact('sponsors_count','staff_count'));
     }
 }

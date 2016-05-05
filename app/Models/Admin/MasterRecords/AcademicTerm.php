@@ -52,45 +52,18 @@ class AcademicTerm extends Model
     }
 
     /**
-     * Format The Term Begins Date Before Inserting
-     * @param $date
-     */
-    public function setTermBeginsAttribute($date)
-    {
-        $this->attributes['term_begins'] = ($date) ? Carbon::createFromFormat('Y-m-d', $date) : null;
-    }
-
-    /**
-     * Format The Term Ends Date Before Inserting
-     * @param $date
-     */
-    public function setTermEndsAttribute($date)
-    {
-        $this->attributes['term_ends'] = ($date) ? Carbon::createFromFormat('Y-m-d', $date) : null;
-    }
-
-    /**
-     * Format The Exam Setup Date Before Inserting
-     * @param $date
-     */
-    public function setExamSetupDateAttribute($date)
-    {
-        $this->attributes['exam_setup_date'] = ($date) ? Carbon::createFromFormat('Y-m-d', $date) : null;
-    }
-
-    /**
      * An Academic Term was created by A User
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function examSetupBy(){
-        return $this->belongsTo('App\Models\Admin\Users\User');
+        return $this->belongsTo('App\Models\Admin\Users\User', 'exam_setup_by', 'user_id');
     }
 
     /**
      * Get The Current Academic Term
      */
-    public function currentTerm(){
+    public static function currentTerm(){
 
-        return $this->where('status', 1)->first();
+        return AcademicTerm::where('status', 1)->first();
     }
 }
