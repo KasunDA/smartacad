@@ -88,7 +88,7 @@ class RolesController extends Controller
                 $arr = $the_role;
             }
             $roles = collect($arr);
-            $users = User::where('user_type_id', 2)->get();
+            $users = User::where('type', 2)->get();
         } else {
             $roles = Role::orderBy('display_name')->lists('display_name', 'role_id');
             $users = ($encodeId === null) ? User::orderBy('email')->get() : $users = $role->users()->orderBy('email')->get();;

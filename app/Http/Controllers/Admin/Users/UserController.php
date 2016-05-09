@@ -58,7 +58,7 @@ class UserController extends Controller
      */
     public function getIndex()
     {
-        $users = User::where('user_type_id',2)->get();
+        $users = User::where('type',2)->get();
         return view('admin.users.index', compact('users'));
     }
 
