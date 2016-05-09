@@ -56,39 +56,43 @@
                                         <th style="width: 5%;">Actions</th>
                                     </tr>
                                     </thead>
-                                    @if(count($classlevels) > 0)
-                                        <tbody>
-                                        <?php $i = 1; ?>
-                                        @foreach($classlevels as $class_level)
+                                    @if(count($classgroups) > 1)
+                                        @if(count($classlevels) > 0)
+                                            <tbody>
+                                            <?php $i = 1; ?>
+                                            @foreach($classlevels as $class_level)
+                                                <tr>
+                                                    <td class="text-center">{{$i++}} </td>
+                                                    <td>
+                                                        {!! Form::text('classlevel[]', $class_level->classlevel, ['placeholder'=>'Class Level', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                        {!! Form::hidden('classlevel_id[]', $class_level->classlevel_id, ['class'=>'form-control']) !!}
+                                                    </td>
+                                                    <td>{!! Form::select('classgroup_id[]', $classgroups, $class_level->classgroup_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                    <td>
+                                                        <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_class_level">
+                                                            <span class="fa fa-trash-o"></span> Delete
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        @else
                                             <tr>
-                                                <td class="text-center">{{$i++}} </td>
+                                                <td class="text-center">1</td>
                                                 <td>
-                                                    {!! Form::text('classlevel[]', $class_level->classlevel, ['placeholder'=>'Class Level', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                    {!! Form::hidden('classlevel_id[]', $class_level->classlevel_id, ['class'=>'form-control']) !!}
+                                                    {!! Form::text('classlevel[]', '', ['placeholder'=>'Class Level', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                    {!! Form::hidden('classlevel_id[]', '-1', ['class'=>'form-control']) !!}
                                                 </td>
-                                                <td>{!! Form::select('classgroup_id[]', $classgroups, $class_level->classgroup_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                <td>{!! Form::select('classgroup_id[]', $classgroups, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_class_level">
-                                                        <span class="fa fa-trash-o"></span> Delete
+                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
+                                                        <span class="fa fa-times"></span> Remove
                                                     </button>
                                                 </td>
                                             </tr>
-                                        @endforeach
-                                        </tbody>
+                                        @endif
                                     @else
-                                        <tr>
-                                            <td class="text-center">1</td>
-                                            <td>
-                                                {!! Form::text('classlevel[]', '', ['placeholder'=>'Class Level', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                {!! Form::hidden('classlevel_id[]', '-1', ['class'=>'form-control']) !!}
-                                            </td>
-                                            <td>{!! Form::select('classgroup_id[]', $classgroups, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                            <td>
-                                                <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
-                                                    <span class="fa fa-times"></span> Remove
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        <tr><td colspan="4" class="text-center"><label class="label label-danger"><strong>A Class Group Record Must Be Inserted Before Inserting Class Level</strong></label></td></tr>
                                     @endif
                                     <tfoot>
                                     <tr>

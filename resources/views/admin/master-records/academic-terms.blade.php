@@ -62,47 +62,51 @@
                                         <th style="width: 10%;">Actions</th>
                                     </tr>
                                     </thead>
-                                    @if(count($academic_terms) > 0)
-                                        <tbody>
-                                        <?php $i = 1; ?>
-                                        @foreach($academic_terms as $academic_term)
+                                    @if(count($academic_years) > 1)
+                                        @if(count($academic_terms) > 0)
+                                            <tbody>
+                                            <?php $i = 1; ?>
+                                            @foreach($academic_terms as $academic_term)
+                                                <tr>
+                                                    <td class="text-center">{{$i++}} </td>
+                                                    <td>
+                                                        {!! Form::text('academic_term[]', $academic_term->academic_term, ['placeholder'=>'Academic Term', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                        {!! Form::hidden('academic_term_id[]', $academic_term->academic_term_id, ['class'=>'form-control']) !!}
+                                                    </td>
+                                                    <td>{!! Form::select('status[]', [''=>'Term Status', 1=>'Active', 2=>'Inactive'], $academic_term->status, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                    <td>{!! Form::select('academic_year_id[]', $academic_years, $academic_term->academic_year_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                    <td>{!! Form::select('term_type_id[]', [''=>'Term Type', 1=>'First Term', 2=>'Second Term', 3=>'Third Term'], $academic_term->term_type_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                    <td>{!! Form::text('term_begins[]', $academic_term->term_begins, ['placeholder'=>'Term Begins', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
+                                                    <td>{!! Form::text('term_ends[]', $academic_term->term_ends, ['placeholder'=>'Term Ends', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
+                                                    <td>
+                                                        <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_academic_term">
+                                                            <span class="fa fa-trash-o"></span> Delete
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        @else
                                             <tr>
-                                                <td class="text-center">{{$i++}} </td>
+                                                <td class="text-center">1</td>
                                                 <td>
-                                                    {!! Form::text('academic_term[]', $academic_term->academic_term, ['placeholder'=>'Academic Term', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                    {!! Form::hidden('academic_term_id[]', $academic_term->academic_term_id, ['class'=>'form-control']) !!}
+                                                    {!! Form::text('academic_term[]', '', ['placeholder'=>'Academic Term', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                    {!! Form::hidden('academic_term_id[]', '-1', ['class'=>'form-control']) !!}
                                                 </td>
-                                                <td>{!! Form::select('status[]', [''=>'Term Status', 1=>'Active', 2=>'Inactive'], $academic_term->status, ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                <td>{!! Form::select('academic_year_id[]', $academic_years, $academic_term->academic_year_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                <td>{!! Form::select('term_type_id[]', [''=>'Term Type', 1=>'First Term', 2=>'Second Term', 3=>'Third Term'], $academic_term->term_type_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                <td>{!! Form::text('term_begins[]', $academic_term->term_begins, ['placeholder'=>'Term Begins', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
-                                                <td>{!! Form::text('term_ends[]', $academic_term->term_ends, ['placeholder'=>'Term Ends', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
+                                                <td>{!! Form::select('status[]', [''=>'Term Status', 1=>'Active', 2=>'Inactive'],'', ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                <td>{!! Form::select('academic_year_id[]', $academic_years, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                <td>{!! Form::select('term_type_id[]', [''=>'Term Type', 1=>'First Term', 2=>'Second Term', 3=>'Third Term'], '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                <td>{!! Form::text('term_begins[]', '', ['placeholder'=>'Term Begins', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
+                                                <td>{!! Form::text('term_ends[]', '', ['placeholder'=>'Term Ends', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
                                                 <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_academic_term">
-                                                        <span class="fa fa-trash-o"></span> Delete
+                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
+                                                        <span class="fa fa-times"></span> Remove
                                                     </button>
                                                 </td>
                                             </tr>
-                                        @endforeach
-                                        </tbody>
+                                        @endif
                                     @else
-                                        <tr>
-                                            <td class="text-center">1</td>
-                                            <td>
-                                                {!! Form::text('academic_term[]', '', ['placeholder'=>'Academic Term', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                {!! Form::hidden('academic_term_id[]', '-1', ['class'=>'form-control']) !!}
-                                            </td>
-                                            <td>{!! Form::select('status[]', [''=>'Term Status', 1=>'Active', 2=>'Inactive'],'', ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                            <td>{!! Form::select('academic_year_id[]', $academic_years, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                            <td>{!! Form::select('term_type_id[]', [''=>'Term Type', 1=>'First Term', 2=>'Second Term', 3=>'Third Term'], '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                            <td>{!! Form::text('term_begins[]', '', ['placeholder'=>'Term Begins', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
-                                            <td>{!! Form::text('term_ends[]', '', ['placeholder'=>'Term Ends', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
-                                            <td>
-                                                <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
-                                                    <span class="fa fa-times"></span> Remove
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        <tr><td colspan="8" class="text-center"><label class="label label-danger"><strong>An Academic Years Record Must Be Inserted Before Inserting Academic Term</strong></label></td></tr>
                                     @endif
                                     <tfoot>
                                     <tr>

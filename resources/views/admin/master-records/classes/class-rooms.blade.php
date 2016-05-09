@@ -90,42 +90,47 @@
                                         <th style="width: 5%;">Actions</th>
                                     </tr>
                                     </thead>
-                                    @if(count($classrooms) > 0)
-                                        <tbody>
-                                        <?php $i = 1; ?>
-                                        @foreach($classrooms as $class_room)
-                                            <tr>
-                                                <td class="text-center">{{$i++}} </td>
-                                                <td>
-                                                    {!! Form::text('classroom[]', $class_room->classroom, ['placeholder'=>'Class Room', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                    {!! Form::hidden('classroom_id[]', $class_room->classroom_id, ['class'=>'form-control']) !!}
-                                                </td>
-                                                <td>{!! Form::select('classlevel_id[]', $classlevels, $class_room->classlevel_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                <td>{!! Form::text('class_size[]', $class_room->class_size, ['placeholder'=>'Class Capacity', 'class'=>'form-control']) !!}</td>
-                                                <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_class_room">
-                                                        <span class="fa fa-trash-o"></span> Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    @else
-                                        <tr>
-                                            <td class="text-center">1</td>
-                                            <td>
-                                                {!! Form::text('classroom[]', '', ['placeholder'=>'Class Room', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                {!! Form::hidden('classroom_id[]', '-1', ['class'=>'form-control']) !!}
-                                            </td>
-                                            <td>{!! Form::select('classlevel_id[]', $classlevels, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                            <td>{!! Form::text('class_size[]', '', ['placeholder'=>'Class Capacity', 'class'=>'form-control']) !!}</td>
-                                            <td>
-                                                <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
-                                                    <span class="fa fa-times"></span> Remove
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @endif
+                                    <tbody>
+                                        @if(count($classlevels) > 1)
+                                            @if(count($classrooms) > 0)
+
+                                                <?php $i = 1; ?>
+                                                @foreach($classrooms as $class_room)
+                                                    <tr>
+                                                        <td class="text-center">{{$i++}} </td>
+                                                        <td>
+                                                            {!! Form::text('classroom[]', $class_room->classroom, ['placeholder'=>'Class Room', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                            {!! Form::hidden('classroom_id[]', $class_room->classroom_id, ['class'=>'form-control']) !!}
+                                                        </td>
+                                                        <td>{!! Form::select('classlevel_id[]', $classlevels, $class_room->classlevel_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                        <td>{!! Form::text('class_size[]', $class_room->class_size, ['placeholder'=>'Class Capacity', 'class'=>'form-control']) !!}</td>
+                                                        <td>
+                                                            <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_class_room">
+                                                                <span class="fa fa-trash-o"></span> Delete
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td class="text-center">1</td>
+                                                    <td>
+                                                        {!! Form::text('classroom[]', '', ['placeholder'=>'Class Room', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                        {!! Form::hidden('classroom_id[]', '-1', ['class'=>'form-control']) !!}
+                                                    </td>
+                                                    <td>{!! Form::select('classlevel_id[]', $classlevels, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                    <td>{!! Form::text('class_size[]', '', ['placeholder'=>'Class Capacity', 'class'=>'form-control']) !!}</td>
+                                                    <td>
+                                                        <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
+                                                            <span class="fa fa-times"></span> Remove
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @else
+                                            <tr><td colspan="5" class="text-center"><label class="label label-danger"><strong>A Class Level Record Must Be Inserted Before Inserting Class Room</strong></label></td></tr>
+                                        @endif
+                                    </tbody>
                                     <tfoot>
                                     <tr>
                                         <th style="width: 5%;">s/no</th>
@@ -171,7 +176,7 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/class-rooms"]');
-            TableManaged.init();
+//            TableManaged.init();
         });
     </script>
 @endsection
