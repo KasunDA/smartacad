@@ -54,11 +54,11 @@
                                     @endif
                                     <a href="{{ url('/profiles/edit/') }}" class="profile-edit"> edit </a>
                                 </li>
-                                <li>
-                                    <a href="javascript:;"> Messages
-                                        <span> 3 </span>
-                                    </a>
-                                </li>
+                                {{--<li>--}}
+                                    {{--<a href="javascript:;"> Messages--}}
+                                        {{--<span> 3 </span>--}}
+                                    {{--</a>--}}
+                                {{--</li>--}}
                             </ul>
                         </div>
                         <div class="col-md-9">
