@@ -58,7 +58,7 @@ class UserController extends Controller
      */
     public function getIndex()
     {
-        $users = User::where('type',2)->get();
+        $users = User::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())->get();
         return view('admin.users.index', compact('users'));
     }
 
