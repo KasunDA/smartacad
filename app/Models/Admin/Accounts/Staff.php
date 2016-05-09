@@ -17,7 +17,7 @@ class Staff extends Model
     /**
      * User Type ID
      */
-    const USER_TYPE = 3;
+    const USER_TYPE = 4;
 
     /**
      * The database table used by the model.

@@ -16,7 +16,7 @@ class Sponsor extends Model
     /**
      * User Type ID
     */
-    const USER_TYPE = 4;
+    const USER_TYPE = 3;
 
     /**
      * The database table used by the model.
