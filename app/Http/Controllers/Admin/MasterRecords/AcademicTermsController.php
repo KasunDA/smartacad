@@ -18,7 +18,6 @@ class AcademicTermsController extends Controller
      */
     public function getIndex()
     {
-        dd(AcademicTerm::currentTerm()->examSetupBy()->first());
         $academic_terms = AcademicTerm::all();
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Academic Year', '');
         return view('admin.master-records.academic-terms', compact('academic_terms', 'academic_years'));
