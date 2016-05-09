@@ -40,18 +40,18 @@
                         <div class="col-md-3">
                             <ul class="list-unstyled profile-nav">
                                 <li>
-                                    @if(!$user->avatar)
+                                    @if(!$staff->avatar)
                                         <img src="{{ asset('/uploads/no-image.jpg') }}" class="img-responsive pic-bordered" alt="{{ $staff->fullNames() }}"/>
                                     @else
-                                        <img src="{{ $user->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $staff->fullNames() }}"/>
+                                        <img src="{{ $staff->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $staff->fullNames() }}"/>
                                     @endif
-                                    <a href="{{ url('/staffs/edit/'.$hashIds->encode($staff->staff_id)) }}" class="profile-edit"> edit </a>
+                                    <a href="{{ url('/staffs/edit/'.$hashIds->encode($staff->user_id)) }}" class="profile-edit"> edit </a>
                                 </li>
-                                <li>
-                                    <a href="javascript:;"> Messages
-                                        <span> 3 </span>
-                                    </a>
-                                </li>
+                                {{--<li>--}}
+                                    {{--<a href="javascript:;"> Messages--}}
+                                        {{--<span> 3 </span>--}}
+                                    {{--</a>--}}
+                                {{--</li>--}}
                             </ul>
                         </div>
                         <div class="col-md-9">
@@ -59,7 +59,7 @@
                                 <div class="col-md-8 profile-info">
                                     <h1 class="font-green sbold uppercase">{{ $staff->fullNames() }}</h1>
                                     <h4>
-                                        {{ $user->userType()->first()->user_type }}
+                                        {{ $staff->userType()->first()->user_type }}
                                     </h4>
                                     <ul class="list-inline">
                                         <li>
@@ -69,7 +69,7 @@
 
                                     <div class="portlet sale-summary">
                                         <div class="portlet-title">
-                                            <div class="caption font-red sbold"> USERNAME: {{ $user->username }} || Staff Information </div>
+                                            <div class="caption font-red sbold"> Staff Information </div>
                                         </div>
                                         <div class="portlet-body">
                                             <table class="table table-stripped table-bordered">

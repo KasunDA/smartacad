@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Models\Admin\MasterRecords\Classes;
+
+use Illuminate\Database\Eloquent\Model;
+
+class ClassLevel extends Model
+{
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'classlevels';
+    /**
+     * The table permissions primary key
+     * @var int
+     */
+    protected $primaryKey = 'classlevel_id';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'classlevel',
+        'classgroup_id',
+    ];
+
+    /**
+     * A Class Level Has Many Class Rooms
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function classRooms(){
+        return $this->hasMany('App\Models\Admin\MasterRecords\Classes\ClassRoom', 'classlevel_id');
+    }
+
+    /**
+     * A Class Level Belongs To Class Group
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+
+    public function classGroup(){
+        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassGroup', 'classgroup_id');
+    }
+}

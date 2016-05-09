@@ -78,6 +78,10 @@ Route::group(['middleware' => ['web']], function () {
         'academic-terms' => 'Admin\MasterRecords\AcademicTermsController',
         'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
         'school-subjects' => 'School\Setups\Subjects\SchoolSubjectsController',
+        'class-groups' => 'Admin\MasterRecords\Classes\ClassGroupsController',
+        'class-levels' => 'Admin\MasterRecords\Classes\ClassLevelsController',
+        'class-rooms' => 'Admin\MasterRecords\Classes\ClassRoomsController',
+
 
     ]);
 });

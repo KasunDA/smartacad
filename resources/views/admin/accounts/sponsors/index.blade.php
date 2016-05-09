@@ -67,14 +67,14 @@
                                             @endif
                                         </td>
                                         <td>
-                                            {{--<a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($sponsor->sponsor_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">--}}
-                                                {{--<span class="fa fa-eye-slash"></span>--}}
-                                            {{--</a>--}}
+                                            <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($sponsor->user_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                                                <span class="fa fa-eye-slash"></span>
+                                            </a>
                                         </td>
                                         <td>
-                                            {{--<a href="{{ url('/sponsors/edit/'.$hashIds->encode($sponsor->sponsor_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">--}}
-                                                {{--<span class="fa fa-edit"></span>--}}
-                                            {{--</a>--}}
+                                            <a href="{{ url('/sponsors/edit/'.$hashIds->encode($sponsor->user_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                                                <span class="fa fa-edit"></span>
+                                            </a>
                                         </td>
                                     </tr>
                                 @endforeach

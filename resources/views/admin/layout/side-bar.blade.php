@@ -188,7 +188,7 @@
             @endif{{-- Check if the user is logged in--}}
             <li class="nav-item">
                 <a href="{{ url('/users/change') }}">
-                    <i class="icon-lock"></i> Change Password </a>
+                    <i class="icon-lock"></i> <span class="title">Change Password</span> </a>
             </li>
             <li class="nav-item">
                 <a href="{{ url('/auth/logout') }}" class="nav-link">

@@ -49,30 +49,33 @@
                                 'role'=>'form'
                             ])
                         !!}
-                        {!! Form::hidden('sponsor_id', $sponsor->sponsor_id) !!}
-                        <input type="hidden" name="user_type_id" value="3"/>
+                        {!! Form::hidden('user_id', $sponsor->user_id) !!}
                         <div class="form-body">
                             <div class="form-group">
-                                <label>Title</label>
+                                <label>Title <span class="text-danger">*</span></label>
                                 <div>
                                     {!! Form::select('salutation_id', $salutations, $sponsor->salutation_id, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="control-label">First Name</label>
+                                <label class="control-label">First Name <span class="text-danger">*</span></label>
                                 {!! Form::text('first_name', $sponsor->first_name, ['placeholder'=>'First Name', 'class'=>'form-control', 'required'=>'required']) !!}
                             </div>
                             <div class="form-group">
-                                <label class="control-label">Other Names</label>
-                                {!! Form::text('other_name', $sponsor->other_name, ['placeholder'=>'Other Names', 'class'=>'form-control', 'required'=>'required']) !!}
+                                <label class="control-label">Last Name <span class="text-danger">*</span></label>
+                                {!! Form::text('last_name', $sponsor->last_name, ['placeholder'=>'Last Name', 'class'=>'form-control', 'required'=>'required']) !!}
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Middle Name</label>
+                                {!! Form::text('middle_name', $sponsor->middle_name, ['placeholder'=>'Middle Name', 'class'=>'form-control']) !!}
                             </div>
                             <div class="form-group">
                                 <label class="control-label">Email</label>
                                 {!! Form::text('email', $sponsor->email, ['placeholder'=>'Email', 'class'=>'form-control']) !!}
                             </div>
                             <div class="form-group">
-                                <label class="control-label">Mobile Number</label>
+                                <label class="control-label">Mobile Number <span class="text-danger">*</span></label>
                                 {!! Form::text('phone_no', $sponsor->phone_no, ['placeholder'=>'Mobile No', 'class'=>'form-control', 'required'=>'required']) !!}
                             </div>
                             <div class="form-group">
@@ -80,7 +83,7 @@
                                 {!! Form::text('phone_no2', $sponsor->phone_no2, ['placeholder'=>'Mobile No 2', 'class'=>'form-control']) !!}
                             </div>
                             <div class="form-group">
-                                <label class="control-label">Date Of Birth </label>
+                                <label class="control-label">Date Of Birth <span class="text-danger">*</span></label>
                                 <input class="form-control date-picker" data-date-format="yyyy-mm-dd" name="dob" type="text" value="{!! ($sponsor->dob) ?  $sponsor->dob->format('Y-m-d') : '' !!}" />
                             </div>
                             <div class="form-group">
@@ -103,10 +106,10 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>Contact Address</label>
-                                <textarea class="form-control" rows="3" required placeholder="Contact Address" name="address">{{ $sponsor->address }}</textarea>
-                            </div>
+                            {{--<div class="form-group">--}}
+                                {{--<label>Contact Address</label>--}}
+                                {{--<textarea class="form-control" rows="3" required placeholder="Contact Address" name="address">{{ $sponsor->address }}</textarea>--}}
+                            {{--</div>--}}
                             <div class="margiv-top-10">
                                 <button class="btn green pull-right btn-lg"> Update Info </button>
                             </div>
