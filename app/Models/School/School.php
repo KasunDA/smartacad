@@ -20,7 +20,7 @@ class School extends Model
      *
      * @var int
      */
-    protected $primaryKey = 'schools_id';
+    protected $primaryKey = 'school_id';
 
     /**
      * Path to the files
@@ -46,6 +46,18 @@ class School extends Model
     ];
 
     /**
+     * get the school information
+    */
+    public static function mySchool(){
+        //Set The School Info. into a variable school
+        $school = null;
+        if(env('SCHOOL_ID')){
+            $school = School::findOrFail(env('SCHOOL_ID'));
+        }
+        return $school;
+    }
+
+    /**
      * School Logo full path
      */
     public function getLogoPath(){
@@ -58,6 +70,15 @@ class School extends Model
      */
 
     public function database(){
-        return $this->hasOne('App\Models\School\SchoolDatabase', 'schools_id');
+        return $this->hasOne('App\Models\School\SchoolDatabase', 'school_id');
+    }
+
+    /**
+     * Get the subjects associated with the given school
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function subjects()
+    {
+        return $this->belongsToMany('App\Models\School\Setups\Subjects\Subject', 'schools_subjects', 'school_id', 'subject_id');
     }
 }

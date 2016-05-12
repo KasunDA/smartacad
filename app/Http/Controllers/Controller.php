@@ -133,4 +133,28 @@ class Controller extends BaseController
             'user_type_id' => 'required',
         ], $messages);
     }
+
+    /**
+     * Send SMS
+    */
+    public function sendSMS($msg, $no){
+        $mobile_no = trim($no);
+        $msg_sender = 'Solid Steps';
+        if(substr($mobile_no, 0, 1) === '0'){
+            $no = '234' . substr($mobile_no, 1);
+        }elseif (substr($mobile_no, 0, 3) === '234') {
+            $no = $mobile_no;
+        }elseif (substr($mobile_no, 0, 1) === '+') {
+            $no = substr($mobile_no, 1);
+        }else{
+            $no = '234' . $mobile_no;
+        }
+        $username = "ZumaComm";
+        $password = "zuma123456";
+
+        $url = "http://107.20.195.151/mcast_ws/?user=$username&password=$password&from=$msg_sender&to=$no&message=$msg";
+        $ret = file($url);
+
+        return $ret;
+    }
 }

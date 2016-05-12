@@ -75,13 +75,13 @@ class SchoolController extends Controller
         // Store the School...
         $school = School::create($inputs);
 
-        if($school->schools_id) {
+        if($school->school_id) {
             if ($request->file('logo')) {
                 $file = $request->file('logo');
                 $filename = $file->getClientOriginalName();
                 $img_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-                $school->logo = $school->schools_id . '_logo.' . $img_ext;
+                $school->logo = $school->school_id . '_logo.' . $img_ext;
                 Input::file('logo')->move($school->logo_path, $school->logo);
                 $school->save();
             }
@@ -156,7 +156,7 @@ class SchoolController extends Controller
                 $filename = $file->getClientOriginalName();
                 $img_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-                $school->logo = $school->schools_id . '_logo.' . $img_ext;
+                $school->logo = $school->school_id . '_logo.' . $img_ext;
                 Input::file('logo')->move($school->logo_path, $school->logo);
                 $school->save();
             }
@@ -184,7 +184,7 @@ class SchoolController extends Controller
      */
     public function postSearch(Request $request){
         $inputs = $request->all();
-        $school = School::findOrFail($inputs['schools_id']);
+        $school = School::findOrFail($inputs['school_id']);
         $db = $school->database()->first();
 
         if($db){
@@ -226,14 +226,14 @@ class SchoolController extends Controller
     public function postDbConfig(Request $request)
     {
         $inputs = $request->all();
-        $school = School::findOrFail($inputs['schools_id']);
+        $school = School::findOrFail($inputs['school_id']);
         $db = $school->database()->first();
         $database = ($db) ? SchoolDatabase::find($db->school_database_id) : new SchoolDatabase();
         $database->host = $inputs['host'];
         $database->database = $inputs['database'];
         $database->username = $inputs['username'];
         $database->password = $inputs['password'];
-        $database->schools_id = $inputs['schools_id'];
+        $database->school_id = $inputs['school_id'];
         if($database->save())
         // Set the flash message
             $this->setFlashMessage($school->name . ' Database has been successfully configured.', 1);

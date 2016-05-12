@@ -30,7 +30,7 @@
                     @include('errors.errors')
                     <form method="POST" action="{{ url('/schools/db-config') }}" accept-charset="UTF-8" class="form-horizontal" role="form">
                         {!! csrf_field() !!}
-                        <input type="hidden" name="schools_id" value="{{$school->schools_id}}">
+                        <input type="hidden" name="school_id" value="{{$school->school_id}}">
                         <div class="form-body">
 
                             <div class="form-group">

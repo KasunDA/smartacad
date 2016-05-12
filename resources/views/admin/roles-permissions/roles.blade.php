@@ -2,6 +2,8 @@
 
 @section('layout-style')
     <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('title', 'Manage Roles')
@@ -123,6 +125,9 @@
     @endsection
 @section('page-level-js')
     <script src="{{ asset('assets/global/plugins/bootstrap-select/js/bootstrap-select.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/scripts/datatable.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/datatables.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
     @endsection
 
 @section('layout-script')
@@ -143,6 +148,7 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/roles"]');
+            setTableData($('#role_table')).init();
         });
     </script>
 @endsection

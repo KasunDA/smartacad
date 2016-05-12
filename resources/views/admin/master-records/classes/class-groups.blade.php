@@ -2,6 +2,8 @@
 
 @section('layout-style')
     <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('title', 'Class Groups')
@@ -120,6 +122,9 @@
 
     @section('layout-script')
     <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script src="{{ asset('assets/global/scripts/datatable.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/datatables.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
@@ -135,6 +140,7 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/class-groups"]');
+            setTableData($('#class_group_table')).init();
         });
     </script>
 @endsection

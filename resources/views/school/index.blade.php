@@ -3,7 +3,8 @@
 @section('layout-style')
         <!-- BEGIN PAGE LEVEL STYLES -->
 <link href="{{ asset('assets/global/plugins/select2/css/select2.css') }}" rel="stylesheet" type="text/css"/>
-<link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css') }}" rel="stylesheet" type="text/css"/>
+<link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
 <!-- END PAGE LEVEL STYLES -->
 @endsection
 
@@ -114,8 +115,9 @@
     @section('page-level-js')
     <!-- BEGIN PAGE LEVEL PLUGINS -->
     <script type="text/javascript" src="{{ asset('assets/global/plugins/select2/js/select2.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('assets/global/plugins/datatables/media/js/jquery.dataTables.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js') }}"></script>
+    <script src="{{ asset('assets/global/scripts/datatable.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/datatables.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
 @endsection
 
@@ -130,7 +132,7 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/schools"]');
-            TableManaged.init();
+            setTableData($('#schools_datatable')).init();
         });
     </script>
 @endsection

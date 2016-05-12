@@ -4,7 +4,7 @@ namespace App\Models\School\Setups\Subjects;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SchoolSubject extends Model
+class Subject extends Model
 {
     protected $connection = 'admin_mysql';
 
@@ -13,12 +13,12 @@ class SchoolSubject extends Model
      *
      * @var string
      */
-    protected $table = 'school_subjects';
+    protected $table = 'subjects';
     /**
      * The table permissions primary key
      * @var int
      */
-    protected $primaryKey = 'school_subject_id';
+    protected $primaryKey = 'subject_id';
 
     /**
      * The attributes that are mass assignable.
@@ -26,9 +26,9 @@ class SchoolSubject extends Model
      * @var array
      */
     protected $fillable = [
-        'school_subject',
+        'subject',
         'subject_group_id',
-        'school_subject_abbr'
+        'subject_abbr'
     ];
 
     /**
@@ -38,5 +38,14 @@ class SchoolSubject extends Model
 
     public function subjectGroup(){
         return $this->belongsTo('App\Models\School\Setups\Subjects\SubjectGroup');
+    }
+
+    /**
+     * Get the schools associated with the given subject
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function schools()
+    {
+        return $this->belongsToMany('App\Models\School\School', 'schools_subjects', 'subject_id', 'school_id');
     }
 }

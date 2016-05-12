@@ -2,6 +2,8 @@
 
 @section('layout-style')
     <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('title', 'Assign Users Roles')
@@ -61,7 +63,7 @@
                     <form method="post" action="/roles/users-roles/{{$encodeId}}" role="form" class="form-horizontal">
                         {!! csrf_field() !!}
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-actions datatable">
+                            <table class="table table-bordered table-striped table-actions datatable" id="user_role_table">
                                 <thead>
                                 <tr>
                                     <th style="width: 1%;">#</th>
@@ -125,14 +127,17 @@
 
 @section('layout-script')
     <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/bootstrap-select/js/bootstrap-select.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/scripts/datatable.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/datatables.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
+    <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/scripts/app.min.js') }}" type="text/javascript"></script>
     <!-- END THEME GLOBAL SCRIPTS -->
     <!-- BEGIN PAGE LEVEL SCRIPTS -->
     <script src="{{ asset('assets/pages/scripts/ui-bootbox.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/bootstrap-select/js/bootstrap-select.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL SCRIPTS -->
     <!-- BEGIN THEME LAYOUT SCRIPTS -->
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
@@ -142,6 +147,7 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/roles/users-roles"]');
+            setTableData($('#user_role_table')).init();
         });
     </script>
 @endsection

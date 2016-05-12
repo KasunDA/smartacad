@@ -2,8 +2,9 @@
 
 @section('layout-style')
     <!-- BEGIN PAGE LEVEL STYLES -->
-    <link href="{{ asset('assets/global/plugins/select2/css/select2.css') }}" rel="stylesheet" type="text/css"/>
-    <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- END PAGE LEVEL STYLES -->
 @endsection
 
@@ -36,18 +37,18 @@
                 </div>
                 <div class="portlet-body">
                     <div class="row">
-                        <table class="table table-striped table-bordered table-hover" id="">
+                        <table class="table table-striped table-bordered table-hover" id="users_datatable">
                             <thead>
                                 <tr>
-                                    <th style="width: 1%;">#</th>
-                                    <th style="width: 25%;">Names</th>
-                                    <th style="width: 10%;">Username</th>
-                                    <th style="width: 19%;">Email</th>
-                                    <th style="width: 5%;">Gender</th>
-                                    <th style="width: 20%;">User Type</th>
-                                    <th style="width: 10%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
+                                    <th>#</th>
+                                    <th>Names</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Gender</th>
+                                    <th>User Type</th>
+                                    <th>Status</th>
+                                    <th>View</th>
+                                    <th>Edit</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -88,15 +89,15 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th style="width: 1%;">#</th>
-                                    <th style="width: 25%;">Names</th>
-                                    <th style="width: 10%;">Username</th>
-                                    <th style="width: 19%;">Email</th>
-                                    <th style="width: 5%;">Gender</th>
-                                    <th style="width: 20%;">User Type</th>
-                                    <th style="width: 10%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
+                                    <th>#</th>
+                                    <th>Names</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Gender</th>
+                                    <th>User Type</th>
+                                    <th>Status</th>
+                                    <th>View</th>
+                                    <th>Edit</th>
                                 </tr>
                             </tfoot>
 
@@ -110,9 +111,10 @@
 @endsection
 @section('page-level-js')
     <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <script type="text/javascript" src="{{ asset('assets/global/plugins/select2/js/select2.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('assets/global/plugins/datatables/media/js/jquery.dataTables.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js') }}"></script>
+    <script src="{{ asset('assets/global/scripts/datatable.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/datatables.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
 @endsection
 
@@ -127,7 +129,7 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/users"]');
-            TableManaged.init();
+            setTableData($('#users_datatable')).init();
         });
     </script>
 @endsection

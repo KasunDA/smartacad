@@ -41,6 +41,6 @@ class SubjectGroup extends Model
      */
 
     public function subjects(){
-        return $this->hasMany('App\Models\School\Setups\Subjects\SchoolSubject');
+        return $this->hasMany('App\Models\School\Setups\Subjects\Subject');
     }
 }

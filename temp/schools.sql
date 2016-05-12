@@ -3,30 +3,22 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 01, 2016 at 10:23 PM
+-- Generation Time: May 11, 2016 at 06:27 PM
 -- Server version: 5.6.26
 -- PHP Version: 5.6.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
 --
 -- Database: `schools`
 --
-DROP DATABASE `schools`;
-CREATE DATABASE IF NOT EXISTS `schools` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `schools`;
 
 DELIMITER $$
 --
 -- Functions
 --
+DROP FUNCTION IF EXISTS `SPLIT_STR`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `SPLIT_STR`(
 	x VARCHAR(255),
 	delim VARCHAR(12),
@@ -44,6 +36,7 @@ DELIMITER ;
 -- Table structure for table `lgas`
 --
 
+DROP TABLE IF EXISTS `lgas`;
 CREATE TABLE IF NOT EXISTS `lgas` (
   `lga_id` int(3) unsigned NOT NULL,
   `lga` varchar(50) DEFAULT NULL,
@@ -842,6 +835,7 @@ INSERT INTO `lgas` (`lga_id`, `lga`, `state_id`) VALUES
 -- Table structure for table `marital_statuses`
 --
 
+DROP TABLE IF EXISTS `marital_statuses`;
 CREATE TABLE IF NOT EXISTS `marital_statuses` (
   `marital_status_id` int(10) unsigned NOT NULL,
   `marital_status` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
@@ -864,6 +858,7 @@ INSERT INTO `marital_statuses` (`marital_status_id`, `marital_status`, `marital_
 -- Table structure for table `salutations`
 --
 
+DROP TABLE IF EXISTS `salutations`;
 CREATE TABLE IF NOT EXISTS `salutations` (
   `salutation_id` int(10) unsigned NOT NULL,
   `salutation` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
@@ -883,95 +878,12 @@ INSERT INTO `salutations` (`salutation_id`, `salutation`, `salutation_abbr`) VAL
 -- --------------------------------------------------------
 
 --
--- Table structure for table `school_databases`
---
-
-CREATE TABLE IF NOT EXISTS `school_databases` (
-  `school_database_id` int(10) unsigned NOT NULL,
-  `host` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `database` varchar(225) COLLATE utf8_unicode_ci NOT NULL,
-  `username` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `password` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `schools_id` int(10) unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `school_subjects`
---
-
-CREATE TABLE IF NOT EXISTS `school_subjects` (
-  `school_subject_id` int(10) unsigned NOT NULL,
-  `school_subject` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `school_subject_abbr` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `subject_group_id` int(10) unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `school_subjects`
---
-
-INSERT INTO `school_subjects` (`school_subject_id`, `school_subject`, `school_subject_abbr`, `subject_group_id`, `created_at`, `updated_at`) VALUES
-(1, 'English Language', 'ENG', 2, NULL, NULL),
-(2, 'Mathematics', 'MAT', 1, NULL, NULL),
-(3, 'Basic Science', 'B. SCI', 3, NULL, NULL),
-(4, 'Basic Technology', 'B. TECH', 3, NULL, NULL),
-(5, 'Business Studies', 'BUS. STDS', 6, NULL, NULL),
-(6, 'Social Studies', 'SOC STD', 5, NULL, NULL),
-(7, 'French Language', 'FRE', 2, NULL, NULL),
-(8, 'Physical & Health Education', 'PHE', 3, NULL, NULL),
-(9, 'Computer  Science', 'COMP.SCI', 1, NULL, NULL),
-(10, 'Visual Arts', 'V.ARTS', 4, NULL, NULL),
-(11, 'Hausa Language', 'HAU', 2, NULL, NULL),
-(12, 'Igbo Language', 'IGB', 2, NULL, NULL),
-(13, 'Yoruba Language', 'YOR', 2, NULL, NULL),
-(14, 'Agricultural Science', 'AGR SCI', 3, NULL, NULL),
-(15, 'Home Economics', 'H.ECONS', 4, NULL, NULL),
-(16, 'Christain Religious Studies', 'C.R.S.', 5, NULL, NULL),
-(17, 'Islamic Religious Studies', 'I.R.S', 5, NULL, NULL),
-(18, 'Geography', 'GEO', 5, NULL, NULL),
-(19, 'Literature-In-English', 'LIT', 2, NULL, NULL),
-(20, 'History ', 'HIS', 5, NULL, NULL),
-(21, 'Physics', 'PHY', 3, NULL, NULL),
-(22, 'Chemistry', 'CHEM', 3, NULL, NULL),
-(23, 'Biology', 'BIO', 3, NULL, NULL),
-(24, 'Foods & Nutrition', 'F&N', 4, NULL, NULL),
-(25, 'Technical Drawing', 'T.D', 4, NULL, NULL),
-(26, 'Music', 'MUS', 4, NULL, NULL),
-(27, 'Metal Work', 'M.WRK', 4, NULL, NULL),
-(28, 'Electronics', 'ELECT', 4, NULL, NULL),
-(29, 'Wood Work', 'WD WRK', 4, NULL, NULL),
-(30, 'Commerce', 'COM', 6, NULL, NULL),
-(31, 'Accounting', 'ACC', 6, NULL, NULL),
-(32, 'Economics', 'ECONS', 6, NULL, NULL),
-(33, 'Government', 'GOV', 5, NULL, NULL),
-(34, 'Further Mathematics', 'F.MATHS', 1, NULL, NULL),
-(35, 'Animal Husbandry', 'ANI. HUS', 3, NULL, NULL),
-(36, 'Data Processing', 'DAT', 1, NULL, NULL),
-(37, 'ICT', 'ICT', 1, NULL, NULL),
-(38, 'Civic Education', 'CIV', 5, NULL, NULL),
-(39, 'Fine Arts', 'F.ARTS', 4, NULL, NULL),
-(40, 'Catering Craft', 'Cat. Craft', 4, NULL, NULL),
-(41, 'Paint & Decoration', 'P&D', 4, NULL, NULL),
-(42, 'Chinese', 'CHIN', 2, NULL, NULL),
-(43, 'Building Construction', 'BLD CONSTR', 4, NULL, NULL),
-(44, 'Arabic ', 'ARA', 2, NULL, NULL),
-(45, 'Auto Mechanic', 'AUTO', 4, NULL, NULL),
-(46, 'Health Science', 'H. SCI', 3, NULL, NULL);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `schools`
 --
 
+DROP TABLE IF EXISTS `schools`;
 CREATE TABLE IF NOT EXISTS `schools` (
-  `schools_id` int(10) unsigned NOT NULL,
+  `school_id` int(10) unsigned NOT NULL,
   `name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `full_name` varchar(225) COLLATE utf8_unicode_ci NOT NULL,
   `phone_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
@@ -990,8 +902,38 @@ CREATE TABLE IF NOT EXISTS `schools` (
 -- Dumping data for table `schools`
 --
 
-INSERT INTO `schools` (`schools_id`, `name`, `full_name`, `phone_no`, `email`, `motto`, `website`, `address`, `logo`, `admin_id`, `status_id`, `created_at`, `updated_at`) VALUES
+INSERT INTO `schools` (`school_id`, `name`, `full_name`, `phone_no`, `email`, `motto`, `website`, `address`, `logo`, `admin_id`, `status_id`, `created_at`, `updated_at`) VALUES
 (1, 'SolidSteps', 'Solid Steps International School', '+2348061539278', 'nondefyde@gmail.com', 'taking solid steps to our vision', 'www.solidsteps.com', '4 ikuna Street Liasu Rd.', '3_logo.png', NULL, 1, '2016-04-19 11:42:16', '2016-04-19 11:43:29');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `schools_subjects`
+--
+
+DROP TABLE IF EXISTS `schools_subjects`;
+CREATE TABLE IF NOT EXISTS `schools_subjects` (
+  `school_id` int(10) unsigned NOT NULL,
+  `subject_id` int(10) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `school_databases`
+--
+
+DROP TABLE IF EXISTS `school_databases`;
+CREATE TABLE IF NOT EXISTS `school_databases` (
+  `school_database_id` int(10) unsigned NOT NULL,
+  `host` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `database` varchar(225) COLLATE utf8_unicode_ci NOT NULL,
+  `username` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `password` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `school_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -999,6 +941,7 @@ INSERT INTO `schools` (`schools_id`, `name`, `full_name`, `phone_no`, `email`, `
 -- Table structure for table `states`
 --
 
+DROP TABLE IF EXISTS `states`;
 CREATE TABLE IF NOT EXISTS `states` (
   `state_id` int(3) unsigned NOT NULL,
   `state` varchar(30) DEFAULT NULL,
@@ -1051,9 +994,78 @@ INSERT INTO `states` (`state_id`, `state`, `state_code`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `subjects`
+--
+
+DROP TABLE IF EXISTS `subjects`;
+CREATE TABLE IF NOT EXISTS `subjects` (
+  `subject_id` int(10) unsigned NOT NULL,
+  `subject` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `subject_abbr` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `subject_group_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `subjects`
+--
+
+INSERT INTO `subjects` (`subject_id`, `subject`, `subject_abbr`, `subject_group_id`, `created_at`, `updated_at`) VALUES
+(1, 'English Language', 'ENG.LANG', 2, NULL, '2016-05-11 14:10:36'),
+(2, 'Mathematics', 'MAT', 1, NULL, NULL),
+(3, 'Basic Science', 'B. SCI', 3, NULL, NULL),
+(4, 'Basic Technology', 'B. TECH', 3, NULL, NULL),
+(5, 'Business Studies', 'BUS. STDS', 6, NULL, NULL),
+(6, 'Social Studies', 'SOC STD', 5, NULL, NULL),
+(7, 'French Language', 'FRE.LANG', 2, NULL, '2016-05-11 14:11:02'),
+(8, 'Physical & Health Education', 'PHE', 3, NULL, NULL),
+(9, 'Computer  Science', 'COMP.SCI', 1, NULL, NULL),
+(10, 'Visual Arts', 'V.ARTS', 4, NULL, NULL),
+(11, 'Hausa Language', 'HAU.LANG', 2, NULL, '2016-05-11 14:11:02'),
+(12, 'Igbo Language', 'IGB.LANG', 2, NULL, '2016-05-11 14:11:02'),
+(13, 'Yoruba Language', 'YOR.LANG', 2, NULL, '2016-05-11 14:11:02'),
+(14, 'Agricultural Science', 'AGR SCI', 3, NULL, NULL),
+(15, 'Home Economics', 'H.ECONS', 4, NULL, NULL),
+(16, 'Christain Religious Studies', 'C.R.S.', 5, NULL, NULL),
+(17, 'Islamic Religious Studies', 'I.R.S', 5, NULL, NULL),
+(18, 'Geography', 'GEO', 5, NULL, NULL),
+(19, 'Literature-In-English', 'LIT', 2, NULL, NULL),
+(20, 'History ', 'HIS', 5, NULL, NULL),
+(21, 'Physics', 'PHY', 3, NULL, NULL),
+(22, 'Chemistry', 'CHEM', 3, NULL, NULL),
+(23, 'Biology', 'BIO', 3, NULL, NULL),
+(24, 'Foods & Nutrition', 'F&N', 4, NULL, NULL),
+(25, 'Technical Drawing', 'T.D', 4, NULL, NULL),
+(26, 'Music', 'MUS', 4, NULL, NULL),
+(27, 'Metal Work', 'M.WRK', 4, NULL, NULL),
+(28, 'Electronics', 'ELECT', 4, NULL, NULL),
+(29, 'Wood Work', 'WD WRK', 4, NULL, NULL),
+(30, 'Commerce', 'COM', 6, NULL, NULL),
+(31, 'Accounting', 'ACC', 6, NULL, NULL),
+(32, 'Economics', 'ECONS', 6, NULL, NULL),
+(33, 'Government', 'GOV', 5, NULL, NULL),
+(34, 'Further Mathematics', 'F.MATHS', 1, NULL, NULL),
+(35, 'Animal Husbandry', 'ANI. HUS', 3, NULL, NULL),
+(36, 'Data Processing', 'DAT', 1, NULL, NULL),
+(37, 'ICT', 'ICT', 1, NULL, NULL),
+(38, 'Civic Education', 'CIV', 5, NULL, NULL),
+(39, 'Fine Arts', 'F.ARTS', 4, NULL, NULL),
+(40, 'Catering Craft', 'Cat. Craft', 4, NULL, NULL),
+(41, 'Paint & Decoration', 'P&D', 4, NULL, NULL),
+(42, 'Chinese', 'CHIN', 2, NULL, NULL),
+(43, 'Building Construction', 'BLD CONSTR', 4, NULL, NULL),
+(44, 'Arabic ', 'ARA', 2, NULL, NULL),
+(45, 'Auto Mechanic', 'AUTO', 4, NULL, NULL),
+(46, 'Health Science', 'H. SCI', 3, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `subject_groups`
 --
 
+DROP TABLE IF EXISTS `subject_groups`;
 CREATE TABLE IF NOT EXISTS `subject_groups` (
   `subject_group_id` int(10) unsigned NOT NULL,
   `subject_group` varchar(255) COLLATE utf8_unicode_ci NOT NULL
@@ -1095,32 +1107,40 @@ ALTER TABLE `salutations`
   ADD PRIMARY KEY (`salutation_id`);
 
 --
+-- Indexes for table `schools`
+--
+ALTER TABLE `schools`
+  ADD PRIMARY KEY (`school_id`),
+  ADD KEY `status_id` (`status_id`),
+  ADD KEY `admin_id` (`admin_id`);
+
+--
+-- Indexes for table `schools_subjects`
+--
+ALTER TABLE `schools_subjects`
+  ADD PRIMARY KEY (`school_id`,`subject_id`),
+  ADD KEY `schools_subjects_school_id_index` (`school_id`),
+  ADD KEY `schools_subjects_subject_id_index` (`subject_id`);
+
+--
 -- Indexes for table `school_databases`
 --
 ALTER TABLE `school_databases`
   ADD PRIMARY KEY (`school_database_id`),
-  ADD KEY `school_databases_schools_id_index` (`schools_id`);
-
---
--- Indexes for table `school_subjects`
---
-ALTER TABLE `school_subjects`
-  ADD PRIMARY KEY (`school_subject_id`),
-  ADD KEY `schools_subjects_subject_group_id_index` (`subject_group_id`);
-
---
--- Indexes for table `schools`
---
-ALTER TABLE `schools`
-  ADD PRIMARY KEY (`schools_id`),
-  ADD KEY `status_id` (`status_id`),
-  ADD KEY `admin_id` (`admin_id`);
+  ADD KEY `school_databases_schools_id_index` (`school_id`);
 
 --
 -- Indexes for table `states`
 --
 ALTER TABLE `states`
   ADD PRIMARY KEY (`state_id`);
+
+--
+-- Indexes for table `subjects`
+--
+ALTER TABLE `subjects`
+  ADD PRIMARY KEY (`subject_id`),
+  ADD KEY `subjects_subject_group_id_index` (`subject_group_id`);
 
 --
 -- Indexes for table `subject_groups`
@@ -1148,25 +1168,25 @@ ALTER TABLE `marital_statuses`
 ALTER TABLE `salutations`
   MODIFY `salutation_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
 --
+-- AUTO_INCREMENT for table `schools`
+--
+ALTER TABLE `schools`
+  MODIFY `school_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+--
 -- AUTO_INCREMENT for table `school_databases`
 --
 ALTER TABLE `school_databases`
   MODIFY `school_database_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `school_subjects`
---
-ALTER TABLE `school_subjects`
-  MODIFY `school_subject_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=47;
---
--- AUTO_INCREMENT for table `schools`
---
-ALTER TABLE `schools`
-  MODIFY `schools_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
---
 -- AUTO_INCREMENT for table `states`
 --
 ALTER TABLE `states`
   MODIFY `state_id` int(3) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=38;
+--
+-- AUTO_INCREMENT for table `subjects`
+--
+ALTER TABLE `subjects`
+  MODIFY `subject_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=47;
 --
 -- AUTO_INCREMENT for table `subject_groups`
 --
@@ -1177,11 +1197,14 @@ ALTER TABLE `subject_groups`
 --
 
 --
--- Constraints for table `school_subjects`
+-- Constraints for table `schools_subjects`
 --
-ALTER TABLE `school_subjects`
-  ADD CONSTRAINT `schools_subjects_subject_group_id_foreign` FOREIGN KEY (`subject_group_id`) REFERENCES `subject_groups` (`subject_group_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `schools_subjects`
+  ADD CONSTRAINT `schools_subjects_school_id_foreign` FOREIGN KEY (`school_id`) REFERENCES `schools` (`school_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `schools_subjects_subject_id_foreign` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+--
+-- Constraints for table `subjects`
+--
+ALTER TABLE `subjects`
+  ADD CONSTRAINT `subjects_subject_group_id_foreign` FOREIGN KEY (`subject_group_id`) REFERENCES `subject_groups` (`subject_group_id`) ON DELETE CASCADE ON UPDATE CASCADE;

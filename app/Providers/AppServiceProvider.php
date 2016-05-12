@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
         //Set The School Info. into a variable school
         if(env('SCHOOL_ID') && Schema::connection('admin_mysql')->hasTable('schools') && School::count() > 0){
             $school = School::findOrFail(env('SCHOOL_ID'));
-            view()->share('school_profile', $school);
+            view()->share('mySchool', $school);
         }
 //      Set The HashIds Secret Key, Length and Possible Characters Combinations To Be Accessible to every View
         view()->share('hashIds', new Hashids(env('APP_KEY'), 15, env('APP_CHAR')));

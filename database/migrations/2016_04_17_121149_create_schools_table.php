@@ -13,7 +13,7 @@ class CreateSchoolsTable extends Migration
     public function up()
     {
         Schema::connection('admin_mysql')->create('schools', function (Blueprint $table) {
-            $table->increments('schools_id');
+            $table->increments('school_id');
             $table->string('name', 150);
             $table->string('full_name', 225);
             $table->string('phone_no', 20);

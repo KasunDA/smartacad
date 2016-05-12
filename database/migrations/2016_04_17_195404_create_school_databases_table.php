@@ -18,7 +18,7 @@ class CreateSchoolDatabasesTable extends Migration
             $table->string('database', 225);
             $table->string('username', 20);
             $table->string('password', 150)->nullable();
-            $table->integer('schools_id')->index()->unsigned();
+            $table->integer('school_id')->index()->unsigned();
             $table->timestamps();
         });
     }

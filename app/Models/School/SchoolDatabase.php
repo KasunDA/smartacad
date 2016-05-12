@@ -32,7 +32,7 @@ class SchoolDatabase extends Model
         'database',
         'username',
         'password',
-        'schools_id',
+        'school_id',
     ];
 
     /**
