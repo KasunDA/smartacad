@@ -57,7 +57,7 @@ var UIBlockUI = function() {
                         //console.log(obj.ClassSubjects);
                         $.each(obj.SchoolSubjects, function(key, value) {
                             var selected = ($.inArray(value.subject_id, obj.ClassSubjects) > -1) ? 'selected' : '';
-                            var sub = (value.subject_alias != "") ? value.subject_alias : value.subject;
+                            var sub = ($.trim(value.subject_alias) != "" && value.subject_alias !== null) ? value.subject_alias : value.subject;
 
                             assign += '<option '+selected+' value="'+value.subject_id+'">' + sub +'</option>';
                             //assign_count++;
