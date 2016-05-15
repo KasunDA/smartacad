@@ -60,9 +60,17 @@ class AcademicTerm extends Model
     }
 
     /**
-     * Get The Current Academic Term
+     * An Academic Term Has Many Subject Class Room
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
-    public static function currentTerm(){
+    public function subjectClassRooms(){
+        return $this->hasMany('App\Models\Admin\Subjects\SubjectClassRoom', 'academic_term_id');
+    }
+
+    /**
+     * Get The Current Active Academic Term
+     */
+    public static function activeTerm(){
 
         return AcademicTerm::where('status', 1)->first();
     }

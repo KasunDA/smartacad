@@ -46,6 +46,14 @@ class Subject extends Model
      */
     public function schools()
     {
-        return $this->belongsToMany('App\Models\School\School', 'schools_subjects', 'subject_id', 'school_id');
+        return $this->belongsToMany('App\Models\School\School', 'schools_subjects', 'subject_id', 'school_id')->withPivot('subject_alias');
+    }
+
+    /**
+     * A Subject Has Many Subject Class Room
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function subjectClassRooms(){
+        return $this->hasMany('App\Models\Admin\Subjects\SubjectClassRoom', 'subject_id');
     }
 }

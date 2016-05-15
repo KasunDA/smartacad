@@ -37,9 +37,9 @@ class AcademicYear extends Model
     }
 
     /**
-     * Get The Current Academic Year
+     * Get The Current Active Academic Year
      */
-    public static function currentYear(){
+    public static function activeYear(){
 
         return AcademicYear::where('status', 1)->first();
     }

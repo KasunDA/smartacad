@@ -28,16 +28,47 @@
                 </div>
                 <div class="portlet-body form">
                     <div class="form-body">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <div class="mt-element-list">
                                 <div class="mt-list-container list-simple ext-1">
                                     <ul>
+                                        <li class="mt-list-item done">
+                                            <div class="list-icon-container">#</div>
+                                            <div class="list-item-content">
+                                                <span class="big"><strong>Old Subject Name</strong> </span>
+                                            </div>
+                                        </li>
                                         <?php $i=1;?>
                                         @foreach($mySchool->subjects()->orderBy('subject')->get() as $subject)
                                             <li class="mt-list-item done">
                                                 <div class="list-icon-container">{{ $i++ }}</div>
                                                 <div class="list-item-content">
                                                     <span class="big"> {{$subject->subject}} </span>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mt-element-list">
+                                <div class="mt-list-container list-simple ext-1">
+                                    <ul>
+                                        <li class="mt-list-item done">
+                                            <div class="list-icon-container">#</div>
+                                            <div class="list-item-content">
+                                                <span class="big"><strong>New Subject Name (Alias)</strong> </span>
+                                            </div>
+                                        </li>
+                                        <?php $i=1;?>
+                                        @foreach($mySchool->subjects()->orderBy('subject')->get() as $subject)
+                                            <li class="mt-list-item done">
+                                                <div class="list-icon-container">{{ $i++ }}</div>
+                                                <div class="list-item-content">
+                                                    <span class="big">
+                                                        {!! ($subject->pivot->subject_alias) ? $subject->pivot->subject_alias : '<span class="label label-danger">nill</span>' !!}
+                                                    </span>
                                                 </div>
                                             </li>
                                         @endforeach

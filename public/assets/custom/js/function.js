@@ -134,6 +134,18 @@ function readURL(input) {
     }
 }
 
+//Set Warning 3, Error 2, Info 0 or success 1 messages
+function set_msg_box(div, text, type) {
+    if(type === 1)
+        div.html('<div class="alert alert-success"><h4><i class="fa fa-thumbs-up fa-1x"></i>' + text + '</h4></div>');
+    else if(type === 2)
+        div.html('<div class="alert alert-danger"><h4><i class="fa fa-thumbs-down fa-1x"></i>' + text + '</h4></div>');
+    else if(type === 3)
+        div.html('<div class="alert alert-warning"><h4><i class="fa fa-warning fa-1x"></i>' + text + '</h4></div>');
+    else
+        div.html('<div class="alert alert-info"><h4><i class="fa fa-info fa-1x"></i>' + text + '</h4></div>');
+}
+
 //Custom TableData
 function setTableData(table) {
     var initTable1 = function () {
@@ -194,6 +206,11 @@ function setTableData(table) {
             //"dom": "<'row' <'col-md-12'T>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r>t<'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>",
         });
     }
+
+    var refreshTable = function () {
+        var oTable = table.dataTable().fnDestroy();
+    }
+
     return {
 
         //main function to initiate the module
@@ -204,6 +221,14 @@ function setTableData(table) {
             }
 
             initTable1();
+        },
+        refresh: function () {
+
+            if (!jQuery().dataTable) {
+                return;
+            }
+
+            refreshTable();
         }
 
     };

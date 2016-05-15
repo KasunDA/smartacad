@@ -20,7 +20,8 @@ class SchoolSubject extends Model
      */
     protected $fillable = [
         'subject_id',
-        'school_id'
+        'school_id',
+        'subject_alias'
     ];
 
     /**

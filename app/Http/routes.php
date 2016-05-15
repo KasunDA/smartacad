@@ -35,10 +35,12 @@ Route::group(['middleware' => ['web']], function () {
     });
 
     //Dependent List Box
-    Route::group(array('prefix'=>'list-box'), function(){
-        // Ajax Get Local Governments Based on the state
-        Route::get('/lga/{id}', 'Admin\ListBoxController@lga');
-    });
+//    Route::group(array('prefix'=>'list-box'), function(){
+//        // Ajax Get Local Governments Based on the state
+//        Route::get('/lga/{id}', 'Admin\ListBoxController@lga');
+//        Route::get('/academic-term/{id}', 'Admin\ListBoxController@academicTerm');
+//        Route::get('/classroom/{id}', 'Admin\ListBoxController@classroom');
+//    });
 
     Route::controllers([
         'home' => 'Front\HomeController'
@@ -49,6 +51,8 @@ Route::group(['middleware' => ['web']], function () {
     Route::controllers([
         'auth' => 'Auth\AuthController',
         'dashboard' => 'Admin\DashboardController',
+        //Dependent List Box
+        'list-box' => 'Admin\ListBoxController',
 
         'menu-headers' => 'Admin\Menus\MenuHeaderController',
         'menus' => 'Admin\Menus\MenuController',
@@ -82,6 +86,9 @@ Route::group(['middleware' => ['web']], function () {
         'class-groups' => 'Admin\MasterRecords\Classes\ClassGroupsController',
         'class-levels' => 'Admin\MasterRecords\Classes\ClassLevelsController',
         'class-rooms' => 'Admin\MasterRecords\Classes\ClassRoomsController',
+
+        //Subjects
+        'subject-classrooms' => 'Admin\Subjects\SubjectClassRoomsController',
 
 
     ]);

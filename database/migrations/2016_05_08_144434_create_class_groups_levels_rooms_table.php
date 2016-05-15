@@ -18,6 +18,8 @@ class CreateClassGroupsLevelsRoomsTable extends Migration
             $table->integer('ca_weight_point')->unsigned()->default(0)->nullable();
             $table->integer('exam_weight_point')->unsigned()->default(0)->nullable();
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
 
         Schema::create('classlevels', function (Blueprint $table) {
@@ -28,6 +30,8 @@ class CreateClassGroupsLevelsRoomsTable extends Migration
 
             $table->foreign('classgroup_id')->references('classgroup_id')->on('classgroups')
                 ->onUpdate('cascade')->onDelete('cascade');
+
+            $table->engine = 'InnoDB';
         });
 
         Schema::create('classrooms', function (Blueprint $table) {
@@ -40,6 +44,8 @@ class CreateClassGroupsLevelsRoomsTable extends Migration
 
             $table->foreign('classlevel_id')->references('classlevel_id')->on('classlevels')
                 ->onUpdate('cascade')->onDelete('cascade');
+
+            $table->engine = 'InnoDB';
         });
     }
 

@@ -37,6 +37,8 @@ class CreateSubjectGroupsAndSubjectsTable extends Migration
             $table->foreign('subject_id')->references('subject_id')->on('subjects')
                 ->onUpdate('cascade')->onDelete('cascade');
 
+            $table->string('subject_alias')->nullable();
+
             $table->primary(['school_id', 'subject_id']);
         });
     }

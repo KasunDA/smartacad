@@ -211,6 +211,11 @@ return [
         'Entrust'   => Zizaco\Entrust\EntrustFacade::class,
         'Image' => Intervention\Image\Facades\Image::class,
 
+        //Blade Helpers
+        'AcademicYear' => App\Models\Admin\MasterRecords\AcademicYear::class,
+        'AcademicTerm' => App\Models\Admin\MasterRecords\AcademicTerm::class,
+
+
     ],
 
 ];

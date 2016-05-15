@@ -1,24 +1,136 @@
 -- phpMyAdmin SQL Dump
--- version 4.0.10.14
+-- version 4.4.14
 -- http://www.phpmyadmin.net
 --
--- Host: localhost:3306
--- Generation Time: May 12, 2016 at 01:55 PM
--- Server version: 5.5.49-cll
--- PHP Version: 5.4.31
+-- Host: localhost
+-- Generation Time: May 15, 2016 at 11:34 PM
+-- Server version: 5.6.26
+-- PHP Version: 5.6.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
+--
+-- Database: `solid_steps`
+--
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+DELIMITER $$
+--
+-- Procedures
+--
+DROP PROCEDURE IF EXISTS `sp_assignSubject2Classlevels`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_assignSubject2Classlevels`(IN `LevelID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
+BEGIN
+		DECLARE done1 BOOLEAN DEFAULT FALSE;
+		DECLARE ClassID INT;
+		DECLARE cur1 CURSOR FOR SELECT classroom_id FROM classrooms WHERE classlevel_id=LevelID;
+		DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
+
+#Open The Cursor For Iterating Through The Recordset cur1
+		OPEN cur1;
+		REPEAT
+			FETCH cur1 INTO ClassID;
+			IF NOT done1 THEN
+				BEGIN
+-- Procedure Call -- To register the subjects to the students in that classroom
+					CALL `sp_assignSubject2Classrooms`(ClassID, TermID, SubjectIDs);
+				END;
+			END IF;
+		UNTIL done1 END REPEAT;
+		CLOSE cur1;
+	END$$
+
+DROP PROCEDURE IF EXISTS `sp_assignSubject2Classrooms`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_assignSubject2Classrooms`(IN `ClassID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
+BEGIN
+#Create a Temporary Table to Hold The Values
+		DROP TEMPORARY TABLE IF EXISTS SubjectTemp;
+		CREATE TEMPORARY TABLE IF NOT EXISTS SubjectTemp
+		(
+-- Add the column definitions for the TABLE variable here
+			row_id int AUTO_INCREMENT,
+			subject_id INT, PRIMARY KEY (row_id)
+		);
+
+		IF SubjectIDs IS NOT NULL THEN
+			BEGIN
+				DECLARE count INT Default 0 ;
+				DECLARE subject_id VARCHAR(255);
+				simple_loop: LOOP
+					SET count = count + 1;
+					SET subject_id = SPLIT_STR(SubjectIDs, ',', count);
+					IF subject_id = '' THEN
+						LEAVE simple_loop;
+					END IF;
+# Insert into the attend details table those present
+					INSERT INTO SubjectTemp(subject_id)
+						SELECT subject_id;
+				END LOOP simple_loop;
+			END;
+		END IF;
+
+			Block1: BEGIN
+			#DELETE FROM subject_students_registers WHERE subject_classlevel_id IN
+			 #(
+			#	 SELECT subject_classlevel_id FROM subject_classlevels WHERE class_id=ClassID
+             #    AND academic_term_id=TermID AND subject_id
+			#	NOT IN (SELECT subject_id FROM SubjectTemp)
+			 #);
+
+				DELETE FROM subject_classrooms WHERE classroom_id=ClassID
+				AND academic_term_id=TermID AND exam_status_id=2 AND subject_id
+				NOT IN (SELECT subject_id FROM SubjectTemp);
+
+				Block2: BEGIN
+				DECLARE done1 BOOLEAN DEFAULT FALSE;
+				DECLARE SubjectID INT;
+				DECLARE cur1 CURSOR FOR SELECT subject_id FROM SubjectTemp;
+				DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
+
+#Open The Cursor For Iterating Through The Recordset cur1
+				OPEN cur1;
+				REPEAT
+					FETCH cur1 INTO SubjectID;
+					IF NOT done1 THEN
+						BEGIN
+							SET @Exist = (SELECT COUNT(*) FROM subject_classrooms WHERE subject_id=SubjectID
+                            AND classroom_id=ClassID AND academic_term_id=TermID);
+							IF @Exist = 0 THEN
+								BEGIN
+# Insert into subject classlevel those newly assigned subjects
+									INSERT INTO subject_classrooms(subject_id, classroom_id, academic_term_id)
+									VALUES(SubjectID, ClassID, TermID);
+
+-- Procedure Call -- To register the subjects to the students in that classroom
+									-- CALL proc_assignSubject2Students(LAST_INSERT_ID());
+								END;
+							END IF;
+						END;
+					END IF;
+				UNTIL done1 END REPEAT;
+				CLOSE cur1;
+			END Block2;
+
+-- Delete the teachers_subjects record that has no id in subjects classlevel table
+			#DELETE FROM teachers_subjects WHERE subject_classlevel_id
+			#NOT IN (SELECT subject_classlevel_id FROM subject_classlevels);
+		END Block1;
+	END$$
 
 --
--- Database: `solidste_portal`
+-- Functions
 --
+DROP FUNCTION IF EXISTS `SPLIT_STR`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `SPLIT_STR`(
+	x VARCHAR(255),
+	delim VARCHAR(12),
+	pos INT
+) RETURNS varchar(255) CHARSET latin1
+RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(x, delim, pos),
+													 LENGTH(SUBSTRING_INDEX(x, delim, pos -1)) + 1),
+								 delim, '')$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -28,7 +140,7 @@ SET time_zone = "+00:00";
 
 DROP TABLE IF EXISTS `academic_terms`;
 CREATE TABLE IF NOT EXISTS `academic_terms` (
-  `academic_term_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `academic_term_id` int(10) unsigned NOT NULL,
   `academic_term` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `status` int(10) unsigned NOT NULL DEFAULT '2',
   `academic_year_id` int(10) unsigned NOT NULL,
@@ -39,21 +151,17 @@ CREATE TABLE IF NOT EXISTS `academic_terms` (
   `exam_setup_by` int(10) unsigned DEFAULT NULL,
   `exam_setup_date` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`academic_term_id`),
-  KEY `academic_terms_status_index` (`status`),
-  KEY `academic_terms_academic_year_id_index` (`academic_year_id`),
-  KEY `academic_terms_term_type_id_index` (`term_type_id`),
-  KEY `academic_terms_exam_status_id_index` (`exam_status_id`),
-  KEY `academic_terms_exam_setup_by_index` (`exam_setup_by`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `academic_terms`
 --
 
 INSERT INTO `academic_terms` (`academic_term_id`, `academic_term`, `status`, `academic_year_id`, `term_type_id`, `term_begins`, `term_ends`, `exam_status_id`, `exam_setup_by`, `exam_setup_date`, `created_at`, `updated_at`) VALUES
-(1, 'Third Term 2015 - 2016', 1, 1, 3, '2016-04-15', '2016-07-15', 2, NULL, NULL, '2016-05-11 15:41:04', '2016-05-11 15:42:07');
+(1, '2015-2016 Second Term', 2, 1, 2, '2016-05-03', '2016-05-27', 2, NULL, NULL, '2016-05-14 18:13:08', '2016-05-15 18:25:36'),
+(2, '2015-2016 Third Term', 1, 1, 3, '2016-06-07', '2016-08-26', 2, NULL, NULL, '2016-05-14 18:13:08', '2016-05-15 18:25:36'),
+(3, '2016-2017 First Term', 2, 2, 1, '2016-05-17', '2016-08-10', 2, NULL, NULL, '2016-05-15 18:24:52', '2016-05-15 18:25:36');
 
 -- --------------------------------------------------------
 
@@ -63,21 +171,20 @@ INSERT INTO `academic_terms` (`academic_term_id`, `academic_term`, `status`, `ac
 
 DROP TABLE IF EXISTS `academic_years`;
 CREATE TABLE IF NOT EXISTS `academic_years` (
-  `academic_year_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `academic_year_id` int(10) unsigned NOT NULL,
   `academic_year` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `status` int(10) unsigned NOT NULL DEFAULT '2',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`academic_year_id`),
-  KEY `academic_years_status_index` (`status`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `academic_years`
 --
 
 INSERT INTO `academic_years` (`academic_year_id`, `academic_year`, `status`, `created_at`, `updated_at`) VALUES
-(1, '2015 - 2016', 1, '2016-05-11 15:37:05', '2016-05-11 15:37:05');
+(1, '2015-2016', 1, '2016-05-11 19:49:23', '2016-05-11 19:49:23'),
+(2, '2016-2017', 2, '2016-05-15 18:24:15', '2016-05-15 18:24:15');
 
 -- --------------------------------------------------------
 
@@ -87,22 +194,20 @@ INSERT INTO `academic_years` (`academic_year_id`, `academic_year`, `status`, `cr
 
 DROP TABLE IF EXISTS `classgroups`;
 CREATE TABLE IF NOT EXISTS `classgroups` (
-  `classgroup_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `classgroup_id` int(10) unsigned NOT NULL,
   `classgroup` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `ca_weight_point` int(10) unsigned DEFAULT '0',
   `exam_weight_point` int(10) unsigned DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`classgroup_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `classgroups`
 --
 
 INSERT INTO `classgroups` (`classgroup_id`, `classgroup`, `ca_weight_point`, `exam_weight_point`, `created_at`, `updated_at`) VALUES
-(1, 'Junior Secondary', 0, 0, '2016-05-11 15:50:22', '2016-05-11 15:50:22'),
-(2, 'Senior Secondary', 0, 0, '2016-05-11 15:50:22', '2016-05-11 15:50:22');
+(1, 'Junior Secondary School', 30, 70, '2016-05-11 19:46:13', '2016-05-11 19:46:13');
 
 -- --------------------------------------------------------
 
@@ -112,24 +217,20 @@ INSERT INTO `classgroups` (`classgroup_id`, `classgroup`, `ca_weight_point`, `ex
 
 DROP TABLE IF EXISTS `classlevels`;
 CREATE TABLE IF NOT EXISTS `classlevels` (
-  `classlevel_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `classlevel_id` int(10) unsigned NOT NULL,
   `classlevel` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `classgroup_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`classlevel_id`),
-  KEY `classlevels_classgroup_id_index` (`classgroup_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `classlevels`
 --
 
 INSERT INTO `classlevels` (`classlevel_id`, `classlevel`, `classgroup_id`, `created_at`, `updated_at`) VALUES
-(1, 'JSS 1', 1, '2016-05-11 15:52:27', '2016-05-11 15:52:27'),
-(2, 'JSS 2', 1, '2016-05-11 15:52:27', '2016-05-11 15:52:27'),
-(3, 'JSS 3', 1, '2016-05-11 15:52:27', '2016-05-11 15:52:27'),
-(4, 'SS 1', 2, '2016-05-11 15:52:27', '2016-05-11 15:52:27');
+(1, 'JS 1', 1, '2016-05-11 19:46:50', '2016-05-11 19:46:50'),
+(2, 'JS 2', 1, '2016-05-14 18:16:33', '2016-05-14 18:16:33');
 
 -- --------------------------------------------------------
 
@@ -139,26 +240,24 @@ INSERT INTO `classlevels` (`classlevel_id`, `classlevel`, `classgroup_id`, `crea
 
 DROP TABLE IF EXISTS `classrooms`;
 CREATE TABLE IF NOT EXISTS `classrooms` (
-  `classroom_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `classroom_id` int(10) unsigned NOT NULL,
   `classroom` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `class_size` int(11) DEFAULT NULL,
   `class_status` int(10) unsigned NOT NULL DEFAULT '1',
   `classlevel_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`classroom_id`),
-  KEY `classrooms_classlevel_id_index` (`classlevel_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `classrooms`
 --
 
 INSERT INTO `classrooms` (`classroom_id`, `classroom`, `class_size`, `class_status`, `classlevel_id`, `created_at`, `updated_at`) VALUES
-(1, 'PEACE', 18, 1, 1, '2016-05-11 15:59:09', '2016-05-11 15:59:09'),
-(2, 'FAITH', 12, 1, 2, '2016-05-11 15:59:09', '2016-05-11 15:59:09'),
-(3, 'JOY', 8, 1, 3, '2016-05-11 15:59:09', '2016-05-11 15:59:09'),
-(4, 'GOLD', 6, 1, 4, '2016-05-11 15:59:09', '2016-05-11 15:59:09');
+(1, 'JSS 1A', NULL, 1, 1, '2016-05-14 18:17:02', '2016-05-14 18:17:02'),
+(2, 'JSS 1B', NULL, 1, 1, '2016-05-14 18:17:02', '2016-05-14 18:17:02'),
+(3, 'JSS 2A', NULL, 1, 2, '2016-05-14 18:17:02', '2016-05-14 18:17:02'),
+(4, 'JSS 2B', NULL, 1, 2, '2016-05-14 18:17:02', '2016-05-14 18:17:02');
 
 -- --------------------------------------------------------
 
@@ -168,7 +267,7 @@ INSERT INTO `classrooms` (`classroom_id`, `classroom`, `class_size`, `class_stat
 
 DROP TABLE IF EXISTS `menus`;
 CREATE TABLE IF NOT EXISTS `menus` (
-  `menu_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `menu_id` int(10) unsigned NOT NULL,
   `menu` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `menu_url` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
   `active` int(10) unsigned NOT NULL DEFAULT '1',
@@ -177,10 +276,8 @@ CREATE TABLE IF NOT EXISTS `menus` (
   `icon` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `menu_header_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`menu_id`),
-  KEY `menus_menu_header_id_index` (`menu_header_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=8 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menus`
@@ -202,15 +299,14 @@ INSERT INTO `menus` (`menu_id`, `menu`, `menu_url`, `active`, `sequence`, `type`
 
 DROP TABLE IF EXISTS `menu_headers`;
 CREATE TABLE IF NOT EXISTS `menu_headers` (
-  `menu_header_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `menu_header_id` int(10) unsigned NOT NULL,
   `menu_header` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `active` int(10) unsigned NOT NULL DEFAULT '1',
   `sequence` int(10) unsigned NOT NULL,
   `type` int(10) unsigned NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`menu_header_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menu_headers`
@@ -218,8 +314,8 @@ CREATE TABLE IF NOT EXISTS `menu_headers` (
 
 INSERT INTO `menu_headers` (`menu_header_id`, `menu_header`, `active`, `sequence`, `type`, `created_at`, `updated_at`) VALUES
 (1, 'SETUPS', 1, 10, 1, '2016-03-29 22:30:39', '2016-03-30 19:33:06'),
-(2, 'ACCOUNTS', 1, 9, 1, '2016-03-30 19:33:06', '2016-04-17 07:01:38'),
-(3, 'RECORDS', 1, 8, 1, '2016-03-31 06:45:49', '2016-03-31 06:45:49'),
+(2, 'ACCOUNTS', 1, 8, 1, '2016-03-30 19:33:06', '2016-05-15 20:15:32'),
+(3, 'RECORDS', 1, 7, 1, '2016-03-31 06:45:49', '2016-05-15 20:15:32'),
 (4, 'PORTAL', 1, 1, 2, '2016-04-15 09:41:26', '2016-04-15 09:55:41');
 
 -- --------------------------------------------------------
@@ -230,7 +326,7 @@ INSERT INTO `menu_headers` (`menu_header_id`, `menu_header`, `active`, `sequence
 
 DROP TABLE IF EXISTS `menu_items`;
 CREATE TABLE IF NOT EXISTS `menu_items` (
-  `menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `menu_item_id` int(10) unsigned NOT NULL,
   `menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
@@ -239,10 +335,8 @@ CREATE TABLE IF NOT EXISTS `menu_items` (
   `type` int(10) unsigned NOT NULL DEFAULT '1',
   `menu_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`menu_item_id`),
-  KEY `menu_items_menu_id_index` (`menu_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=16 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menu_items`
@@ -262,7 +356,7 @@ INSERT INTO `menu_items` (`menu_item_id`, `menu_item`, `menu_item_url`, `menu_it
 (12, 'CLASS GROUP', '/class-groups', 'fa fa-plus', 1, '3', 1, 7, '2016-05-10 03:55:57', '2016-05-10 03:55:57'),
 (13, 'CLASS LEVEL', '/class-levels', 'fa fa-plus', 1, '4', 1, 7, '2016-05-10 03:56:43', '2016-05-10 03:56:43'),
 (14, 'CLASS ROOMS', '/class-rooms', 'fa fa-plus', 1, '5', 1, 7, '2016-05-10 03:57:10', '2016-05-10 03:57:24'),
-(15, 'SUBJECTS', '#', 'fa fa-book', 1, '6', 1, 7, '2016-05-13 02:46:59', '2016-05-13 02:46:59');
+(15, 'SUBJECTS', '#', 'fa fa-book', 1, '6', 1, 7, '2016-05-11 15:12:46', '2016-05-11 15:12:46');
 
 -- --------------------------------------------------------
 
@@ -295,7 +389,8 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 ('2016_04_28_175829_create_state_and_lga_table', 1),
 ('2016_05_01_162613_create_academic_years_and_terms_table', 2),
 ('2016_05_08_144434_create_class_groups_levels_rooms_table', 2),
-('2016_05_01_162805_create_subject_groups_and_subjects_table', 3);
+('2016_05_01_162805_create_subject_groups_and_subjects_table', 3),
+('2016_05_14_173333_create_subject_classes_table', 4);
 
 -- --------------------------------------------------------
 
@@ -305,16 +400,14 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 
 DROP TABLE IF EXISTS `permissions`;
 CREATE TABLE IF NOT EXISTS `permissions` (
-  `permission_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `permission_id` int(10) unsigned NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `display_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `uri` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`permission_id`),
-  UNIQUE KEY `permissions_name_unique` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=67 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `permissions`
@@ -397,9 +490,7 @@ INSERT INTO `permissions` (`permission_id`, `name`, `display_name`, `description
 DROP TABLE IF EXISTS `permission_role`;
 CREATE TABLE IF NOT EXISTS `permission_role` (
   `permission_id` int(10) unsigned NOT NULL,
-  `role_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`permission_id`,`role_id`),
-  KEY `permission_role_role_id_foreign` (`role_id`)
+  `role_id` int(10) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -553,17 +644,14 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 
 DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
-  `role_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `role_id` int(10) unsigned NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `display_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_type_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`role_id`),
-  UNIQUE KEY `roles_name_unique` (`name`),
-  KEY `roles_user_type_id_index` (`user_type_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `roles`
@@ -584,9 +672,7 @@ INSERT INTO `roles` (`role_id`, `name`, `display_name`, `description`, `user_typ
 DROP TABLE IF EXISTS `roles_menus`;
 CREATE TABLE IF NOT EXISTS `roles_menus` (
   `role_id` int(10) unsigned NOT NULL,
-  `menu_id` int(10) unsigned DEFAULT NULL,
-  KEY `roles_menus_role_id_index` (`role_id`),
-  KEY `roles_menus_menu_id_index` (`menu_id`)
+  `menu_id` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -618,9 +704,7 @@ INSERT INTO `roles_menus` (`role_id`, `menu_id`) VALUES
 DROP TABLE IF EXISTS `roles_menu_headers`;
 CREATE TABLE IF NOT EXISTS `roles_menu_headers` (
   `role_id` int(10) unsigned NOT NULL,
-  `menu_header_id` int(10) unsigned DEFAULT NULL,
-  KEY `roles_menu_headers_role_id_index` (`role_id`),
-  KEY `roles_menu_headers_menu_header_id_index` (`menu_header_id`)
+  `menu_header_id` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -646,9 +730,7 @@ INSERT INTO `roles_menu_headers` (`role_id`, `menu_header_id`) VALUES
 DROP TABLE IF EXISTS `roles_menu_items`;
 CREATE TABLE IF NOT EXISTS `roles_menu_items` (
   `role_id` int(10) unsigned NOT NULL,
-  `menu_item_id` int(10) unsigned DEFAULT NULL,
-  KEY `roles_menu_items_role_id_index` (`role_id`),
-  KEY `roles_menu_items_menu_item_id_index` (`menu_item_id`)
+  `menu_item_id` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -693,9 +775,7 @@ INSERT INTO `roles_menu_items` (`role_id`, `menu_item_id`) VALUES
 DROP TABLE IF EXISTS `roles_sub_menu_items`;
 CREATE TABLE IF NOT EXISTS `roles_sub_menu_items` (
   `role_id` int(10) unsigned NOT NULL,
-  `sub_menu_item_id` int(10) unsigned DEFAULT NULL,
-  KEY `roles_sub_menu_items_role_id_index` (`role_id`),
-  KEY `roles_sub_menu_items_sub_menu_item_id_index` (`sub_menu_item_id`)
+  `sub_menu_item_id` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -744,9 +824,7 @@ INSERT INTO `roles_sub_menu_items` (`role_id`, `sub_menu_item_id`) VALUES
 DROP TABLE IF EXISTS `roles_sub_most_menu_items`;
 CREATE TABLE IF NOT EXISTS `roles_sub_most_menu_items` (
   `role_id` int(10) unsigned NOT NULL,
-  `sub_most_menu_item_id` int(10) unsigned DEFAULT NULL,
-  KEY `roles_sub_most_menu_items_role_id_index` (`role_id`),
-  KEY `roles_sub_most_menu_items_sub_most_menu_item_id_index` (`sub_most_menu_item_id`)
+  `sub_most_menu_item_id` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -774,9 +852,7 @@ INSERT INTO `roles_sub_most_menu_items` (`role_id`, `sub_most_menu_item_id`) VAL
 DROP TABLE IF EXISTS `role_user`;
 CREATE TABLE IF NOT EXISTS `role_user` (
   `user_id` int(10) unsigned NOT NULL,
-  `role_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`user_id`,`role_id`),
-  KEY `role_user_role_id_foreign` (`role_id`)
+  `role_id` int(10) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -786,110 +862,6 @@ CREATE TABLE IF NOT EXISTS `role_user` (
 INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 (1, 1),
 (2, 2),
-(18, 3),
-(19, 3),
-(20, 3),
-(21, 3),
-(22, 3),
-(23, 3),
-(24, 3),
-(25, 3),
-(26, 3),
-(27, 3),
-(28, 3),
-(29, 3),
-(30, 3),
-(31, 3),
-(32, 3),
-(33, 3),
-(34, 3),
-(35, 3),
-(36, 3),
-(37, 3),
-(38, 3),
-(39, 3),
-(40, 3),
-(41, 3),
-(42, 3),
-(43, 3),
-(44, 3),
-(45, 3),
-(46, 3),
-(47, 3),
-(48, 3),
-(49, 3),
-(50, 3),
-(51, 3),
-(52, 3),
-(53, 3),
-(54, 3),
-(55, 3),
-(56, 3),
-(57, 3),
-(58, 3),
-(59, 3),
-(60, 3),
-(61, 3),
-(62, 3),
-(63, 3),
-(64, 3),
-(65, 3),
-(66, 3),
-(67, 3),
-(68, 3),
-(69, 3),
-(70, 3),
-(71, 3),
-(72, 3),
-(73, 3),
-(74, 3),
-(75, 3),
-(76, 3),
-(77, 3),
-(78, 3),
-(79, 3),
-(80, 3),
-(81, 3),
-(82, 3),
-(83, 3),
-(84, 3),
-(85, 3),
-(86, 3),
-(87, 3),
-(88, 3),
-(89, 3),
-(90, 3),
-(91, 3),
-(92, 3),
-(93, 3),
-(94, 3),
-(95, 3),
-(96, 3),
-(97, 3),
-(98, 3),
-(99, 3),
-(100, 3),
-(101, 3),
-(102, 3),
-(103, 3),
-(104, 3),
-(105, 3),
-(106, 3),
-(107, 3),
-(108, 3),
-(109, 3),
-(110, 3),
-(111, 3),
-(112, 3),
-(113, 3),
-(114, 3),
-(115, 3),
-(116, 3),
-(117, 3),
-(118, 3),
-(119, 3),
-(120, 3),
-(121, 3),
 (3, 4),
 (4, 4),
 (5, 4),
@@ -914,7 +886,7 @@ INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 
 DROP TABLE IF EXISTS `sponsors`;
 CREATE TABLE IF NOT EXISTS `sponsors` (
-  `sponsor_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `sponsor_id` int(10) unsigned NOT NULL,
   `sponsor_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `first_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `other_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
@@ -927,12 +899,8 @@ CREATE TABLE IF NOT EXISTS `sponsors` (
   `salutation_id` int(10) unsigned DEFAULT NULL,
   `created_by` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`sponsor_id`),
-  KEY `sponsors_lga_id_index` (`lga_id`),
-  KEY `sponsors_salutation_id_index` (`salutation_id`),
-  KEY `sponsors_created_by_index` (`created_by`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -942,7 +910,7 @@ CREATE TABLE IF NOT EXISTS `sponsors` (
 
 DROP TABLE IF EXISTS `staffs`;
 CREATE TABLE IF NOT EXISTS `staffs` (
-  `staff_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `staff_id` int(10) unsigned NOT NULL,
   `staff_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `first_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `other_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
@@ -957,12 +925,38 @@ CREATE TABLE IF NOT EXISTS `staffs` (
   `user_id` int(11) NOT NULL,
   `created_by` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`staff_id`),
-  KEY `staffs_lga_id_index` (`lga_id`),
-  KEY `staffs_salutation_id_index` (`salutation_id`),
-  KEY `staffs_created_by_index` (`created_by`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subject_classrooms`
+--
+
+DROP TABLE IF EXISTS `subject_classrooms`;
+CREATE TABLE IF NOT EXISTS `subject_classrooms` (
+  `subject_classroom_id` int(10) unsigned NOT NULL,
+  `subject_id` int(10) unsigned NOT NULL,
+  `classroom_id` int(10) unsigned NOT NULL,
+  `academic_term_id` int(10) unsigned NOT NULL,
+  `exam_status_id` int(10) unsigned NOT NULL DEFAULT '2'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subject_tutors`
+--
+
+DROP TABLE IF EXISTS `subject_tutors`;
+CREATE TABLE IF NOT EXISTS `subject_tutors` (
+  `subject_tutor_id` int(10) unsigned NOT NULL,
+  `tutor_id` int(10) unsigned DEFAULT NULL,
+  `subject_classroom_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -972,7 +966,7 @@ CREATE TABLE IF NOT EXISTS `staffs` (
 
 DROP TABLE IF EXISTS `sub_menu_items`;
 CREATE TABLE IF NOT EXISTS `sub_menu_items` (
-  `sub_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `sub_menu_item_id` int(10) unsigned NOT NULL,
   `sub_menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
@@ -981,10 +975,8 @@ CREATE TABLE IF NOT EXISTS `sub_menu_items` (
   `type` int(10) unsigned NOT NULL DEFAULT '1',
   `menu_item_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`sub_menu_item_id`),
-  KEY `sub_menu_items_menu_item_id_index` (`menu_item_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=18 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `sub_menu_items`
@@ -1004,10 +996,10 @@ INSERT INTO `sub_menu_items` (`sub_menu_item_id`, `sub_menu_item`, `sub_menu_ite
 (11, 'UPDATE', '/schools/edit', 'fa fa-edit', 1, '1', 1, 3, '2016-04-17 10:08:39', '2016-04-28 22:41:11'),
 (12, 'USER TYPES', '/user-types', 'fa fa-user-plus', 1, '3', 1, 2, '2016-04-18 19:38:12', '2016-04-18 19:38:39'),
 (13, 'M. STAUESES', '/marital-statuses', 'fa fa-table', 1, '2', 1, 7, '2016-04-19 09:58:11', '2016-04-19 09:58:28'),
-(14, 'SUBJECT GROUPS', '/subject-groups', 'fa fa-table', 1, '3', 1, 7, '2016-05-13 02:44:42', '2016-05-13 02:44:42'),
-(15, 'SUBJECTS', '/subjects', 'fa fa-book', 1, '4', 1, 7, '2016-05-13 02:44:42', '2016-05-13 02:44:42'),
-(16, 'MANAGE', '/school-subjects', 'fa fa-plus-square', 1, '1', 1, 15, '2016-05-13 02:48:47', '2016-05-13 02:48:47'),
-(17, 'VIEW LIST', '/school-subjects/view', 'fa fa-eye', 1, '2', 1, 15, '2016-05-13 02:48:47', '2016-05-13 02:48:47');
+(14, 'SUBJECT GROUPS', '/subject-groups', 'fa fa-book', 1, '3', 1, 7, '2016-05-11 14:13:29', '2016-05-11 14:13:29'),
+(15, 'SUBJECTS', '/subjects', 'fa fa-table', 1, '4', 1, 7, '2016-05-11 14:13:30', '2016-05-11 14:13:30'),
+(16, 'MANAGE', '/school-subjects', 'fa fa-plus-square', 1, '1', 1, 15, '2016-05-11 15:14:15', '2016-05-11 15:14:15'),
+(17, 'VIEW LIST', '/school-subjects/view', 'fa fa-eye', 1, '2', 1, 15, '2016-05-11 15:14:15', '2016-05-11 15:14:15');
 
 -- --------------------------------------------------------
 
@@ -1017,7 +1009,7 @@ INSERT INTO `sub_menu_items` (`sub_menu_item_id`, `sub_menu_item`, `sub_menu_ite
 
 DROP TABLE IF EXISTS `sub_most_menu_items`;
 CREATE TABLE IF NOT EXISTS `sub_most_menu_items` (
-  `sub_most_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `sub_most_menu_item_id` int(10) unsigned NOT NULL,
   `sub_most_menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_most_menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_most_menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
@@ -1026,10 +1018,8 @@ CREATE TABLE IF NOT EXISTS `sub_most_menu_items` (
   `type` int(10) unsigned NOT NULL DEFAULT '1',
   `sub_menu_item_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`sub_most_menu_item_id`),
-  KEY `sub_most_menu_items_sub_menu_item_id_index` (`sub_menu_item_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=10 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `sub_most_menu_items`
@@ -1054,7 +1044,7 @@ INSERT INTO `sub_most_menu_items` (`sub_most_menu_item_id`, `sub_most_menu_item`
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
-  `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
   `password` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `phone_no` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -1073,22 +1063,16 @@ CREATE TABLE IF NOT EXISTS `users` (
   `verification_code` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `remember_token` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`user_id`),
-  UNIQUE KEY `users_email_unique` (`email`),
-  UNIQUE KEY `phone_no` (`phone_no`),
-  KEY `users_user_type_id_index` (`user_type_id`),
-  KEY `salutation_id` (`salutation_id`),
-  KEY `lga_id` (`lga_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=122 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `last_name`, `middle_name`, `gender`, `dob`, `phone_no2`, `user_type_id`, `lga_id`, `salutation_id`, `verified`, `status`, `avatar`, `verification_code`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, '$2y$10$WgHQSaszEOSJpz2HsoUToeJoyCxh7fGuc3ZoLJA.NubXU42L6E3SG', '08011223344', 'admin@gmail.com', 'Emma', 'Okafor', '', 'Male', '2016-04-05', '', 1, 0, 1, 1, 1, '1_avatar.jpg', NULL, 'q5XgIf3ZECig916GYl4EeALfw8R9oFD4OFS1u2tjwAmwWJ4cqbKpjENbJwzV', NULL, '2016-05-06 15:55:06'),
-(2, '$2y$10$/VnAIZSpHw2o042t.bmP7eqCPAN/imxPcaAaTkTfno1uPi8BaOQCa', '08161730788', 'bamidelemike2003@yahoo.com', 'Bamidele', 'Micheal', '', 'Male', '1976-02-11', '08066303843', 2, 476, 1, 1, 1, NULL, 'x9pxH08aB60ZKwe12DDKbiD3V5628TyGMd1v8Q5I', 'JYcd82Sr8bXbyEhlCNaAlvljp9kz5P2C3TS2yNJ9NqU7T939FT7xyFIaLHUH', '2016-04-28 22:21:05', '2016-05-11 17:51:35'),
+(1, '$2y$10$WgHQSaszEOSJpz2HsoUToeJoyCxh7fGuc3ZoLJA.NubXU42L6E3SG', '08011223344', 'admin@gmail.com', 'Emma', 'Okafor', '', 'Male', '2016-04-05', '', 1, 0, 1, 1, 1, '1_avatar.jpg', NULL, 'xaS2QNXIOwxmVmjCQbm9sYQGh8mKDQkW88MBBOYDRLL9foHMleg2vYQV4ql2', NULL, '2016-05-11 19:39:24'),
+(2, '$2y$10$WgHQSaszEOSJpz2HsoUToeJoyCxh7fGuc3ZoLJA.NubXU42L6E3SG', '08161730788', 'bamidelemike2003@yahoo.com', 'Bamidele', 'Micheal', '', 'Male', '1976-02-11', '08066303843', 2, NULL, 1, 1, 1, NULL, 'x9pxH08aB60ZKwe12DDKbiD3V5628TyGMd1v8Q5I', 'oPTaCPLgnCAnlOQBeTHDngxGmchCgWYzeKIe0spRhdSpoNMx9Uofb15NqTj2', '2016-04-28 22:21:05', '2016-05-05 20:24:01'),
 (3, '$2y$10$Pc9CBBOKkpbTAlnoxc0iveGkS5xRKREBYlwyPRzxSUxsb.9nNJ9cS', '08186644996', 'onegirl2004@yahoo.com', 'Emina', 'Omotolani', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, '3_avatar.png', 'sJkNJULOX0XDBVHoG929c8zOuHvuQJ8taqOE4MK7', NULL, '2016-05-05 19:29:34', '2016-05-10 03:05:24'),
 (4, '$2y$10$eouumWL7oBFrGRwQLcPRe.uv5CRlFKFNSLvni8eLBM4n3Lb9al/Wm', '08032492560', 'agiebabe2003@yahoo.comk', 'Agetu', 'Agnes', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'mBFoXfYp7feFMhsnzYWkh616IV2wq2e5LdtOOYRl', NULL, '2016-05-05 19:30:48', '2016-05-05 19:30:48'),
 (5, '$2y$10$08ymddnGq3lEWheZSMe3Puc/fLtGo7pDZ5dm1Pmh9CupX3AV/KvO6', '08138281504', 'thesuccessor2020@yahoo.com', 'Akinremi', 'omobolaji', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'kmmCEClYr018UobxCFrOHmDVVOaz1eaD60Nn2ow9', NULL, '2016-05-05 19:32:16', '2016-05-05 19:32:16'),
@@ -1103,111 +1087,7 @@ INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `
 (14, '$2y$10$yGK1y1ZffAC8mgJ8VDHZfuL6.6Xf.lQh.pTITfRgxu2x2OoNDsuc.', '08025307294', 'relatingus@yahoo.com', 'Adekoya', 'Biola', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'xTJDhUgrzH5ywWfzHkbwKFs3ZgLrueRA3cXxzK2S', NULL, '2016-05-05 19:48:33', '2016-05-05 19:48:33'),
 (15, '$2y$10$bQ9WAh/O8Q/21TUuXsaWbeqvOx3gJiN99QnahcWzfUg4VMURcsB6G', '07066847811', 'demolastar@gmail.com', 'Balogun', 'Ademola', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'CAwD6crBPhv8WdtOrvrxHe5efULPZiObNcmkwIuM', NULL, '2016-05-05 19:49:33', '2016-05-05 19:49:33'),
 (16, '$2y$10$KY9ccp6tm/85Iibc3lpAXeOVUtOiVGjmVqITVDJPHtYBXdzUKYE2q', '08020705912', 'olabisi_motunrayo@yahoo.com', 'Sobukanla', 'Olabisi', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, '16_avatar.png', 'xq55STVDEya0pNSUnsYAyj5x68iPuC1ieBFmRYSc', NULL, '2016-05-05 19:50:41', '2016-05-10 03:36:31'),
-(17, '$2y$10$.z5L2MNbvDG2of0jTpU0KONZXSj6Zrbq525c4p6yPNknjBxODppUq', '07037746048', 'solidstepsch@yahoo.com', 'Okpor', 'Julianah', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, '5a9v460AasF26HHSh59ewkK3JZ6M0nmKlYvd0xzO', NULL, '2016-05-05 19:52:07', '2016-05-05 19:52:07'),
-(18, '$2y$10$JUNQaU7D.PNaYtQLFfACHePT6F6y1mNHRKTpwKQgHqGSDQGkJ0tW.', '08035423767', 'abayomi@yahoo.com', 'Abayomi', 'Abayomi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'h9vO4igUqSOLJl1MgI9Zl8hVIgMQSkxtuPjCVxB5', NULL, '2016-05-10 19:04:01', '2016-05-10 19:04:01'),
-(19, '$2y$10$bJjJRYzohk2vF5DUZZfOjeSOvITzu654hN2DYMoPu/GNLLtp7c0M.', '08034811290', 'adebayo@yahoo.com', 'adebayo', 'adebayo', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'tDvbmB4nNhENIbvbT5mwj9v4MOsY4NEl0PKW2WUC', NULL, '2016-05-10 19:05:04', '2016-05-10 19:05:04'),
-(20, '$2y$10$ka1poX6/MRQMppAMmsthhOHJcqB9kXcw1u.WnZoXIKMyj7PPSM5pS', '07087886188', 'adebiyi@yahoo.com', 'adebiyi', 'adebiyi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'JHZJEPT3cNjjp1dlWlX8XJWoJAUJNvKg6fg25wSt', NULL, '2016-05-10 19:06:39', '2016-05-10 19:06:39'),
-(21, '$2y$10$VkOuEo.sWHGSuqKCU8iff.NJ2G2Bq3TuYUxXUY7sdSR984A9pSIhu', '08036000828', 'adelola@yahoo.com', 'adelola', 'adelola', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'KXnd6uuSsfXRLmRHeq9i3TkgVZYihrXScCXsxaMB', NULL, '2016-05-10 19:08:26', '2016-05-10 19:08:26'),
-(22, '$2y$10$QNj7V0BJg34D2CdIsd8A3.IgsQiB.NP31ICjv80C6.DsBFoYzPqB6', '08112000692', 'adesida@yahoo.com', 'adesida', 'adesida', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'LsSAlLsp9awyMemCbabGP255Ag1OAFelXPKYk4ZA', NULL, '2016-05-10 19:09:15', '2016-05-10 19:09:15'),
-(23, '$2y$10$o.I3jxl6b0fLlOq6j7i.ruFe8YWuvhbHU0k.SUG6K84he.BdF0W6a', '08023019212', 'adewumi@yahoo.com', 'adewumi', 'adewumi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'LMEFt232rTF9xZ73Krv6BBwXVMPpXCh3rb2TMTxw', NULL, '2016-05-10 19:10:17', '2016-05-10 19:10:17'),
-(24, '$2y$10$tCo6l397eJvSXNX2mHRw6.513v7dnIOFasAk2DwBXDlhaNxNTxGLK', '08067151353', 'adeyemi@yahoo.com', 'adeyemi', 'adeyemi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'IWRH6Ij4Mh7qzaA0HQ208NcLTbJehSFUvgUxp0b7', NULL, '2016-05-10 19:11:43', '2016-05-10 19:11:43'),
-(25, '$2y$10$uag5F5RE9WauCOzbEr44g.dfTkxV.JBJwF2gWV1wqAw.qj5gavzFG', '08034730900', 'adeyemi1@yahoo.com', 'adeyemi', 'adeyemi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'qpZEX3b04G4EhTAixG5U21SOpdat5FbwQiKsvsYI', NULL, '2016-05-10 19:14:01', '2016-05-10 19:14:01'),
-(26, '$2y$10$zCmlJws2.7GNyeLTjLVKherZd2faZl9W8FoJcxwQP/TVai4pdlvna', '08038666239', 'adeyemi2@yahoo.com', 'adeyemi', 'adeyemi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'uZEZIJvQioqHfboZwjYzozKNk3nSBdiPrNZtBwNj', NULL, '2016-05-10 19:15:18', '2016-05-10 19:15:18'),
-(27, '$2y$10$2hFNokJGmVd82yeHfmcIY.AjgcYMWNhTUDfiv6x72hHx27Zx/QmdS', '08034133636', 'adoye@yahoo.com', 'adoye', 'adoye', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'cHaVWYEZAAGISfPs9s2qenYJPhnZIDrfzeQfTmVr', NULL, '2016-05-10 19:16:24', '2016-05-10 19:16:24'),
-(28, '$2y$10$th.a78j6wsAgZLQxt1jel.UzBudpc.sTxsDssREp5HLUvMq7HbAWi', '07039691870', 'afolabi@yahoo.com', 'afolabi', 'afolabi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'mYFmbJLKnlr2epos1u3p5LWq92SF6NKub14y5VPp', NULL, '2016-05-10 19:24:01', '2016-05-10 19:24:01'),
-(29, '$2y$10$IPusZZItK7vJLLR9fDwMJu5HGEkWyY/P3hcK2jjOZukw1XrudtgEu', '08028615460', 'aje@yahoo.com', 'aje', 'aje', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'mbSCBmd7uq5QlDyXday6XWmyDeHqf5Ua19gYSGhy', NULL, '2016-05-10 19:26:30', '2016-05-10 19:26:30'),
-(30, '$2y$10$waV0OGh/L4pa2B31vOh9ZuinCRDuhbONTLbvvcySB4UBoVkapJvG.', '08055802718', 'akinbunu@yahoo.com', 'akinbinu', 'akinbunu', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'HMChYqs4vyx6gDvY93Lpu1v7qqG0gZId44tvcEcN', NULL, '2016-05-10 19:30:19', '2016-05-10 19:30:19'),
-(31, '$2y$10$pNq5CjlYXD1ZJco3cszVGuSyGUwYD6.4zBfeMwS49BEcTfDJME8I6', '08035131207', 'akinyosoye@yahoo.com', 'akinyosoye', 'akinyosoye', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'Qbw5ZuxWcnLHfuemMx9nJs1HqRVDfUn9LQhkBgZ8', NULL, '2016-05-10 19:32:11', '2016-05-10 19:32:11'),
-(32, '$2y$10$6LsehSGgyGr3q1YqLdjAgu3POHj7qU0R7AiGtH2Cs7ufN5trc4o3W', '08058044900', 'alabi@yahoo.com', 'alabi', 'alabi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'GUQ03ULqXdikZudKvHlqY2U4bD4eO5ztSkmB6iTf', NULL, '2016-05-10 19:37:53', '2016-05-10 19:37:53'),
-(33, '$2y$10$nrIpQLpZ8bOMijlp2sjWO.BOMloOqHZ0A4X8hQXAROCAHVYq1QzXu', '08034750375', 'anaele@yahoo.com', 'anaele', 'anaele', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'fb84h2u0bJNqiG9oHed5rAmcU6U09VArk6R9bYs1', NULL, '2016-05-10 19:39:12', '2016-05-10 19:39:12'),
-(34, '$2y$10$/mlX27x3JB/UDLFNj4y.aO36/LEARXpT1GqxAYn2BSH2fLZyKpKcy', '08023029379', 'animashaun@yahoo.com', 'animashaun', 'animashaun', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'Z4csXQZI8Zbd4VNCJHYrm4FjJXqkUFF9LDpsJH0y', NULL, '2016-05-10 19:40:27', '2016-05-10 19:40:27'),
-(35, '$2y$10$rQq2j2zB3pJkU8PRDu5r3O9yrI5syRgOWNFEc4IJX92jAxEb0NKJi', '08027563905', 'anomkfueme@yahoo.com', 'anomfueme', 'anomfueme', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'k6QjpShgv8C2h3VSWzOjpnhI2Veuw9l6hAKSpYtz', NULL, '2016-05-10 19:44:56', '2016-05-10 19:44:56'),
-(36, '$2y$10$8BpkSKRmSDmQ6nCmjvDwEOs29JLBUW69pChelaO1D0PloMqWo12dy', '08052900879', 'ayanleke@yahoo.com', 'ayanleke', 'ayanleke', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '3b9DrSNrPtOqJQi9sE1syUXa90Dj6ZhTi2KsS07h', NULL, '2016-05-10 19:45:53', '2016-05-10 19:45:53'),
-(37, '$2y$10$jTWopfaPWBZNWScQ/gmpFuHTy46WICNXnRSUhIKnfddX9Xi34feuW', '08025224666', 'ayeni@yahoo.com', 'ayeni', 'ayeni', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'xv5NI55Ac1lUgCwfjg98hwITrYCKZCjVBp3KKrNU', NULL, '2016-05-10 19:47:18', '2016-05-10 19:47:18'),
-(38, '$2y$10$yvfrq7C3S8EaIrrvCVcXm.Q/VvjmpsjUKtr5qYLuuCEsxbGnj7VGK', '08096473502', 'badmus@yahoo.com', 'badmus', 'badmus', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'lof3V3KVjZZMHYnJIgM0YTNXW1oO4O5mkowegS96', NULL, '2016-05-10 19:49:14', '2016-05-10 19:49:14'),
-(39, '$2y$10$ql3eCFR2s85XmkmQCc5b0.bbKCuSaGDWQrgn8fE/2h.xIrFEyW8qu', '08039268308', 'bakare@yahoo.com', 'bakare', 'bakare', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '49PBJZUvyduz6vanCscWObn8L1jfq0vEl4pEKqej', NULL, '2016-05-10 19:50:00', '2016-05-10 19:50:00'),
-(40, '$2y$10$kcGSAt7BrFHaxqMhRVBSueHhXTc.JVMyZE6K6Vu5zN4hS68MdN0b6', '08132188828', 'bashorun@yahoo.com', 'bashorun', 'bashorun', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '3WFgSvYPvV163r7YOBtron6ytFbKaOD0GF4bH01Y', NULL, '2016-05-10 19:50:57', '2016-05-10 19:50:57'),
-(41, '$2y$10$PhweNSMhK90zrSJ7MP27sucJAKA6sTpu465lt1RrCCLnZvdNC.RvC', '08034813126', 'bello@yahoo.com', 'bello', 'bello', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'A2DBJVt31zPmVY4UwY2HLzViDa1nrtndzHy2LTAO', NULL, '2016-05-10 19:51:47', '2016-05-10 19:51:47'),
-(42, '$2y$10$QQF0WWbNYAgN1XIlS1rC/OFT8MdY/4tHvO367G1t7aOj0kewNohiW', '07083940215', 'biobaku@yahoo.com', 'biobaku', 'biobaku', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'rW7TOBT67LeMH7SCWHNdVd5KpvXxjERQiJd5BPw0', NULL, '2016-05-10 19:52:40', '2016-05-10 19:52:40'),
-(43, '$2y$10$ckC.qCqdZJzZgfL.ByGpVueDrHv.5N6wTVPQFiA8J9x4AAYXlQaK6', '08172677798', 'brain@yahoo.com', 'brain', 'brain', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'qUb4UwWcrYbHRusZG79HIYXqsW83Yq1lUJxKJhiM', NULL, '2016-05-10 19:53:49', '2016-05-10 19:53:49'),
-(44, '$2y$10$qp2XtyrQBQsTDSi9YoXtKOdIzZpVN0eWBwyhy.vYF8jL1a23jq4qW', '07063617473', 'bruce@yahoo.com', 'bruce', 'bruce', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'V8QuL3PG1GJaTIPuaZoG8lLXg3M5coX9hIIyouKI', NULL, '2016-05-10 19:55:16', '2016-05-10 19:55:16'),
-(45, '$2y$10$DP1dEwtOnF.XMQb9GMBOougSh9v6o6lrmZaNLvjWC35q9myLm8t4i', '08034296363', 'chidiebere@yahoo.com', 'chidiebere', 'chidiebere', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'zjnGBFkgdsCsqVLWQqw63PErBhqnHcfBHlwJDnyJ', NULL, '2016-05-10 20:25:39', '2016-05-10 20:25:39'),
-(46, '$2y$10$5ukDHYe12ODSN3HQgQop3.WncXbm3Nwt3mhKka2sG3wHR0Wi1UM2G', '07083207650', 'chima@yahoo.com', 'chima', 'chima', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'e4Y28mn2re0Yt5eeNjBAldR0Y5oZ8cvbDRPiQfU2', NULL, '2016-05-10 20:26:32', '2016-05-10 20:26:32'),
-(47, '$2y$10$xB98h9pIi.h1mlbNHjPQSeideB/gKc46jbkx7/KLTDcE5iZxfLh5S', '08023285514', 'durojaiye@yahoo.com', 'durojaiye', 'durojaiye', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'jgDK9RyS0cIRCwCP7lzZCa288qtzqpQeBqiHPwUD', NULL, '2016-05-10 20:34:17', '2016-05-10 20:34:17'),
-(48, '$2y$10$Wgouy2/T9v5IxU5uyyPL8OZTIVvn6hmlytEikeS6drQ/OeHP826/6', '08126274482', 'ebukanson@yahoo.com', 'ebukanson', 'ebukanson', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'qUqTcEpMpsAAQYk7SoIUJTCtv1WgaXE8qIVbLhqd', NULL, '2016-05-10 20:35:13', '2016-05-10 20:35:13'),
-(49, '$2y$10$ZhQkomsaVc2A2VLwYFRp5Oe48XlOzqVnMeGm7WUybRu0pzSlkWXMm', '08033809777', 'echika@yahoo.com', 'echika', 'echika', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'khBBYujZ5pPiuQJrFprmkYb4sO0x5PfXGeuIkORZ', NULL, '2016-05-10 20:35:55', '2016-05-10 20:35:55'),
-(50, '$2y$10$W4K8cP4l.l8HOX3yhM6EZOw4satUWhka3R57vYSUyAB35aC1sFWOW', '08033142304', 'edeh@yahoo.com', 'edeh', 'edeh', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '4hFcwgwhtC8vwvFPSjLRWQDQ9GQ9kC4WAST6MYwy', NULL, '2016-05-10 20:36:38', '2016-05-10 20:36:38'),
-(51, '$2y$10$pF6QOxqTB7J/w9AyppMVFOSNUVV.0Q.OY4quNkxuNkIKPRClxt8oe', '08073144124', 'ediae@yahoo.com', 'ediae', 'ediae', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'Gae0BO0nzd5f2Ehj3KnvGOBCR0gLXgjjlsZDfKyq', NULL, '2016-05-10 20:37:37', '2016-05-10 20:37:37'),
-(52, '$2y$10$qyBxG.7NX32BlG7U8h0y7OIAlzhkZcPZIbHiR2vxhlFHhcVdmdy32', '08133380216', 'edward@yahoo.com', 'edward', 'edward', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '7t4whVIXO7dZdJyQKTTnTu2FqDHT2qkJn7DUFH2B', NULL, '2016-05-10 20:38:25', '2016-05-10 20:38:25'),
-(53, '$2y$10$d7ljeq19C.2CVOfBCCr3nuAECKB1Txk8yit5NcK.ez3TdYdP7dpMm', '08056078540', 'efurhievwe@yahoo.com', 'efurhievwe', 'efurhievwe', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'm5ofdmU3icPkqyUxoFlbTjMfgxS0uL31yuAKO0At', NULL, '2016-05-10 20:40:00', '2016-05-10 20:40:00'),
-(54, '$2y$10$D5sAmPuRd.INbeYbFHbSQO.8Oazamo0g.sQBn8FrMRswz8kPg02PO', '08057356449', 'ejeh@yahoo.com', 'ejeh', 'ejeh', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'LsSLsgSo7ROLXfKq4v5FwzIWGOfPGUpbK92sBCqC', NULL, '2016-05-10 20:42:24', '2016-05-10 20:42:24'),
-(55, '$2y$10$RCtsJRjW/C5gPsXb2wL5tebyPUYqhW5RDeGHrjH0bE1D5UFzVi9fG', '08094410200', 'ekaIdara@yahoo.com', 'eka - Idara', 'eka - Idara', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '6dBZEOoPcodWmKwz0K1tgon7s1OLFpl0WkzkEixV', NULL, '2016-05-10 20:43:34', '2016-05-10 20:43:34'),
-(56, '$2y$10$0oe.sOh1fHivHMZpb8VMQeQXeaFGOYRAuMdHfOEbKCHIfxtXbaeRi', '08033717878', 'ekoh@yahoo.com', 'ekoh', 'ekoh', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'S1UzLule8v5OWyS0Hjz2PRqdVndrlsKLMMzyrrJH', NULL, '2016-05-10 20:47:13', '2016-05-10 20:47:13'),
-(57, '$2y$10$9oVxmSPf.gh3nwJuZWVASu2ZyQ39IVu3JsjUOEZK/t5AE/19qEYZG', '080223425178', 'emissiri@yahoo.com', 'emissiri', 'emissiri', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'SWcFgLU4tpJw3DMHkQTzLwPCVE65KKhywFtwAPky', NULL, '2016-05-10 20:48:05', '2016-05-10 20:48:05'),
-(58, '$2y$10$m.pjNtzG9d4JBK5AfO0v8eSdGn2BaMOceU2Jg8iiZ98Nu0Qk8aciW', '08035832784', 'emina@yahoo.com', 'emina', 'emina', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'Z5o2zl1k2ZACMVQq4NG16r4Wsw3Urk0pBszz7jJj', NULL, '2016-05-10 20:51:01', '2016-05-10 20:51:01'),
-(59, '$2y$10$SsmzDvx5P12MqR5LmGWJfOhdP17y31tEdQpBOqq3RsJc/75D/40Fa', '07086722363', 'enifeni@yahoo.com', 'enifeni', 'enifeni', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '3d0dqPKzdDtvwHqSNnIiurgTzZamiFEo7T4SiZy0', NULL, '2016-05-10 20:51:47', '2016-05-10 20:51:47'),
-(60, '$2y$10$2ZPjTUNby7Cw8WRaFrm1be42wF4vIAq4g/FuIU7zfH3KCXn2M/voe', '08033607182', 'enugo@yahoo.com', 'enugo', 'enugo', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'Tfhh6UbZHRf00b27eTkbfsM3YXmIRJ8mY0ksRktk', NULL, '2016-05-10 20:52:57', '2016-05-10 20:52:57'),
-(61, '$2y$10$Iwa0cRYYB5bqRP6k6rnAMeCYIkApwx3zuoty.LvXY3/Eckk7rNG2e', '08037746392', 'eyoita@yahoo.com', 'eyo - ita', 'eyo - ita', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'FIbNeX9T1LxSHl4jSyMc1JHdOZMR1RYAY8BpdJ1e', NULL, '2016-05-10 20:53:56', '2016-05-10 20:53:56'),
-(62, '$2y$10$hFPbPodAc16lP0nQfB6jTen17BCeLO4eUVjjPjdsXkmO4zzEemtOq', '08023656161', 'ezechinyere@yahoo.com', 'ezechinyere', 'ezechinyere', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'ZSLXnQrFSLtarQQN75tjnhLGKbLyWajwsaOX0vnJ', NULL, '2016-05-10 20:55:21', '2016-05-10 20:55:21'),
-(63, '$2y$10$a9V5hvnwJtVngL13DPD01ubIyoUKWspbz7MaPMTnZ.9MhoXOo0v3a', '08052519669', 'ezelie@yahoo.com', 'ezelie', 'ezelie', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '5zjXL1XBHQ2uw508NDKeoqQA6d58WCpgxxhUbsuj', NULL, '2016-05-10 20:56:18', '2016-05-10 20:56:18'),
-(64, '$2y$10$IKWLQ9u7qebUFa8fqJkeIeUmfBFVG3cN4DF.VabLkh3kikGPnyAj6', '08146228602', 'fawale@yahoo.com', 'fawale', 'fawale', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'dpfOQe1GGOfmAKmk4xsjb12lFUr3n1Oe4xDiTA7x', NULL, '2016-05-10 20:57:41', '2016-05-10 20:57:41'),
-(65, '$2y$10$JoYRvIbWX1zSXYzMhV2Mm.9zOidTFQP6dvu.Pk8KGU2zA4EdjduHK', '08029184841', 'fayemiwo@yahoo.com', 'fayemiwo', 'fayemiwo', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'SkfLbeToScPk5eRTkAw6A34R1akkEYI9FSj967bN', NULL, '2016-05-10 20:58:34', '2016-05-10 20:58:34'),
-(66, '$2y$10$jHDLhhUQ32NTxJm/YSstUO7gz220leRxMc2ING50o1kVbhT/22DgS', '08033005954', 'gbadamosi@yahoo.com', 'gbadamosi', 'gbadamosi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'vqY9UjzBNVN970mD0giGzkSB2AYtZxASuDqXrqIt', NULL, '2016-05-10 20:59:40', '2016-05-10 20:59:40'),
-(67, '$2y$10$QysusTE6lbxBcuZ7/an69uiDCHJi4TRiFhLCgfQKKd50NK0PAP6x2', '08066669355', 'george@yahoo.com', 'george', 'george', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'JSB4UbHynn9HLUTZtouglImPZwtv1FWXqAQJhhiF', NULL, '2016-05-10 21:00:38', '2016-05-10 21:00:38'),
-(68, '$2y$10$EbRPRr6k7agvz/LwABDlHext4zRnEJUNWIR.P5nXdOpFSuBgzq4/2', '08036147829', 'george2@yahoo.com', 'george', 'george', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '77e9haqMYHv2lu05V5lBwc2Yz572Y88KbAymYAsW', NULL, '2016-05-10 21:02:05', '2016-05-10 21:02:05'),
-(69, '$2y$10$vZnah5noa7rINQCsRMWaAOlvEgQCKSODLMCouW.mOfeeFqLkgOwHC', '08187212908', 'hundeyin@yahoo.com', 'hundeyin', 'hundeyin', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'RERZgbNsXhlyM7WNvQ367pQpQaU1ehyZlpJJABau', NULL, '2016-05-10 21:03:46', '2016-05-10 21:03:46'),
-(70, '$2y$10$.dqY0bkizxlnpbBYBbrc6OvDyMdkLhwljYXlrBxzBL4jAr/6UelpG', '08138241771', 'ibiam@yahoo.com', 'ibiam', 'ibiam', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'POLFCnzHNG4qxEvgLExY0svr3fDmVaJnj7iU9SRN', NULL, '2016-05-10 21:05:09', '2016-05-10 21:05:09'),
-(71, '$2y$10$esH08gF0915EQWf7KzRGXuUZi5bYs.TBJKc7IauTCG.V.MbGAUvBC', '08034720645', 'idahosa@yahoo.com', 'idahosa', 'idahosa', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'VmVnWXMWOtK0iTwOsdRrYLT8rxhxei3YQTQnapRz', NULL, '2016-05-10 21:06:07', '2016-05-10 21:06:07'),
-(72, '$2y$10$xY0ftJPdgpm3oOwPOBAv.e2jeGEK.3d.snETxPmGQvBErZB.hgC6C', '08036739601', 'ifedayoadesida@yahoo.com', 'ifedayo', 'adesida', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'vvmJzzqs3GytTq4QUTzGeBF75Cei8LtUFvnv11Wg', NULL, '2016-05-10 21:07:40', '2016-05-10 21:07:40'),
-(73, '$2y$10$T85f487R2du0rm3CzXYg6udLAmt9eiDLaZYgIWpNYjAwph.Zsf5ja', '08028317642', 'igure@yahoo.com', 'igure', 'igure', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'fSj7BCxE5NRoP9eMHIkBBNgUuiz9WIIexXoi3C0p', NULL, '2016-05-10 21:10:26', '2016-05-10 21:10:26'),
-(74, '$2y$10$9pb/leHA3ehRg1pueFpmAewxB/1ho9Zif8gKvJFAGiVM4undoPF/.', '08055679974', 'igweonwu@yahoo.com', 'igweonwu', 'igweonwu', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'vXFSjGTydHAyTFMMYwcwRP1gqym8flzXsWc8i3Gk', NULL, '2016-05-10 21:11:21', '2016-05-10 21:11:21'),
-(75, '$2y$10$F75owQiktNMMXrXdp2xRl.KbzbPnRCyogsxgMWvD0aT54/6BBmydm', '07066162027', 'iheoma@yahoo.com', 'iheoma', 'iheoma', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'lgLdeNmp6RfOPDyj2UjcNo1Hnls77xASMzp3jjW3', NULL, '2016-05-10 21:13:53', '2016-05-10 21:13:53'),
-(76, '$2y$10$Lsym346pUquXjlUaSdVwA.qR63fR.xTOtiMtSYAuy/34CeQtPut6.', '08165474936', 'ita2@yahoo.com', 'ita', 'ita', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'adlxxQnevd4SMGKrOfAr9iieYmCzY9nQETiKD5j6', NULL, '2016-05-10 21:15:13', '2016-05-10 21:15:13'),
-(77, '$2y$10$NYo.LZyeeBPK7m3DLm3Gr.KE9R9R8dsa.xlKAF0cWWAtT4EWCwKnK', '08023002650', 'komolafe@yahoo.com', 'komolafe', 'komolafe', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'UM43G82UjylzNcoDbCcB3Fq9vFjO09Ihf7DFrmcG', NULL, '2016-05-10 21:18:48', '2016-05-10 21:18:48'),
-(78, '$2y$10$Cxq67yMz/UOLRZrgaLKEju3vjpC2e2PBdqYXD02OAajctnBf76Tn2', '07032096056', 'lewis@yahoo.com', 'lewis', 'lewis', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'jwv5HisFhdY94QFsTSbzr8xJgaC21bwSwo6jQVK2', NULL, '2016-05-10 21:19:57', '2016-05-10 21:19:57'),
-(79, '$2y$10$mXtUW1DL4r2CCohhsIvLT.c4RmDXrbbubxxW9sdJiCuaROgLlC5tC', '08167550222', 'mabinuori@yahoo.com', 'mabinuori', 'mabinuori', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'MomoFIx3tbKjzGlInEUBS2vgJx9VnWXnH9VLVYyw', NULL, '2016-05-10 21:21:16', '2016-05-10 21:21:16'),
-(80, '$2y$10$afSKfOl/vqexeDIhsGV6vO0ym3ArjfUL8kBk.NPfmthSMHLfsAM3y', '08063977980', 'madu@yahoo.com', 'madu', 'madu', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'CRUUN94B7Norh7MvflRmandjTbeIGzZn1mfPg6Nf', NULL, '2016-05-10 21:22:07', '2016-05-10 21:22:07'),
-(81, '$2y$10$XpakwwBkQFsBMnmNAi7Z3.k8Ha2SS9Nz/7KAyJnzaX1ZN0hgWyexK', '08038024291', 'mmadu@yahoo.com', 'mmadu', 'mmadu', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'hibJgGKd4ZDBzyUXZHLX7vt0YXxvxeUU9c7SBkDS', NULL, '2016-05-10 21:23:09', '2016-05-10 21:23:09'),
-(82, '$2y$10$zPRR.ipwWcrE0ddcXBOZSOtB5yY5tkRsDkaTEPA1TFHFVrVWgxK9i', '08033776967', 'nnaji@yahoo.com', 'nnaji', 'nnaji', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'A5DA56uQNcr2Mtm32D4IalX85DScp9hC1O48EDT4', NULL, '2016-05-10 21:23:55', '2016-05-10 21:23:55'),
-(83, '$2y$10$1ToqVcVtu56CS27LvXGZRODc8iiS0cOhfTs8OcctWwkVt9xt4EKEC', '09098837414', 'nwachukwu@yahoo.com', 'nwachukwu', 'nwachukwu', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'xXX6BoNhTLoTvYCekcz4XWnX18GHhAPmVHPuU4JX', NULL, '2016-05-10 21:24:50', '2016-05-10 21:24:50'),
-(84, '$2y$10$HSVOCw35bKO0/jbP0bmvxOQcqvSze4PPZ/p1YuSdNUwxLNiDYXCzu', '08035747450', 'nwokedi@yahoo.com', 'nwokedi', 'nwokedi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'Nub23jEA57quQtXA8NrjZpMP6zcQpT7Jtng3hxaJ', NULL, '2016-05-10 21:25:33', '2016-05-10 21:25:33'),
-(85, '$2y$10$yR3N.s1FuOJ4gNgHeqUqFOWcJqOYc8JuwEI5PGzWieiKSdbgvNvBO', '08035034468', 'nwoko@yahoo.com', 'nwoko', 'nwoko', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '4UQ9KGagHFvX6svhvUCfdi2rKOW6TBx6w2cjsfJc', NULL, '2016-05-10 21:26:14', '2016-05-10 21:26:14'),
-(86, '$2y$10$WRS6Nx9me1/vIb18Qog6D.lOvkxuBKtP0a94GUulpD6NCvNBN40FS', '08037166828', 'nwokolo@yahoo.com', 'nwokolo', 'nwokolo', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'LNIrhXe5JviimpWGwno5BJMv6Gey6VTjNMTUUJjY', NULL, '2016-05-10 21:26:58', '2016-05-10 21:26:58'),
-(87, '$2y$10$Nbrv9yyfe1DQfppBYy9QAuv1QWxZtcBEyUMCPr4I7m3/DV/DbNP8S', '08109588383', 'obi@yahoo.com', 'obi', 'obi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'fAbxjpSxkNFTaI93ETPlW7LeoAdyHuYBT4dWAP8T', NULL, '2016-05-10 21:27:47', '2016-05-10 21:27:47'),
-(88, '$2y$10$034w0cXpEXdxx4OHXS6RfervxXn2bOrcwdyeKL1b547KAtLTZ75Wu', '08037143393', 'obialo@yahoo.com', 'obialo', 'obialo', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'M6iaN4GfYXctTrRjvMnlERGjUDuvMdahmsB97tJF', NULL, '2016-05-10 21:28:24', '2016-05-10 21:28:24'),
-(89, '$2y$10$tURfIshQ7E1ka39L.BHG9efO7G9dxlBatWdFvoNDMVsH168BAs9e.', '07033507011', 'oboh@yahoo.com', 'oboh', 'oboh', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'mrpKWz0VvG75QNy8hMi4mYgfo7LKA312CzKDlWU6', NULL, '2016-05-10 21:29:05', '2016-05-10 21:29:05'),
-(90, '$2y$10$QSdgZ1rf5BhuPw.XbaXgzu1RC8LCMwpvhFKT4Br2sv.4nJZhKmtMi', '08064428179', 'odubanjo@yahoo.com', 'odubanjo', 'odubanjo', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'mr4APScaNyWhGHJwocPjxTDpe7VqTKPy86lPDqSK', NULL, '2016-05-10 21:29:54', '2016-05-10 21:29:54'),
-(91, '$2y$10$Bt2fnterlvSOXRANihB5pOwzxeSFs0b.Dr1LUY/W9mPGV9NxjEile', '08033040413', 'ogale@yahoo.com', 'ogale', 'ogale', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '4wGxEGsOTGVek0MkhajsMY7P38IdUUl6JD6zXP7I', NULL, '2016-05-10 21:30:37', '2016-05-10 21:30:37'),
-(92, '$2y$10$0vBArfICPrbz.h.OKvpdzuW/IFxUwebUlpgtRT/9.3k47x3VNKnCq', '08034166664', 'ogunleye@yahoo.com', 'ogunleye', 'ogunleye', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'ZseLgmMne0o4e1ux7RyiH80hsxPdwSQaTYR1pg56', NULL, '2016-05-10 21:31:26', '2016-05-10 21:31:26'),
-(93, '$2y$10$PJZslNw3Ggp0fPzgfdPCAO65v5lzwE9S.0HxqX.ZxUsc0MddpRiU6', '08131081768', 'ogunmuko@yahoo.com', 'ogunmuko', 'ogunmuko', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'kCqBSLrd5Zjg6sW4z4QaW0Fff5E8xsf0pOy0kY4n', NULL, '2016-05-10 21:32:25', '2016-05-10 21:32:25'),
-(94, '$2y$10$obNKrxuLo0Qvt3qF9R.ZSOMkhwr7C3CtmCJ1wOlCTbwyZ3NGlxofu', '08131964766', 'ojopoke@yahoo.com', 'ojopoke', 'ojopoke', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'mpzhsjT334G1utH9CIDpzV0d2OleADL09dlv9Her', NULL, '2016-05-10 21:33:29', '2016-05-10 21:33:29'),
-(95, '$2y$10$wM/fYuLo3GzgzMHt4jFTWefGUk.QS3QwzcWVLhct4.b3ZKCYd2Yz2', '08032235812', 'okoye@yahoo.com', 'okoye', 'okoye', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'WrTNoCx1goU29Ty6oRpEvLigdJBfqE0fZHTM2sOn', NULL, '2016-05-10 21:34:13', '2016-05-10 21:34:13'),
-(96, '$2y$10$MCCRd0.LYhttAbaD6/HsDukBclgjUa/qw/.s6wXimASYggQxM407C', '08023180841', 'okpor@yahoo.com', 'okpor', 'okpor', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'hJrtzyVjGSbhpbbmDbpiYsW1JGjfs13T1lW44B10', NULL, '2016-05-10 21:35:16', '2016-05-10 21:35:16'),
-(97, '$2y$10$m/7SO5VCIUsZcx7A4zsED.vlhKuIiUrCA72Yb5zYPPF9C1UI6eb4e', '08023388331', 'okunola@yahoo.com', 'okunola', 'okunola', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'ANjJmznLrz2gF5urPXrRw4Wwmxm5MvMlUO9BhAlV', NULL, '2016-05-10 21:36:00', '2016-05-10 21:36:00'),
-(98, '$2y$10$Ah1KsPN.zF/jD.ERJaTVYu2B9..ek.GIBzyviTF6tZDdztaKpR1RG', '08096742166', 'oladele@yahoo.com', 'oladele', 'oladele', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'Q1CIRvfnBtlUdAk0hE4n2CqZK8KhrRxPAxLtl4Ww', NULL, '2016-05-10 21:36:45', '2016-05-10 21:36:45'),
-(99, '$2y$10$ulv1vRUM86q31wddB95FkOP.s/T2itRZjxOXBc6PbfK5sZJy3YfCS', '08037158695', 'oloye@yahoo.com', 'oloye', 'oloye', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'f2ZN6BnmQjoanoeUYh25zzVPQoCdTRUHHYYk1hRu', NULL, '2016-05-10 21:37:31', '2016-05-10 21:37:31'),
-(100, '$2y$10$vs8jMJifrQ.H9XUaL2N2i.qo0FSUndfwBkwxuXSm75JjTZur083Ca', '07062058069', 'olugbemi@yahoo.com', 'olugbemi', 'olugbemi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '30hOWgyTlP6zbgvNffMLU5b8x5KUCi7qLmM14cIH', NULL, '2016-05-10 21:38:22', '2016-05-10 21:38:22'),
-(101, '$2y$10$cnELvjRsjuCTPvbr5jbbYeQlzq.yPUyxqUCEDyQhFP.216TgxyJMu', '08038277868', 'oluwamola@yahoo.com', 'oluwamola', 'oluwamola', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'EqGpTFUyxqu4ShcMoPIpv0xd6zuRkT07MiaPBvz7', NULL, '2016-05-10 21:39:19', '2016-05-10 21:39:19'),
-(102, '$2y$10$3biRDHGpctFP/5BzFiIEYOPaDpvycUa.JcB.b1WB3b4wDB018QvrS', '08028343733', 'omotosho@yahoo.com', 'omotosho', 'omotosho', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'I4JRvK4hjIPZdxMwRtiDVxudB8YOLLNiXNW9m4Y2', NULL, '2016-05-10 21:40:10', '2016-05-10 21:40:10'),
-(103, '$2y$10$IRxifIL/6T282LSe0xslueXOadGrTT/6H2FK6SxfXu.Kx1.CFLQJm', '08038182294', 'omotosho2@yahoo.com', 'omotosho', 'omotosho', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'cNfxgq0VGCixpld2lnH4i1Ty4KfRGws6KFUvcUN9', NULL, '2016-05-10 21:42:08', '2016-05-10 21:42:08'),
-(104, '$2y$10$p9f.cWLK/MbSBPZGxUEfrumiarCgkVlOFH5G8Z5j7hZWX1KGlhe2a', '08034486444', 'onuisile@yahoo.com', 'onisile', 'onisile', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '81uvddfKtf0T5w2bGsFreDaN2nNArGE5i2HHnBvU', NULL, '2016-05-10 21:44:29', '2016-05-10 21:44:29'),
-(105, '$2y$10$fZodq0NSjz3lxbYwBxN7QeNgkhvKt/lgQ9BtzNYoOW4QjTsjLhzDS', '08038071133', 'onyemaechi@yahoo.com', 'onyemaechi', 'onyemaechi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'ELWUGgCkNKBWfxDC4PbvPWi2an8oWQ42EOUncnpy', NULL, '2016-05-10 21:45:22', '2016-05-10 21:45:22'),
-(106, '$2y$10$kobFC86aIeaIixUoGXn01e6yyAZ/GdRz2WcFp3CqIO/suc5eCl.46', '08023324754', 'orisunmibare@yahoo.com', 'orisunmibare', 'orisunmibare', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'pE6Xm0FqxuhNRlzk1L8xrkSYLmv3yTNZU7P6g7si', NULL, '2016-05-10 21:46:05', '2016-05-10 21:46:05'),
-(107, '$2y$10$BxSU.Awvy3V0pZLKYBdazegLA.Baad3Pmy8Xi080Y1nwu6LkY.xnW', '08024791052', 'osariemen@yahoo.com', 'osariemen', 'osariemen', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'okMHN1fJVnB766aRzD16XazOn4DfwhGzAoLoF3p8', NULL, '2016-05-10 21:47:25', '2016-05-10 21:47:25'),
-(108, '$2y$10$iow7IWkhLFW11f12F0lTgOfpmL/Ph/oASRdXDZ9PmFFrMePnllYAW', '08022315335', 'oshinonwu@yahoo.com', 'oshinonwu', 'oshinonwu', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'vYeq2bXgEacKnmdUT0W3ZeEeA35S8QqyFLM4GXiP', NULL, '2016-05-10 21:48:33', '2016-05-10 21:48:33'),
-(109, '$2y$10$vsCUD81G.ElTVKAP3ioeg.qRWbALH1EJoB6te0vsNYQrJQCx0SayW', '08026952105', 'oyewunmi@yahoo.com', 'oyewunmi', 'oyewunmi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'vew419QwTwTTxuK2IdVRrTJIAanDkxIqMXcZT3P7', NULL, '2016-05-10 21:49:39', '2016-05-10 21:49:39'),
-(110, '$2y$10$2T6WLdiIGG23e3owNgfMxOdOIZKrVB8r9bqTy2jSLu0x0TyETgPhW', '08062061635', 'rahmon@yahoo.com', 'rahmon', 'rahmon', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'bB06ZyxbpCyCMdZxMqdN04HMBVnkrXOO1wwFpr1Y', NULL, '2016-05-10 21:50:30', '2016-05-10 21:50:30'),
-(111, '$2y$10$9jqLLPY8mEnr6c71ejfMkObDq3UsjzB0aS.AmWulDCoo3he6xBuYO', '08057564138', 'sanusi@yahoo.com', 'sanusi', 'sanusi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '78PlzgmXUBVtEpjbQQcUUQZs39j0oi9pCUxPMlVk', NULL, '2016-05-10 21:51:12', '2016-05-10 21:51:12'),
-(112, '$2y$10$YKL9IhtC84cnxOQXnn/ZP.crbaipX.7EvM7jI0cCgUKK9gl9rbvAK', '08034905466', 'shittu@yahoo.com', 'shittu', 'shittu', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'DM5GY8Kv9KOHriZlIlKW6bSVxHoEkvQlDkS0nXta', NULL, '2016-05-10 21:51:58', '2016-05-10 21:51:58'),
-(113, '$2y$10$wo0m1..N1ek27j2cVUsdpeZJEZj1LJ/Sd4fOuro6kn.hKgFdUrZ2u', '08149095219', 'shotolu@yahoo.com', 'shotolu', 'shotolu', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'S7k4nvCEAnWwIo6OMsUivb3L5iCZKOWXDbOruNwM', NULL, '2016-05-10 21:52:57', '2016-05-10 21:52:57'),
-(114, '$2y$10$iePQAszmX8CgoJlC7rPJLu.4GoExn6VDbzptRTQuAVvCnwDcCJcOO', '07064484612', 'tamunokubie@yahoo.com', 'tamunokubie', 'tamunokubie', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '9k2aOQAAagCtbO86vVp1g19Vii0IVC5VVALtmwTS', NULL, '2016-05-10 21:54:00', '2016-05-10 21:54:00'),
-(115, '$2y$10$5KRaqzDxxpnrQYZVdr.zLONqLsbam20UqzubMrwVhEWr/EkRbaLyi', '08023068758', 'uba@yahoo.com', 'uba', 'uba', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'e7ljS1H9iNSAAq65IpOQaq7RoR04JNIa1x3oMpH7', NULL, '2016-05-10 21:54:46', '2016-05-10 21:54:46'),
-(116, '$2y$10$bFhrlo3THpxlm1OaxYsZdOWxZKoeLVvV7VF.nvoJZ6w/Upn3bjEE.', '08030612120', 'ubah@yahoo.com', 'ubah', 'ubah', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '2SO3D3XjKW6ptnNq4HosflkVYAkE9AOfk1Vt8hD9', NULL, '2016-05-10 21:55:51', '2016-05-10 21:55:51'),
-(117, '$2y$10$jutfWA1dK4HIFO6wQ8r1V.G2HZ5pS/hM1cvcVFEakXrPX5b5Xx672', '08132321240', 'udemgba@yahoo.com', 'udemgba', 'udemgba', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'OOhu19mmZoQQn3H92hB91srj1jEcKLzPE0w2crEH', NULL, '2016-05-10 21:57:11', '2016-05-10 21:57:11'),
-(118, '$2y$10$Me.kHoPOaxYLLDVb17HExeTZvf8pdPCYLwMqodrSJ3PfkI4Q6nSyi', '08037207868', 'udensi@yahoo.com', 'udensi', 'udensi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'VzeEqfJS3NJU9ceMXDmP1lxdzLKuabQKjbrxGOsA', NULL, '2016-05-10 21:58:06', '2016-05-10 21:58:06'),
-(119, '$2y$10$H/QJfNMJIEFGONs6vSR0/eJO34ahWABVQYM/kDK1gTtyLJfzkpcZa', '08032007206', 'umoh@yahoo.com', 'umoh', 'umoh', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '1aE5zy8qppj0bTym67IRbnx1cIRZqcOGIlHxPO6u', NULL, '2016-05-10 21:58:52', '2016-05-10 21:58:52'),
-(120, '$2y$10$YGGwwLlc7IfX5zvLFuSrfOPZ28dpvwl8K9V0vAi1xXsXublfDVQjW', '08037090486', 'woko@yaho.com', 'woko', 'woko', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '08YV7FIuJQvQH3eP21onJM0Jqg6DEgZjjmXp5nbh', NULL, '2016-05-10 21:59:31', '2016-05-10 21:59:31'),
-(121, '$2y$10$znjpgI3jhGeGCkWn3nPiluHHFbSsiLIwBI313XRQd4g1/BVAWzIk2', '08028676935', 'yusuf@yahoo.com', 'yusuf', 'yusuf', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, '85xGYILEtZVW5L9vhh09X5jUlSewy3opGOBAkiPF', NULL, '2016-05-10 22:00:16', '2016-05-10 22:00:16');
+(17, '$2y$10$.z5L2MNbvDG2of0jTpU0KONZXSj6Zrbq525c4p6yPNknjBxODppUq', '07037746048', 'solidstepsch@yahoo.com', 'Okpor', 'Julianah', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, '5a9v460AasF26HHSh59ewkK3JZ6M0nmKlYvd0xzO', NULL, '2016-05-05 19:52:07', '2016-05-05 19:52:07');
 
 -- --------------------------------------------------------
 
@@ -1217,13 +1097,12 @@ INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `
 
 DROP TABLE IF EXISTS `user_types`;
 CREATE TABLE IF NOT EXISTS `user_types` (
-  `user_type_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_type_id` int(10) unsigned NOT NULL,
   `user_type` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `type` int(11) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`user_type_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `user_types`
@@ -1235,6 +1114,293 @@ INSERT INTO `user_types` (`user_type_id`, `user_type`, `type`, `created_at`, `up
 (3, 'Sponsor', 2, '2016-04-28 21:35:55', '2016-04-28 21:35:55'),
 (4, 'Staff', 2, '2016-04-28 21:35:15', '2016-04-28 21:35:15');
 
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `academic_terms`
+--
+ALTER TABLE `academic_terms`
+  ADD PRIMARY KEY (`academic_term_id`),
+  ADD KEY `academic_terms_status_index` (`status`),
+  ADD KEY `academic_terms_academic_year_id_index` (`academic_year_id`),
+  ADD KEY `academic_terms_term_type_id_index` (`term_type_id`),
+  ADD KEY `academic_terms_exam_status_id_index` (`exam_status_id`),
+  ADD KEY `academic_terms_exam_setup_by_index` (`exam_setup_by`);
+
+--
+-- Indexes for table `academic_years`
+--
+ALTER TABLE `academic_years`
+  ADD PRIMARY KEY (`academic_year_id`),
+  ADD KEY `academic_years_status_index` (`status`);
+
+--
+-- Indexes for table `classgroups`
+--
+ALTER TABLE `classgroups`
+  ADD PRIMARY KEY (`classgroup_id`);
+
+--
+-- Indexes for table `classlevels`
+--
+ALTER TABLE `classlevels`
+  ADD PRIMARY KEY (`classlevel_id`),
+  ADD KEY `classlevels_classgroup_id_index` (`classgroup_id`);
+
+--
+-- Indexes for table `classrooms`
+--
+ALTER TABLE `classrooms`
+  ADD PRIMARY KEY (`classroom_id`),
+  ADD KEY `classrooms_classlevel_id_index` (`classlevel_id`);
+
+--
+-- Indexes for table `menus`
+--
+ALTER TABLE `menus`
+  ADD PRIMARY KEY (`menu_id`),
+  ADD KEY `menus_menu_header_id_index` (`menu_header_id`);
+
+--
+-- Indexes for table `menu_headers`
+--
+ALTER TABLE `menu_headers`
+  ADD PRIMARY KEY (`menu_header_id`);
+
+--
+-- Indexes for table `menu_items`
+--
+ALTER TABLE `menu_items`
+  ADD PRIMARY KEY (`menu_item_id`),
+  ADD KEY `menu_items_menu_id_index` (`menu_id`);
+
+--
+-- Indexes for table `permissions`
+--
+ALTER TABLE `permissions`
+  ADD PRIMARY KEY (`permission_id`),
+  ADD UNIQUE KEY `permissions_name_unique` (`name`);
+
+--
+-- Indexes for table `permission_role`
+--
+ALTER TABLE `permission_role`
+  ADD PRIMARY KEY (`permission_id`,`role_id`),
+  ADD KEY `permission_role_role_id_foreign` (`role_id`);
+
+--
+-- Indexes for table `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`role_id`),
+  ADD UNIQUE KEY `roles_name_unique` (`name`),
+  ADD KEY `roles_user_type_id_index` (`user_type_id`);
+
+--
+-- Indexes for table `roles_menus`
+--
+ALTER TABLE `roles_menus`
+  ADD KEY `roles_menus_role_id_index` (`role_id`),
+  ADD KEY `roles_menus_menu_id_index` (`menu_id`);
+
+--
+-- Indexes for table `roles_menu_headers`
+--
+ALTER TABLE `roles_menu_headers`
+  ADD KEY `roles_menu_headers_role_id_index` (`role_id`),
+  ADD KEY `roles_menu_headers_menu_header_id_index` (`menu_header_id`);
+
+--
+-- Indexes for table `roles_menu_items`
+--
+ALTER TABLE `roles_menu_items`
+  ADD KEY `roles_menu_items_role_id_index` (`role_id`),
+  ADD KEY `roles_menu_items_menu_item_id_index` (`menu_item_id`);
+
+--
+-- Indexes for table `roles_sub_menu_items`
+--
+ALTER TABLE `roles_sub_menu_items`
+  ADD KEY `roles_sub_menu_items_role_id_index` (`role_id`),
+  ADD KEY `roles_sub_menu_items_sub_menu_item_id_index` (`sub_menu_item_id`);
+
+--
+-- Indexes for table `roles_sub_most_menu_items`
+--
+ALTER TABLE `roles_sub_most_menu_items`
+  ADD KEY `roles_sub_most_menu_items_role_id_index` (`role_id`),
+  ADD KEY `roles_sub_most_menu_items_sub_most_menu_item_id_index` (`sub_most_menu_item_id`);
+
+--
+-- Indexes for table `role_user`
+--
+ALTER TABLE `role_user`
+  ADD PRIMARY KEY (`user_id`,`role_id`),
+  ADD KEY `role_user_role_id_foreign` (`role_id`);
+
+--
+-- Indexes for table `sponsors`
+--
+ALTER TABLE `sponsors`
+  ADD PRIMARY KEY (`sponsor_id`),
+  ADD KEY `sponsors_lga_id_index` (`lga_id`),
+  ADD KEY `sponsors_salutation_id_index` (`salutation_id`),
+  ADD KEY `sponsors_created_by_index` (`created_by`);
+
+--
+-- Indexes for table `staffs`
+--
+ALTER TABLE `staffs`
+  ADD PRIMARY KEY (`staff_id`),
+  ADD KEY `staffs_lga_id_index` (`lga_id`),
+  ADD KEY `staffs_salutation_id_index` (`salutation_id`),
+  ADD KEY `staffs_created_by_index` (`created_by`);
+
+--
+-- Indexes for table `subject_classrooms`
+--
+ALTER TABLE `subject_classrooms`
+  ADD PRIMARY KEY (`subject_classroom_id`),
+  ADD KEY `subject_classrooms_subject_id_index` (`subject_id`),
+  ADD KEY `subject_classrooms_classroom_id_index` (`classroom_id`),
+  ADD KEY `subject_classrooms_academic_term_id_index` (`academic_term_id`),
+  ADD KEY `subject_classrooms_exam_status_id_index` (`exam_status_id`);
+
+--
+-- Indexes for table `subject_tutors`
+--
+ALTER TABLE `subject_tutors`
+  ADD PRIMARY KEY (`subject_tutor_id`),
+  ADD KEY `subject_tutors_tutor_id_index` (`tutor_id`),
+  ADD KEY `subject_tutors_subject_classroom_id_index` (`subject_classroom_id`);
+
+--
+-- Indexes for table `sub_menu_items`
+--
+ALTER TABLE `sub_menu_items`
+  ADD PRIMARY KEY (`sub_menu_item_id`),
+  ADD KEY `sub_menu_items_menu_item_id_index` (`menu_item_id`);
+
+--
+-- Indexes for table `sub_most_menu_items`
+--
+ALTER TABLE `sub_most_menu_items`
+  ADD PRIMARY KEY (`sub_most_menu_item_id`),
+  ADD KEY `sub_most_menu_items_sub_menu_item_id_index` (`sub_menu_item_id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `users_email_unique` (`email`),
+  ADD UNIQUE KEY `phone_no` (`phone_no`),
+  ADD KEY `users_user_type_id_index` (`user_type_id`),
+  ADD KEY `salutation_id` (`salutation_id`),
+  ADD KEY `lga_id` (`lga_id`);
+
+--
+-- Indexes for table `user_types`
+--
+ALTER TABLE `user_types`
+  ADD PRIMARY KEY (`user_type_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `academic_terms`
+--
+ALTER TABLE `academic_terms`
+  MODIFY `academic_term_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
+--
+-- AUTO_INCREMENT for table `academic_years`
+--
+ALTER TABLE `academic_years`
+  MODIFY `academic_year_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+--
+-- AUTO_INCREMENT for table `classgroups`
+--
+ALTER TABLE `classgroups`
+  MODIFY `classgroup_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT for table `classlevels`
+--
+ALTER TABLE `classlevels`
+  MODIFY `classlevel_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+--
+-- AUTO_INCREMENT for table `classrooms`
+--
+ALTER TABLE `classrooms`
+  MODIFY `classroom_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT for table `menus`
+--
+ALTER TABLE `menus`
+  MODIFY `menu_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=8;
+--
+-- AUTO_INCREMENT for table `menu_headers`
+--
+ALTER TABLE `menu_headers`
+  MODIFY `menu_header_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
+--
+-- AUTO_INCREMENT for table `menu_items`
+--
+ALTER TABLE `menu_items`
+  MODIFY `menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=16;
+--
+-- AUTO_INCREMENT for table `permissions`
+--
+ALTER TABLE `permissions`
+  MODIFY `permission_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=67;
+--
+-- AUTO_INCREMENT for table `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `role_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT for table `sponsors`
+--
+ALTER TABLE `sponsors`
+  MODIFY `sponsor_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `staffs`
+--
+ALTER TABLE `staffs`
+  MODIFY `staff_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `subject_classrooms`
+--
+ALTER TABLE `subject_classrooms`
+  MODIFY `subject_classroom_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `subject_tutors`
+--
+ALTER TABLE `subject_tutors`
+  MODIFY `subject_tutor_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `sub_menu_items`
+--
+ALTER TABLE `sub_menu_items`
+  MODIFY `sub_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=18;
+--
+-- AUTO_INCREMENT for table `sub_most_menu_items`
+--
+ALTER TABLE `sub_most_menu_items`
+  MODIFY `sub_most_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10;
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=18;
+--
+-- AUTO_INCREMENT for table `user_types`
+--
+ALTER TABLE `user_types`
+  MODIFY `user_type_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
 --
 -- Constraints for dumped tables
 --
@@ -1294,6 +1460,15 @@ ALTER TABLE `role_user`
   ADD CONSTRAINT `role_user_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `role_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+--
+-- Constraints for table `subject_classrooms`
+--
+ALTER TABLE `subject_classrooms`
+  ADD CONSTRAINT `subject_classrooms_classroom_id_foreign` FOREIGN KEY (`classroom_id`) REFERENCES `classrooms` (`classroom_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `subject_classrooms_subject_id_foreign` FOREIGN KEY (`subject_id`) REFERENCES `schools`.`subjects` (`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `subject_tutors`
+--
+ALTER TABLE `subject_tutors`
+  ADD CONSTRAINT `subject_tutors_tutor_id_foreign` FOREIGN KEY (`tutor_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -34,8 +34,15 @@ class ClassRoom extends Model
      * A Class Room Belongs To Class Level
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-
     public function classLevel(){
         return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassLevel', 'classlevel_id');
+    }
+
+    /**
+     * A Class Room Has Many Subject Class Room
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function subjectClassRooms(){
+        return $this->hasMany('App\Models\Admin\Subjects\SubjectClassRoom');
     }
 }

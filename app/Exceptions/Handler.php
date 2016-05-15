@@ -7,6 +7,7 @@ use ErrorException;
 use Illuminate\Database\QueryException;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Auth;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use Illuminate\Validation\ValidationException;
@@ -74,6 +75,15 @@ class Handler extends ExceptionHandler
                 'code'=>'503',
                 'header'=>'Fatal Error',
                 'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again<br>' . $e->getMessage()
+            ]);
+        }
+
+        //File For Download Not Found Exception
+        if ($e instanceof InvalidArgumentException){
+            return response()->view('errors.custom', [
+                'code'=>'207',
+                'header'=>'Unexpected data found',
+                'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again.<br>' . $e->getMessage()
             ]);
         }
         //Query Exception

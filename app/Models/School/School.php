@@ -79,6 +79,6 @@ class School extends Model
      */
     public function subjects()
     {
-        return $this->belongsToMany('App\Models\School\Setups\Subjects\Subject', 'schools_subjects', 'school_id', 'subject_id');
+        return $this->belongsToMany('App\Models\School\Setups\Subjects\Subject', 'schools_subjects', 'school_id', 'subject_id')->withPivot('subject_alias');
     }
 }
