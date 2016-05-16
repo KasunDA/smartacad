@@ -76,6 +76,7 @@ Route::group(['middleware' => ['web']], function () {
         'accounts' => 'Admin\Accounts\AccountsController',
         'sponsors' => 'Admin\Accounts\SponsorController',
         'staffs' => 'Admin\Accounts\StaffController',
+        'students' => 'Admin\Accounts\StudentController',
 
         //Master Record
         'academic-years' => 'Admin\MasterRecords\AcademicYearsController',
