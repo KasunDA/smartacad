@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Admin\MasterRecords;
+namespace App\Models\Admin\MasterRecords\Subjects;
 
 use Illuminate\Database\Eloquent\Model;
 

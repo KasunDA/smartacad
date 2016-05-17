@@ -7,6 +7,7 @@
     <link href="{{ asset('assets/global/plugins/select2/css/select2-bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/css/bootstrap-editable.css') }}" rel="stylesheet" type="text/css" />
     <style type="text/css">
         .multi-select-subjects{
             width: 560px;
@@ -48,7 +49,7 @@
                                 <a href="#assign_2classlevel" data-toggle="tab"> Assign To CLass Level </a>
                             </li>
                             <li>
-                                <a href="#view_subject" data-toggle="tab"> View Subjects in Class Rooms</a>
+                                <a href="#view_subject" data-toggle="tab"> View Subjects / Assign Tutor</a>
                             </li>
                         </ul>
                     </div>
@@ -189,8 +190,6 @@
                                     <div class="col-md-12">
                                         <div class="portlet-body">
                                             <div class="row">
-                                                <div class="well well-lg">
-                                                </div>
                                                 <table class="table table-striped table-bordered table-hover" id="view_subject_datatable">
 
                                                 </table>
@@ -242,6 +241,12 @@
             </div>
         </div>
     </div>
+    <select id="subject-tutors" class="form-control hide">
+        <option value="-1">Select Tutor</option>
+        @foreach($tutors as $tutor)
+            <option value="{{ $tutor->user_id }}">{{ $tutor->fullNames() }}</option>
+        @endforeach
+    </select>
     <!-- END CONTENT BODY -->
     @endsection
 
@@ -255,6 +260,8 @@
     <script src="{{ asset('assets/global/plugins/jquery-multi-select/js/jquery.multi-select.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/select2/js/select2.full.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/bootstrap-tabdrop/js/bootstrap-tabdrop.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/jquery.mockjax.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/js/bootstrap-editable.js') }}" type="text/javascript" ></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
     <script src="{{ asset('assets/global/plugins/jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>

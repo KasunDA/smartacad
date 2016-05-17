@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Subjects;
+namespace App\Http\Controllers\Admin\MasterRecords\Subjects;
 
+use App\Models\Admin\Accounts\Staff;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
-use App\Models\Admin\Subjects\SubjectClassRoom;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
+use App\Models\Admin\Users\User;
 use App\Models\School\School;
 use Illuminate\Http\Request;
 
@@ -23,7 +25,8 @@ class SubjectClassRoomsController extends Controller
     {
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
-        return view('admin.subjects.index', compact('academic_years', 'classlevels'));
+        $tutors = User::where('user_type_id', Staff::USER_TYPE)->where('status', 1)->orderBy('first_name')->get();
+        return view('admin.master-records.subjects.subject-classroom', compact('academic_years', 'classlevels', 'tutors'));
     }
 
 
@@ -114,12 +117,31 @@ class SubjectClassRoomsController extends Controller
                 $res[] = array(
                     "classroom"=>$class_subject->classRoom()->first()->classroom,
                     "subject"=>$class_subject->subject()->first()->subject,
+                    "subject_classroom_id"=>$class_subject->subject_classroom_id,
                     "academic_term"=>$class_subject->academicTerm()->first()->academic_term,
+                    "tutor"=>($class_subject->tutor()->first()) ? $class_subject->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>',
+                    "tutor_id"=>($class_subject->tutor()->first()) ? $class_subject->tutor()->first()->user_id : -1,
                 );
             }
             $response['flag'] = 1;
             $response['ClassSubjects'] = isset($res) ? $res : [];
         }
         echo json_encode($response);
+    }
+
+    /**
+     * Assign Tutor to subject class
+     * @param $subject_classroom_id
+     * @param $tutor_id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function getAssignTutor($subject_classroom_id, $tutor_id)
+    {
+        $tutor = SubjectClassRoom::find($subject_classroom_id);
+        if($tutor){
+            $tutor->tutor_id = ($tutor_id > 0) ? $tutor_id : null;
+            $tutor->save();
+            echo json_encode($tutor->subject_classroom_id);
+        }
     }
 }

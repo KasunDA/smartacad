@@ -3,6 +3,9 @@
  */
 
 jQuery(document).ready(function() {
+    var tutors = $('#subject-tutors').clone();
+    var old_btn;
+
     // Ajax Get Academic Terms Based on the Academic Year
     getDependentListBox($('#class_academic_year_id'), $('#class_academic_term_id'), '/list-box/academic-term/');
     // Ajax Get Class Rooms Based on the Class Level
@@ -33,6 +36,48 @@ jQuery(document).ready(function() {
         });
         return false;
     });
+
+
+    //When the edit button is clicked show Tutors Drop Down
+    $(document.body).on('click', '.edit-tutor', function(){
+        var buttonTD = $(this).parent();
+        tutors.removeClass('hide');
+        var employees = tutors.clone();
+        var subject_classroom_id = $(this).val();
+        old_btn = $(this).clone();
+        buttonTD.html(employees);
+        employees.val($(this).attr('rel'));
+        employees.prop('id', '');
+        employees.attr('title', subject_classroom_id);
+        employees.addClass('tutor_subject_select');
+        buttonTD.children('select').focus();
+    });
+
+    //When No Changes is made to the Teachers Listbox //On Blur
+    $(document.body).on('blur', '.tutor_subject_select', function(){
+        var td = $(this).parent();
+        td.html(old_btn);
+    });
+
+    //On Change of the employees name assign to the class
+    $(document.body).on('change', '.tutor_subject_select', function(){
+        var subject_classroom_id = $(this).attr('title');
+        var buttonTD = $(this).parent();
+        var tutor_id = $(this).val();
+        var tutor = $(this).children('option:selected').text();
+
+        $.ajax({
+            type: "GET",
+            url: '/subject-classrooms/assign-tutor/' + subject_classroom_id + '/' + tutor_id,
+            success: function (data) {
+                buttonTD.html('<button value="'+data+'" title="'+tutor_id+'" class="btn btn-link edit-tutor">\n\
+                <i class="fa fa-edit"></i> '+tutor+'</button></td>');
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+            }
+        });
+    });
 });
 
 var UIBlockUI = function() {
@@ -51,7 +96,7 @@ var UIBlockUI = function() {
             $.post('/subject-classrooms/search-assigned', values, function(data){
                 try{
                     var obj = $.parseJSON(data);
-                    var assign = ''; var assign_count = 0;
+                    var assign = '';
 
                     if(obj.flag === 1){
                         //console.log(obj.ClassSubjects);
@@ -60,7 +105,6 @@ var UIBlockUI = function() {
                             var sub = ($.trim(value.subject_alias) != "" && value.subject_alias !== null) ? value.subject_alias : value.subject;
 
                             assign += '<option '+selected+' value="'+value.subject_id+'">' + sub +'</option>';
-                            //assign_count++;
                         });
                     }
                     var msg = (obj.Type == 1) ? $('#class_classroom_id').children('option:selected').text() : $('#level_classlevel_id').children('option:selected').text();
@@ -109,6 +153,7 @@ var UIBlockUI = function() {
                                         <th>#</th>\
                                         <th>Subject</th>\
                                         <th>Class Room</th>\
+                                        <th>Tutor</th>\
                                         <th>Academic Term</th>\
                                     </tr>\
                                 </thead>\
@@ -119,6 +164,10 @@ var UIBlockUI = function() {
                                 '<td>'+(key + 1)+'</td>' +
                                 '<td>'+value.subject+'</td>' +
                                 '<td>'+value.classroom+'</td>' +
+                                //'<td>'+value.tutor+'</td>' +
+                                '<td><button class="btn btn-link edit-tutor" value="'+value.subject_classroom_id+'" rel="'+value.tutor_id+'"><i class="fa fa-edit"></i> '+value.tutor+'</button></td>' +
+                                //'<td><a href="javascript:;" class="subject_tutor" data-type="select" data-pk="1" ' +
+                                //'data-value="'+value.tutor_id+'" data-souce="/subject-classrooms/tutors" data-original-title="Select Tutor">'+value.tutor+'</a></td>' +
                                 '<td>'+value.academic_term+'</td>' +
                             '</tr>';
                         });
@@ -126,6 +175,7 @@ var UIBlockUI = function() {
                     assign += '</tbody>';
 
                     $('#view_subject_datatable').html(assign);
+                    //FormEditable.init();
                     setTableData($('#view_subject_datatable')).refresh();
                     setTableData($('#view_subject_datatable')).init();
 
@@ -182,7 +232,6 @@ jQuery(document).ready(function() {
     UIBlockUI.init();
 
 });
-
 
 
 

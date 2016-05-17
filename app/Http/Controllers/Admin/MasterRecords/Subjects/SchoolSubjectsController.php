@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\MasterRecords;
+namespace App\Http\Controllers\Admin\MasterRecords\Subjects;
 
 use App\Models\School\School;
 use App\Models\School\Setups\Subjects\Subject;

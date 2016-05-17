@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Admin\Subjects;
+namespace App\Models\Admin\MasterRecords\Subjects;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +29,8 @@ class SubjectClassRoom extends Model
         'subject_id',
         'classroom_id',
         'academic_term_id',
-        'exam_status_id'
+        'exam_status_id',
+        'tutor_id',
     ];
 
     /**
@@ -57,11 +58,11 @@ class SubjectClassRoom extends Model
     }
 
     /**
-     * A Subject Class Room Has Many Subject Tutor
-     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     * A Subject Tutor Belongs To A User
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function subjectTutor(){
-        return $this->hasMany('App\Models\Admin\Subjects\SubjectTutor');
+    public function tutor(){
+        return $this->belongsTo('App\Models\Admin\Users\User', 'tutor_id');
     }
 
     /**

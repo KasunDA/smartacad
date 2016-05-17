@@ -173,11 +173,11 @@ function setTableData(table) {
 
 
             buttons: [
-                { extend: 'print', className: 'btn dark btn-outline' },
-                { extend: 'copy', className: 'btn red btn-outline' },
-                { extend: 'pdf', className: 'btn green btn-outline' },
-                { extend: 'excel', className: 'btn yellow btn-outline ' },
-                { extend: 'csv', className: 'btn purple btn-outline ' }
+                //{ extend: 'print', className: 'btn dark btn-outline' },
+                //{ extend: 'copy', className: 'btn red btn-outline' },
+                //{ extend: 'pdf', className: 'btn green btn-outline' },
+                //{ extend: 'excel', className: 'btn yellow btn-outline ' },
+                //{ extend: 'csv', className: 'btn purple btn-outline ' }
                 //{ extend: 'colvis', className: 'btn dark btn-outline', text: 'Columns'}
             ],
 
