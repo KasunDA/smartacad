@@ -53,7 +53,6 @@ class User extends Authenticatable
         'avatar',
         'lga_id',
         'salutation_id',
-        'political_party_id',
         'user_type_id',
         'verification_code',
         'status',
@@ -140,6 +139,13 @@ class User extends Authenticatable
         return $this->belongsTo('App\Models\Admin\Users\UserType');
     }
 
+    /**
+     * A Sponsor (User) has many Students
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function students(){
+        return $this->hasMany('App\Models\Admin\Accounts\Students\Student');
+    }
 
     /**
      * Get the roles associated with the given User

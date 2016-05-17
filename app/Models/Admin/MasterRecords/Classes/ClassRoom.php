@@ -45,4 +45,12 @@ class ClassRoom extends Model
     public function subjectClassRooms(){
         return $this->hasMany('App\Models\Admin\Subjects\SubjectClassRoom');
     }
+
+    /**
+     * A Class Room has many Students
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function studentClass(){
+        return $this->hasMany('App\Models\Admin\Accounts\Students\StudentClass');
+    }
 }

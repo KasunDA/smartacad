@@ -29,7 +29,7 @@
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="icon-list font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">Registered Staffs</span>
+                        <span class="caption-subject font-green bold uppercase">Registered Students</span>
                     </div>
                     <div class="tools">
                     </div>
@@ -41,13 +41,12 @@
                                 <tr>
                                     <th style="width: 1%;">#</th>
                                     <th style="width: 20%;">Full Name</th>
-                                    <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 19%;">Email</th>
+                                    <th style="width: 10%;">Current Class</th>
                                     <th style="width: 5%;">Gender</th>
-                                    <th style="width: 15%;">Registered On</th>
+                                    <th style="width: 19%;">Sponsor</th>
                                     <th style="width: 5%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
+                                    {{--<th style="width: 5%;">View</th>--}}
+                                    {{--<th style="width: 5%;">Edit</th>--}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -57,27 +56,34 @@
                                     <tr class="odd gradeX">
                                         <td class="center">{{$i++}}</td>
                                         <td>{{ $student->fullNames() }}</td>
-                                        <td>{{ $student->phone_no }}</td>
-                                        <td>{{ $student->email }}</td>
+                                        <td>{!! ($student->classroom_id) ? $student->classRoom()->first()->classroom : '<span class="label label-danger">nil</span>' !!}</td>
                                         <td>{!! ($student->gender) ? $student->gender : '<span class="label label-danger">nil</span>' !!}</td>
-                                        <td>{{ $student->created_at->format('jS M, Y') }}</td>
                                         <td>
-                                            @if($student->status === 1)
-                                                <label class="label label-success">Activated</label>
+                                            @if(($student->sponsor_id))
+                                                <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($student->sponsor()->first()->user_id)) }}" class="btn btn-info btn-link btn-sm">
+                                                    <span class="fa fa-eye-slash"></span> {{$student->sponsor()->first()->fullNames()}}
+                                                </a>
                                             @else
-                                                <label class="label label-danger">Deactivated</label>
+                                                <span class="label label-danger">nil</span>
                                             @endif
                                         </td>
                                         <td>
-                                            <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->user_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-eye-slash"></span>
-                                            </a>
+                                            @if($student->status_id)
+                                                <label class="label label-{{$student->status()->first()->label}}">{{ $student->status()->first()->status }}</label>
+                                            @else
+                                                <label class="label label-danger">nil</label>
+                                            @endif
                                         </td>
-                                        <td>
-                                            <a href="{{ url('/students/edit/'.$hashIds->encode($student->user_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-edit"></span>
-                                            </a>
-                                        </td>
+                                        {{--<td>--}}
+                                            {{--<a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->user_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">--}}
+                                                {{--<span class="fa fa-eye-slash"></span>--}}
+                                            {{--</a>--}}
+                                        {{--</td>--}}
+                                        {{--<td>--}}
+                                            {{--<a href="{{ url('/students/edit/'.$hashIds->encode($student->user_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">--}}
+                                                {{--<span class="fa fa-edit"></span>--}}
+                                            {{--</a>--}}
+                                        {{--</td>--}}
                                     </tr>
                                 @endforeach
                             @endif
@@ -86,13 +92,12 @@
                                 <tr>
                                     <th style="width: 1%;">#</th>
                                     <th style="width: 20%;">Full Name</th>
-                                    <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 19%;">Email</th>
+                                    <th style="width: 10%;">Current Class</th>
                                     <th style="width: 5%;">Gender</th>
-                                    <th style="width: 15%;">Registered On</th>
+                                    <th style="width: 19%;">Sponsor</th>
                                     <th style="width: 5%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
+                                    {{--<th style="width: 5%;">View</th>--}}
+                                    {{--<th style="width: 5%;">Edit</th>--}}
                                 </tr>
                             </tfoot>
 
@@ -119,7 +124,7 @@
 
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/accounts/students.js') }}" type="text/javascript"></script>
+{{--    <script src="{{ asset('assets/custom/js/accounts/students.js') }}" type="text/javascript"></script>--}}
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/students"]');

@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers\Admin\Accounts;
 
-use App\Models\Admin\Accounts\Student;
+use App\Models\Admin\Accounts\Sponsor;
+use App\Models\Admin\Accounts\Students\Student;
+use App\Models\Admin\Accounts\Students\StudentClass;
+use App\Models\Admin\MasterRecords\AcademicTerm;
+use App\Models\Admin\MasterRecords\AcademicYear;
+use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\Users\User;
 use App\Models\School\Setups\Salutation;
 use App\Models\School\Setups\State;
@@ -10,9 +15,36 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
+
+    /**
+     * Get a validator for an incoming registration request.
+     * @param  array $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator(array $data)
+    {
+        $messages = [
+            'first_name.required' => 'The First Name is Required!',
+            'last_name.required' => 'The Last Name is Required!',
+            'sponsor_name.required' => 'Student Sponsor is Required!',
+            'gender.required' => 'A Gender is Required!',
+            'classlevel_id.required' => 'A Class Level is Required!',
+            'classroom_id.required' => 'A Class Room is Required!',
+        ];
+        return Validator::make($data, [
+            'sponsor_name' => 'required',
+            'first_name' => 'required|max:100|min:2',
+            'last_name' => 'required|max:100|min:2',
+            'gender' => 'required',
+            'classlevel_id' => 'required',
+            'classroom_id' => 'required',
+        ], $messages);
+    }
 
     /**
      * Display a listing of the Users.
@@ -20,7 +52,7 @@ class StudentController extends Controller
      */
     public function getIndex()
     {
-        $students = User::where('user_type_id', Student::USER_TYPE)->get();
+        $students = Student::orderBy('first_name')->get();
         return view('admin.accounts.students.index', compact('students'));
     }
 
@@ -38,14 +70,51 @@ class StudentController extends Controller
 
     /**
      * Displays the Staff profiles details for editing
-     * @param String $encodeId
      * @return \Illuminate\View\View
      */
     public function getCreate()
     {
-        $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->prepend('Select Title', '');
-        $states = State::orderBy('state')->lists('state', 'state_id')->prepend('Select State', '');
-        return view('admin.accounts.students.create', compact('salutations', 'states'));
+        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
+        return view('admin.accounts.students.create', compact('classlevels'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param  Request  $request
+     * @return Response
+     */
+    public function postCreate(Request $request)
+    {
+        $input = $request->all();
+        //Validate Request Inputs
+        if ($this->validator($input)->fails())
+        {
+            $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
+            return redirect('/students/create')->withErrors($this->validator($input))->withInput();
+        }
+
+        if($input['sponsor_id'] < 1){
+            $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
+            return redirect('/students/create')->withErrors(['Choose Student Sponsor From The List of Suggested Sponsors!'])->withInput();;
+        }
+
+        // Store the Record...
+        $input['created_by'] = Auth::user()->user_id;
+        $input['admitted_term_id'] = AcademicTerm::activeTerm()->academic_term_id;
+        $student = Student::create($input);
+        if($student->save()){
+            $class = new StudentClass();
+            $class->student_id = $student->student_id;
+            $class->classroom_id = $input['classroom_id'];
+            $class->academic_year_id = AcademicYear::activeYear()->academic_year_id;
+            $class->save();
+            $student->student_no = trim('STD'. str_pad($student->student_id, 5, '0', STR_PAD_LEFT));
+            $student->save();
+            // Set the flash message
+            $this->setFlashMessage('Saved!!! '.$student->fullNames().' have successfully been saved', 1);
+        }
+        // redirect to the create new warder page
+        return redirect('/students');
     }
 
     /**
@@ -106,5 +175,21 @@ class StudentController extends Controller
         $this->setFlashMessage('Staff ' . $user->fullNames() . ', Information has been successfully updated.', 1);
 
         return redirect('/staffs');
+    }
+
+    /**
+     * Get The List of Sponsors
+     */
+    public function getSponsors()
+    {
+        $sponsors = User::where('user_type_id', Sponsor::USER_TYPE)->get();
+        $res = array("name"=>'No Record Found', "id"=>-1);
+        foreach($sponsors as $sponsor){
+            $res[] = array(
+                "name"=>trim($sponsor->fullNames()),
+                "id"=>$sponsor->user_id
+            );
+        }
+        echo json_encode($res);
     }
 }
