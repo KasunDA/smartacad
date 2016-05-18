@@ -120,6 +120,26 @@ function validateDocumentFile(id) {
     });
 }
 
+// Auto Complete Function
+function autoCompleteField(name, id, source){
+    name.autocomplete({
+        source: source,
+        minLength: 1
+    });
+    name.autocomplete({
+        select: function(event, ui) {
+            selected_id = ui.item.id;
+            id.val(selected_id);
+            //alert(selected_id);
+        }
+    });
+    name.autocomplete({
+        open: function(event, ui) {
+            id.val(-1);
+        }
+    });
+}
+
 function readURL(input) {
     if (input.files && input.files[0]) {
         var reader = new FileReader();

@@ -76,12 +76,12 @@ BEGIN
 			Block1: BEGIN
 			#DELETE FROM subject_students_registers WHERE subject_classlevel_id IN
 			 #(
-			#	 SELECT subject_classlevel_id FROM subject_classlevels WHERE class_id=ClassID 
+			#	 SELECT subject_classlevel_id FROM subject_classlevels WHERE class_id=ClassID
              #    AND academic_term_id=TermID AND subject_id
 			#	NOT IN (SELECT subject_id FROM SubjectTemp)
 			 #);
 
-				DELETE FROM subject_classrooms WHERE classroom_id=ClassID 
+				DELETE FROM subject_classrooms WHERE classroom_id=ClassID
 				AND academic_term_id=TermID AND exam_status_id=2 AND subject_id
 				NOT IN (SELECT subject_id FROM SubjectTemp);
 

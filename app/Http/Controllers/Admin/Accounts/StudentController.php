@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
@@ -182,14 +183,20 @@ class StudentController extends Controller
      */
     public function getSponsors()
     {
-        $sponsors = User::where('user_type_id', Sponsor::USER_TYPE)->get();
-        $res = array("name"=>'No Record Found', "id"=>-1);
-        foreach($sponsors as $sponsor){
-            $res[] = array(
-                "name"=>trim($sponsor->fullNames()),
-                "id"=>$sponsor->user_id
-            );
+        $inputs = Input::get('term');
+        $sponsors = User::where('user_type_id', Sponsor::USER_TYPE)->where('first_name', 'like', $inputs.'%')->get();
+        $response = array();
+        if($sponsors->count() > 0){
+            foreach($sponsors as $sponsor){
+                $response[] = array(
+                    "value"=>$sponsor->fullNames(),
+                    "id"=>$sponsor->user_id
+                );
+            }
+        }else{
+            $response[0]['id'] = -1;
+            $response[0]['value'] = 'No Record Found';
         }
-        echo json_encode($res);
+        echo json_encode($response);
     }
 }
