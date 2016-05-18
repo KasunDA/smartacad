@@ -28,6 +28,7 @@ class CreateStudentsTable extends Migration
             $table->string('gender', 10);
             $table->date('dob', 10)->nullable();
             $table->string('avatar')->nullable();
+            $table->text('address')->nullable();
             $table->integer('sponsor_id')->index()->unsigned();
             $table->integer('classroom_id')->index()->unsigned();
             $table->integer('status_id')->index()->unsigned()->default(1);

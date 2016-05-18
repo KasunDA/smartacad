@@ -81,6 +81,7 @@ Route::group(['middleware' => ['web']], function () {
         //Master Record
         'academic-years' => 'Admin\MasterRecords\AcademicYearsController',
         'academic-terms' => 'Admin\MasterRecords\AcademicTermsController',
+        'grades' => 'Admin\MasterRecords\GradesController',
         'class-groups' => 'Admin\MasterRecords\Classes\ClassGroupsController',
         'class-levels' => 'Admin\MasterRecords\Classes\ClassLevelsController',
         'class-rooms' => 'Admin\MasterRecords\Classes\ClassRoomsController',

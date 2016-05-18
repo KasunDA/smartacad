@@ -45,8 +45,8 @@
                                     <th style="width: 5%;">Gender</th>
                                     <th style="width: 19%;">Sponsor</th>
                                     <th style="width: 5%;">Status</th>
-                                    {{--<th style="width: 5%;">View</th>--}}
-                                    {{--<th style="width: 5%;">Edit</th>--}}
+                                    <th style="width: 5%;">View</th>
+                                    <th style="width: 5%;">Edit</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -74,16 +74,16 @@
                                                 <label class="label label-danger">nil</label>
                                             @endif
                                         </td>
-                                        {{--<td>--}}
-                                            {{--<a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->user_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">--}}
-                                                {{--<span class="fa fa-eye-slash"></span>--}}
-                                            {{--</a>--}}
-                                        {{--</td>--}}
-                                        {{--<td>--}}
-                                            {{--<a href="{{ url('/students/edit/'.$hashIds->encode($student->user_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">--}}
-                                                {{--<span class="fa fa-edit"></span>--}}
-                                            {{--</a>--}}
-                                        {{--</td>--}}
+                                        <td>
+                                            <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                                                <span class="fa fa-eye-slash"></span>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url('/students/edit/'.$hashIds->encode($student->student_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                                                <span class="fa fa-edit"></span>
+                                            </a>
+                                        </td>
                                     </tr>
                                 @endforeach
                             @endif
@@ -96,8 +96,8 @@
                                     <th style="width: 5%;">Gender</th>
                                     <th style="width: 19%;">Sponsor</th>
                                     <th style="width: 5%;">Status</th>
-                                    {{--<th style="width: 5%;">View</th>--}}
-                                    {{--<th style="width: 5%;">Edit</th>--}}
+                                    <th style="width: 5%;">View</th>
+                                    <th style="width: 5%;">Edit</th>
                                 </tr>
                             </tfoot>
 

@@ -53,6 +53,7 @@ class Student extends Model
         'lga_id',
         'admitted_term_id',
         'status_id',
+        'address',
         'created_by'
     ];
 
@@ -128,7 +129,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function termAdmitted(){
-        return $this->belongsTo('App\Models\MasterRecords\AcademicTerm', 'admitted_term_id');
+        return $this->belongsTo('App\Models\Admin\MasterRecords\AcademicTerm', 'admitted_term_id');
     }
 
     /**
