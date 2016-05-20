@@ -37,4 +37,12 @@ class ClassGroup extends Model
     public function classLevels(){
         return $this->hasMany('App\Models\Admin\MasterRecords\Classes\ClassLevel', 'classlevel_id');
     }
+
+    /**
+     * A Class Group Has Many Assessment Setup
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function assessmentSetups(){
+        return $this->hasMany('App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup', 'classgroup_id');
+    }
 }

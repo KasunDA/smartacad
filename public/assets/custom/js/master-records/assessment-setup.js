@@ -61,6 +61,47 @@ $(function () {
         });
     });
 
+    $(document.body).on('click', '.delete_assessment_detail',function(e){
+        e.preventDefault();
+
+        var parent = $(this).parent().parent();
+        var assessment_detail_id = parent.children(':nth-child(2)').children('input[type=hidden]').val();
+        var classgroup_id = $(this).val();
+
+        bootbox.dialog({
+            message: "Are You sure You want to permanently delete this Assessment Setup Detail",
+            title: "Warning Alert",
+            buttons: {
+                danger: {
+                    label: "NO",
+                    className: "btn-default",
+                    callback: function() {
+                        $(this).hide();
+                    }
+                },
+                success: {
+                    label: "YES",
+                    className: "btn-success",
+                    callback: function() {
+                        $.ajax({
+                            type: 'GET',
+                            async: true,
+                            url: '/assessment-setups/details-delete/' + assessment_detail_id + '/' + classgroup_id,
+                            success: function(data,textStatus){
+                                window.location.replace('/assessment-setups/details');
+                            },
+                            error: function(xhr,textStatus,error){
+                                bootbox.alert("Error encountered pls try again later..", function() {
+                                    $(this).hide();
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    });
+
 });
 
 
