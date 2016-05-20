@@ -62,13 +62,17 @@ License: You must have a valid license purchased only from themeforest(the above
         </div>
         <div class="col-md-6 login-container bs-reset">
             <div class="login-content">
+                <!-- start: FLASH MESSAGE -->
+                @if(Session::has('flash_message'))
+                    {!! Session::get('flash_message') !!}
+                @endif
+                @include('errors.errors')
                 <h1>Smart School Login</h1>
 
                 <p> There is one quality that one must possess to win, and that is definiteness of purpose, the
                     knowledge of what one wants and a burning desire to possess it.</p>
 
                 <form action="{{ url('/auth/login') }}" class="login-form" method="post">
-                    @include('errors.errors')
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                     <div class="row">
@@ -90,25 +94,25 @@ License: You must have a valid license purchased only from themeforest(the above
                         </div>
                         <div class="col-sm-8 text-right">
                             <div class="forgot-password">
-                                <a href="{{ url('auth/forget-password') }}" id="forget-password"
-                                   class="forget-password">Forgot Password?</a>
+                                <a href="#" id="forget-password" class="forget-password">Forgot Password?</a>
                             </div>
                             <button class="btn blue" type="submit">Sign In</button>
                         </div>
                     </div>
                 </form>
                 <!-- BEGIN FORGOT PASSWORD FORM -->
-                <form class="forget-form" action="/reset-password" method="post">
+                <form class="forget-form" action="{{ url('/auth/reset-password') }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <h3 class="font-green">Forgot Password ?</h3>
 
                     <p> Enter your e-mail address below to reset your password. </p>
 
                     <div class="form-group">
                         <input class="form-control placeholder-no-fix form-group" type="text" autocomplete="off"
-                               placeholder="Email" name="email"/></div>
+                               placeholder="Email" name="email" value="{{ old('email') }}"/></div>
                     <div class="form-actions">
                         <button type="button" id="back-btn" class="btn grey btn-default">Back</button>
-                        <button type="submit" class="btn blue btn-success uppercase pull-right">Submit</button>
+                        <button type="submit" class="btn blue btn-success uppercase pull-right">Reset</button>
                     </div>
                 </form>
                 <!-- END FORGOT PASSWORD FORM -->

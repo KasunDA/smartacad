@@ -7,6 +7,7 @@ use App\Models\Admin\RolesAndPermissions\Role;
 use App\Models\Admin\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
@@ -141,6 +142,49 @@ class AuthController extends Controller
         return $this->sendFailedLoginResponse($request);
     }
 
+    /**
+     * Handle a registration request for the application.
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function postResetPassword(Request $request)
+    {
+        $inputs = $request->all();
+
+        $validator = Validator::make($inputs, [
+            'email' => 'required|email'
+        ], ['email.required' => 'A registered E-Mail Address is Required to reset your password!', 'email.email' => 'A Valid E-Mail Address is Required!!']);
+
+        if ($validator->fails()) {
+            $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
+            return redirect('/auth/login#')->withErrors($validator)->withInput();
+        }
+        //////////////////////////////////////////////////////////////////////// starts: KHEENGZ CUSTOM CODE////////////////////////////////////////////////////////
+        //Set the verification code to any random 40 characters
+        $password = str_random(8);
+        $result = User::where('email', $inputs['email']);
+        $user = ($result !== null) ? $result->first() : null;
+
+        if ($user) {
+            $user->password = Hash::make($password);
+            if ($user->save()) {
+                //Password Reset Mail Sending
+                $content = "Welcome to Smart School application, kindly find below your new credentials to access the application. Thank You \n";
+                $content .= "Here is your new password: <strong>" . $password . "</strong> ";
+                $result = Mail::send('emails.reset-password', ['user' => $user, 'content' => $content], function ($message) use ($user) {
+                    $message->from(env('APP_MAIL'), env('APP_NAME'));
+                    $message->subject("Password Reset");
+                    $message->to($user->email);
+                });
+                if ($result)
+                    $this->setFlashMessage(' Reset Successful!!! Your Password has been reset' . ' kindly login to ' . $user->email . ' to view your new password', 1);
+            }
+        } else {
+            $this->setFlashMessage(' Failed!!! Reset was not successful with this email ' . $inputs['email'] . ' kindly enter your registered email or contact your admin', 2);
+        }
+        return redirect('/auth/login');
+        ///////////////////////////////////////////////////////////////////////// ends: KHEENGZ CUSTOM CODE////////////////////////////////////////////////////////
+    }
 
     /**
      * Handle a registration request for the application.
@@ -148,24 +192,24 @@ class AuthController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function postRegister(Request $request)
-    {
-        $inputs = $request->all();
-        $validator = $this->validator($inputs);
-
-        if ($validator->fails()) {
-            $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-
-            $this->throwValidationException($request, $validator);
-        }
-
-        ///////////////////////////////////////////////////////// starts: KHEENGZ CUSTOM CODE//////////////////////////////////////////////////////////////
-        //Set the verification code to any random 40 characters
-        $inputs['verification_code'] = str_random(40);
-        $user = $this->create($inputs);
-
-        //Attach a role to the user
-        $user->roles()->attach(Role::DEFAULT_ROLE);
+//    public function postRegister(Request $request)
+//    {
+//        $inputs = $request->all();
+//        $validator = $this->validator($inputs);
+//
+//        if ($validator->fails()) {
+//            $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
+//
+//            $this->throwValidationException($request, $validator);
+//        }
+//
+//        ///////////////////////////////////////////////////////// starts: KHEENGZ CUSTOM CODE//////////////////////////////////////////////////////////////
+//        //Set the verification code to any random 40 characters
+//        $inputs['verification_code'] = str_random(40);
+//        $user = $this->create($inputs);
+//
+//        //Attach a role to the user
+//        $user->roles()->attach(Role::DEFAULT_ROLE);
 
 //        if($user){
 //            //Verification Mail Sending
@@ -180,60 +224,13 @@ class AuthController extends Controller
 //            if($result)
 //                $this->setFlashMessage(' Registration Saved!!! A mail has been sent to '.$user->email, 1);
 //
-        Auth::login($user);
+//        Auth::login($user);
 //
 //            return redirect($this->redirectPath());
 //        }
         /////////////////////////////////////////////////////////// ends: KHEENGZ CUSTOM CODE//////////////////////////////////////////////////////////////////
+//        $this->setFlashMessage(' Registration Saved!!! A mail has been sent to '.$user->email, 1);
+//        return redirect('/merchants/profile');
+//    }
 
-//        Auth::login($this->create($request->all()));
-
-
-        $this->setFlashMessage(' Registration Saved!!! A mail has been sent to '.$user->email, 1);
-        return redirect('/merchants/profile');
-    }
-
-    /**
-     * Handle a registration request for the application.
-     * @param  Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function postResetPassword(Request $request)
-    {
-        $inputs = $request->all();
-
-        $validator = Validator::make($inputs, [
-            'email' => 'required|email'
-        ], ['email.required' => 'An E-Mail Address is Required!', 'email.email' => 'A Valid E-Mail Address is Required!!']);
-
-        if ($validator->fails()) {
-            $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/auth/reset-password')->withErrors($this->validator($inputs))->withInput();
-        }
-        //////////////////////////////////////////////////////////////////////// starts: KHEENGZ CUSTOM CODE////////////////////////////////////////////////////////
-        //Set the verification code to any random 40 characters
-        $password = str_random(8);
-        $result = User::where('email', $inputs['email']);
-        $user = ($result !== null) ? $result->first() : null;
-
-        if ($user) {
-            $user->password = Hash::make($password);
-            if ($user->save()) {
-                //Password Reset Mail Sending
-                $content = "Welcome to analyzer application, kindly login to the link below to access the application. Thank You \n";
-                $content .= "Here is your new password: <strong>" . $password . "</strong> ";
-                $result = Mail::send('emails.reset-password', ['user' => $user, 'content' => $content], function ($message) use ($user) {
-                    $message->from(env('APP_MAIL'), env('APP_NAME'));
-                    $message->subject("Password Reset");
-                    $message->to($user->email);
-                });
-                if ($result)
-                    $this->setFlashMessage(' Reset Successful!!! Your Password has been reset' . ' kindly login to ' . $user->email . ' to view your new password', 1);
-            }
-        } else {
-            $this->setFlashMessage(' Failed!!! Reset was not successful with this email ' . $inputs['email'] . ' kindly enter your registered email', 2);
-        }
-        return redirect('/auth/login');
-        ///////////////////////////////////////////////////////////////////////// ends: KHEENGZ CUSTOM CODE////////////////////////////////////////////////////////
-    }
 }

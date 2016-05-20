@@ -92,6 +92,9 @@ Route::group(['middleware' => ['web']], function () {
         'subject-classrooms' => 'Admin\MasterRecords\Subjects\SubjectClassRoomsController',
         'school-subjects' => 'Admin\MasterRecords\Subjects\SchoolSubjectsController',
 
+        //Assessment Setup
+        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetups\AssessmentSetupsController',
+
 
     ]);
 });

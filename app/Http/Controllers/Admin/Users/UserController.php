@@ -98,27 +98,25 @@ class UserController extends Controller
 
         // Store the User...
         $user = $this->newUser($input);
-
+        //Assign a role to the user
         $role = Role::where('user_type_id', $input['user_type_id'])->first();
         $user->attachRole($role);
         ///////////////////////////////////////////////////////// mail sending using $user object ///////////////////////////////////////////
         // TODO Sending of SMS
-//        if($user){
-//            //Assign a role to the user
-//            //Verification Mail Sending
-//            $content = 'Welcome to printivo, kindly click on the verify link below to complete your registration. Thank You';
-//            $content .= "Here are your credentials <br> Username: <strong>" . $user->email . "</strong> <br>";
-//            $content .= "Password: <strong>" . $password . "</strong> ";
-//            $result = Mail::send('emails.verify', ['user'=>$user, 'content'=>$content], function($message) use($user) {
-//                $message->from(env('APP_MAIL'), env('APP_NAME'));
-//                $message->subject("Account Verification");
-//                $message->to($user->email);
-//            });
-//            if($result) $temp = ' and a mail has been sent to '.$user->email;
-//        }
+        if($user){
+            //Verification Mail Sending
+            $content = 'Welcome to Smart School, kindly click on the link below to complete your registration. Thank You';
+            $content .= "Here are your credentials <br> Username: <strong>" . $user->email . "</strong>  or <stron>". $user->phone_no." </stron><br>";
+            $content .= "Password: <strong>" . $password . "</strong> ";
+            $result = Mail::send('emails.new-account', ['user'=>$user, 'content'=>$content], function($message) use($user) {
+                $message->from(env('APP_MAIL'), env('APP_NAME'));
+                $message->subject("Account Creation");
+                $message->to($user->email);
+            });
+            if($result) $temp = ' and a mail has been sent to '.$user->email;
+        }
         // Set the flash message
         $this->setFlashMessage('Saved!!! '.$user->fullNames().' have successfully been saved'.$temp, 1);
-        // redirect to the create new warder page
         return redirect('users/create');
     }
 

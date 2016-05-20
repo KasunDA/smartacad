@@ -2,12 +2,11 @@
 
 @section('page-level-css')
         <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
-@section('title', 'Grades Grouping')
+@section('title', 'Assessment Setups')
 
 @section('breadcrumb')
     <li>
@@ -15,14 +14,14 @@
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
     <li>
-        <a href="{{ url('/grades') }}">Grades Grouping</a>
+        <a href="{{ url('/assessment-setups') }}">Assessment Setups</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page"> Grades</h3>
+    <h3 class="page"> Assessment Setups</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -30,14 +29,14 @@
                 <div class="portlet">
                     <div class="caption">
                         <i class="icon-list font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">Grades Grouping Setup</span>
+                        <span class="caption-subject font-green bold uppercase">Assessment Setups</span>
                     </div>
                 </div>
                 <div class="portlet-body">
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_grade"> Add New
+                                <button class="btn green add_assessment_setup"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -50,35 +49,39 @@
                             ])
                         !!}
                             <div class="table-responsive">
-                                <table class="table table-bordered table-striped table-actions" id="grade_table">
+                                <table class="table table-bordered table-striped table-actions" id="assessment_setup_table">
                                     <thead>
                                     <tr>
                                         <th style="width: 1%;">s/no</th>
-                                        <th style="width: 24%;">Grades</th>
-                                        <th style="width: 20%;">Class Group</th>
-                                        <th style="width: 13%;">Grades Abbr.</th>
-                                        <th style="width: 13%;">Upper Bound</th>
-                                        <th style="width: 13%;">Lower Bound</th>
-                                        <th style="width: 8%;">Actions</th>
+                                        <th style="width: 24%;">Number of Assessments</th>
+                                        <th style="width: 30%;">Class Group</th>
+                                        <th style="width: 30%;">Academic Term</th>
+                                        <th style="width: 10%;">Actions</th>
                                     </tr>
                                     </thead>
-                                    @if(count($classgroups) > 1)
-                                        @if(count($grades) > 0)
+                                        @if(count($assessment_setups) > 0)
                                             <tbody>
-                                            <?php $i = 1; ?>
-                                            @foreach($grades as $grade)
+                                            <?php $j = 1; ?>
+                                            @foreach($assessment_setups as $assessment_setup)
                                                 <tr>
-                                                    <td class="text-center">{{$i++}} </td>
+                                                    <td class="text-center">{{$j++}} </td>
                                                     <td>
-                                                        {!! Form::text('grade[]', $grade->grade, ['placeholder'=>'Grade', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                        {!! Form::hidden('grade_id[]', $grade->grade_id, ['class'=>'form-control']) !!}
+                                                        <select name="assessment_no[]" class="form-control" required>
+                                                            <option value="">Select No.</option>
+                                                            @for($i=1; $i < 11; $i++)
+                                                                @if($assessment_setup->assessment_no == $i)
+                                                                    <option selected value="{{ $i }}">{{ $i }}</option>
+                                                                @else
+                                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                                @endif
+                                                            @endfor
+                                                        </select>
+                                                        {!! Form::hidden('assessment_setup_id[]', $assessment_setup->assessment_setup_id, ['class'=>'form-control']) !!}
                                                     </td>
-                                                    <td>{!! Form::select('classgroup_id[]', $classgroups, $grade->classgroup_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                    <td>{!! Form::text('grade_abbr[]', $grade->grade_abbr, ['placeholder'=>'Grade Abbr.', 'class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                    <td>{!! Form::text('upper_bound[]', $grade->upper_bound, ['placeholder'=>'Upper Bound', 'class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                    <td>{!! Form::text('lower_bound[]', $grade->lower_bound, ['placeholder'=>'Lower Bound', 'class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                    <td>{!! Form::select('classgroup_id[]', $classgroups, $assessment_setup->classgroup_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                    <td>{!! Form::select('academic_term_id[]', $academic_terms, $assessment_setup->academic_term_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>
-                                                        <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_grade">
+                                                        <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_assessment_setup">
                                                             <span class="fa fa-trash-o"></span> Delete
                                                         </button>
                                                     </td>
@@ -89,13 +92,16 @@
                                             <tr>
                                                 <td class="text-center">1</td>
                                                 <td>
-                                                    {!! Form::text('grade[]', '', ['placeholder'=>'Grade', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                    {!! Form::hidden('grade_id[]', '-1', ['class'=>'form-control']) !!}
+                                                    <select name="assessment_no[]" class="form-control" required>
+                                                        <option value="">Select No.</option>
+                                                        @for($i=1; $i < 11; $i++)
+                                                            <option value="{{ $i }}">{{ $i }}</option>
+                                                        @endfor
+                                                    </select>
+                                                    {!! Form::hidden('assessment_setup_id[]', '-1', ['class'=>'form-control']) !!}
                                                 </td>
                                                 <td>{!! Form::select('classgroup_id[]', $classgroups, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                <td>{!! Form::text('grade_abbr[]', '', ['placeholder'=>'Grade Abbr.', 'class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                <td>{!! Form::text('upper_bound[]', '', ['placeholder'=>'Upper Bound', 'class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                <td>{!! Form::text('lower_bound[]', '', ['placeholder'=>'Lower Bound', 'class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                <td>{!! Form::select('academic_term_id[]', $academic_terms, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>
                                                     <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
                                                         <span class="fa fa-times"></span> Remove
@@ -103,18 +109,13 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                    @else
-                                        <tr><td colspan="7" class="text-center"><label class="label label-danger"><strong>An Academic Years Record Must Be Inserted Before Inserting Grade</strong></label></td></tr>
-                                    @endif
                                     <tfoot>
                                     <tr>
                                         <th style="width: 1%;">s/no</th>
-                                        <th style="width: 24%;">Grades</th>
-                                        <th style="width: 20%;">Class Group</th>
-                                        <th style="width: 13%;">Grades Abbr.</th>
-                                        <th style="width: 13%;">Upper Bound</th>
-                                        <th style="width: 13%;">Lower Bound</th>
-                                        <th style="width: 8%;">Actions</th>
+                                        <th style="width: 24%;">Number of Assessments</th>
+                                        <th style="width: 30%;">Class Group</th>
+                                        <th style="width: 30%;">Academic Term</th>
+                                        <th style="width: 10%;">Actions</th>
                                     </tr>
                                     </tfoot>
                                 </table>
@@ -152,11 +153,11 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/master-records/grade.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/master-records/assessment-setup.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/grades"]');
-            setTableData($('#grade_table')).init();
+            setTabActive('[href="/assessment-setups"]');
+            setTableData($('#assessment_setup_table')).init();
         });
     </script>
 @endsection

@@ -41,7 +41,7 @@ class CreateStudentsTable extends Migration
 
         Schema::create('student_classes', function (Blueprint $table) {
             $table->increments('student_class_id');
-            $table->integer('student_id')->index()->unsigned()->default(1);
+            $table->integer('student_id')->index()->unsigned();
             $table->integer('classroom_id')->index()->unsigned();
             $table->integer('academic_year_id')->index()->unsigned();
             $table->timestamps();

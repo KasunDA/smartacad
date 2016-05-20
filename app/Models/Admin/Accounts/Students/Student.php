@@ -156,4 +156,12 @@ class Student extends Model
         return $this->hasMany('App\Models\Admin\Accounts\Students\StudentClass');
     }
 
+    /**
+     * A Student Has Many An Assessment Detail
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function assessmentDetails(){
+        return $this->hasMany('App\Models\Admin\MasterRecords\AssessmentDetail', 'student_id');
+    }
+
 }
