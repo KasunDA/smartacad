@@ -93,7 +93,7 @@ Route::group(['middleware' => ['web']], function () {
         'school-subjects' => 'Admin\MasterRecords\Subjects\SchoolSubjectsController',
 
         //Assessment Setup
-        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetups\AssessmentSetupsController',
+        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
 
 
     ]);

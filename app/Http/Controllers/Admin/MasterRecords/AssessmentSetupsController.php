@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\MasterRecords\AssessmentSetups;
+namespace App\Http\Controllers\Admin\MasterRecords;
 
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup;
