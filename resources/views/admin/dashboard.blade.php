@@ -24,7 +24,7 @@
                     <i class="widget-thumb-icon bg-green icon-user"></i>
                     <div class="widget-thumb-body">
                         <span class="widget-thumb-subtitle">Registered</span>
-                        <span class="widget-thumb-body-stat" data-counter="counterup" data-value="{{ number_format($students) }}">0</span>
+                        <span class="widget-thumb-body-stat" data-counter="counterup" data-value="{{ number_format($students_count) }}">0</span>
                     </div>
                 </div>
             </div>
