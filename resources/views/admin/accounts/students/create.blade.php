@@ -107,7 +107,7 @@
     <script src="{{ asset('assets/custom/js/accounts/students.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/students"]');
+            setTabActive('[href="/students/create"]');
         });
     </script>
 @endsection
