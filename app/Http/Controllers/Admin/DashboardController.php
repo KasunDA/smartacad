@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Accounts\Staff;
+use App\Models\Admin\Accounts\Students\Student;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 
@@ -21,6 +22,7 @@ class DashboardController extends Controller
     {
         $sponsors_count = User::where('user_type_id', Sponsor::USER_TYPE)->count();
         $staff_count = User::where('user_type_id', Staff::USER_TYPE)->count();
-        return view('admin.dashboard', compact('sponsors_count','staff_count'));
+        $students = User::where('user_type_id', Student::USER_TYPE)->count();
+        return view('admin.dashboard', compact('sponsors_count','staff_count', 'students'));
     }
 }
