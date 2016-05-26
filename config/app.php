@@ -214,6 +214,7 @@ return [
         //Blade Helpers
         'AcademicYear' => App\Models\Admin\MasterRecords\AcademicYear::class,
         'AcademicTerm' => App\Models\Admin\MasterRecords\AcademicTerm::class,
+        'Assessment' => App\Models\Admin\Assessments\Assessment::class,
 
 
     ],

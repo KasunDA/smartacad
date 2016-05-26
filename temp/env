@@ -1,7 +1,10 @@
 APP_ENV=local
 APP_DEBUG=true
 APP_KEY=Xi1DQi4lA94edD0vDt3NedqYdAmN90y7
-APP_URL=http://localhost
+
+APP_URL==http://portal.solidstpes.org
+APP_NAME=SmartSchool
+APP_MAIL=no-reply@solidsteps.org
 
 DB_HOST=127.0.0.1
 DB_DATABASE=solid_steps
@@ -28,8 +31,9 @@ MAIL_USERNAME=solidsteps
 MAIL_PASSWORD=Student_1
 MAIL_ENCRYPTION=tls
 
-APP_NAME=SmartEdu
-APP_MAIL=no-reply@ekaruztech.com
+DOMAIN_URL=http://portal.solidstpes.org
+
+
 DEVELOPER_SITE_ADDRESS=http://ekaruztech.com
 DEVELOPER_SITE_NAME=EKARUZ-TECH
 DEVELOPER_SITE_EMAIL=support@ekaruztech.com

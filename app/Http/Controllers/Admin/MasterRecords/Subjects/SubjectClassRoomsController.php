@@ -26,9 +26,10 @@ class SubjectClassRoomsController extends Controller
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
         $tutors = User::where('user_type_id', Staff::USER_TYPE)->where('status', 1)->orderBy('first_name')->get();
-        return view('admin.master-records.subjects.subject-classroom', compact('academic_years', 'classlevels', 'tutors'));
+        $school_subjects = School::mySchool()->subjects()->orderBy('subject')
+            ->get(['schools_subjects.subject_id', 'subject', 'schools_subjects.subject_alias']);
+        return view('admin.master-records.subjects.subject-classroom', compact('academic_years', 'classlevels', 'tutors', 'school_subjects'));
     }
-
 
     /**
      * Insert or Update the menu records
@@ -63,7 +64,6 @@ class SubjectClassRoomsController extends Controller
         $response['Type'] = $type;
         echo json_encode($response);
     }
-
 
     /**
      * Insert or Update the menu records
@@ -142,6 +142,58 @@ class SubjectClassRoomsController extends Controller
             $tutor->tutor_id = ($tutor_id > 0) ? $tutor_id : null;
             $tutor->save();
             echo json_encode($tutor->subject_classroom_id);
+        }
+    }
+
+    /**
+     * Search For Subjects to be managed
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postManageSubjects(Request $request)
+    {
+        $inputs = $request->all();
+        $response = array();
+        $response['flag'] = 0;
+
+        if(isset($inputs['subject_id']) and $inputs['subject_id'] != ''){
+            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])->where('subject_id', $inputs['subject_id'])
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->lists('classroom_id')->toArray())->get();
+        }else{
+            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->lists('classroom_id')->toArray())->get();
+        }
+        if(isset($class_subjects)){
+            foreach($class_subjects as $class_subject){
+                $res[] = array(
+                    "classroom"=>$class_subject->classRoom()->first()->classroom,
+                    "subject"=>$class_subject->subject()->first()->subject,
+                    "subject_classroom_id"=>$class_subject->subject_classroom_id,
+                    "academic_term"=>$class_subject->academicTerm()->first()->academic_term,
+                    "tutor"=>($class_subject->tutor()->first()) ? $class_subject->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>',
+                    "status"=>($class_subject->exam_status_id == 2) ? '<span class="label label-danger">Not Setup</span>' : '<span class="label label-success">Already Setup</span>',
+                );
+            }
+            $response['flag'] = 1;
+            $response['ClassSubjects'] = isset($res) ? $res : [];
+        }
+        echo json_encode($response);
+    }
+
+    /**
+     * Delete a Subject Class Room given its id
+     * @param $id
+     */
+    public function getDelete($id)
+    {
+        $subject = SubjectClassRoom::findOrFail($id);
+        //Delete The Record
+        if($subject !== null) {
+            if($subject->deleteSubjectClassRoom()){
+                $this->setFlashMessage('  Deleted!!! '.$subject->subject()->first()->subject.' Subject in '.$subject->classRoom()->first()->classroom.' have been deleted.', 1);
+            }
+        }else{
+            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
     }
 }

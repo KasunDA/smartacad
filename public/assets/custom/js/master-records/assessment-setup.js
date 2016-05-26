@@ -17,6 +17,28 @@ $(function () {
         clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-sm remove_assessment_setup"><span class="fa fa-times"></span> Remove</button>');
     });
 
+    //Validate the percentage values make sure its sums up to 100% per class group
+    $(document.body).on('submit', '#assessment_detail_form', function(){
+        var count = $('#assessment_setup_count').val();
+        var output = '';
+        for(var i=1; i <= count; i++) {
+            var sum = 0;
+            $('#classgroup_tbody' + i + ' .percent').each(function (index, elem) {
+                sum += parseInt($(elem).val());
+            });
+            if(sum != 100){
+                output += '<li>The Sum of the percentage for ' + $('#classgroup_tbody' + i).children(':nth-child(1)').children(':nth-child(1)').html() + ' do not SUM UP to 100% </li>';
+            }
+        }
+        if(output == ''){
+            return true;
+        }else {
+            $('#error-div').removeClass('hide');
+            $('#error-div').html('<ul>' + output + '</ul>');
+            return false;
+        }
+    });
+
     $(document.body).on('click','.remove_assessment_setup',function(){
         $(this).parent().parent().remove();
     });

@@ -66,16 +66,32 @@ class SubjectClassRoom extends Model
     }
 
     /**
+     * A Subject Class Room has many student subjects
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function studentSubjects(){
+        return $this->hasMany('App\Models\Admin\MasterRecords\Accounts\Students\StudentSubject');
+    }
+
+    /**
      * Assign Subjects To Class Room
      */
     public static function assignSubject2Class($class, $term, $subject){
-        return DB::statement('call sp_assignSubject2Classrooms(' . $class . ', ' . $term . ', "' . $subject . '")');
+        return DB::statement('call sp_subject2Classrooms(' . $class . ', ' . $term . ', "' . $subject . '")');
     }
 
     /**
      * Assign Subjects To Class Level
      */
     public static function assignSubject2Level($level, $term, $subject){
-        return DB::statement('call sp_assignSubject2Classlevels(' . $level . ', ' . $term . ', "' . $subject . '")');
+        return DB::statement('call sp_subject2Classlevels(' . $level . ', ' . $term . ', "' . $subject . '")');
+
+    }
+
+    /**
+     * Delete Subjects Assigned To Class Room
+     */
+    public function deleteSubjectClassRoom(){
+        return DB::statement('call sp_deleteSubjectClassRoom(' . $this->subject_classroom_id . ')');
     }
 }

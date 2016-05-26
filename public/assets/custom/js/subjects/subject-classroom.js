@@ -8,16 +8,13 @@ jQuery(document).ready(function() {
 
     // Ajax Get Academic Terms Based on the Academic Year
     getDependentListBox($('#class_academic_year_id'), $('#class_academic_term_id'), '/list-box/academic-term/');
+    getDependentListBox($('#level_academic_year_id'), $('#level_academic_term_id'), '/list-box/academic-term/');
+    getDependentListBox($('#view_academic_year_id'), $('#view_academic_term_id'), '/list-box/academic-term/');
+    getDependentListBox($('#manage_academic_year_id'), $('#manage_academic_term_id'), '/list-box/academic-term/');
+
     // Ajax Get Class Rooms Based on the Class Level
     getDependentListBox($('#class_classlevel_id'), $('#class_classroom_id'), '/list-box/classroom/');
-
-    // Ajax Get Academic Terms Based on the Academic Year
-    getDependentListBox($('#level_academic_year_id'), $('#level_academic_term_id'), '/list-box/academic-term/');
-
-    getDependentListBox($('#view_academic_year_id'), $('#view_academic_term_id'), '/list-box/academic-term/');
-    // Ajax Get Class Rooms Based on the Class Level
     getDependentListBox($('#view_classlevel_id'), $('#view_classroom_id'), '/list-box/classroom/');
-
 
     //When The Assign Subject To Class Room Form is Submitted
     $(document.body).on('submit', '#assign_subject_form', function(){
@@ -75,6 +72,49 @@ jQuery(document).ready(function() {
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+            }
+        });
+    });
+
+    //Delete a subject class room
+    $(document.body).on('click', '.delete-subject',function(e){
+        e.preventDefault();
+
+        var parent = $(this).parent().parent();
+        var subject = parent.children(':nth-child(2)').html();
+        var classroom = parent.children(':nth-child(3)').html();
+        var id = $(this).val();
+
+        bootbox.dialog({
+            message: "Are You sure You want to permanently delete " + subject + " Subject in " + classroom + '?',
+            title: '<span class="label label-danger">Warning Alert: The Delete Record will also delete its corresponding Assessments Records</span>',
+            buttons: {
+                danger: {
+                    label: "NO",
+                    className: "btn-default",
+                    callback: function() {
+                        $(this).hide();
+                    }
+                },
+                success: {
+                    label: "YES",
+                    className: "btn-success",
+                    callback: function() {
+                        $.ajax({
+                            type: 'GET',
+                            async: true,
+                            url: '/subject-classrooms/delete/' + id,
+                            success: function(data,textStatus){
+                                window.location.replace('/subject-classrooms');
+                            },
+                            error: function(xhr,textStatus,error){
+                                bootbox.alert("Error encountered pls try again later..", function() {
+                                    $(this).hide();
+                                });
+                            }
+                        });
+                    }
+                }
             }
         });
     });
@@ -186,6 +226,69 @@ var UIBlockUI = function() {
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
                     App.unblockUI('#view_subject');
+                }
+            });
+            return false;
+        });
+
+        //When the search button is clicked for managing subjects
+        $(document.body).on('submit', '#search_manage_subject_form', function(){
+            var values = $(this).serialize();
+
+            App.blockUI({
+                target: '#manage_subject',
+                animate: true
+            });
+
+            $.ajax({
+                type: "POST",
+                url: '/subject-classrooms/manage-subjects',
+                data: values,
+                success: function (data) {
+                    //console.log(data);
+
+                    var obj = $.parseJSON(data);
+                    var assign = '<thead>\
+                                    <tr>\
+                                        <th>#</th>\
+                                        <th>Subject</th>\
+                                        <th>Class Room</th>\
+                                        <th>Tutor</th>\
+                                        <th>Academic Term</th>\
+                                        <th>Status</th>\
+                                        <th>Manage</th>\
+                                        <th>Action</th>\
+                                    </tr>\
+                                </thead>\
+                                <tbody>';
+                    if(obj.flag === 1){
+                        $.each(obj.ClassSubjects, function(key, value) {
+                            assign += '<tr>' +
+                                '<td>'+(key + 1)+'</td>' +
+                                '<td>'+value.subject+'</td>' +
+                                '<td>'+value.classroom+'</td>' +
+                                '<td>'+value.tutor+'</td>' +
+                                '<td>'+value.academic_term+'</td>' +
+                                '<td>'+value.status+'</td>' +
+                                '<td><button class="btn btn-link manage-subject" value="'+value.subject_classroom_id+'"><i class="fa fa-edit"></i> Manage</button></td>' +
+                                '<td><button class="btn btn-danger btn-xs delete-subject" value="'+value.subject_classroom_id+'"><i class="fa fa-trash"></i> Delete</button></td>' +
+                            '</tr>';
+                        });
+                    }
+                    assign += '</tbody>';
+
+                    $('#manage_subject_datatable').html(assign);
+                    //FormEditable.init();
+                    setTableData($('#manage_subject_datatable')).refresh();
+                    setTableData($('#manage_subject_datatable')).init();
+
+                    window.setTimeout(function() {
+                        App.unblockUI('#manage_subject');
+                    }, 2000);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2);
+                    App.unblockUI('#manage_subject');
                 }
             });
             return false;

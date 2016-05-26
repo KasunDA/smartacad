@@ -157,6 +157,14 @@ class Student extends Model
     }
 
     /**
+     * A Student registers has many subjects
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function studentSubjects(){
+        return $this->hasMany('App\Models\Admin\MasterRecords\Accounts\Students\StudentSubject');
+    }
+
+    /**
      * A Student Has Many An Assessment Detail
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

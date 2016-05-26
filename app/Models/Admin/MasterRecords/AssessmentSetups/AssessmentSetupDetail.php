@@ -54,6 +54,14 @@ class AssessmentSetupDetail extends Model
     }
 
     /**
+     * An Assessment Setup Detail Has Many Assessment
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function assessments(){
+        return $this->hasMany('App\Models\Admin\Assessments\Assessment', 'assessment_setup_detail_id');
+    }
+
+    /**
      * Format The Date of Birth Before Inserting
      * @param $date
      */

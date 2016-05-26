@@ -3,10 +3,11 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost:3306
--- Generation Time: May 17, 2016 at 05:19 PM
+-- Generation Time: May 25, 2016 at 11:51 AM
 -- Server version: 5.5.49-cll
 -- PHP Version: 5.4.31
 
+SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
@@ -20,20 +21,11 @@ SET time_zone = "+00:00";
 -- Database: `solidste_portal_admin`
 --
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `lgas`
+-- Truncate table before insert `lgas`
 --
 
-CREATE TABLE IF NOT EXISTS `lgas` (
-  `lga_id` int(3) unsigned NOT NULL AUTO_INCREMENT,
-  `lga` varchar(50) DEFAULT NULL,
-  `state_id` int(3) DEFAULT NULL,
-  PRIMARY KEY (`lga_id`),
-  KEY `state_id` (`state_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=781 ;
-
+TRUNCATE TABLE `lgas`;
 --
 -- Dumping data for table `lgas`
 --
@@ -820,21 +812,11 @@ INSERT INTO `lgas` (`lga_id`, `lga`, `state_id`) VALUES
 (779, 'Ogbomosho-North', 25),
 (780, 'Yamaltu Deba', 33);
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `marital_statuses`
+-- Truncate table before insert `marital_statuses`
 --
 
-CREATE TABLE IF NOT EXISTS `marital_statuses` (
-  `marital_status_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `marital_status` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `marital_status_abbr` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`marital_status_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=4 ;
-
+TRUNCATE TABLE `marital_statuses`;
 --
 -- Dumping data for table `marital_statuses`
 --
@@ -843,19 +825,11 @@ INSERT INTO `marital_statuses` (`marital_status_id`, `marital_status`, `marital_
 (1, 'Married', 'M', NULL, NULL),
 (3, 'Single', 'S', NULL, NULL);
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `salutations`
+-- Truncate table before insert `salutations`
 --
 
-CREATE TABLE IF NOT EXISTS `salutations` (
-  `salutation_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `salutation` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `salutation_abbr` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`salutation_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
-
+TRUNCATE TABLE `salutations`;
 --
 -- Dumping data for table `salutations`
 --
@@ -866,31 +840,11 @@ INSERT INTO `salutations` (`salutation_id`, `salutation`, `salutation_abbr`) VAL
 (3, 'Doctor', 'Dr.'),
 (4, 'Miss', 'Miss.');
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `schools`
+-- Truncate table before insert `schools`
 --
 
-CREATE TABLE IF NOT EXISTS `schools` (
-  `school_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `full_name` varchar(225) COLLATE utf8_unicode_ci NOT NULL,
-  `phone_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `email` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `motto` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `website` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `address` text COLLATE utf8_unicode_ci,
-  `logo` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `admin_id` int(11) unsigned DEFAULT NULL,
-  `status_id` int(10) unsigned NOT NULL DEFAULT '1',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`school_id`),
-  KEY `status_id` (`status_id`),
-  KEY `admin_id` (`admin_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
-
+TRUNCATE TABLE `schools`;
 --
 -- Dumping data for table `schools`
 --
@@ -898,21 +852,11 @@ CREATE TABLE IF NOT EXISTS `schools` (
 INSERT INTO `schools` (`school_id`, `name`, `full_name`, `phone_no`, `email`, `motto`, `website`, `address`, `logo`, `admin_id`, `status_id`, `created_at`, `updated_at`) VALUES
 (1, 'Solid Steps', 'Solid Steps International School', '08028834187, 0703774', 'solidstepsch@yahoo.com', 'Taking A Solid Step into Academic Success', 'www.solidstepsch.org', '7/9 Williams Bademosi Street, Emmanuel Bus Stop, Off Governor Road, Ikotun, Lagos.', '1_logo.png', NULL, 1, '2016-04-17 15:18:14', '2016-05-04 16:08:34');
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `schools_subjects`
+-- Truncate table before insert `schools_subjects`
 --
 
-CREATE TABLE IF NOT EXISTS `schools_subjects` (
-  `school_id` int(10) unsigned NOT NULL,
-  `subject_id` int(10) unsigned NOT NULL,
-  `subject_alias` varchar(225) COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`school_id`,`subject_id`),
-  KEY `schools_subjects_school_id_index` (`school_id`),
-  KEY `schools_subjects_subject_id_index` (`subject_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
+TRUNCATE TABLE `schools_subjects`;
 --
 -- Dumping data for table `schools_subjects`
 --
@@ -924,6 +868,7 @@ INSERT INTO `schools_subjects` (`school_id`, `subject_id`, `subject_alias`) VALU
 (1, 4, ''),
 (1, 5, ''),
 (1, 6, ''),
+(1, 7, NULL),
 (1, 8, 'PHE'),
 (1, 9, ''),
 (1, 13, ''),
@@ -940,40 +885,20 @@ INSERT INTO `schools_subjects` (`school_id`, `subject_id`, `subject_alias`) VALU
 (1, 33, ''),
 (1, 34, ''),
 (1, 38, ''),
-(1, 39, 'Cultural and Creative Arts');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `school_databases`
---
-
-CREATE TABLE IF NOT EXISTS `school_databases` (
-  `school_database_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `host` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `database` varchar(225) COLLATE utf8_unicode_ci NOT NULL,
-  `username` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `password` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `school_id` int(10) unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`school_database_id`),
-  KEY `school_databases_schools_id_index` (`school_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
+(1, 39, 'Cultural and Creative Arts'),
+(1, 47, NULL),
+(1, 48, NULL);
 
 --
--- Table structure for table `states`
+-- Truncate table before insert `school_databases`
 --
 
-CREATE TABLE IF NOT EXISTS `states` (
-  `state_id` int(3) unsigned NOT NULL AUTO_INCREMENT,
-  `state` varchar(30) DEFAULT NULL,
-  `state_code` varchar(5) DEFAULT NULL,
-  PRIMARY KEY (`state_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=38 ;
+TRUNCATE TABLE `school_databases`;
+--
+-- Truncate table before insert `states`
+--
 
+TRUNCATE TABLE `states`;
 --
 -- Dumping data for table `states`
 --
@@ -1017,19 +942,11 @@ INSERT INTO `states` (`state_id`, `state`, `state_code`) VALUES
 (36, 'Ekiti', 'EKI\r'),
 (37, 'Ebonyi', 'EBO\r');
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `status`
+-- Truncate table before insert `status`
 --
 
-CREATE TABLE IF NOT EXISTS `status` (
-  `status_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `status` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `label` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`status_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=7 ;
-
+TRUNCATE TABLE `status`;
 --
 -- Dumping data for table `status`
 --
@@ -1042,23 +959,11 @@ INSERT INTO `status` (`status_id`, `status`, `label`) VALUES
 (5, 'Transfered', 'default'),
 (6, 'Deceased', 'info');
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `subjects`
+-- Truncate table before insert `subjects`
 --
 
-CREATE TABLE IF NOT EXISTS `subjects` (
-  `subject_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `subject` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `subject_abbr` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `subject_group_id` int(10) unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`subject_id`),
-  KEY `subjects_subject_group_id_index` (`subject_group_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=47 ;
-
+TRUNCATE TABLE `subjects`;
 --
 -- Dumping data for table `subjects`
 --
@@ -1109,20 +1014,15 @@ INSERT INTO `subjects` (`subject_id`, `subject`, `subject_abbr`, `subject_group_
 (43, 'Building Construction', 'BLD CONSTR', 4, NULL, NULL),
 (44, 'Arabic ', 'ARA', 2, NULL, NULL),
 (45, 'Auto Mechanic', 'AUTO', 4, NULL, NULL),
-(46, 'Health Science', 'H. SCI', 3, NULL, NULL);
-
--- --------------------------------------------------------
+(46, 'Health Science', 'H. SCI', 3, NULL, NULL),
+(47, 'Diction', 'Dic', 2, '2016-05-18 16:10:13', '2016-05-18 16:10:13'),
+(48, 'Chess', 'Chess', 7, '2016-05-19 13:53:10', '2016-05-19 13:53:10');
 
 --
--- Table structure for table `subject_groups`
+-- Truncate table before insert `subject_groups`
 --
 
-CREATE TABLE IF NOT EXISTS `subject_groups` (
-  `subject_group_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `subject_group` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`subject_group_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=7 ;
-
+TRUNCATE TABLE `subject_groups`;
 --
 -- Dumping data for table `subject_groups`
 --
@@ -1133,24 +1033,9 @@ INSERT INTO `subject_groups` (`subject_group_id`, `subject_group`) VALUES
 (3, 'Sciences'),
 (4, 'Vocational Studies'),
 (5, 'Humanities'),
-(6, 'Business Studies');
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `schools_subjects`
---
-ALTER TABLE `schools_subjects`
-  ADD CONSTRAINT `schools_subjects_school_id_foreign` FOREIGN KEY (`school_id`) REFERENCES `schools` (`school_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `schools_subjects_subject_id_foreign` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `subjects`
---
-ALTER TABLE `subjects`
-  ADD CONSTRAINT `subjects_subject_group_id_foreign` FOREIGN KEY (`subject_group_id`) REFERENCES `subject_groups` (`subject_group_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+(6, 'Business Studies'),
+(7, 'Games');
+SET FOREIGN_KEY_CHECKS=1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

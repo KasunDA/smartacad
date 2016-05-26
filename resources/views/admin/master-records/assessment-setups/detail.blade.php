@@ -62,9 +62,10 @@
                     <div class="caption">
                         <i class="icon-list font-green"></i>
                         <span class="caption-subject font-green bold uppercase">
-                            Assessment Setups Details: Note Columns With <span class="label label-danger">*</span> Must Be Filled
+                            Assessment Setups Details: Note Columns With <span class="text-danger">*</span> Must Be Filled
                         </span>
                     </div>
+                    <div class="alert alert-danger hide" id="error-div"> </div>
                 </div>
                 <div class="portlet-body">
                     <div class="row">
@@ -72,26 +73,29 @@
                             {!! Form::open([
                                 'method'=>'POST',
                                 'class'=>'form',
-                                'role'=>'form'
+                                'role'=>'form',
+                                'id'=>'assessment_detail_form'
                             ])
                         !!}
                             <div class="table-responsive">
+                                {!! Form::hidden('assessment_setup_count', $assessment_setups->count(), ['id'=>'assessment_setup_count']) !!}
                                 <table class="table table-bordered table-striped table-actions" id="assessment_detail_table">
                                     <thead>
                                         <tr>
                                             <th style="width: 1%;">#</th>
-                                            <th style="width: 17%;">Weight Point <span class="label label-danger">*</span></th>
-                                            <th style="width: 20%;">Assessment No. <span class="label label-danger">*</span></th>
-                                            <th style="width: 20%;">Percentage (%) <span class="label label-danger">*</span></th>
-                                            <th style="width: 22%;">Description <span class="label label-danger">*</span></th>
+                                            <th style="width: 17%;">Weight Point <span class="text-danger">*</span></th>
+                                            <th style="width: 20%;">Assessment No. <span class="text-danger">*</span></th>
+                                            <th style="width: 20%;">Percentage <span class="text-danger">* (100%)</span></th>
+                                            <th style="width: 22%;">Description <span class="text-danger">*</span></th>
                                             <th style="width: 15%;">Submission Date</th>
                                             <th style="width: 5%;">Actions</th>
                                         </tr>
                                     </thead>
                                     @if(count($assessment_setups) > 0)
-                                        <tbody>
-
+                                        <?php $tb = 1?>
                                         @foreach($assessment_setups as $assessment_setup)
+                                            <?php $j = 0; ?>
+                                            <tbody id="classgroup_tbody{{ $tb++ }}">
                                             <tr>
                                                 <th colspan="4" class="text-center">{{ $assessment_setup->classGroup()->first()->classgroup }}</th>
                                                 <th colspan="3" class="text-center">{{ $academic_term->academic_term }}</th>
@@ -101,9 +105,7 @@
                                                 $no = $assessment_setup->assessment_no;
                                                 $count = $details->count();
                                                 $diff = $no - $count;
-//                                                    dd($diff);
                                             ?>
-                                            <?php $j = 0; ?>
                                             @if($count > 0)
                                                 @foreach($details as $detail)
                                                     <tr>
@@ -119,7 +121,7 @@
                                                         </td>
                                                         <td>{!! Form::text('number[]', $detail->number, ['class'=>'form-control', 'required'=>'required', 'readonly'=>'readonly']) !!}</td>
                                                         <td>
-                                                            <select name="percentage[]" class="form-control" required>
+                                                            <select name="percentage[]" class="form-control percent" required>
                                                                 <option value="">Select C.A (%)</option>
                                                                 @for($g=5; $g <= 100; $g+=5)
                                                                     {!! ($g == $detail->percentage) ? '<option selected value="'.$g.'">'.$g.' %</option>' : '<option value="'.$g.'">'.$g.' %</option>' !!}
@@ -154,7 +156,7 @@
                                                         </td>
                                                         <td>{!! Form::text('number[]', ($a + $j), ['class'=>'form-control', 'required'=>'required', 'readonly'=>'readonly']) !!}</td>
                                                         <td>
-                                                            <select name="percentage[]" class="form-control" required>
+                                                            <select name="percentage[]" class="form-control percent" required>
                                                                 <option value="">Select C.A (%)</option>
                                                                 @for($g=5; $g <= 100; $g+=5)
                                                                     <option value="{{$g}}">{{$g}} %</option>
@@ -168,8 +170,9 @@
                                                     </tr>
                                                 @endfor
                                             @endif
-                                        @endforeach
                                         </tbody>
+                                        @endforeach
+
                                     @else
                                         <tr>
                                             <td colspan="7" class="text-center">
@@ -182,10 +185,10 @@
                                     <tfoot>
                                         <tr>
                                             <th style="width: 1%;">#</th>
-                                            <th style="width: 17%;">Weight Point <span class="label label-danger">*</span></th>
-                                            <th style="width: 20%;">Assessment No. <span class="label label-danger">*</span></th>
-                                            <th style="width: 20%;">Percentage (%) <span class="label label-danger">*</span></th>
-                                            <th style="width: 22%;">Description <span class="label label-danger">*</span></th>
+                                            <th style="width: 17%;">Weight Point <span class="text-danger">*</span></th>
+                                            <th style="width: 20%;">Assessment No. <span class="text-danger">*</span></th>
+                                            <th style="width: 20%;">Percentage <span class="text-danger">* (100%)</span></th>
+                                            <th style="width: 22%;">Description <span class="text-danger">*</span></th>
                                             <th style="width: 15%;">Submission Date</th>
                                             <th style="width: 5%;">Actions</th>
                                         </tr>

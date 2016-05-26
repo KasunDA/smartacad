@@ -3,6 +3,7 @@
 namespace App\Models\Admin\Assessments;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Assessment extends Model
 {
@@ -56,6 +57,34 @@ class Assessment extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function assessmentDetails(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\AssessmentDetail', 'assessment_id');
+        return $this->hasMany('App\Models\Admin\Assessments\AssessmentDetail', 'assessment_id');
+    }
+
+    /**
+     * Populate Assessment Details // Ready for inputting Scores
+     */
+    public static function populatedAssessmentDetails($assessment_id){
+        return DB::statement('call sp_populateAssessmentDetail(' . $assessment_id . ')');
+    }
+
+
+    /**
+     * Format Numbers as Position
+     * @param $position
+     * @return String
+     */
+    public static function formatPosition($position=0){
+        $lastDigit = substr($position, -1, 1);
+        $position = intval($position);
+        if($lastDigit == 1 && ($position < 10 || $position > 19)) {
+            $fomatedPosition = $position . 'st';
+        }elseif($lastDigit == 2 && ($position < 10 || $position > 19)) {
+            $fomatedPosition = $position . 'nd';
+        }elseif($lastDigit == 3 && ($position < 10 || $position > 19)) {
+            $fomatedPosition = $position . 'rd';
+        }else{
+            $fomatedPosition = $position . 'th';
+        }
+        return $fomatedPosition;
     }
 }
