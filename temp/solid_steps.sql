@@ -1,13 +1,12 @@
 -- phpMyAdmin SQL Dump
--- version 4.0.10.14
+-- version 4.4.14
 -- http://www.phpmyadmin.net
 --
--- Host: localhost:3306
--- Generation Time: May 25, 2016 at 11:50 AM
--- Server version: 5.5.49-cll
--- PHP Version: 5.4.31
+-- Host: localhost
+-- Generation Time: May 26, 2016 at 02:26 PM
+-- Server version: 5.6.26
+-- PHP Version: 5.6.12
 
-SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
@@ -15,17 +14,226 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `solidste_portal`
+-- Database: `solid_steps`
 --
 
+DELIMITER $$
 --
--- Truncate table before insert `academic_terms`
+-- Procedures
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_deleteSubjectClassRoom`(IN `subjectClassroomID` INT)
+BEGIN
+	-- Delete Assessment Details Corresponding to the subject_classroom_id in assessments
+    DELETE FROM assessment_details WHERE assessment_id IN 
+    (SELECT assessment_id FROM assessments WHERE subject_classroom_id = subjectClassroomID);
+    
+    -- Delete Assessments Corresponding to the subject_classroom_id
+    DELETE FROM assessments WHERE subject_classroom_id = subjectClassroomID;
+    
+    -- Delete the subject the students registered Corresponding to the subject_classroom_id
+    DELETE FROM student_subjects WHERE subject_classroom_id = subjectClassroomID;
+    
+    -- Delete the subject in the classroom Corresponding to the subject_classroom_id
+    DELETE FROM subject_classrooms WHERE subject_classroom_id = subjectClassroomID;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_populateAssessmentDetail`(IN `AssessmentID` INT)
+BEGIN
+	SELECT subject_classroom_id, marked INTO @SCR_ID, @MarkStatus
+	FROM assessments WHERE assessment_id=AssessmentID;
+
+	# Check if the continuous assessment has not been marked
+	-- IF @MarkStatus = 2 THEN
+	BEGIN
+		# Insert into the assessment details table the students students that registered the subjects
+		INSERT INTO assessment_details(assessment_id, student_id)
+			SELECT AssessmentID, student_id FROM student_subjects WHERE subject_classroom_id=@SCR_ID
+			AND student_id NOT IN (SELECT student_id FROM assessment_details WHERE assessment_id=AssessmentID);
+
+		# remove the students that was just removed from the list of students to offer the subject
+		DELETE FROM assessment_details WHERE assessment_id=AssessmentID AND student_id NOT IN
+		(SELECT student_id FROM student_subjects WHERE subject_classroom_id=@SCR_ID);
+	END;
+	-- END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_subject2Classlevels`(IN `LevelID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
+BEGIN
+		DECLARE done1 BOOLEAN DEFAULT FALSE;
+		DECLARE ClassID INT;
+		DECLARE cur1 CURSOR FOR SELECT classroom_id FROM classrooms WHERE classlevel_id=LevelID;
+		DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
+
+#Open The Cursor For Iterating Through The Recordset cur1
+		OPEN cur1;
+		REPEAT
+			FETCH cur1 INTO ClassID;
+			IF NOT done1 THEN
+				BEGIN
+-- Procedure Call -- To register the subjects to the students in that classroom
+					CALL `sp_subject2Classrooms`(ClassID, TermID, SubjectIDs);
+				END;
+			END IF;
+		UNTIL done1 END REPEAT;
+		CLOSE cur1;
+	END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_subject2Classrooms`(IN `ClassID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
+BEGIN
+#Create a Temporary Table to Hold The Values
+		DROP TEMPORARY TABLE IF EXISTS SubjectTemp;
+		CREATE TEMPORARY TABLE IF NOT EXISTS SubjectTemp
+		(
+-- Add the column definitions for the TABLE variable here
+			row_id int AUTO_INCREMENT,
+			subject_id INT, PRIMARY KEY (row_id)
+		);
+
+		IF SubjectIDs IS NOT NULL THEN
+			BEGIN
+				DECLARE count INT Default 0 ;
+				DECLARE subject_id VARCHAR(255);
+				simple_loop: LOOP
+					SET count = count + 1;
+					SET subject_id = SPLIT_STR(SubjectIDs, ',', count);
+					IF subject_id = '' THEN
+						LEAVE simple_loop;
+					END IF;
+# Insert into the attend details table those present
+					INSERT INTO SubjectTemp(subject_id)
+						SELECT subject_id;
+				END LOOP simple_loop;
+			END;
+		END IF;
+
+			Block1: BEGIN
+
+				DELETE FROM subject_classrooms WHERE classroom_id=ClassID 
+				AND academic_term_id=TermID AND exam_status_id=2 AND subject_id
+				NOT IN (SELECT subject_id FROM SubjectTemp);
+
+				Block2: BEGIN
+				DECLARE done1 BOOLEAN DEFAULT FALSE;
+				DECLARE SubjectID INT;
+				DECLARE cur1 CURSOR FOR SELECT subject_id FROM SubjectTemp;
+				DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
+
+				#Open The Cursor For Iterating Through The Recordset cur1
+				OPEN cur1;
+				REPEAT
+					FETCH cur1 INTO SubjectID;
+					IF NOT done1 THEN
+						BEGIN
+							SET @Exist = (SELECT COUNT(*) FROM subject_classrooms WHERE subject_id=SubjectID
+                            AND classroom_id=ClassID AND academic_term_id=TermID);
+							IF @Exist = 0 THEN
+								BEGIN
+									# Insert into subject classlevel those newly assigned subjects
+									INSERT INTO subject_classrooms(subject_id, classroom_id, academic_term_id)
+									VALUES(SubjectID, ClassID, TermID);
+
+									-- Procedure Call -- To register the subjects to the students in that classroom
+									CALL sp_subject2Students(LAST_INSERT_ID());
+								END;
+							END IF;
+						END;
+					END IF;
+				UNTIL done1 END REPEAT;
+				CLOSE cur1;
+			END Block2;
+            
+		END Block1;
+	END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_subject2Students`(IN `subjectClassroomID` INT)
+BEGIN
+		SELECT classroom_id, academic_term_id INTO @ClassID, @AcademicTermID
+		FROM subject_classrooms WHERE subject_classroom_id=subjectClassroomID LIMIT 1;
+		SET @SubjectClassroomID = subjectClassroomID;
+		
+        -- Check if the record exist in subjects students register
+		SELECT COUNT(*) INTO @Exist FROM student_subjects WHERE subject_classroom_id = subjectClassroomID LIMIT 1;
+		IF @Exist > 0 THEN
+			BEGIN
+				DELETE FROM student_subjects WHERE subject_classroom_id = subjectClassroomID;
+			END;
+		END IF;
+
+
+		BEGIN
+			-- Register the subjects to all the active students in the class room
+			INSERT INTO student_subjects(student_id, subject_classroom_id)
+			SELECT	b.student_id, @SubjectClassroomID
+			FROM	students a INNER JOIN student_classes b ON a.student_id=b.student_id 
+            INNER JOIN classrooms c ON c.classroom_id = b.classroom_id
+			WHERE	b.classroom_id = @ClassID AND a.status_id = 1
+			AND b.academic_year_id = (SELECT academic_year_id FROM academic_terms WHERE academic_term_id = @AcademicTermID LIMIT 1);
+		END;
+	END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `temp_student_subjects`()
+BEGIN
+	
+Block2: BEGIN
+	DECLARE done1 BOOLEAN DEFAULT FALSE;
+	DECLARE ID INT;
+	DECLARE cur1 CURSOR FOR SELECT subject_classroom_id FROM subject_classrooms;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
+
+#Open The Cursor For Iterating Through The Recordset cur1
+	OPEN cur1;
+	REPEAT
+		FETCH cur1 INTO ID;
+		IF NOT done1 THEN
+			BEGIN
+				CALL sp_subject2Students(ID);
+				
+			END;
+		END IF;
+	UNTIL done1 END REPEAT;
+	CLOSE cur1;
+END Block2;
+
+END$$
+
+--
+-- Functions
+--
+CREATE DEFINER=`root`@`localhost` FUNCTION `SPLIT_STR`(
+	x VARCHAR(255),
+	delim VARCHAR(12),
+	pos INT
+) RETURNS varchar(255) CHARSET latin1
+RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(x, delim, pos),
+													 LENGTH(SUBSTRING_INDEX(x, delim, pos -1)) + 1),
+								 delim, '')$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `academic_terms`
 --
 
-TRUNCATE TABLE `academic_terms`;
+CREATE TABLE IF NOT EXISTS `academic_terms` (
+  `academic_term_id` int(10) unsigned NOT NULL,
+  `academic_term` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `status` int(10) unsigned NOT NULL DEFAULT '2',
+  `academic_year_id` int(10) unsigned NOT NULL,
+  `term_type_id` int(10) unsigned NOT NULL,
+  `term_begins` date DEFAULT NULL,
+  `term_ends` date DEFAULT NULL,
+  `exam_status_id` int(10) unsigned NOT NULL DEFAULT '2',
+  `exam_setup_by` int(10) unsigned DEFAULT NULL,
+  `exam_setup_date` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `academic_terms`
 --
@@ -33,11 +241,20 @@ TRUNCATE TABLE `academic_terms`;
 INSERT INTO `academic_terms` (`academic_term_id`, `academic_term`, `status`, `academic_year_id`, `term_type_id`, `term_begins`, `term_ends`, `exam_status_id`, `exam_setup_by`, `exam_setup_date`, `created_at`, `updated_at`) VALUES
 (1, 'Third Term 2015 - 2016', 1, 1, 3, '2016-04-15', '2016-07-15', 2, NULL, NULL, '2016-05-11 15:41:04', '2016-05-11 15:42:07');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `academic_years`
+-- Table structure for table `academic_years`
 --
 
-TRUNCATE TABLE `academic_years`;
+CREATE TABLE IF NOT EXISTS `academic_years` (
+  `academic_year_id` int(10) unsigned NOT NULL,
+  `academic_year` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `status` int(10) unsigned NOT NULL DEFAULT '2',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `academic_years`
 --
@@ -45,11 +262,94 @@ TRUNCATE TABLE `academic_years`;
 INSERT INTO `academic_years` (`academic_year_id`, `academic_year`, `status`, `created_at`, `updated_at`) VALUES
 (1, '2015 - 2016', 1, '2016-05-11 15:37:05', '2016-05-11 15:37:05');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `classgroups`
+-- Table structure for table `assessments`
 --
 
-TRUNCATE TABLE `classgroups`;
+CREATE TABLE IF NOT EXISTS `assessments` (
+  `assessment_id` int(10) unsigned NOT NULL,
+  `subject_classroom_id` int(10) unsigned NOT NULL,
+  `assessment_setup_detail_id` int(10) unsigned NOT NULL,
+  `marked` int(10) unsigned NOT NULL DEFAULT '2'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assessment_details`
+--
+
+CREATE TABLE IF NOT EXISTS `assessment_details` (
+  `assessment_detail_id` int(10) unsigned NOT NULL,
+  `student_id` int(10) unsigned NOT NULL,
+  `score` double(8,2) unsigned NOT NULL DEFAULT '0.00',
+  `assessment_id` int(10) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assessment_setups`
+--
+
+CREATE TABLE IF NOT EXISTS `assessment_setups` (
+  `assessment_setup_id` int(10) unsigned NOT NULL,
+  `assessment_no` tinyint(4) NOT NULL,
+  `classgroup_id` int(10) unsigned NOT NULL,
+  `academic_term_id` int(10) unsigned NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `assessment_setups`
+--
+
+INSERT INTO `assessment_setups` (`assessment_setup_id`, `assessment_no`, `classgroup_id`, `academic_term_id`) VALUES
+(1, 2, 1, 1),
+(2, 2, 2, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `assessment_setup_details`
+--
+
+CREATE TABLE IF NOT EXISTS `assessment_setup_details` (
+  `assessment_setup_detail_id` int(10) unsigned NOT NULL,
+  `number` tinyint(4) NOT NULL,
+  `weight_point` double(8,2) unsigned NOT NULL,
+  `percentage` int(10) unsigned NOT NULL,
+  `assessment_setup_id` int(10) unsigned NOT NULL,
+  `submission_date` date DEFAULT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `assessment_setup_details`
+--
+
+INSERT INTO `assessment_setup_details` (`assessment_setup_detail_id`, `number`, `weight_point`, `percentage`, `assessment_setup_id`, `submission_date`, `description`) VALUES
+(1, 1, 25.00, 40, 1, '2016-05-20', 'C. A. 1'),
+(2, 2, 35.00, 60, 1, '2016-06-04', 'C. A. 2'),
+(3, 1, 35.00, 45, 2, '2016-05-20', 'C. A. 1'),
+(4, 2, 40.00, 55, 2, '2016-06-04', 'C. A. 2');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `classgroups`
+--
+
+CREATE TABLE IF NOT EXISTS `classgroups` (
+  `classgroup_id` int(10) unsigned NOT NULL,
+  `classgroup` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `ca_weight_point` int(10) unsigned DEFAULT '0',
+  `exam_weight_point` int(10) unsigned DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `classgroups`
 --
@@ -58,11 +358,20 @@ INSERT INTO `classgroups` (`classgroup_id`, `classgroup`, `ca_weight_point`, `ex
 (1, 'Junior Secondary', 40, 60, '2016-05-11 15:50:22', '2016-05-19 17:13:20'),
 (2, 'Senior Secondary', 40, 60, '2016-05-11 15:50:22', '2016-05-19 17:13:20');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `classlevels`
+-- Table structure for table `classlevels`
 --
 
-TRUNCATE TABLE `classlevels`;
+CREATE TABLE IF NOT EXISTS `classlevels` (
+  `classlevel_id` int(10) unsigned NOT NULL,
+  `classlevel` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `classgroup_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `classlevels`
 --
@@ -73,11 +382,22 @@ INSERT INTO `classlevels` (`classlevel_id`, `classlevel`, `classgroup_id`, `crea
 (3, 'JSS 3', 1, '2016-05-11 15:52:27', '2016-05-11 15:52:27'),
 (4, 'SS 1', 2, '2016-05-11 15:52:27', '2016-05-11 15:52:27');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `classrooms`
+-- Table structure for table `classrooms`
 --
 
-TRUNCATE TABLE `classrooms`;
+CREATE TABLE IF NOT EXISTS `classrooms` (
+  `classroom_id` int(10) unsigned NOT NULL,
+  `classroom` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `class_size` int(11) DEFAULT NULL,
+  `class_status` int(10) unsigned NOT NULL DEFAULT '1',
+  `classlevel_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `classrooms`
 --
@@ -89,11 +409,23 @@ INSERT INTO `classrooms` (`classroom_id`, `classroom`, `class_size`, `class_stat
 (4, 'JSS 3 JOY (A)', 8, 1, 3, '2016-05-11 15:59:09', '2016-05-13 15:23:54'),
 (5, 'SS 1 GOLD (A)', 6, 1, 4, '2016-05-13 15:23:54', '2016-05-13 15:23:54');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `grades`
+-- Table structure for table `grades`
 --
 
-TRUNCATE TABLE `grades`;
+CREATE TABLE IF NOT EXISTS `grades` (
+  `grade_id` int(10) unsigned NOT NULL,
+  `grade` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `grade_abbr` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
+  `upper_bound` double(8,2) unsigned NOT NULL,
+  `lower_bound` double(8,2) unsigned NOT NULL,
+  `classgroup_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `grades`
 --
@@ -115,11 +447,25 @@ INSERT INTO `grades` (`grade_id`, `grade`, `grade_abbr`, `upper_bound`, `lower_b
 (14, 'Pass', 'E', 50.00, 41.00, 1, '2016-05-19 15:24:33', '2016-05-19 15:47:36'),
 (15, 'Fail', 'F', 40.00, 0.00, 1, '2016-05-19 15:47:36', '2016-05-19 15:47:36');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `menus`
+-- Table structure for table `menus`
 --
 
-TRUNCATE TABLE `menus`;
+CREATE TABLE IF NOT EXISTS `menus` (
+  `menu_id` int(10) unsigned NOT NULL,
+  `menu` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `menu_url` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `active` int(10) unsigned NOT NULL DEFAULT '1',
+  `sequence` int(10) unsigned NOT NULL,
+  `type` int(10) unsigned NOT NULL DEFAULT '1',
+  `icon` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `menu_header_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `menus`
 --
@@ -133,11 +479,22 @@ INSERT INTO `menus` (`menu_id`, `menu`, `menu_url`, `active`, `sequence`, `type`
 (7, 'MASTER RECORDS', '#', 1, 2, 1, 'fa fa-book', 1, '2016-05-10 03:53:29', '2016-05-10 03:53:29'),
 (8, 'STUDENTS', '#', 1, 1, 1, 'fa fa-users', 2, '2016-05-23 14:16:17', '2016-05-23 14:16:17');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `menu_headers`
+-- Table structure for table `menu_headers`
 --
 
-TRUNCATE TABLE `menu_headers`;
+CREATE TABLE IF NOT EXISTS `menu_headers` (
+  `menu_header_id` int(10) unsigned NOT NULL,
+  `menu_header` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `active` int(10) unsigned NOT NULL DEFAULT '1',
+  `sequence` int(10) unsigned NOT NULL,
+  `type` int(10) unsigned NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `menu_headers`
 --
@@ -148,11 +505,25 @@ INSERT INTO `menu_headers` (`menu_header_id`, `menu_header`, `active`, `sequence
 (3, 'RECORDS', 1, 8, 1, '2016-03-31 06:45:49', '2016-03-31 06:45:49'),
 (4, 'PORTAL', 1, 1, 2, '2016-04-15 09:41:26', '2016-04-15 09:55:41');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `menu_items`
+-- Table structure for table `menu_items`
 --
 
-TRUNCATE TABLE `menu_items`;
+CREATE TABLE IF NOT EXISTS `menu_items` (
+  `menu_item_id` int(10) unsigned NOT NULL,
+  `menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `active` int(10) unsigned NOT NULL DEFAULT '1',
+  `sequence` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `type` int(10) unsigned NOT NULL DEFAULT '1',
+  `menu_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `menu_items`
 --
@@ -169,16 +540,22 @@ INSERT INTO `menu_items` (`menu_item_id`, `menu_item`, `menu_item_url`, `menu_it
 (15, 'SUBJECTS', '#', 'fa fa-book', 1, '3', 1, 7, '2016-05-13 02:46:59', '2016-05-16 13:39:21'),
 (16, 'SESSION', '#', 'fa fa-table', 1, '1', 1, 7, '2016-05-13 17:09:07', '2016-05-13 17:09:07'),
 (17, 'CLASS', '#', 'fa fa-table', 1, '2', 1, 7, '2016-05-13 17:09:07', '2016-05-13 17:09:07'),
-(19, 'SUBJECT TO CLASS', '/subject-classrooms', 'fa fa-list', 1, '4', 1, 7, '2016-05-16 13:38:22', '2016-05-16 13:39:51'),
 (20, 'GRADE GROUPING', '/grades', 'fa fa-check', 1, '6', 1, 7, '2016-05-19 03:54:12', '2016-05-19 03:54:12'),
 (21, 'CREATE', '/students/create', 'fa fa-plus', 1, '1', 1, 8, '2016-05-23 14:17:34', '2016-05-23 14:40:11'),
-(22, 'MANAGE', '/students', 'fa fa-list', 1, '2', 1, 8, '2016-05-23 14:19:07', '2016-05-23 14:19:07');
+(22, 'MANAGE', '/students', 'fa fa-list', 1, '2', 1, 8, '2016-05-23 14:19:07', '2016-05-23 14:19:07'),
+(23, 'ASSESSMENTS', '#', 'fa fa-briefcase', 1, '5', 1, 7, '2016-05-26 08:00:04', '2016-05-26 08:00:04');
+
+-- --------------------------------------------------------
 
 --
--- Truncate table before insert `migrations`
+-- Table structure for table `migrations`
 --
 
-TRUNCATE TABLE `migrations`;
+CREATE TABLE IF NOT EXISTS `migrations` (
+  `migration` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `batch` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `migrations`
 --
@@ -199,15 +576,27 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 ('2016_05_01_162613_create_academic_years_and_terms_table', 2),
 ('2016_05_08_144434_create_class_groups_levels_rooms_table', 2),
 ('2016_05_01_162805_create_subject_groups_and_subjects_table', 3),
-('2016_05_14_173333_create_subject_classes_table', 4),
-('2016_05_17_184714_create_students_table', 5),
-('2016_05_18_182321_create_grades_table', 6);
+('2016_05_14_173333_create_subject_classes_table', 3),
+('2016_05_17_184714_create_students_table', 4),
+('2016_05_18_182321_create_grades_table', 4),
+('2016_05_20_130901_create_assessments_tables', 5);
+
+-- --------------------------------------------------------
 
 --
--- Truncate table before insert `permissions`
+-- Table structure for table `permissions`
 --
 
-TRUNCATE TABLE `permissions`;
+CREATE TABLE IF NOT EXISTS `permissions` (
+  `permission_id` int(10) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `display_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `uri` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `permissions`
 --
@@ -329,11 +718,17 @@ INSERT INTO `permissions` (`permission_id`, `name`, `display_name`, `description
 (114, 'UserTypeController@getIndex', '', '', 'user-types/index/', '2016-05-23 14:51:41', '2016-05-23 14:51:41'),
 (115, 'UserTypeController@getIndexUser-types', '', '', 'user-types', '2016-05-23 14:51:41', '2016-05-23 14:51:41');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `permission_role`
+-- Table structure for table `permission_role`
 --
 
-TRUNCATE TABLE `permission_role`;
+CREATE TABLE IF NOT EXISTS `permission_role` (
+  `permission_id` int(10) unsigned NOT NULL,
+  `role_id` int(10) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `permission_role`
 --
@@ -552,11 +947,22 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 (9, 3),
 (10, 3);
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `roles`
+-- Table structure for table `roles`
 --
 
-TRUNCATE TABLE `roles`;
+CREATE TABLE IF NOT EXISTS `roles` (
+  `role_id` int(10) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `display_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `user_type_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `roles`
 --
@@ -567,11 +973,17 @@ INSERT INTO `roles` (`role_id`, `name`, `display_name`, `description`, `user_typ
 (3, 'sponsor', 'Sponsor', 'Sponsor', 3, '2016-04-16 17:25:54', '2016-04-28 21:36:59'),
 (4, 'staff', 'Staff', 'Staff', 4, '2016-04-16 17:25:54', '2016-04-28 21:36:59');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `roles_menus`
+-- Table structure for table `roles_menus`
 --
 
-TRUNCATE TABLE `roles_menus`;
+CREATE TABLE IF NOT EXISTS `roles_menus` (
+  `role_id` int(10) unsigned NOT NULL,
+  `menu_id` int(10) unsigned DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `roles_menus`
 --
@@ -594,11 +1006,17 @@ INSERT INTO `roles_menus` (`role_id`, `menu_id`) VALUES
 (1, 8),
 (2, 8);
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `roles_menu_headers`
+-- Table structure for table `roles_menu_headers`
 --
 
-TRUNCATE TABLE `roles_menu_headers`;
+CREATE TABLE IF NOT EXISTS `roles_menu_headers` (
+  `role_id` int(10) unsigned NOT NULL,
+  `menu_header_id` int(10) unsigned DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `roles_menu_headers`
 --
@@ -613,11 +1031,17 @@ INSERT INTO `roles_menu_headers` (`role_id`, `menu_header_id`) VALUES
 (4, 1),
 (2, 1);
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `roles_menu_items`
+-- Table structure for table `roles_menu_items`
 --
 
-TRUNCATE TABLE `roles_menu_items`;
+CREATE TABLE IF NOT EXISTS `roles_menu_items` (
+  `role_id` int(10) unsigned NOT NULL,
+  `menu_item_id` int(10) unsigned DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `roles_menu_items`
 --
@@ -644,20 +1068,26 @@ INSERT INTO `roles_menu_items` (`role_id`, `menu_item_id`) VALUES
 (2, 16),
 (1, 17),
 (2, 17),
-(1, 19),
-(2, 19),
 (1, 20),
 (2, 20),
 (1, 21),
 (2, 21),
 (1, 22),
-(2, 22);
+(2, 22),
+(1, 23),
+(2, 23);
+
+-- --------------------------------------------------------
 
 --
--- Truncate table before insert `roles_sub_menu_items`
+-- Table structure for table `roles_sub_menu_items`
 --
 
-TRUNCATE TABLE `roles_sub_menu_items`;
+CREATE TABLE IF NOT EXISTS `roles_sub_menu_items` (
+  `role_id` int(10) unsigned NOT NULL,
+  `sub_menu_item_id` int(10) unsigned DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `roles_sub_menu_items`
 --
@@ -703,13 +1133,25 @@ INSERT INTO `roles_sub_menu_items` (`role_id`, `sub_menu_item_id`) VALUES
 (1, 21),
 (2, 21),
 (1, 22),
-(2, 22);
+(2, 22),
+(1, 23),
+(2, 23),
+(1, 24),
+(2, 24),
+(1, 25),
+(2, 25);
+
+-- --------------------------------------------------------
 
 --
--- Truncate table before insert `roles_sub_most_menu_items`
+-- Table structure for table `roles_sub_most_menu_items`
 --
 
-TRUNCATE TABLE `roles_sub_most_menu_items`;
+CREATE TABLE IF NOT EXISTS `roles_sub_most_menu_items` (
+  `role_id` int(10) unsigned NOT NULL,
+  `sub_most_menu_item_id` int(10) unsigned DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `roles_sub_most_menu_items`
 --
@@ -726,11 +1168,17 @@ INSERT INTO `roles_sub_most_menu_items` (`role_id`, `sub_most_menu_item_id`) VAL
 (1, 9),
 (2, 9);
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `role_user`
+-- Table structure for table `role_user`
 --
 
-TRUNCATE TABLE `role_user`;
+CREATE TABLE IF NOT EXISTS `role_user` (
+  `user_id` int(10) unsigned NOT NULL,
+  `role_id` int(10) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `role_user`
 --
@@ -862,110 +1310,792 @@ INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 (124, 4),
 (125, 4);
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `sponsors`
+-- Table structure for table `sponsors`
 --
 
-TRUNCATE TABLE `sponsors`;
+CREATE TABLE IF NOT EXISTS `sponsors` (
+  `sponsor_id` int(10) unsigned NOT NULL,
+  `sponsor_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `first_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `other_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `email` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  `phone_no` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `phone_no2` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `address` text COLLATE utf8_unicode_ci,
+  `lga_id` int(10) unsigned DEFAULT NULL,
+  `salutation_id` int(10) unsigned DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `staffs`
+-- Table structure for table `staffs`
 --
 
-TRUNCATE TABLE `staffs`;
+CREATE TABLE IF NOT EXISTS `staffs` (
+  `staff_id` int(10) unsigned NOT NULL,
+  `staff_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `first_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `other_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `email` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  `gender` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `phone_no` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `phone_no2` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `address` text COLLATE utf8_unicode_ci,
+  `lga_id` int(10) unsigned DEFAULT NULL,
+  `salutation_id` int(10) unsigned DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `students`
+-- Table structure for table `students`
 --
 
-TRUNCATE TABLE `students`;
+CREATE TABLE IF NOT EXISTS `students` (
+  `student_id` int(10) unsigned NOT NULL,
+  `first_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `last_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `middle_name` varchar(70) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `student_no` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `gender` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `dob` date DEFAULT NULL,
+  `avatar` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `address` text COLLATE utf8_unicode_ci,
+  `sponsor_id` int(10) unsigned NOT NULL,
+  `classroom_id` int(10) unsigned NOT NULL,
+  `status_id` int(10) unsigned NOT NULL DEFAULT '1',
+  `admitted_term_id` int(10) unsigned NOT NULL,
+  `lga_id` int(10) unsigned DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
--- Truncate table before insert `student_classes`
+-- Dumping data for table `students`
 --
 
-TRUNCATE TABLE `student_classes`;
+INSERT INTO `students` (`student_id`, `first_name`, `last_name`, `middle_name`, `student_no`, `gender`, `dob`, `avatar`, `address`, `sponsor_id`, `classroom_id`, `status_id`, `admitted_term_id`, `lga_id`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 'STUDENT ', 'TWO', '', 'STD0001', 'Male', NULL, NULL, NULL, 2, 4, 1, 1, 22, 2, NULL, NULL),
+(2, 'ELISHA', 'MATTHEW', '', 'STD0002', 'Male', NULL, NULL, NULL, 2, 4, 1, 1, 344, 2, NULL, NULL),
+(3, 'DELE', 'THOMAS', '', 'STD0003', 'Male', NULL, NULL, NULL, 2, 3, 1, 1, 63, 2, NULL, NULL),
+(4, 'CYNTHIA', 'BASSEY', '', 'STD0004', 'Female', '1970-01-01', NULL, NULL, 2, 1, 1, 1, 33, 2, NULL, NULL),
+(5, 'DEBORAH', 'ELLA', '', 'STD0005', 'Female', NULL, NULL, NULL, 2, 5, 1, 1, 111, 2, NULL, NULL),
+(6, 'JUMOKE', 'BELLO', '', 'STD0006', 'Female', NULL, NULL, NULL, 2, 2, 1, 1, 53, 2, NULL, NULL),
+(7, 'KING', 'ATTAHIRU', '', 'STD0007', 'Male', NULL, NULL, NULL, 3, 1, 1, 1, 32, 2, NULL, NULL),
+(8, 'CHELSEA', 'STEVEN', '', 'STD0008', 'Female', NULL, NULL, NULL, 3, 2, 1, 1, 67, 2, NULL, NULL),
+(9, 'YUSUF', 'SHERRIFAT', '', 'STD0009', 'Female', NULL, NULL, NULL, 3, 4, 1, 1, 11, 2, NULL, NULL),
+(10, 'DERICK', 'ROSE', '', 'STD0010', 'Female', NULL, NULL, NULL, 3, 5, 1, 1, 22, 2, NULL, NULL),
+(11, 'FRANK', 'MILLS', '', 'STD0011', 'Male', NULL, NULL, NULL, 3, 5, 1, 1, 33, 2, NULL, NULL),
+(12, 'OBI', 'EZEKIEL', '', 'STD0012', 'Male', NULL, NULL, NULL, 3, 3, 1, 1, 44, 2, NULL, NULL),
+(13, 'OLA', 'DAVID', '', 'STD0013', 'Female', NULL, NULL, NULL, 4, 1, 1, 1, 55, 2, NULL, NULL),
+(14, 'PETER', 'MOYA', '', 'STD0014', 'Male', NULL, NULL, NULL, 4, 2, 1, 1, 66, 2, NULL, NULL),
+(15, 'FEMI', 'THOMAS', '', 'STD0015', 'Male', NULL, NULL, NULL, 1, 1, 1, 1, 77, 2, NULL, NULL),
+(16, 'LEKAN', 'SALAMI', '', 'STD0016', 'Male', NULL, NULL, NULL, 1, 2, 1, 1, 88, 2, NULL, NULL),
+(17, 'ELVIS', 'OZUMBA', '', 'STD0017', 'Male', NULL, NULL, NULL, 1, 3, 1, 1, 99, 2, NULL, NULL),
+(18, 'RACHEL', 'NIKE', '', 'STD0018', 'Female', NULL, NULL, NULL, 1, 4, 1, 1, 123, 2, NULL, NULL),
+(19, 'ONY', 'KEM', '', 'STD0019', 'Male', NULL, NULL, NULL, 4, 3, 1, 1, 122, 2, NULL, NULL),
+(20, 'AYODELE', 'SMITH', '', 'STD0020', 'Male', NULL, NULL, NULL, 1, 5, 1, 1, 134, 2, NULL, NULL),
+(21, 'BELLA', 'BOLTON', '', 'STD0021', 'Male', NULL, NULL, NULL, 1, 4, 1, 1, 332, 2, NULL, NULL),
+(22, 'KACHI', 'OWO', '', 'STD0022', 'Female', NULL, NULL, NULL, 4, 4, 1, 1, 421, 2, NULL, NULL),
+(23, 'MARIAM', 'ADEWUSI', '', 'STD0023', 'Male', NULL, NULL, NULL, 4, 5, 1, 1, 233, 2, NULL, NULL),
+(24, 'EMMANUEL', 'BASS', '', 'STD0024', 'Male', NULL, NULL, NULL, 4, 1, 1, 1, 21, 2, NULL, NULL),
+(25, 'PAMILERIN', 'MOSES', '', 'STD0025', 'Male', NULL, NULL, NULL, 5, 1, 1, 1, 42, 2, NULL, NULL),
+(26, 'EJINNE', 'COLLINS', '', 'STD0026', 'Female', NULL, NULL, NULL, 5, 2, 1, 1, 72, 2, NULL, NULL),
+(27, 'MARY', 'ONYELI', '', 'STD0027', 'Male', NULL, NULL, NULL, 5, 3, 1, 1, 71, 2, NULL, NULL),
+(28, 'DAVID', 'BECHKAM', '', 'STD0028', 'Male', NULL, NULL, NULL, 5, 3, 1, 1, 22, 2, NULL, NULL),
+(29, 'ONYEKACHI', 'PETERS', '', 'STD0029', 'Female', NULL, NULL, NULL, 5, 4, 1, 1, 42, 2, NULL, NULL),
+(30, 'CATHERINE', 'ADE', '', 'STD0030', 'Female', NULL, NULL, NULL, 5, 5, 1, 1, 62, 2, NULL, NULL),
+(31, 'BOLU', 'DAVIES', '', 'STD0031', 'Female', NULL, NULL, NULL, 5, 3, 1, 1, 73, 2, NULL, NULL);
+
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `subject_classrooms`
+-- Table structure for table `student_classes`
 --
 
-TRUNCATE TABLE `subject_classrooms`;
+CREATE TABLE IF NOT EXISTS `student_classes` (
+  `student_class_id` int(10) unsigned NOT NULL,
+  `student_id` int(10) unsigned NOT NULL,
+  `classroom_id` int(10) unsigned NOT NULL,
+  `academic_year_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `student_classes`
+--
+
+INSERT INTO `student_classes` (`student_class_id`, `student_id`, `classroom_id`, `academic_year_id`, `created_at`, `updated_at`) VALUES
+(1, 4, 1, 1, NULL, NULL),
+(2, 7, 1, 1, NULL, NULL),
+(3, 13, 1, 1, NULL, NULL),
+(4, 15, 1, 1, NULL, NULL),
+(5, 24, 1, 1, NULL, NULL),
+(6, 25, 1, 1, NULL, NULL),
+(7, 6, 2, 1, NULL, NULL),
+(8, 8, 2, 1, NULL, NULL),
+(9, 14, 2, 1, NULL, NULL),
+(10, 16, 2, 1, NULL, NULL),
+(11, 26, 2, 1, NULL, NULL),
+(12, 3, 3, 1, NULL, NULL),
+(13, 12, 3, 1, NULL, NULL),
+(14, 17, 3, 1, NULL, NULL),
+(15, 19, 3, 1, NULL, NULL),
+(16, 27, 3, 1, NULL, NULL),
+(17, 28, 3, 1, NULL, NULL),
+(18, 31, 3, 1, NULL, NULL),
+(19, 1, 4, 1, NULL, NULL),
+(20, 2, 4, 1, NULL, NULL),
+(21, 9, 4, 1, NULL, NULL),
+(22, 18, 4, 1, NULL, NULL),
+(23, 21, 4, 1, NULL, NULL),
+(24, 22, 4, 1, NULL, NULL),
+(25, 29, 4, 1, NULL, NULL),
+(26, 5, 5, 1, NULL, NULL),
+(27, 10, 5, 1, NULL, NULL),
+(28, 11, 5, 1, NULL, NULL),
+(29, 20, 5, 1, NULL, NULL),
+(30, 23, 5, 1, NULL, NULL),
+(31, 30, 5, 1, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `student_subjects`
+--
+
+CREATE TABLE IF NOT EXISTS `student_subjects` (
+  `student_id` int(10) unsigned NOT NULL,
+  `subject_classroom_id` int(10) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `student_subjects`
+--
+
+INSERT INTO `student_subjects` (`student_id`, `subject_classroom_id`) VALUES
+(1, 43),
+(1, 44),
+(1, 45),
+(1, 46),
+(1, 47),
+(1, 48),
+(1, 49),
+(1, 50),
+(1, 51),
+(1, 52),
+(1, 53),
+(1, 54),
+(1, 55),
+(1, 56),
+(1, 74),
+(1, 85),
+(1, 86),
+(1, 87),
+(2, 43),
+(2, 44),
+(2, 45),
+(2, 46),
+(2, 47),
+(2, 48),
+(2, 49),
+(2, 50),
+(2, 51),
+(2, 52),
+(2, 53),
+(2, 54),
+(2, 55),
+(2, 56),
+(2, 74),
+(2, 85),
+(2, 86),
+(2, 87),
+(3, 29),
+(3, 30),
+(3, 31),
+(3, 32),
+(3, 33),
+(3, 34),
+(3, 35),
+(3, 36),
+(3, 37),
+(3, 38),
+(3, 39),
+(3, 75),
+(3, 76),
+(3, 77),
+(3, 78),
+(3, 83),
+(3, 84),
+(4, 1),
+(4, 2),
+(4, 3),
+(4, 4),
+(4, 5),
+(4, 6),
+(4, 7),
+(4, 8),
+(4, 9),
+(4, 10),
+(4, 11),
+(4, 12),
+(4, 13),
+(4, 14),
+(4, 73),
+(4, 79),
+(4, 80),
+(5, 59),
+(5, 60),
+(5, 61),
+(5, 62),
+(5, 63),
+(5, 64),
+(5, 65),
+(5, 66),
+(5, 67),
+(5, 68),
+(5, 70),
+(5, 71),
+(5, 88),
+(6, 15),
+(6, 16),
+(6, 17),
+(6, 18),
+(6, 19),
+(6, 20),
+(6, 21),
+(6, 22),
+(6, 23),
+(6, 24),
+(6, 25),
+(6, 26),
+(6, 27),
+(6, 28),
+(6, 72),
+(6, 81),
+(6, 82),
+(7, 1),
+(7, 2),
+(7, 3),
+(7, 4),
+(7, 5),
+(7, 6),
+(7, 7),
+(7, 8),
+(7, 9),
+(7, 10),
+(7, 11),
+(7, 12),
+(7, 13),
+(7, 14),
+(7, 73),
+(7, 79),
+(7, 80),
+(8, 15),
+(8, 16),
+(8, 17),
+(8, 18),
+(8, 19),
+(8, 20),
+(8, 21),
+(8, 22),
+(8, 23),
+(8, 24),
+(8, 25),
+(8, 26),
+(8, 27),
+(8, 28),
+(8, 72),
+(8, 81),
+(8, 82),
+(9, 43),
+(9, 44),
+(9, 45),
+(9, 46),
+(9, 47),
+(9, 48),
+(9, 49),
+(9, 50),
+(9, 51),
+(9, 52),
+(9, 53),
+(9, 54),
+(9, 55),
+(9, 56),
+(9, 74),
+(9, 85),
+(9, 86),
+(9, 87),
+(10, 59),
+(10, 60),
+(10, 61),
+(10, 62),
+(10, 63),
+(10, 64),
+(10, 65),
+(10, 66),
+(10, 67),
+(10, 68),
+(10, 70),
+(10, 71),
+(10, 88),
+(11, 59),
+(11, 60),
+(11, 61),
+(11, 62),
+(11, 63),
+(11, 64),
+(11, 65),
+(11, 66),
+(11, 67),
+(11, 68),
+(11, 70),
+(11, 71),
+(11, 88),
+(12, 29),
+(12, 30),
+(12, 31),
+(12, 32),
+(12, 33),
+(12, 34),
+(12, 35),
+(12, 36),
+(12, 37),
+(12, 38),
+(12, 39),
+(12, 75),
+(12, 76),
+(12, 77),
+(12, 78),
+(12, 83),
+(12, 84),
+(13, 1),
+(13, 2),
+(13, 3),
+(13, 4),
+(13, 5),
+(13, 6),
+(13, 7),
+(13, 8),
+(13, 9),
+(13, 10),
+(13, 11),
+(13, 12),
+(13, 13),
+(13, 14),
+(13, 73),
+(13, 79),
+(13, 80),
+(14, 15),
+(14, 16),
+(14, 17),
+(14, 18),
+(14, 19),
+(14, 20),
+(14, 21),
+(14, 22),
+(14, 23),
+(14, 24),
+(14, 25),
+(14, 26),
+(14, 27),
+(14, 28),
+(14, 72),
+(14, 81),
+(14, 82),
+(15, 1),
+(15, 2),
+(15, 3),
+(15, 4),
+(15, 5),
+(15, 6),
+(15, 7),
+(15, 8),
+(15, 9),
+(15, 10),
+(15, 11),
+(15, 12),
+(15, 13),
+(15, 14),
+(15, 73),
+(15, 79),
+(15, 80),
+(16, 15),
+(16, 16),
+(16, 17),
+(16, 18),
+(16, 19),
+(16, 20),
+(16, 21),
+(16, 22),
+(16, 23),
+(16, 24),
+(16, 25),
+(16, 26),
+(16, 27),
+(16, 28),
+(16, 72),
+(16, 81),
+(16, 82),
+(17, 29),
+(17, 30),
+(17, 31),
+(17, 32),
+(17, 33),
+(17, 34),
+(17, 35),
+(17, 36),
+(17, 37),
+(17, 38),
+(17, 39),
+(17, 75),
+(17, 76),
+(17, 77),
+(17, 78),
+(17, 83),
+(17, 84),
+(18, 43),
+(18, 44),
+(18, 45),
+(18, 46),
+(18, 47),
+(18, 48),
+(18, 49),
+(18, 50),
+(18, 51),
+(18, 52),
+(18, 53),
+(18, 54),
+(18, 55),
+(18, 56),
+(18, 74),
+(18, 85),
+(18, 86),
+(18, 87),
+(19, 29),
+(19, 30),
+(19, 31),
+(19, 32),
+(19, 33),
+(19, 34),
+(19, 35),
+(19, 36),
+(19, 37),
+(19, 38),
+(19, 39),
+(19, 75),
+(19, 76),
+(19, 77),
+(19, 78),
+(19, 83),
+(19, 84),
+(20, 59),
+(20, 60),
+(20, 61),
+(20, 62),
+(20, 63),
+(20, 64),
+(20, 65),
+(20, 66),
+(20, 67),
+(20, 68),
+(20, 70),
+(20, 71),
+(20, 88),
+(21, 43),
+(21, 44),
+(21, 45),
+(21, 46),
+(21, 47),
+(21, 48),
+(21, 49),
+(21, 50),
+(21, 51),
+(21, 52),
+(21, 53),
+(21, 54),
+(21, 55),
+(21, 56),
+(21, 74),
+(21, 85),
+(21, 86),
+(21, 87),
+(22, 43),
+(22, 44),
+(22, 45),
+(22, 46),
+(22, 47),
+(22, 48),
+(22, 49),
+(22, 50),
+(22, 51),
+(22, 52),
+(22, 53),
+(22, 54),
+(22, 55),
+(22, 56),
+(22, 74),
+(22, 85),
+(22, 86),
+(22, 87),
+(23, 59),
+(23, 60),
+(23, 61),
+(23, 62),
+(23, 63),
+(23, 64),
+(23, 65),
+(23, 66),
+(23, 67),
+(23, 68),
+(23, 70),
+(23, 71),
+(23, 88),
+(24, 1),
+(24, 2),
+(24, 3),
+(24, 4),
+(24, 5),
+(24, 6),
+(24, 7),
+(24, 8),
+(24, 9),
+(24, 10),
+(24, 11),
+(24, 12),
+(24, 13),
+(24, 14),
+(24, 73),
+(24, 79),
+(24, 80),
+(25, 1),
+(25, 2),
+(25, 3),
+(25, 4),
+(25, 5),
+(25, 6),
+(25, 7),
+(25, 8),
+(25, 9),
+(25, 10),
+(25, 11),
+(25, 12),
+(25, 13),
+(25, 14),
+(25, 73),
+(25, 79),
+(25, 80),
+(26, 15),
+(26, 16),
+(26, 17),
+(26, 18),
+(26, 19),
+(26, 20),
+(26, 21),
+(26, 22),
+(26, 23),
+(26, 24),
+(26, 25),
+(26, 26),
+(26, 27),
+(26, 28),
+(26, 72),
+(26, 81),
+(26, 82),
+(27, 29),
+(27, 30),
+(27, 31),
+(27, 32),
+(27, 33),
+(27, 34),
+(27, 35),
+(27, 36),
+(27, 37),
+(27, 38),
+(27, 39),
+(27, 75),
+(27, 76),
+(27, 77),
+(27, 78),
+(27, 83),
+(27, 84),
+(28, 29),
+(28, 30),
+(28, 31),
+(28, 32),
+(28, 33),
+(28, 34),
+(28, 35),
+(28, 36),
+(28, 37),
+(28, 38),
+(28, 39),
+(28, 75),
+(28, 76),
+(28, 77),
+(28, 78),
+(28, 83),
+(28, 84),
+(29, 43),
+(29, 44),
+(29, 45),
+(29, 46),
+(29, 47),
+(29, 48),
+(29, 49),
+(29, 50),
+(29, 51),
+(29, 52),
+(29, 53),
+(29, 54),
+(29, 55),
+(29, 56),
+(29, 74),
+(29, 85),
+(29, 86),
+(29, 87),
+(30, 59),
+(30, 60),
+(30, 61),
+(30, 62),
+(30, 63),
+(30, 64),
+(30, 65),
+(30, 66),
+(30, 67),
+(30, 68),
+(30, 70),
+(30, 71),
+(30, 88),
+(31, 29),
+(31, 30),
+(31, 31),
+(31, 32),
+(31, 33),
+(31, 34),
+(31, 35),
+(31, 36),
+(31, 37),
+(31, 38),
+(31, 39),
+(31, 75),
+(31, 76),
+(31, 77),
+(31, 78),
+(31, 83),
+(31, 84);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subject_classrooms`
+--
+
+CREATE TABLE IF NOT EXISTS `subject_classrooms` (
+  `subject_classroom_id` int(10) unsigned NOT NULL,
+  `subject_id` int(10) unsigned NOT NULL,
+  `classroom_id` int(10) unsigned NOT NULL,
+  `academic_term_id` int(10) unsigned NOT NULL,
+  `exam_status_id` int(10) unsigned NOT NULL DEFAULT '2',
+  `tutor_id` int(10) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `subject_classrooms`
 --
 
 INSERT INTO `subject_classrooms` (`subject_classroom_id`, `subject_id`, `classroom_id`, `academic_term_id`, `exam_status_id`, `tutor_id`, `created_at`, `updated_at`) VALUES
-(1, 14, 1, 1, 2, 122, '2016-05-18 18:41:54', '2016-05-18 18:41:45'),
-(2, 3, 1, 1, 2, 122, '2016-05-18 18:41:54', '2016-05-18 18:41:54'),
-(3, 4, 1, 1, 2, 7, '2016-05-18 18:41:54', '2016-05-18 18:16:01'),
-(4, 5, 1, 1, 2, 8, '2016-05-18 18:41:54', '2016-05-18 18:16:08'),
-(5, 16, 1, 1, 2, 4, NULL, '2016-05-18 18:19:27'),
-(6, 38, 1, 1, 2, 6, '2016-05-18 18:41:54', '2016-05-18 18:17:08'),
-(7, 9, 1, 1, 2, 3, NULL, '2016-05-18 18:17:07'),
-(8, 1, 1, 1, 2, 6, NULL, '2016-05-18 18:17:14'),
-(9, 39, 1, 1, 2, 123, NULL, '2016-05-18 18:42:01'),
-(10, 15, 1, 1, 2, 3, NULL, '2016-05-18 18:17:32'),
-(11, 2, 1, 1, 2, 7, NULL, '2016-05-18 18:19:42'),
-(12, 8, 1, 1, 2, 12, NULL, '2016-05-18 18:19:47'),
-(13, 6, 1, 1, 2, 4, NULL, '2016-05-18 18:19:50'),
-(14, 13, 1, 1, 2, 124, NULL, '2016-05-18 18:42:08'),
-(15, 14, 2, 1, 2, 122, NULL, '2016-05-18 18:42:54'),
-(16, 3, 2, 1, 2, 122, NULL, '2016-05-18 18:42:58'),
-(17, 4, 2, 1, 2, 7, NULL, '2016-05-18 18:43:03'),
-(18, 5, 2, 1, 2, 8, NULL, '2016-05-18 18:43:06'),
-(19, 16, 2, 1, 2, 4, NULL, '2016-05-18 18:43:12'),
-(20, 38, 2, 1, 2, 6, NULL, '2016-05-18 18:43:18'),
-(21, 9, 2, 1, 2, 3, NULL, '2016-05-18 18:43:22'),
-(22, 1, 2, 1, 2, 6, NULL, '2016-05-18 18:43:26'),
-(23, 39, 2, 1, 2, 123, NULL, '2016-05-18 18:43:30'),
-(24, 15, 2, 1, 2, 3, NULL, '2016-05-18 18:43:33'),
-(25, 2, 2, 1, 2, 7, NULL, '2016-05-18 18:43:40'),
-(26, 8, 2, 1, 2, 12, NULL, '2016-05-18 18:43:43'),
-(27, 6, 2, 1, 2, 4, NULL, '2016-05-18 18:43:54'),
-(28, 13, 2, 1, 2, 124, NULL, '2016-05-18 18:43:58'),
-(29, 14, 3, 1, 2, 3, NULL, '2016-05-18 18:49:07'),
-(30, 3, 3, 1, 2, 122, NULL, '2016-05-18 18:45:42'),
-(31, 4, 3, 1, 2, 7, NULL, '2016-05-18 18:45:49'),
-(32, 5, 3, 1, 2, 8, NULL, '2016-05-18 18:46:01'),
-(33, 16, 3, 1, 2, 124, NULL, '2016-05-18 18:46:11'),
-(34, 38, 3, 1, 2, 4, NULL, '2016-05-18 18:46:20'),
-(35, 9, 3, 1, 2, 3, NULL, '2016-05-18 18:46:23'),
-(36, 1, 3, 1, 2, 6, NULL, '2016-05-18 18:46:30'),
-(37, 39, 3, 1, 2, 123, NULL, '2016-05-18 18:46:36'),
-(38, 15, 3, 1, 2, 3, NULL, '2016-05-18 18:46:38'),
-(39, 2, 3, 1, 2, 7, NULL, '2016-05-18 18:46:51'),
-(43, 14, 4, 1, 2, 122, NULL, '2016-05-18 18:50:43'),
-(44, 3, 4, 1, 2, 122, NULL, '2016-05-18 18:50:47'),
-(45, 4, 4, 1, 2, 7, NULL, '2016-05-18 18:50:51'),
-(46, 5, 4, 1, 2, 8, NULL, '2016-05-18 18:50:59'),
-(47, 16, 4, 1, 2, 124, NULL, '2016-05-18 18:51:10'),
-(48, 38, 4, 1, 2, 4, NULL, '2016-05-18 18:51:14'),
-(49, 9, 4, 1, 2, 3, NULL, '2016-05-18 18:51:17'),
-(50, 1, 4, 1, 2, 6, NULL, '2016-05-18 18:51:28'),
-(51, 39, 4, 1, 2, 123, NULL, '2016-05-18 18:51:38'),
-(52, 15, 4, 1, 2, 3, NULL, '2016-05-18 18:51:41'),
-(53, 2, 4, 1, 2, 7, NULL, '2016-05-18 18:51:47'),
-(54, 8, 4, 1, 2, 12, NULL, '2016-05-18 18:51:50'),
-(55, 6, 4, 1, 2, 4, NULL, '2016-05-18 18:51:56'),
-(56, 13, 4, 1, 2, 124, NULL, '2016-05-18 18:52:01'),
-(57, 23, 5, 1, 2, 122, NULL, '2016-05-18 18:52:27'),
-(58, 22, 5, 1, 2, 122, NULL, '2016-05-18 18:52:31'),
-(59, 16, 5, 1, 2, 124, NULL, '2016-05-18 18:52:42'),
-(60, 38, 5, 1, 2, 4, NULL, '2016-05-18 18:52:48'),
-(61, 9, 5, 1, 2, 3, NULL, '2016-05-18 18:52:54'),
-(62, 32, 5, 1, 2, 10, NULL, '2016-05-18 18:52:57'),
-(63, 1, 5, 1, 2, 6, NULL, '2016-05-18 18:53:02'),
-(64, 24, 5, 1, 2, 3, NULL, '2016-05-18 18:53:12'),
-(65, 34, 5, 1, 2, 9, NULL, '2016-05-18 18:53:16'),
-(66, 33, 5, 1, 2, 4, NULL, '2016-05-18 18:53:20'),
-(67, 19, 5, 1, 2, 6, NULL, '2016-05-18 18:53:31'),
-(68, 2, 5, 1, 2, 7, NULL, '2016-05-18 18:53:34'),
-(70, 21, 5, 1, 2, 7, NULL, '2016-05-18 18:53:49'),
-(71, 13, 5, 1, 2, 124, NULL, '2016-05-18 18:53:52'),
-(72, 26, 2, 1, 2, 125, NULL, '2016-05-18 19:03:06'),
-(73, 26, 1, 1, 2, 125, NULL, '2016-05-18 19:02:37'),
-(74, 26, 4, 1, 2, 125, NULL, '2016-05-18 19:03:53'),
-(75, 26, 3, 1, 2, 125, NULL, '2016-05-18 19:03:31'),
-(76, 8, 3, 1, 2, 12, NULL, '2016-05-18 18:48:40'),
-(77, 6, 3, 1, 2, 4, NULL, '2016-05-18 18:48:44'),
-(78, 13, 3, 1, 2, 124, NULL, '2016-05-18 18:48:50'),
+(1, 14, 1, 1, 2, 122, '2016-05-18 17:41:54', '2016-05-18 17:41:45'),
+(2, 3, 1, 1, 2, 122, '2016-05-18 17:41:54', '2016-05-18 17:41:54'),
+(3, 4, 1, 1, 2, 7, '2016-05-18 17:41:54', '2016-05-18 17:16:01'),
+(4, 5, 1, 1, 2, 8, '2016-05-18 17:41:54', '2016-05-18 17:16:08'),
+(5, 16, 1, 1, 2, 4, NULL, '2016-05-18 17:19:27'),
+(6, 38, 1, 1, 2, 6, '2016-05-18 17:41:54', '2016-05-18 17:17:08'),
+(7, 9, 1, 1, 2, 3, NULL, '2016-05-18 17:17:07'),
+(8, 1, 1, 1, 2, 6, NULL, '2016-05-18 17:17:14'),
+(9, 39, 1, 1, 2, 123, NULL, '2016-05-18 17:42:01'),
+(10, 15, 1, 1, 2, 3, NULL, '2016-05-18 17:17:32'),
+(11, 2, 1, 1, 2, 7, NULL, '2016-05-18 17:19:42'),
+(12, 8, 1, 1, 2, 12, NULL, '2016-05-18 17:19:47'),
+(13, 6, 1, 1, 2, 4, NULL, '2016-05-18 17:19:50'),
+(14, 13, 1, 1, 2, 124, NULL, '2016-05-18 17:42:08'),
+(15, 14, 2, 1, 2, 122, NULL, '2016-05-18 17:42:54'),
+(16, 3, 2, 1, 2, 122, NULL, '2016-05-18 17:42:58'),
+(17, 4, 2, 1, 2, 7, NULL, '2016-05-18 17:43:03'),
+(18, 5, 2, 1, 2, 8, NULL, '2016-05-18 17:43:06'),
+(19, 16, 2, 1, 2, 4, NULL, '2016-05-18 17:43:12'),
+(20, 38, 2, 1, 2, 6, NULL, '2016-05-18 17:43:18'),
+(21, 9, 2, 1, 2, 3, NULL, '2016-05-18 17:43:22'),
+(22, 1, 2, 1, 2, 6, NULL, '2016-05-18 17:43:26'),
+(23, 39, 2, 1, 2, 123, NULL, '2016-05-18 17:43:30'),
+(24, 15, 2, 1, 2, 3, NULL, '2016-05-18 17:43:33'),
+(25, 2, 2, 1, 2, 7, NULL, '2016-05-18 17:43:40'),
+(26, 8, 2, 1, 2, 12, NULL, '2016-05-18 17:43:43'),
+(27, 6, 2, 1, 2, 4, NULL, '2016-05-18 17:43:54'),
+(28, 13, 2, 1, 2, 124, NULL, '2016-05-18 17:43:58'),
+(29, 14, 3, 1, 2, 3, NULL, '2016-05-18 17:49:07'),
+(30, 3, 3, 1, 2, 122, NULL, '2016-05-18 17:45:42'),
+(31, 4, 3, 1, 2, 7, NULL, '2016-05-18 17:45:49'),
+(32, 5, 3, 1, 2, 8, NULL, '2016-05-18 17:46:01'),
+(33, 16, 3, 1, 2, 124, NULL, '2016-05-18 17:46:11'),
+(34, 38, 3, 1, 2, 4, NULL, '2016-05-18 17:46:20'),
+(35, 9, 3, 1, 2, 3, NULL, '2016-05-18 17:46:23'),
+(36, 1, 3, 1, 2, 6, NULL, '2016-05-18 17:46:30'),
+(37, 39, 3, 1, 2, 123, NULL, '2016-05-18 17:46:36'),
+(38, 15, 3, 1, 2, 3, NULL, '2016-05-18 17:46:38'),
+(39, 2, 3, 1, 2, 7, NULL, '2016-05-18 17:46:51'),
+(43, 14, 4, 1, 2, 122, NULL, '2016-05-18 17:50:43'),
+(44, 3, 4, 1, 2, 122, NULL, '2016-05-18 17:50:47'),
+(45, 4, 4, 1, 2, 7, NULL, '2016-05-18 17:50:51'),
+(46, 5, 4, 1, 2, 8, NULL, '2016-05-18 17:50:59'),
+(47, 16, 4, 1, 2, 124, NULL, '2016-05-18 17:51:10'),
+(48, 38, 4, 1, 2, 4, NULL, '2016-05-18 17:51:14'),
+(49, 9, 4, 1, 2, 3, NULL, '2016-05-18 17:51:17'),
+(50, 1, 4, 1, 2, 6, NULL, '2016-05-18 17:51:28'),
+(51, 39, 4, 1, 2, 123, NULL, '2016-05-18 17:51:38'),
+(52, 15, 4, 1, 2, 3, NULL, '2016-05-18 17:51:41'),
+(53, 2, 4, 1, 2, 7, NULL, '2016-05-18 17:51:47'),
+(54, 8, 4, 1, 2, 12, NULL, '2016-05-18 17:51:50'),
+(55, 6, 4, 1, 2, 4, NULL, '2016-05-18 17:51:56'),
+(56, 13, 4, 1, 2, 124, NULL, '2016-05-18 17:52:01'),
+(57, 23, 5, 1, 2, 122, NULL, '2016-05-18 17:52:27'),
+(58, 22, 5, 1, 2, 122, NULL, '2016-05-18 17:52:31'),
+(59, 16, 5, 1, 2, 124, NULL, '2016-05-18 17:52:42'),
+(60, 38, 5, 1, 2, 4, NULL, '2016-05-18 17:52:48'),
+(61, 9, 5, 1, 2, 3, NULL, '2016-05-18 17:52:54'),
+(62, 32, 5, 1, 2, 10, NULL, '2016-05-18 17:52:57'),
+(63, 1, 5, 1, 2, 6, NULL, '2016-05-18 17:53:02'),
+(64, 24, 5, 1, 2, 3, NULL, '2016-05-18 17:53:12'),
+(65, 34, 5, 1, 2, 9, NULL, '2016-05-18 17:53:16'),
+(66, 33, 5, 1, 2, 4, NULL, '2016-05-18 17:53:20'),
+(67, 19, 5, 1, 2, 6, NULL, '2016-05-18 17:53:31'),
+(68, 2, 5, 1, 2, 7, NULL, '2016-05-18 17:53:34'),
+(70, 21, 5, 1, 2, 7, NULL, '2016-05-18 17:53:49'),
+(71, 13, 5, 1, 2, 124, NULL, '2016-05-18 17:53:52'),
+(72, 26, 2, 1, 2, 125, NULL, '2016-05-18 18:03:06'),
+(73, 26, 1, 1, 2, 125, NULL, '2016-05-18 18:02:37'),
+(74, 26, 4, 1, 2, 125, NULL, '2016-05-18 18:03:53'),
+(75, 26, 3, 1, 2, 125, NULL, '2016-05-18 18:03:31'),
+(76, 8, 3, 1, 2, 12, NULL, '2016-05-18 17:48:40'),
+(77, 6, 3, 1, 2, 4, NULL, '2016-05-18 17:48:44'),
+(78, 13, 3, 1, 2, 124, NULL, '2016-05-18 17:48:50'),
 (79, 48, 1, 1, 2, NULL, NULL, NULL),
 (80, 47, 1, 1, 2, NULL, NULL, NULL),
 (81, 48, 2, 1, 2, NULL, NULL, NULL),
@@ -977,11 +2107,25 @@ INSERT INTO `subject_classrooms` (`subject_classroom_id`, `subject_id`, `classro
 (87, 7, 4, 1, 2, NULL, NULL, NULL),
 (88, 47, 5, 1, 2, NULL, NULL, NULL);
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `sub_menu_items`
+-- Table structure for table `sub_menu_items`
 --
 
-TRUNCATE TABLE `sub_menu_items`;
+CREATE TABLE IF NOT EXISTS `sub_menu_items` (
+  `sub_menu_item_id` int(10) unsigned NOT NULL,
+  `sub_menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `sub_menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `sub_menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `active` int(10) unsigned NOT NULL DEFAULT '1',
+  `sequence` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `type` int(10) unsigned NOT NULL DEFAULT '1',
+  `menu_item_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `sub_menu_items`
 --
@@ -1008,13 +2152,30 @@ INSERT INTO `sub_menu_items` (`sub_menu_item_id`, `sub_menu_item`, `sub_menu_ite
 (19, 'ACADEMIC TERM', '/academic-terms', 'fa fa-plus', 1, '2', 1, 16, '2016-05-13 17:11:39', '2016-05-13 17:11:39'),
 (20, 'CLASS GROUP', '/class-groups', 'fa fa-plus', 1, '1', 1, 17, '2016-05-13 17:13:48', '2016-05-13 17:13:48'),
 (21, 'CLASS LEVEL', '/class-levels', 'fa fa-plus', 1, '2', 1, 17, '2016-05-13 17:13:48', '2016-05-13 17:13:48'),
-(22, 'CLASS ROOMS', '/class-rooms', 'fa fa-plus', 1, '3', 1, 17, '2016-05-13 17:13:48', '2016-05-13 17:13:48');
+(22, 'CLASS ROOMS', '/class-rooms', 'fa fa-plus', 1, '3', 1, 17, '2016-05-13 17:13:48', '2016-05-13 17:13:48'),
+(23, 'ASSIGN TO CLASS', '/subject-classrooms', 'fa fa-list', 1, '3', 1, 15, '2016-05-26 08:02:55', '2016-05-26 09:45:02'),
+(24, 'SETUP', '/assessment-setups', 'fa fa-ticket', 1, '1', 1, 23, '2016-05-26 08:08:47', '2016-05-26 08:12:15'),
+(25, 'SETUP DETAILS', '/assessment-setups/details', 'fa fa-list-alt', 1, '2', 1, 23, '2016-05-26 08:08:47', '2016-05-26 08:12:15');
+
+-- --------------------------------------------------------
 
 --
--- Truncate table before insert `sub_most_menu_items`
+-- Table structure for table `sub_most_menu_items`
 --
 
-TRUNCATE TABLE `sub_most_menu_items`;
+CREATE TABLE IF NOT EXISTS `sub_most_menu_items` (
+  `sub_most_menu_item_id` int(10) unsigned NOT NULL,
+  `sub_most_menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `sub_most_menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `sub_most_menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `active` int(10) unsigned NOT NULL DEFAULT '1',
+  `sequence` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `type` int(10) unsigned NOT NULL DEFAULT '1',
+  `sub_menu_item_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `sub_most_menu_items`
 --
@@ -1030,11 +2191,35 @@ INSERT INTO `sub_most_menu_items` (`sub_most_menu_item_id`, `sub_most_menu_item`
 (8, 'Manage', '/roles', 'fa fa-table', 1, '1', 1, 3, '2016-03-30 09:43:20', '2016-03-30 09:43:20'),
 (9, 'Assign', '/roles/users-roles', 'fa fa-users', 1, '2', 1, 3, '2016-03-30 09:43:20', '2016-03-30 09:43:20');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `users`
+-- Table structure for table `users`
 --
 
-TRUNCATE TABLE `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `user_id` int(10) unsigned NOT NULL,
+  `password` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `phone_no` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `first_name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `last_name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `middle_name` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `gender` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  `phone_no2` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `user_type_id` int(10) unsigned NOT NULL,
+  `lga_id` int(10) unsigned DEFAULT NULL,
+  `salutation_id` int(10) unsigned DEFAULT NULL,
+  `verified` int(10) unsigned NOT NULL DEFAULT '0',
+  `status` int(10) unsigned NOT NULL DEFAULT '1',
+  `avatar` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `verification_code` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `remember_token` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `users`
 --
@@ -1166,11 +2351,20 @@ INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `
 (124, '$2y$10$VHtEZrUSJ3MurEgK7bD2neeaNNvhy3KpyJHfdOh0XqJLV1DQsZy0W', '08062101137', 'ogunlekeolufunke@yahoo.com', 'Ogunleke', 'Olufunke', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'txTzSbMdu025aynsR6LqzChsOWAqsAZn5ulmUrOp', NULL, '2016-05-18 18:40:12', '2016-05-18 18:40:12'),
 (125, '$2y$10$lkgkw77NXaKqnFSRJx51.ub5Y/XYDZIFAtyS0TAXSNNrJHVScxLke', '08039404007', 'princekehinde@yahoo.com', 'Famoroti', 'Kehinde', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'hIGpSYzf0hM32ulRD8cWiJR43hyNxnLHHlCpFFsF', NULL, '2016-05-18 19:01:40', '2016-05-18 19:01:40');
 
+-- --------------------------------------------------------
+
 --
--- Truncate table before insert `user_types`
+-- Table structure for table `user_types`
 --
 
-TRUNCATE TABLE `user_types`;
+CREATE TABLE IF NOT EXISTS `user_types` (
+  `user_type_id` int(10) unsigned NOT NULL,
+  `user_type` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Dumping data for table `user_types`
 --
@@ -1180,7 +2374,475 @@ INSERT INTO `user_types` (`user_type_id`, `user_type`, `type`, `created_at`, `up
 (2, 'Super Admin', 2, NULL, NULL),
 (3, 'Sponsor', 2, '2016-04-28 21:35:55', '2016-04-28 21:35:55'),
 (4, 'Staff', 2, '2016-04-28 21:35:15', '2016-04-28 21:35:15');
-SET FOREIGN_KEY_CHECKS=1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `academic_terms`
+--
+ALTER TABLE `academic_terms`
+  ADD PRIMARY KEY (`academic_term_id`),
+  ADD KEY `academic_terms_status_index` (`status`),
+  ADD KEY `academic_terms_academic_year_id_index` (`academic_year_id`),
+  ADD KEY `academic_terms_term_type_id_index` (`term_type_id`),
+  ADD KEY `academic_terms_exam_status_id_index` (`exam_status_id`),
+  ADD KEY `academic_terms_exam_setup_by_index` (`exam_setup_by`);
+
+--
+-- Indexes for table `academic_years`
+--
+ALTER TABLE `academic_years`
+  ADD PRIMARY KEY (`academic_year_id`),
+  ADD KEY `academic_years_status_index` (`status`);
+
+--
+-- Indexes for table `assessments`
+--
+ALTER TABLE `assessments`
+  ADD PRIMARY KEY (`assessment_id`),
+  ADD KEY `assessments_subject_classroom_id_index` (`subject_classroom_id`),
+  ADD KEY `assessments_assessment_setup_detail_id_index` (`assessment_setup_detail_id`),
+  ADD KEY `assessments_marked_index` (`marked`);
+
+--
+-- Indexes for table `assessment_details`
+--
+ALTER TABLE `assessment_details`
+  ADD PRIMARY KEY (`assessment_detail_id`),
+  ADD KEY `assessment_details_student_id_index` (`student_id`),
+  ADD KEY `assessment_details_assessment_id_index` (`assessment_id`);
+
+--
+-- Indexes for table `assessment_setups`
+--
+ALTER TABLE `assessment_setups`
+  ADD PRIMARY KEY (`assessment_setup_id`),
+  ADD KEY `assessment_setups_classgroup_id_index` (`classgroup_id`),
+  ADD KEY `assessment_setups_academic_term_id_index` (`academic_term_id`);
+
+--
+-- Indexes for table `assessment_setup_details`
+--
+ALTER TABLE `assessment_setup_details`
+  ADD PRIMARY KEY (`assessment_setup_detail_id`),
+  ADD KEY `assessment_setup_details_assessment_setup_id_index` (`assessment_setup_id`);
+
+--
+-- Indexes for table `classgroups`
+--
+ALTER TABLE `classgroups`
+  ADD PRIMARY KEY (`classgroup_id`);
+
+--
+-- Indexes for table `classlevels`
+--
+ALTER TABLE `classlevels`
+  ADD PRIMARY KEY (`classlevel_id`),
+  ADD KEY `classlevels_classgroup_id_index` (`classgroup_id`);
+
+--
+-- Indexes for table `classrooms`
+--
+ALTER TABLE `classrooms`
+  ADD PRIMARY KEY (`classroom_id`),
+  ADD KEY `classrooms_classlevel_id_index` (`classlevel_id`);
+
+--
+-- Indexes for table `grades`
+--
+ALTER TABLE `grades`
+  ADD PRIMARY KEY (`grade_id`),
+  ADD KEY `grades_classgroup_id_index` (`classgroup_id`);
+
+--
+-- Indexes for table `menus`
+--
+ALTER TABLE `menus`
+  ADD PRIMARY KEY (`menu_id`),
+  ADD KEY `menus_menu_header_id_index` (`menu_header_id`);
+
+--
+-- Indexes for table `menu_headers`
+--
+ALTER TABLE `menu_headers`
+  ADD PRIMARY KEY (`menu_header_id`);
+
+--
+-- Indexes for table `menu_items`
+--
+ALTER TABLE `menu_items`
+  ADD PRIMARY KEY (`menu_item_id`),
+  ADD KEY `menu_items_menu_id_index` (`menu_id`);
+
+--
+-- Indexes for table `permissions`
+--
+ALTER TABLE `permissions`
+  ADD PRIMARY KEY (`permission_id`),
+  ADD UNIQUE KEY `permissions_name_unique` (`name`);
+
+--
+-- Indexes for table `permission_role`
+--
+ALTER TABLE `permission_role`
+  ADD PRIMARY KEY (`permission_id`,`role_id`),
+  ADD KEY `permission_role_role_id_foreign` (`role_id`);
+
+--
+-- Indexes for table `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`role_id`),
+  ADD UNIQUE KEY `roles_name_unique` (`name`),
+  ADD KEY `roles_user_type_id_index` (`user_type_id`);
+
+--
+-- Indexes for table `roles_menus`
+--
+ALTER TABLE `roles_menus`
+  ADD KEY `roles_menus_role_id_index` (`role_id`),
+  ADD KEY `roles_menus_menu_id_index` (`menu_id`);
+
+--
+-- Indexes for table `roles_menu_headers`
+--
+ALTER TABLE `roles_menu_headers`
+  ADD KEY `roles_menu_headers_role_id_index` (`role_id`),
+  ADD KEY `roles_menu_headers_menu_header_id_index` (`menu_header_id`);
+
+--
+-- Indexes for table `roles_menu_items`
+--
+ALTER TABLE `roles_menu_items`
+  ADD KEY `roles_menu_items_role_id_index` (`role_id`),
+  ADD KEY `roles_menu_items_menu_item_id_index` (`menu_item_id`);
+
+--
+-- Indexes for table `roles_sub_menu_items`
+--
+ALTER TABLE `roles_sub_menu_items`
+  ADD KEY `roles_sub_menu_items_role_id_index` (`role_id`),
+  ADD KEY `roles_sub_menu_items_sub_menu_item_id_index` (`sub_menu_item_id`);
+
+--
+-- Indexes for table `roles_sub_most_menu_items`
+--
+ALTER TABLE `roles_sub_most_menu_items`
+  ADD KEY `roles_sub_most_menu_items_role_id_index` (`role_id`),
+  ADD KEY `roles_sub_most_menu_items_sub_most_menu_item_id_index` (`sub_most_menu_item_id`);
+
+--
+-- Indexes for table `role_user`
+--
+ALTER TABLE `role_user`
+  ADD PRIMARY KEY (`user_id`,`role_id`),
+  ADD KEY `role_user_role_id_foreign` (`role_id`);
+
+--
+-- Indexes for table `sponsors`
+--
+ALTER TABLE `sponsors`
+  ADD PRIMARY KEY (`sponsor_id`),
+  ADD KEY `sponsors_lga_id_index` (`lga_id`),
+  ADD KEY `sponsors_salutation_id_index` (`salutation_id`),
+  ADD KEY `sponsors_created_by_index` (`created_by`);
+
+--
+-- Indexes for table `staffs`
+--
+ALTER TABLE `staffs`
+  ADD PRIMARY KEY (`staff_id`),
+  ADD KEY `staffs_lga_id_index` (`lga_id`),
+  ADD KEY `staffs_salutation_id_index` (`salutation_id`),
+  ADD KEY `staffs_created_by_index` (`created_by`);
+
+--
+-- Indexes for table `students`
+--
+ALTER TABLE `students`
+  ADD PRIMARY KEY (`student_id`),
+  ADD KEY `students_sponsor_id_index` (`sponsor_id`),
+  ADD KEY `students_classroom_id_index` (`classroom_id`),
+  ADD KEY `students_status_id_index` (`status_id`),
+  ADD KEY `students_admitted_term_id_index` (`admitted_term_id`),
+  ADD KEY `students_lga_id_index` (`lga_id`),
+  ADD KEY `students_created_by_index` (`created_by`);
+
+--
+-- Indexes for table `student_classes`
+--
+ALTER TABLE `student_classes`
+  ADD PRIMARY KEY (`student_class_id`),
+  ADD KEY `student_classes_student_id_index` (`student_id`),
+  ADD KEY `student_classes_classroom_id_index` (`classroom_id`),
+  ADD KEY `student_classes_academic_year_id_index` (`academic_year_id`);
+
+--
+-- Indexes for table `student_subjects`
+--
+ALTER TABLE `student_subjects`
+  ADD PRIMARY KEY (`student_id`,`subject_classroom_id`),
+  ADD KEY `student_subjects_student_id_index` (`student_id`),
+  ADD KEY `student_subjects_subject_classroom_id_index` (`subject_classroom_id`);
+
+--
+-- Indexes for table `subject_classrooms`
+--
+ALTER TABLE `subject_classrooms`
+  ADD PRIMARY KEY (`subject_classroom_id`),
+  ADD KEY `subject_classrooms_subject_id_index` (`subject_id`),
+  ADD KEY `subject_classrooms_classroom_id_index` (`classroom_id`),
+  ADD KEY `subject_classrooms_academic_term_id_index` (`academic_term_id`),
+  ADD KEY `subject_classrooms_exam_status_id_index` (`exam_status_id`),
+  ADD KEY `subject_classrooms_tutor_id_index` (`tutor_id`);
+
+--
+-- Indexes for table `sub_menu_items`
+--
+ALTER TABLE `sub_menu_items`
+  ADD PRIMARY KEY (`sub_menu_item_id`),
+  ADD KEY `sub_menu_items_menu_item_id_index` (`menu_item_id`);
+
+--
+-- Indexes for table `sub_most_menu_items`
+--
+ALTER TABLE `sub_most_menu_items`
+  ADD PRIMARY KEY (`sub_most_menu_item_id`),
+  ADD KEY `sub_most_menu_items_sub_menu_item_id_index` (`sub_menu_item_id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `users_email_unique` (`email`),
+  ADD UNIQUE KEY `phone_no` (`phone_no`),
+  ADD KEY `users_user_type_id_index` (`user_type_id`),
+  ADD KEY `salutation_id` (`salutation_id`),
+  ADD KEY `lga_id` (`lga_id`);
+
+--
+-- Indexes for table `user_types`
+--
+ALTER TABLE `user_types`
+  ADD PRIMARY KEY (`user_type_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `academic_terms`
+--
+ALTER TABLE `academic_terms`
+  MODIFY `academic_term_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT for table `academic_years`
+--
+ALTER TABLE `academic_years`
+  MODIFY `academic_year_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT for table `assessments`
+--
+ALTER TABLE `assessments`
+  MODIFY `assessment_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `assessment_details`
+--
+ALTER TABLE `assessment_details`
+  MODIFY `assessment_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `assessment_setups`
+--
+ALTER TABLE `assessment_setups`
+  MODIFY `assessment_setup_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+--
+-- AUTO_INCREMENT for table `assessment_setup_details`
+--
+ALTER TABLE `assessment_setup_details`
+  MODIFY `assessment_setup_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT for table `classgroups`
+--
+ALTER TABLE `classgroups`
+  MODIFY `classgroup_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+--
+-- AUTO_INCREMENT for table `classlevels`
+--
+ALTER TABLE `classlevels`
+  MODIFY `classlevel_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT for table `classrooms`
+--
+ALTER TABLE `classrooms`
+  MODIFY `classroom_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
+--
+-- AUTO_INCREMENT for table `grades`
+--
+ALTER TABLE `grades`
+  MODIFY `grade_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=16;
+--
+-- AUTO_INCREMENT for table `menus`
+--
+ALTER TABLE `menus`
+  MODIFY `menu_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=9;
+--
+-- AUTO_INCREMENT for table `menu_headers`
+--
+ALTER TABLE `menu_headers`
+  MODIFY `menu_header_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT for table `menu_items`
+--
+ALTER TABLE `menu_items`
+  MODIFY `menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=24;
+--
+-- AUTO_INCREMENT for table `permissions`
+--
+ALTER TABLE `permissions`
+  MODIFY `permission_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=116;
+--
+-- AUTO_INCREMENT for table `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `role_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT for table `sponsors`
+--
+ALTER TABLE `sponsors`
+  MODIFY `sponsor_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `staffs`
+--
+ALTER TABLE `staffs`
+  MODIFY `staff_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `students`
+--
+ALTER TABLE `students`
+  MODIFY `student_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=32;
+--
+-- AUTO_INCREMENT for table `student_classes`
+--
+ALTER TABLE `student_classes`
+  MODIFY `student_class_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=32;
+--
+-- AUTO_INCREMENT for table `subject_classrooms`
+--
+ALTER TABLE `subject_classrooms`
+  MODIFY `subject_classroom_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=89;
+--
+-- AUTO_INCREMENT for table `sub_menu_items`
+--
+ALTER TABLE `sub_menu_items`
+  MODIFY `sub_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=26;
+--
+-- AUTO_INCREMENT for table `sub_most_menu_items`
+--
+ALTER TABLE `sub_most_menu_items`
+  MODIFY `sub_most_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=12;
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=126;
+--
+-- AUTO_INCREMENT for table `user_types`
+--
+ALTER TABLE `user_types`
+  MODIFY `user_type_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `academic_terms`
+--
+ALTER TABLE `academic_terms`
+  ADD CONSTRAINT `academic_terms_academic_year_id_foreign` FOREIGN KEY (`academic_year_id`) REFERENCES `academic_years` (`academic_year_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `assessments`
+--
+ALTER TABLE `assessments`
+  ADD CONSTRAINT `assessments_assessment_setup_detail_id_foreign` FOREIGN KEY (`assessment_setup_detail_id`) REFERENCES `assessment_setup_details` (`assessment_setup_detail_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `assessment_details`
+--
+ALTER TABLE `assessment_details`
+  ADD CONSTRAINT `assessment_details_assessment_id_foreign` FOREIGN KEY (`assessment_id`) REFERENCES `assessments` (`assessment_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `assessment_setup_details`
+--
+ALTER TABLE `assessment_setup_details`
+  ADD CONSTRAINT `assessment_setup_details_assessment_setup_id_foreign` FOREIGN KEY (`assessment_setup_id`) REFERENCES `assessment_setups` (`assessment_setup_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `permission_role`
+--
+ALTER TABLE `permission_role`
+  ADD CONSTRAINT `permission_role_permission_id_foreign` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`permission_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `permission_role_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `roles_menus`
+--
+ALTER TABLE `roles_menus`
+  ADD CONSTRAINT `roles_menus_menu_id_foreign` FOREIGN KEY (`menu_id`) REFERENCES `menus` (`menu_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `roles_menus_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `roles_menu_headers`
+--
+ALTER TABLE `roles_menu_headers`
+  ADD CONSTRAINT `roles_menu_headers_menu_header_id_foreign` FOREIGN KEY (`menu_header_id`) REFERENCES `menu_headers` (`menu_header_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `roles_menu_headers_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `roles_menu_items`
+--
+ALTER TABLE `roles_menu_items`
+  ADD CONSTRAINT `roles_menu_items_menu_item_id_foreign` FOREIGN KEY (`menu_item_id`) REFERENCES `menu_items` (`menu_item_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `roles_menu_items_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `roles_sub_menu_items`
+--
+ALTER TABLE `roles_sub_menu_items`
+  ADD CONSTRAINT `roles_sub_menu_items_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `roles_sub_menu_items_sub_menu_item_id_foreign` FOREIGN KEY (`sub_menu_item_id`) REFERENCES `sub_menu_items` (`sub_menu_item_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `roles_sub_most_menu_items`
+--
+ALTER TABLE `roles_sub_most_menu_items`
+  ADD CONSTRAINT `roles_sub_most_menu_items_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `roles_sub_most_menu_items_sub_most_menu_item_id_foreign` FOREIGN KEY (`sub_most_menu_item_id`) REFERENCES `sub_most_menu_items` (`sub_most_menu_item_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `role_user`
+--
+ALTER TABLE `role_user`
+  ADD CONSTRAINT `role_user_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `role_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `student_classes`
+--
+ALTER TABLE `student_classes`
+  ADD CONSTRAINT `student_classes_classroom_id_foreign` FOREIGN KEY (`classroom_id`) REFERENCES `classrooms` (`classroom_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `subject_classrooms`
+--
+ALTER TABLE `subject_classrooms`
+  ADD CONSTRAINT `subject_classrooms_classroom_id_foreign` FOREIGN KEY (`classroom_id`) REFERENCES `classrooms` (`classroom_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `subject_classrooms_subject_id_foreign` FOREIGN KEY (`subject_id`) REFERENCES `schools`.`subjects` (`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `subject_classrooms_tutor_id_foreign` FOREIGN KEY (`tutor_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
