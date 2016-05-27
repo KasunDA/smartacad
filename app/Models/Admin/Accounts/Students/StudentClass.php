@@ -35,7 +35,7 @@ class StudentClass extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function classRoom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassRoom');
+        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassRoom', 'classroom_id');
     }
 
     /**
@@ -43,7 +43,7 @@ class StudentClass extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function academicYear(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\AcademicYea');
+        return $this->belongsTo('App\Models\Admin\MasterRecords\AcademicYear');
     }
 
     /**

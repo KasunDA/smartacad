@@ -27,7 +27,7 @@
         <span class="icon chevron-right"></span>
     </li>
     <li>
-        <a href="{{ url('/subject-class-tutors') }}">Manage Subjects Assignments</a>
+        <a href="{{ url('/subject-classrooms') }}">Manage Subjects Assignments</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
@@ -203,6 +203,7 @@
                             </div>
                             <div class="tab-pane" id="manage_subject">
                                 <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Level</strong> To Manage Subjects</div>
+                                <div id="error-box"></div>
                                 {!! Form::open([
                                         'method'=>'POST',
                                         'class'=>'form-horizontal',
@@ -304,6 +305,42 @@
             </div>
         </div>
     </div>
+    <!-- /.modal -->
+    <!-- modal -->
+    <div id="manage_student_modal" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h5 class="modal-title text-center text-primary" id="manage-title-text"></h5>
+                </div>
+                <form method="POST" action="#" class="form" role="form" id="manage_student_form">
+                    {!! csrf_field() !!}
+                    {!! Form::hidden('subject_classroom_id', '', ['id'=>'subject_classroom_id']) !!}
+                    <div class="modal-body">
+                        <div class="scroller" style="height:300px;" data-always-visible="1" data-rail-visible1="1">
+                            <div class="row">
+                                <div class="form-body">
+                                    <div class="form-group last">
+                                        <div class="col-md-10">
+                                            <select multiple="multiple" class="multi-select" id="manage_student_multi_select" name="student_id[]">
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close</button>
+                        <button type="submit" class="btn green">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
     <select id="subject-tutors" class="form-control hide">
         <option value="-1">Select Tutor</option>
         @foreach($tutors as $tutor)

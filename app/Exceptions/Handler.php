@@ -15,6 +15,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -100,6 +101,14 @@ class Handler extends ExceptionHandler
                 'code'=>'504.3',
                 'header'=>'Critical Error',
                 'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again<br>' . $e->getMessage()
+            ]);
+        }
+        // Bad Network Issues Method NotAllowed HttpException
+        if ($e instanceof MethodNotAllowedHttpException){
+            return response()->view('errors.custom', [
+                'code'=>'507.3',
+                'header'=>'Bad or Poor Network Issues',
+                'message'=>'<strong>Whoops!!!</strong> Something went wrong with your network kindly retry again<br>' . $e->getMessage()
             ]);
         }
         //If Token Mismatch Exception Occur i.e csrf error

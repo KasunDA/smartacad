@@ -34,7 +34,6 @@ jQuery(document).ready(function() {
         return false;
     });
 
-
     //When the edit button is clicked show Tutors Drop Down
     $(document.body).on('click', '.edit-tutor', function(){
         var buttonTD = $(this).parent();
@@ -117,6 +116,24 @@ jQuery(document).ready(function() {
                 }
             }
         });
+    });
+
+    //When The Manage Subject offered by students in Class Room Form is submitted
+    $(document.body).on('submit', '#manage_student_form', function(){
+        var values = $('#manage_student_form').serialize();
+        $.ajax({
+            type: "POST",
+            url: '/subject-classrooms/manage-students',
+            data: values,
+            success: function (data) {
+                window.location.replace('/subject-classrooms');
+                $('#manage_subject_form').modal('hide');
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                set_msg_box($('#error-box'), 'Error...Kindly Try Again', 2)
+            }
+        });
+        return false;
     });
 });
 
@@ -242,7 +259,7 @@ var UIBlockUI = function() {
 
             $.ajax({
                 type: "POST",
-                url: '/subject-classrooms/manage-subjects',
+                url: '/subject-classrooms/search-subjects',
                 data: values,
                 success: function (data) {
                     //console.log(data);
@@ -256,7 +273,7 @@ var UIBlockUI = function() {
                                         <th>Tutor</th>\
                                         <th>Academic Term</th>\
                                         <th>Status</th>\
-                                        <th>Manage</th>\
+                                        <th>Students</th>\
                                         <th>Action</th>\
                                     </tr>\
                                 </thead>\
@@ -270,7 +287,7 @@ var UIBlockUI = function() {
                                 '<td>'+value.tutor+'</td>' +
                                 '<td>'+value.academic_term+'</td>' +
                                 '<td>'+value.status+'</td>' +
-                                '<td><button class="btn btn-link manage-subject" value="'+value.subject_classroom_id+'"><i class="fa fa-edit"></i> Manage</button></td>' +
+                                '<td><button class="btn btn-link manage-student" value="'+value.subject_classroom_id+'"><i class="fa fa-edit"></i> Manage</button></td>' +
                                 '<td><button class="btn btn-danger btn-xs delete-subject" value="'+value.subject_classroom_id+'"><i class="fa fa-trash"></i> Delete</button></td>' +
                             '</tr>';
                         });
@@ -293,7 +310,54 @@ var UIBlockUI = function() {
             });
             return false;
         });
-    }
+
+        //When the manage button is clicked to register a subject to students in a class
+        $(document.body).on('click', '.manage-student', function(){
+            var subject_classroom_id = $(this).val();
+            var academic_term_id = $('#manage_academic_term_id').val();
+            var tr = $(this).parent().parent();
+            App.blockUI({
+                target: '#manage_subject',
+                animate: true
+            });
+
+            $.ajax({
+                type: "GET",
+                url: '/subject-classrooms/manage-student/' + subject_classroom_id + '/' + academic_term_id,
+                success: function (data) {
+                    console.log(data);
+                    var obj = $.parseJSON(data);
+                    var assign = '<optgroup label="Select All Students">';
+                    if(obj.flag === 1){
+                        $.each(obj.Students, function(key, value) {
+                            var selected = ($.inArray(value.student_id, obj.Registered) > -1) ? 'selected' : '';
+                            assign += '<option ' + selected + ' value="'+value.student_id+'">' + value.name + '</option>';
+                        });
+
+                        $('#manage-title-text').html('<b>Managing ' + tr.children(':nth-child(2)').html()
+                            + ' Subject Offered by Students in '+tr.children(':nth-child(3)').html()+ ' Class Room</b>');
+
+                        $('#subject_classroom_id').val(subject_classroom_id);
+                        $('#manage_student_multi_select').html(assign + '</optgroup>');
+                        $('#manage_student_modal').modal('show');
+
+                        ComponentsDropdowns.initSubject();
+                        ComponentsDropdowns.refreshSubject();
+                    }else {
+                        set_msg_box($('#error-box'), '  Error...Kindly Try Again No Record Found', 2);
+                    }
+                    window.setTimeout(function() {
+                        App.unblockUI('#manage_subject');
+                    }, 2000);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    set_msg_box($('#error-box'), '  Error...Kindly Try Again', 2);
+                    App.unblockUI('#manage_subject');
+                }
+            });
+            return false;
+        });
+    };
 
     return {
         //main function to initiate the module
@@ -320,6 +384,20 @@ var ComponentsDropdowns = function () {
         $('#subject_multi_select').multiSelect('refresh');
     };
 
+    var handleMultiSelectStudent = function () {
+        $('#manage_student_multi_select').multiSelect({
+            selectableOptgroup: true,
+            selectableHeader: '<span class="label label-info"><strong>Students Not Offering The Subject</strong></span>',
+            selectableFooter: '<span class="label label-info"><strong>Students Not Offering The Subject</strong></span>',
+            selectionHeader: '<span class="label label-success"><strong>Students Offering The Subject</strong></span>',
+            selectionFooter: '<span class="label label-success"><strong>Students Offering The Subject</strong></span>',
+            cssClass: 'multi-select-subjects'
+        });
+    };
+    var handleMultiSelectRefreshStudent = function () {
+        $('#manage_student_multi_select').multiSelect('refresh');
+    };
+
     return {
         //main function to initiate the module
         init: function () {
@@ -327,6 +405,12 @@ var ComponentsDropdowns = function () {
         },
         refresh: function() {
             handleMultiSelectRefresh();
+        },
+        initSubject: function () {
+            handleMultiSelectStudent();
+        },
+        refreshSubject: function() {
+            handleMultiSelectRefreshStudent();
         }
     };
 }();
@@ -335,6 +419,3 @@ jQuery(document).ready(function() {
     UIBlockUI.init();
 
 });
-
-
-

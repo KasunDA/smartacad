@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\MasterRecords\Subjects;
 
 use App\Models\Admin\Accounts\Staff;
+use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use stdClass;
 
 class SubjectClassRoomsController extends Controller
 {
@@ -150,7 +152,7 @@ class SubjectClassRoomsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postManageSubjects(Request $request)
+    public function postSearchSubjects(Request $request)
     {
         $inputs = $request->all();
         $response = array();
@@ -195,5 +197,62 @@ class SubjectClassRoomsController extends Controller
         }else{
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
+    }
+
+    /**
+     * Search For Subjects to be managed
+     * @param Int $id
+     * @param Int $term
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function getManageStudent($id, $term)
+    {
+        $subject = SubjectClassRoom::findOrFail($id);
+        $term = AcademicTerm::findOrFail($term);
+        $response = array();
+        $response['flag'] = 0;
+        $students = [];
+
+        if($subject){
+            //All the students in the class room for the academic year
+            foreach($subject->classRoom()->first()->studentClasses()->where('academic_year_id', $term->academic_year_id)->get() as $student){
+                $object = new stdClass();
+                $object->student_id = $student->student_id;
+                $object->name = $student->student()->first()->fullNames();
+                $students[] = $object;
+            }
+            //All the students that registered the subject in the class room for the academic year
+            foreach($subject->studentSubjects()->get() as $student_subject){
+                $res2[] = $student_subject->student_id;
+            }
+            //Sort The Students by name
+            usort($students, function($a, $b)
+            {
+                return strcmp($a->name, $b->name);
+            });
+            $response['flag'] = 1;
+            $response['Students'] = isset($students) ? $students : [];
+            $response['Registered'] = isset($res2) ? $res2 : [];
+        }
+        echo json_encode($response);
+    }
+
+    /**
+     * Submit For Subjects Managed
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postManageStudents(Request $request)
+    {
+        $inputs = $request->all();
+        $subject = SubjectClassRoom::findOrFail($inputs['subject_classroom_id']);
+        $student_ids = implode(',', $inputs['student_id']);
+        if($subject->modifyStudentsSubject($student_ids)){
+            $this->setFlashMessage(count($inputs['student_id']) . ' Students has been enrolled for '
+                . $subject->subject()->first()->subject.' Subject in '.$subject->classRoom()->first()->classroom.' class room.', 1);
+        }else{
+            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
+        }
+//        $student_ids = rtrim($student_ids, ',') . ')';
     }
 }

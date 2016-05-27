@@ -90,6 +90,7 @@ Route::group(['middleware' => ['web']], function () {
         'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
         'subjects' => 'School\Setups\Subjects\SubjectsController',
         'subject-classrooms' => 'Admin\MasterRecords\Subjects\SubjectClassRoomsController',
+        'subject-tutors' => 'Admin\MasterRecords\Subjects\SubjectTutorsController',
         'school-subjects' => 'Admin\MasterRecords\Subjects\SchoolSubjectsController',
 
         //Assessment Setup

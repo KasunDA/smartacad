@@ -43,14 +43,14 @@ class ClassRoom extends Model
      * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
     public function subjectClassRooms(){
-        return $this->hasMany('App\Models\Admin\Subjects\SubjectClassRoom');
+        return $this->hasMany('App\Models\Admin\Subjects\SubjectClassRoom', 'subject_classroom_id');
     }
 
     /**
      * A Class Room has many Students
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function studentClass(){
-        return $this->hasMany('App\Models\Admin\Accounts\Students\StudentClass');
+    public function studentClasses(){
+        return $this->hasMany('App\Models\Admin\Accounts\Students\StudentClass', 'classroom_id');
     }
 }

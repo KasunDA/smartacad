@@ -70,11 +70,14 @@ class SubjectClassRoom extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function studentSubjects(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\Accounts\Students\StudentSubject');
+        return $this->hasMany('App\Models\Admin\Accounts\Students\StudentSubject', 'subject_classroom_id');
     }
 
     /**
      * Assign Subjects To Class Room
+     * * @param Int $class
+     * * @param Int $term
+     * * @param String $subject
      */
     public static function assignSubject2Class($class, $term, $subject){
         return DB::statement('call sp_subject2Classrooms(' . $class . ', ' . $term . ', "' . $subject . '")');
@@ -82,6 +85,9 @@ class SubjectClassRoom extends Model
 
     /**
      * Assign Subjects To Class Level
+     * * @param Int $level
+     * * @param Int $term
+     * * @param String $subject
      */
     public static function assignSubject2Level($level, $term, $subject){
         return DB::statement('call sp_subject2Classlevels(' . $level . ', ' . $term . ', "' . $subject . '")');
@@ -93,5 +99,13 @@ class SubjectClassRoom extends Model
      */
     public function deleteSubjectClassRoom(){
         return DB::statement('call sp_deleteSubjectClassRoom(' . $this->subject_classroom_id . ')');
+    }
+
+    /**
+     * Update Subjects Students Registered Table with the list of students
+     * @param String $student_ids
+     */
+    public function modifyStudentsSubject($student_ids) {
+        return DB::statement('call sp_modifyStudentsSubject(' . $this->subject_classroom_id . ', "'. $student_ids . '")');
     }
 }
