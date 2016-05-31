@@ -50,42 +50,45 @@ jQuery(document).ready(function() {
     });
 
     //When the edit button is clicked show Tutors Drop Down
-    $(document.body).on('click', '.edit-tutor', function(){
+    $(document.body).on('click', '.edit-class-master', function(){
         var buttonTD = $(this).parent();
         tutors.removeClass('hide');
         var employees = tutors.clone();
-        var subject_classroom_id = $(this).val();
         old_btn = $(this).clone();
         buttonTD.html(employees);
         employees.val($(this).attr('rel'));
         employees.prop('id', '');
-        employees.attr('title', subject_classroom_id);
-        employees.addClass('tutor_subject_select');
+        employees.attr('rel', $(this).val());
+        employees.attr('title', $(this).attr('title'));
+        employees.addClass('class-master-select');
         buttonTD.children('select').focus();
     });
 
     //When No Changes is made to the Teachers Listbox //On Blur
-    $(document.body).on('blur', '.tutor_subject_select', function(){
+    $(document.body).on('blur', '.class-master-select', function(){
         var td = $(this).parent();
         td.html(old_btn);
     });
 
     //On Change of the employees name assign to the class
-    $(document.body).on('change', '.tutor_subject_select', function(){
-        var subject_classroom_id = $(this).attr('title');
+    $(document.body).on('change', '.class-master-select', function(){
+        var class_master_id = $(this).attr('rel');
+        var classroom_id = $(this).attr('title');
+        var year_id = $('#hidden_master_year_id').val();
         var buttonTD = $(this).parent();
-        var tutor_id = $(this).val();
-        var tutor = $(this).children('option:selected').text();
+        var user_id = $(this).val();
+        var name = $(this).children('option:selected').text();
 
         $.ajax({
-            type: "GET",
-            url: '/subject-classrooms/assign-tutor/' + subject_classroom_id + '/' + tutor_id,
+            type: "POST",
+            data: {class_master_id:class_master_id, classroom_id:classroom_id, year_id:year_id, user_id:user_id},
+            url: '/class-rooms/assign-class-masters',
             success: function (data) {
-                buttonTD.html('<button value="'+data+'" title="'+tutor_id+'" class="btn btn-link edit-tutor">\n\
-                <i class="fa fa-edit"></i> '+tutor+'</button></td>');
+                buttonTD.html('<button value="'+data+'" title="'+classroom_id+'" rel="'+user_id+'" class="btn btn-link edit-class-master">\n\
+                <i class="fa fa-edit"></i> '+name+'</button></td>');
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
-                set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+                set_msg_box($('#msg_box2'), 'Error...Kindly Try Again', 2)
             }
         });
     });
@@ -228,18 +231,19 @@ var UIBlockUI = function() {
             return false;
         });
 
-        //When the search button is clicked for Assigning Form Master Students
-        $(document.body).on('submit', '#search_form_master_form', function(){
+        //When the search button is clicked for Assigning Class Master
+        $(document.body).on('submit', '#search_class_master_form', function(){
             var values = $(this).serialize();
+            $('#hidden_master_year_id').val($('#academic_year_id').val());
 
             App.blockUI({
-                target: '#assign_formMaster',
+                target: '#assign_classMaster',
                 animate: true
             });
 
             $.ajax({
                 type: "POST",
-                url: '/class-rooms/form-masters',
+                url: '/class-rooms/class-masters',
                 data: values,
                 success: function (data) {
                     //console.log(data);
@@ -248,44 +252,35 @@ var UIBlockUI = function() {
                     var assign = '<thead>\
                                     <tr>\
                                         <th>#</th>\
-                                        <th>Student No.</th>\
-                                        <th>Student Name</th>\
-                                        <th>Gender</th>\
-                                        <th>Sponsor</th>\
                                         <th>Class Room</th>\
-                                        <th>View</th>\
+                                        <th>No. of Student</th>\
+                                        <th>Class Master</th>\
                                     </tr>\
                                 </thead>\
                                 <tbody>';
                     if(obj.flag === 1){
-                        $.each(obj.Students, function(key, value) {
+                        $.each(obj.ClassRooms, function(key, value) {
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
-                                '<td>'+value.student_no+'</td>' +
-                                '<td>'+value.name+'</td>' +
-                                '<td>'+value.gender+'</td>' +
-                                '<td><a href="/sponsors/view/'+value.sponsor_id+'" class="btn btn-link"><i class="fa fa-user"></i> '+value.sponsor+'</a></td>' +
                                 '<td>'+value.classroom+'</td>' +
-                                '<td><a href="/students/view/'+value.student_id+'" class="btn btn-link"><i class="fa fa-eye"></i> Proceed</a></td>' +
+                                '<td>'+value.students+'</td>' +
+                                '<td><button class="btn btn-link edit-class-master" value="'+value.class_master_id+'" rel="'+value.user_id+'" title="'+value.classroom_id+'"><i class="fa fa-edit"></i> '+value.name+'</button></td>' +
                                 '</tr>';
                         });
                     }
                     assign += '</tbody>';
 
-                    $('#form_master_datatable').html(assign);
-                    //FormEditable.init();
-                    setTableData($('#form_master_datatable')).refresh();
-                    setTableData($('#form_master_datatable')).init();
+                    $('#class_master_datatable').html(assign);
 
                     window.setTimeout(function() {
-                        App.unblockUI('#assign_formMaster');
+                        App.unblockUI('#assign_classMaster');
                     }, 2000);
                     //Scroll To Div
-                    scroll2Div($('#form_master_datatable'));
+                    scroll2Div($('#class_master_datatable'));
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     set_msg_box($('#msg_box2'), 'Error...Kindly Try Again', 2);
-                    App.unblockUI('#assign_formMaster');
+                    App.unblockUI('#assign_classMaster');
                 }
             });
             return false;

@@ -7,6 +7,7 @@ use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
+use App\Models\Admin\MasterRecords\Classes\ClassMaster;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\Users\User;
 use Illuminate\Http\Request;
@@ -94,7 +95,7 @@ class ClassRoomsController extends Controller
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
         $tutors = User::where('user_type_id', Staff::USER_TYPE)->where('status', 1)->orderBy('first_name')->get();
-        return view('admin.master-records.classes.class-rooms.tutor-student', compact('academic_years', 'classlevels', 'tutors'));
+        return view('admin.master-records.classes.class-rooms.student-class-master', compact('academic_years', 'classlevels', 'tutors'));
     }
 
     /**
@@ -229,46 +230,54 @@ class ClassRoomsController extends Controller
         echo json_encode($response);
     }
 
-    //TODO :: Form Tutor / Class Master
     /**
      * Search For Form Masters in a class level for an academic year
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postFormMasters(Request $request)
+    public function postClassMasters(Request $request)
     {
         $inputs = $request->all();
-        $form_masters = StudentClass::where('academic_year_id', $inputs['academic_year_id'])
-            ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->lists('classroom_id')->toArray())->get();
+        $classrooms = ClassRoom::orderBy('classroom')->where('classlevel_id', $inputs['classlevel_id'])->get();
 
         $response = array();
         $response['flag'] = 0;
-        $studentsClass = [];
+        $classRooms = [];
 
-        if($form_masters->count() > 0){
-            //All the students in the class room for the academic year
-            foreach($form_masters as $student){
-                if($student->student()->first()->status_id == 1){
-                    $object = new stdClass();
-                    $object->student_id = $this->getHashIds()->encode($student->student_id);
-                    $object->name = $student->student()->first()->fullNames();
-                    $object->student_no = $student->student()->first()->student_no;
-                    $object->gender = $student->student()->first()->gender;
-                    $object->classroom = $student->classRoom()->first()->classroom;
-                    $object->sponsor = $student->student()->first()->sponsor()->first()->fullNames();
-                    $object->sponsor_id = $this->getHashIds()->encode($student->student()->first()->sponsor()->first()->user_id);
-                    $studentsClass[] = $object;
-                }
+        if($classrooms){
+            //All the Class Rooms in the class level
+            foreach($classrooms as $classroom){
+                $object = new stdClass();
+                $classMaster = $classroom->classMasters()->where('academic_year_id', $inputs['academic_year_id'])->first();
+                $object->user_id = ($classMaster and $classMaster->user()->first()) ? $classMaster->user()->first()->user_id : -1;
+                $object->name = ($classMaster and $classMaster->user()->first()) ? $classMaster->user()->first()->fullNames() : 'Select Class Master';
+                $object->class_master_id = ($classMaster) ? $classMaster->class_master_id : -1;
+                $object->classroom = $classroom->classroom;
+                $object->classroom_id = $classroom->classroom_id;
+                $object->students = $classroom->studentClasses()->where('academic_year_id', $inputs['academic_year_id'])->where('classroom_id', $classroom->classroom_id)->count();
+                $classRooms[] = $object;
             }
-            //Sort The Students by name
-            usort($studentsClass, function($a, $b)
-            {
-                return strcmp($a->name, $b->name);
-            });
 
             $response['flag'] = 1;
-            $response['Students'] = isset($studentsClass) ? $studentsClass : [];
+            $response['ClassRooms'] = isset($classRooms) ? $classRooms : [];
         }
         echo json_encode($response);
+    }
+
+    /**
+     * Assign Class Master
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postAssignClassMasters(Request $request)
+    {
+        $inputs = $request->all();
+        $classMaster = ($inputs['class_master_id'] > 0) ? ClassMaster::find($inputs['class_master_id']) : new ClassMaster();
+        $classMaster->classroom_id = $inputs['classroom_id'];
+        $classMaster->academic_year_id = $inputs['year_id'];
+        $classMaster->user_id = ($inputs['user_id'] > 0)  ? $inputs['user_id'] : null;
+        if($classMaster->save()){
+            echo json_encode($classMaster->class_master_id);
+        }
     }
 }

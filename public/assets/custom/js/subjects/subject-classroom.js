@@ -221,7 +221,6 @@ var UIBlockUI = function() {
                                 '<td>'+(key + 1)+'</td>' +
                                 '<td>'+value.subject+'</td>' +
                                 '<td>'+value.classroom+'</td>' +
-                                //'<td>'+value.tutor+'</td>' +
                                 '<td><button class="btn btn-link edit-tutor" value="'+value.subject_classroom_id+'" rel="'+value.tutor_id+'"><i class="fa fa-edit"></i> '+value.tutor+'</button></td>' +
                                 //'<td><a href="javascript:;" class="subject_tutor" data-type="select" data-pk="1" ' +
                                 //'data-value="'+value.tutor_id+'" data-souce="/subject-classrooms/tutors" data-original-title="Select Tutor">'+value.tutor+'</a></td>' +
@@ -239,6 +238,8 @@ var UIBlockUI = function() {
                     window.setTimeout(function() {
                         App.unblockUI('#view_subject');
                     }, 2000);
+                    //Scroll To Div
+                    scroll2Div($('#view_subject_datatable'));
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
@@ -262,7 +263,6 @@ var UIBlockUI = function() {
                 url: '/subject-classrooms/search-subjects',
                 data: values,
                 success: function (data) {
-                    //console.log(data);
 
                     var obj = $.parseJSON(data);
                     var assign = '<thead>\
@@ -302,6 +302,8 @@ var UIBlockUI = function() {
                     window.setTimeout(function() {
                         App.unblockUI('#manage_subject');
                     }, 2000);
+                    //Scroll To Div
+                    scroll2Div($('#manage_subject_datatable'));
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2);
@@ -325,7 +327,7 @@ var UIBlockUI = function() {
                 type: "GET",
                 url: '/subject-classrooms/manage-student/' + subject_classroom_id + '/' + academic_term_id,
                 success: function (data) {
-                    console.log(data);
+                    //console.log(data);
                     var obj = $.parseJSON(data);
                     var assign = '<optgroup label="Select All Students">';
                     if(obj.flag === 1){

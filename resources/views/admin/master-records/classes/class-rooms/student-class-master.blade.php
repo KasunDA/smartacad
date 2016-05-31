@@ -179,7 +179,7 @@
                                         {!! Form::open([
                                                 'method'=>'POST',
                                                 'class'=>'form-horizontal',
-                                                'id' => 'search_form_master_form'
+                                                'id' => 'search_class_master_form'
                                             ])
                                         !!}
                                         <div class="form-body">
@@ -188,7 +188,7 @@
                                                     <div class="form-group">
                                                         <label class="control-label">Academic Year <span class="text-danger">*</span></label>
                                                         <div>
-                                                            {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'required'=>'required']) !!}
+                                                            {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required']) !!}
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
@@ -201,16 +201,17 @@
                                             </div>
                                         </div>
                                         <div class="form-actions noborder">
+                                            <input type="hidden" value="" name="hidden_master_year_id" id="hidden_master_year_id">
                                             <button type="submit" class="btn blue pull-right">
                                                 <i class="fa fa-search"></i> Search
                                             </button>
                                         </div>
                                         {!! Form::close() !!}
                                         <div class="row">
-                                            <div class="col-md-12">
+                                            <div class="col-md-10 col-md-offset-1">
                                                 <div class="portlet-body">
                                                     <div class="row">
-                                                        <table class="table table-striped table-bordered table-hover" id="form_master_datatable">
+                                                        <table class="table table-striped table-bordered table-hover" id="class_master_datatable">
 
                                                         </table>
                                                     </div>
@@ -227,7 +228,7 @@
         </div>
     </div>
     <select id="tutors" class="form-control hide">
-        <option value="-1">Select Form Teacher</option>
+        <option value="-1">Select Class Master</option>
         @foreach($tutors as $tutor)
             <option value="{{ $tutor->user_id }}">{{ $tutor->fullNames() }}</option>
         @endforeach
@@ -257,7 +258,7 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/master-records/classes/tutor-student.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/master-records/classes/student-class-master.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/subject-classrooms/assign-students"]');

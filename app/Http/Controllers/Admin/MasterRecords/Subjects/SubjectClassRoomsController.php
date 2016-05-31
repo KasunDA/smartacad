@@ -182,22 +182,7 @@ class SubjectClassRoomsController extends Controller
         echo json_encode($response);
     }
 
-    /**
-     * Delete a Subject Class Room given its id
-     * @param $id
-     */
-    public function getDelete($id)
-    {
-        $subject = SubjectClassRoom::findOrFail($id);
-        //Delete The Record
-        if($subject !== null) {
-            if($subject->deleteSubjectClassRoom()){
-                $this->setFlashMessage('  Deleted!!! '.$subject->subject()->first()->subject.' Subject in '.$subject->classRoom()->first()->classroom.' have been deleted.', 1);
-            }
-        }else{
-            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
-        }
-    }
+
 
     /**
      * Search For Subjects to be managed
