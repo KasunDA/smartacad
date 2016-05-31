@@ -44,11 +44,12 @@
                                     <th>Names</th>
                                     <th>Username</th>
                                     <th>Email</th>
-                                    <th>Gender</th>
+                                    {{--<th>Gender</th>--}}
                                     <th>User Type</th>
                                     <th>Status</th>
                                     <th>View</th>
                                     <th>Edit</th>
+                                    <th>Delete</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -60,7 +61,7 @@
                                         <td>{{ $user->fullNames() }}</td>
                                         <td>{{ $user->phone_no }}</td>
                                         <td>{{ $user->email }}</td>
-                                        <td>{!! ($user->gender) ? $user->gender : '<span class="label label-danger">nil</span>' !!}</td>
+{{--                                        <td>{!! ($user->gender) ? $user->gender : '<span class="label label-danger">nil</span>' !!}</td>--}}
                                         <td>{{ $user->userType()->first()->user_type }}</td>
                                         <td>
                                             @if($user->status === 1)
@@ -83,6 +84,11 @@
                                                 <span class="fa fa-edit"></span>
                                             </a>
                                         </td>
+                                        <td>
+                                            <button class="btn btn-danger btn-rounded btn-xs delete_user" value="{{ $user->user_id }}">
+                                                <span class="fa fa-trash-o"></span>
+                                            </button>
+                                        </td>
                                     </tr>
                                 @endforeach
                             @endif
@@ -93,11 +99,12 @@
                                     <th>Names</th>
                                     <th>Username</th>
                                     <th>Email</th>
-                                    <th>Gender</th>
+                                    {{--<th>Gender</th>--}}
                                     <th>User Type</th>
                                     <th>Status</th>
                                     <th>View</th>
                                     <th>Edit</th>
+                                    <th>Delete</th>
                                 </tr>
                             </tfoot>
 

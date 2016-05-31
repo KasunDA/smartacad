@@ -58,7 +58,7 @@ class UserController extends Controller
      */
     public function getIndex()
     {
-        $users = User::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())->get();
+        $users = User::orderBy('first_name')->whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())->get();
         return view('admin.users.index', compact('users'));
     }
 
@@ -270,6 +270,22 @@ class UserController extends Controller
             $user->save();
             $this->setFlashMessage($user->fullNames() . '  profile picture has been successfully uploaded.', 1);
             return redirect('/users/view/'.$this->getHashIds()->encode($inputs['user_id']));
+        }
+    }
+
+    /**
+     * Delete a Users Record
+     * @param $id
+     */
+    public function getDelete($id)
+    {
+        $user = User::findOrFail($id);
+        //Delete The Record
+        if($user){
+            $user->delete();
+            $this->setFlashMessage('  Deleted!!! '.$user->fullNames().' User have been deleted.', 1);
+        }else{
+            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
     }
 

@@ -51,6 +51,6 @@ class StudentClass extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function student(){
-        return $this->belongsTo('App\Models\Admin\Accounts\Students\Student');
+        return $this->belongsTo('App\Models\Admin\Accounts\Students\Student', 'student_id');
     }
 }

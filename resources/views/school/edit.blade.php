@@ -33,7 +33,7 @@
                 </div>
                 <div class="portlet-body form">
                     @include('errors.errors')
-                    <form method="POST" action="{{ url('/schools/edit/' . $hashIds->encode($school->schools_id)) }}" accept-charset="UTF-8" class="form-horizontal" role="form" enctype="multipart/form-data">
+                    <form method="POST" action="{{ url('/schools/edit/' . $hashIds->encode($school->school_id)) }}" accept-charset="UTF-8" class="form-horizontal" role="form" enctype="multipart/form-data">
                         <input name="_method" type="hidden" value="PATCH">
                         {!! csrf_field() !!}
                         <div class="form-body">
@@ -58,10 +58,17 @@
                             </div>
 
                             <div class="form-group">
-                                <label>School Phone</label>
+                                <label>School Phone Line 1</label>
                                 <div class="input-icon input-icon-lg">
                                     <i class="fa fa-phone"></i>
                                     <input type="text" class="form-control input-lg" required placeholder="Mobile" name="phone_no" value="{{ $school->phone_no }}"> </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>School Phone Line 2</label>
+                                <div class="input-icon input-icon-lg">
+                                    <i class="fa fa-phone"></i>
+                                    <input type="text" class="form-control input-lg" placeholder="Mobile" name="phone_no2" value="{{ $school->phone_no2 }}"> </div>
                             </div>
 
                             <div class="form-group">
@@ -138,7 +145,7 @@
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/schools/create"]');
+            setTabActive('[href="/schools/edit"]');
         });
     </script>
 @endsection

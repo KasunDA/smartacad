@@ -184,7 +184,7 @@
 
 
     @section('layout-script')
-            <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
     <script src="assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->

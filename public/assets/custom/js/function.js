@@ -61,6 +61,13 @@ function small_loading_image(div) {
     div.html('<img src="/images/loading.gif" style="width:20px; height:20px" alt="Loading"/>');
 }
 
+//Scrolling To a div
+function scroll2Div(div){
+    $('html, body').animate({
+        scrollTop: div.offset().top
+    }, 2000);
+}
+
 //Dependent List Box
 function getDependentListBox(parent, child, url) {
     parent.bind("change", function (event) {

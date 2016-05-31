@@ -53,7 +53,7 @@ class SchoolController extends Controller
      * @return Response
      */
     public function getCreate(){
-        $admins = User::where('user_type_id',2)->orderBy('email')->get();
+        $admins = User::where('user_type_id',2)->orderBy('first_name')->get();
         return view('school.create', compact('admins'));
     }
 
@@ -164,7 +164,7 @@ class SchoolController extends Controller
             $this->setFlashMessage($school->name . ' have successfully been updated.', 1);
             // redirect to the create bill page and enable the take roll call link
         }
-        return redirect('/schools');
+        return redirect('/schools/edit');
     }
 
     /**

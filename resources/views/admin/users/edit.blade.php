@@ -119,8 +119,7 @@
                                 </div>
                                 <div id="tab_2-2"
                                      class="tab-pane {{ (session('active') == 'avatar') ? 'active' : '' }}">
-                                    <form action="/users/avatar" role="form" method="post"
-                                          enctype="multipart/form-data">
+                                    <form action="/users/avatar" role="form" method="post" enctype="multipart/form-data">
                                         {{ csrf_field() }}
                                         {!! Form::hidden('user_id', $user->user_id) !!}
                                         <div class="form-group">

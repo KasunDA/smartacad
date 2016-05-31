@@ -36,6 +36,7 @@ class School extends Model
         'name',
         'full_name',
         'phone_no',
+        'phone_no2',
         'email',
         'motto',
         'website',

@@ -46,7 +46,7 @@
                                 <th style="width: 15%;">Website</th>
                                 <th style="width: 5%;">D.B</th>
                                 <th style="width: 10%;">Status</th>
-                                <th style="width: 5%;">View</th>
+                                {{--<th style="width: 5%;">View</th>--}}
                                 <th style="width: 5%;">Edit</th>
                             </tr>
                             </thead>
@@ -61,28 +61,28 @@
                                         <td>{!! ($school->email) ? $school->email : '<span class="label label-danger">nil</span>' !!}</td>
                                         <td>{!! ($school->website) ? $school->website : '<span class="label label-danger">nil</span>' !!}</td>
                                         <td>
-                                            <a href="{{ url('/schools/db-config/'.$hashIds->encode($school->schools_id)) }}" class="btn btn-default btn-rounded btn-condensed btn-xs">
+                                            <a href="{{ url('/schools/db-config/'.$hashIds->encode($school->school_id)) }}" class="btn btn-default btn-rounded btn-condensed btn-xs">
                                                 <span class="fa fa-gears"></span>
                                             </a>
                                         </td>
                                         <td>
                                             @if($school->status_id === 1)
-                                                <button value="{{ $school->schools_id }}" rel="2" class="btn btn-success btn-rounded btn-condensed btn-xs school_status">
+                                                <button value="{{ $school->school_id }}" rel="2" class="btn btn-success btn-rounded btn-condensed btn-xs school_status">
                                                     Deactivate
                                                 </button>
                                             @else
-                                                <button value="{{ $school->schools_id }}" rel="1" class="btn btn-danger btn-rounded btn-condensed btn-xs school_status">
+                                                <button value="{{ $school->school_id }}" rel="1" class="btn btn-danger btn-rounded btn-condensed btn-xs school_status">
                                                     Activate
                                                 </button>
                                             @endif
                                         </td>
+                                        {{--<td>--}}
+                                            {{--<a target="_blank" href="{{ url('/schools/view/'.$hashIds->encode($school->school_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">--}}
+                                                {{--<span class="fa fa-eye-slash"></span>--}}
+                                            {{--</a>--}}
+                                        {{--</td>--}}
                                         <td>
-                                            <a target="_blank" href="{{ url('/schools/view/'.$hashIds->encode($school->schools_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-eye-slash"></span>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a href="{{ url('/schools/edit/'.$hashIds->encode($school->schools_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                                            <a href="{{ url('/schools/edit/'.$hashIds->encode($school->school_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
                                                 <span class="fa fa-edit"></span>
                                             </a>
                                         </td>
@@ -99,7 +99,7 @@
                                 <th style="width: 15%;">Website</th>
                                 <th style="width: 5%;">D.B</th>
                                 <th style="width: 10%;">Status</th>
-                                <th style="width: 5%;">View</th>
+                                {{--<th style="width: 5%;">View</th>--}}
                                 <th style="width: 5%;">Edit</th>
                             </tr>
                             </tfoot>

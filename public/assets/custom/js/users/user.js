@@ -3,6 +3,7 @@
  */
 
 $(function () {
+
     $(document.body).on('click', '.user_status',function(e){
         e.preventDefault();
 
@@ -32,6 +33,47 @@ $(function () {
                             type: 'GET',
                             async: true,
                             url: '/users/status/' + user_id + '/' + value,
+                            success: function(data,textStatus){
+                                window.location.replace('/users');
+                            },
+                            error: function(xhr,textStatus,error){
+                                bootbox.alert("Error encountered pls try again later..", function() {
+                                    $(this).hide();
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    });
+
+    $(document.body).on('click', '.delete_user',function(e){
+        e.preventDefault();
+
+        var parent = $(this).parent().parent();
+        var user = parent.children(':nth-child(2)').children('input').val();
+        var user_id = $(this).val();
+
+        bootbox.dialog({
+            message: "Are You sure You want to permanently delete User "+user+ " and all its reference places",
+            title: "Warning Alert",
+            buttons: {
+                danger: {
+                    label: "NO",
+                    className: "btn-default",
+                    callback: function() {
+                        $(this).hide();
+                    }
+                },
+                success: {
+                    label: "YES",
+                    className: "btn-success",
+                    callback: function() {
+                        $.ajax({
+                            type: 'GET',
+                            async: true,
+                            url: '/users/delete/' + user_id,
                             success: function(data,textStatus){
                                 window.location.replace('/users');
                             },

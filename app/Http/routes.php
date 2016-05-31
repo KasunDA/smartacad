@@ -103,5 +103,8 @@ Route::group(['middleware' => ['web']], function () {
 
 ///////////////////////User/Project APIs///////////////////////////////
 Route::group(array('prefix'=>'/api'),function(){
-
+    Route::post('/json', function () {
+        return json_encode(['name'=>'KayOh', 'surname'=>'China']);
+    });
+    Route::post('/sign-in', 'Admin\APIController@login');
 });

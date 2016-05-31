@@ -103,11 +103,7 @@
                                         <select name="admin_id" class="form-control input-lg selectpicker">
                                             <option value="">Select Admin</option>
                                             @foreach($admins as $admin)
-                                                @if($school->admin_id == $admin->user_id)
-                                                    <option selected value="{{ $admin->user_id}}">{{$admin->fullNames() }}</option>
-                                                @else
-                                                    <option value="{{ $admin->user_id}}">{{$admin->email }}</option>
-                                                @endif
+                                                <option value="{{ $admin->user_id}}">{{$admin->fullNames() }}</option>
                                             @endforeach
                                         </select>
                                     </div>
