@@ -44,14 +44,12 @@ class AssessmentsController extends Controller
         $response = array();
         $response['flag'] = 0;
         $user_id = Auth::user()->user_id;
-        // TODO:: filter by logged in staff just un comment
+
         if($inputs['classlevel_id'] > 0){
-//            $class_subjects = SubjectClassRoom::where('tutor_id', $user_id)->where('academic_term_id', $inputs['academic_term_id'])
-            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
+            $class_subjects = SubjectClassRoom::where('tutor_id', $user_id)->where('academic_term_id', $inputs['academic_term_id'])
             ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['classlevel_id'])->lists('classroom_id')->toArray())->get();
         }else{
-            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])->get();
-//            $class_subjects = SubjectClassRoom::where('tutor_id', $user_id)->where('academic_term_id', $inputs['academic_term_id'])->get();
+            $class_subjects = SubjectClassRoom::where('tutor_id', $user_id)->where('academic_term_id', $inputs['academic_term_id'])->get();
         }
         if(isset($class_subjects)){
             foreach($class_subjects as $class_subject){

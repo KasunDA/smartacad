@@ -79,8 +79,8 @@ Route::group(['middleware' => ['web']], function () {
         'students' => 'Admin\Accounts\StudentController',
 
         //Master Record
-        'academic-years' => 'Admin\MasterRecords\AcademicYearsController',
-        'academic-terms' => 'Admin\MasterRecords\AcademicTermsController',
+        'academic-years' => 'Admin\MasterRecords\Sessions\AcademicYearsController',
+        'academic-terms' => 'Admin\MasterRecords\Sessions\AcademicTermsController',
         'grades' => 'Admin\MasterRecords\GradesController',
         'class-groups' => 'Admin\MasterRecords\Classes\ClassGroupsController',
         'class-levels' => 'Admin\MasterRecords\Classes\ClassLevelsController',

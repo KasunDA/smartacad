@@ -38,6 +38,7 @@ class SubjectTutorsController extends Controller
         $inputs = $request->all();
         $response = array();
         $response['flag'] = 0;
+        $ClassSubjects = [];
         $tutor_id = Auth::user()->user_id;
 
         if(isset($inputs['manage_classlevel_id']) and $inputs['manage_classlevel_id'] != ''){
@@ -49,17 +50,22 @@ class SubjectTutorsController extends Controller
         }
         if(isset($class_subjects)){
             foreach($class_subjects as $class_subject){
-                $res[] = array(
-                    "classroom"=>$class_subject->classRoom()->first()->classroom,
-                    "subject"=>$class_subject->subject()->first()->subject,
-                    "subject_classroom_id"=>$class_subject->subject_classroom_id,
-                    "academic_term"=>$class_subject->academicTerm()->first()->academic_term,
-                    "tutor"=>($class_subject->tutor()->first()) ? $class_subject->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>',
-                    "status"=>($class_subject->exam_status_id == 2) ? '<span class="label label-danger">Not Setup</span>' : '<span class="label label-success">Already Setup</span>',
-                );
+                $object = new stdClass();
+                $object->classroom = $class_subject->classRoom()->first()->classroom;
+                $object->subject = $class_subject->subject()->first()->subject;
+                $object->subject_classroom_id = $class_subject->subject_classroom_id;
+                $object->academic_term = $class_subject->academicTerm()->first()->academic_term;
+                $object->tutor = ($class_subject->tutor()->first()) ? $class_subject->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>';
+                $object->status = ($class_subject->exam_status_id == 2) ? '<span class="label label-danger">Not Setup</span>' : '<span class="label label-success">Already Setup</span>';
+                $ClassSubjects[] = $object;
             }
+            //Sort The Subjects by name
+            usort($ClassSubjects, function($a, $b)
+            {
+                return strcmp($a->subject, $b->subject);
+            });
             $response['flag'] = 1;
-            $response['ClassSubjects'] = isset($res) ? $res : [];
+            $response['ClassSubjects'] = isset($ClassSubjects) ? $ClassSubjects : [];
         }
         echo json_encode($response);
     }
@@ -156,4 +162,5 @@ class SubjectTutorsController extends Controller
         echo json_encode($response);
     }
 
+    //TODO :: View Score // Add a second Tab
 }

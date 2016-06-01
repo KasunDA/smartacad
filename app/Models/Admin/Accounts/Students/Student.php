@@ -17,6 +17,10 @@ class Student extends Model
      * User Type ID
      */
     const USER_TYPE = 5;
+    /**
+     * Student Status
+     */
+    const ACTIVE = 1;
 
     /**
      * The database table used by the model.

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Accounts\Staff;
 use App\Models\Admin\Accounts\Students\Student;
+use App\Models\Admin\MasterRecords\AcademicYear;
+use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 
@@ -24,5 +26,40 @@ class DashboardController extends Controller
         $staff_count = User::where('user_type_id', Staff::USER_TYPE)->count();
         $students_count = Student::count();
         return view('admin.dashboard', compact('sponsors_count','staff_count', 'students_count'));
+    }
+
+    /**
+     * Gets The Number of Students Based on their gender
+     * @return Response
+     */
+    public function getStudentsGender()
+    {
+        $male = Student::where('gender', 'Male')->where('status_id', Student::ACTIVE)->count();
+        $female = Student::where('gender', 'Female')->where('status_id', Student::ACTIVE)->count();
+        $response[] = ['label'=>'Male', 'color'=>'#CCC', 'data'=>$male, 'value'=>$male];
+        $response[] = ['label'=>'Female', 'color'=>'#3CF', 'data'=>$female, 'value'=>$female];
+
+        return response()->json($response);
+    }
+
+    /**
+     * Gets The Number of Students Based on their gender
+     * @return Response
+     */
+    public function getStudentsClasslevel()
+    {
+        $classlevels = ClassLevel::all();
+        $response = [];
+        foreach($classlevels as $classlevel){
+            $sum = 0;
+            foreach($classlevel->classRooms()->get() as $classroom){
+                $sum += $classroom->studentClasses()->where('academic_year_id', AcademicYear::activeYear()->academic_year_id)->count();
+            }
+            $response[] = array(
+                'y'=>$classlevel->classlevel,
+                'a'=>$sum
+            );
+        }
+        return response()->json($response);
     }
 }

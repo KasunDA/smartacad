@@ -86,6 +86,8 @@ var UIBlockUI = function() {
                     window.setTimeout(function() {
                         App.unblockUI('#manage_subject');
                     }, 2000);
+                    //Scroll To Div
+                    scroll2Div($('#manage_subject_datatable'));
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2);
