@@ -68,6 +68,8 @@ class DashboardController extends Controller
         $password = "zuma123456";
         $url = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=Kheengz&to=2348030734377&message=message_testing";
         $ret = file($url);
+        $url2 = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=Kheengz&to=2348022020075&message=message_testing";
+        $ret2 = file($url2);
 //        $staffs = User::where('user_type_id', 1)->get();
         $temp = '';
 //        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
@@ -83,6 +85,6 @@ class DashboardController extends Controller
 //        $msg .= ' and Password: password then visit this link to login via portal.solidsteps.org' ;
 //        $temp .= $this->sendSMS($msg, '08022020075')[0];
 //        $temp = $temp . '<br>' . $this->sendSMS($msg, '08030737377')[0];
-        return response()->json($ret);
+        return response()->json($ret . ' <br>' . $ret2);
     }
 }
