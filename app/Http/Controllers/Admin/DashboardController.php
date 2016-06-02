@@ -83,9 +83,9 @@ class DashboardController extends Controller
         $number = (isset($num)) ? $num : $mobile_no;
 
         $url = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=$msg_sender&to=$number&message=$msg";
-        $ret = file($url);
+//        $ret = file($url);
 
-        return $ret;
+        return $url;
     }
 
     public function getStaff(){
