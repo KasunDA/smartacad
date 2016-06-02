@@ -47,6 +47,7 @@
                                     <th style="width: 5%;">Status</th>
                                     <th style="width: 5%;">View</th>
                                     <th style="width: 5%;">Edit</th>
+                                    <th style="width: 5%;">Delete</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -59,7 +60,7 @@
                                         <td>{!! ($student->classroom_id) ? $student->classRoom()->first()->classroom : '<span class="label label-danger">nil</span>' !!}</td>
                                         <td>{!! ($student->gender) ? $student->gender : '<span class="label label-danger">nil</span>' !!}</td>
                                         <td>
-                                            @if(($student->sponsor_id))
+                                            @if($student->sponsor()->first())
                                                 <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($student->sponsor()->first()->user_id)) }}" class="btn btn-info btn-link btn-sm">
                                                     <span class="fa fa-eye-slash"></span> {{$student->sponsor()->first()->fullNames()}}
                                                 </a>
@@ -84,6 +85,11 @@
                                                 <span class="fa fa-edit"></span>
                                             </a>
                                         </td>
+                                        <td>
+                                            <button class="btn btn-danger btn-rounded btn-xs delete_student" value="{{ $student->student_id }}">
+                                                <span class="fa fa-trash-o"></span>
+                                            </button>
+                                        </td>
                                     </tr>
                                 @endforeach
                             @endif
@@ -98,6 +104,7 @@
                                     <th style="width: 5%;">Status</th>
                                     <th style="width: 5%;">View</th>
                                     <th style="width: 5%;">Edit</th>
+                                    <th style="width: 5%;">Delete</th>
                                 </tr>
                             </tfoot>
 
@@ -129,6 +136,47 @@
         jQuery(document).ready(function () {
             setTabActive('[href="/students"]');
             setTableData($('#student_tabledata')).init();
+
+            $(document.body).on('click', '.delete_student',function(e){
+                e.preventDefault();
+
+                var parent = $(this).parent().parent();
+                var student = parent.children(':nth-child(2)').html();
+                var student_id = $(this).val();
+
+                bootbox.dialog({
+                    message: "Are You sure You want to permanently delete Student: "+student+ " and all its reference places",
+                    title: "Warning Alert",
+                    buttons: {
+                        danger: {
+                            label: "NO",
+                            className: "btn-default",
+                            callback: function() {
+                                $(this).hide();
+                            }
+                        },
+                        success: {
+                            label: "YES",
+                            className: "btn-success",
+                            callback: function() {
+                                $.ajax({
+                                    type: 'GET',
+                                    async: true,
+                                    url: '/students/delete/' + student_id,
+                                    success: function(data,textStatus){
+                                        window.location.replace('/students');
+                                    },
+                                    error: function(xhr,textStatus,error){
+                                        bootbox.alert("Error encountered pls try again later..", function() {
+                                            $(this).hide();
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            });
         });
     </script>
 @endsection

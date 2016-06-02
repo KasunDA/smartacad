@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost:3306
--- Generation Time: May 31, 2016 at 02:29 PM
+-- Generation Time: Jun 01, 2016 at 02:22 PM
 -- Server version: 5.5.49-cll
 -- PHP Version: 5.4.31
 
@@ -24,103 +24,6 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`solidsteps`@`localhost` PROCEDURE `sp_assignSubject2Classlevels`(IN `LevelID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
-BEGIN
-		DECLARE done1 BOOLEAN DEFAULT FALSE;
-		DECLARE ClassID INT;
-		DECLARE cur1 CURSOR FOR SELECT classroom_id FROM classrooms WHERE classlevel_id=LevelID;
-		DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-
-#Open The Cursor For Iterating Through The Recordset cur1
-		OPEN cur1;
-		REPEAT
-			FETCH cur1 INTO ClassID;
-			IF NOT done1 THEN
-				BEGIN
--- Procedure Call -- To register the subjects to the students in that classroom
-					CALL `sp_assignSubject2Classrooms`(ClassID, TermID, SubjectIDs);
-				END;
-			END IF;
-		UNTIL done1 END REPEAT;
-		CLOSE cur1;
-	END$$
-
-CREATE DEFINER=`solidsteps`@`localhost` PROCEDURE `sp_assignSubject2Classrooms`(IN `ClassID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
-BEGIN
-#Create a Temporary Table to Hold The Values
-		DROP TEMPORARY TABLE IF EXISTS SubjectTemp;
-		CREATE TEMPORARY TABLE IF NOT EXISTS SubjectTemp
-		(
--- Add the column definitions for the TABLE variable here
-			row_id int AUTO_INCREMENT,
-			subject_id INT, PRIMARY KEY (row_id)
-		);
-
-		IF SubjectIDs IS NOT NULL THEN
-			BEGIN
-				DECLARE count INT Default 0 ;
-				DECLARE subject_id VARCHAR(255);
-				simple_loop: LOOP
-					SET count = count + 1;
-					SET subject_id = SPLIT_STR(SubjectIDs, ',', count);
-					IF subject_id = '' THEN
-						LEAVE simple_loop;
-					END IF;
-# Insert into the attend details table those present
-					INSERT INTO SubjectTemp(subject_id)
-						SELECT subject_id;
-				END LOOP simple_loop;
-			END;
-		END IF;
-
-			Block1: BEGIN
-			#DELETE FROM subject_students_registers WHERE subject_classlevel_id IN
-			 #(
-			#	 SELECT subject_classlevel_id FROM subject_classlevels WHERE class_id=ClassID
-             #    AND academic_term_id=TermID AND subject_id
-			#	NOT IN (SELECT subject_id FROM SubjectTemp)
-			 #);
-
-				DELETE FROM subject_classrooms WHERE classroom_id=ClassID
-				AND academic_term_id=TermID AND exam_status_id=2 AND subject_id
-				NOT IN (SELECT subject_id FROM SubjectTemp);
-
-				Block2: BEGIN
-				DECLARE done1 BOOLEAN DEFAULT FALSE;
-				DECLARE SubjectID INT;
-				DECLARE cur1 CURSOR FOR SELECT subject_id FROM SubjectTemp;
-				DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-
-#Open The Cursor For Iterating Through The Recordset cur1
-				OPEN cur1;
-				REPEAT
-					FETCH cur1 INTO SubjectID;
-					IF NOT done1 THEN
-						BEGIN
-							SET @Exist = (SELECT COUNT(*) FROM subject_classrooms WHERE subject_id=SubjectID
-                            AND classroom_id=ClassID AND academic_term_id=TermID);
-							IF @Exist = 0 THEN
-								BEGIN
-# Insert into subject classlevel those newly assigned subjects
-									INSERT INTO subject_classrooms(subject_id, classroom_id, academic_term_id)
-									VALUES(SubjectID, ClassID, TermID);
-
--- Procedure Call -- To register the subjects to the students in that classroom
-									-- CALL proc_assignSubject2Students(LAST_INSERT_ID());
-								END;
-							END IF;
-						END;
-					END IF;
-				UNTIL done1 END REPEAT;
-				CLOSE cur1;
-			END Block2;
-
--- Delete the teachers_subjects record that has no id in subjects classlevel table
-			#DELETE FROM teachers_subjects WHERE subject_classlevel_id
-			#NOT IN (SELECT subject_classlevel_id FROM subject_classlevels);
-		END Block1;
-	END$$
-
 CREATE DEFINER=`solidsteps`@`localhost` PROCEDURE `sp_deleteSubjectClassRoom`(IN `subjectClassroomID` INT)
 BEGIN
 	-- Delete Assessment Details Corresponding to the subject_classroom_id in assessments
@@ -135,6 +38,45 @@ BEGIN
     
     -- Delete the subject in the classroom Corresponding to the subject_classroom_id
     DELETE FROM subject_classrooms WHERE subject_classroom_id = subjectClassroomID;
+END$$
+
+CREATE DEFINER=`solidsteps`@`localhost` PROCEDURE `sp_modifyStudentsSubject`(IN `SubjectClassRoomID` INT, `StudentIDs` VARCHAR(225))
+BEGIN
+	#Create a Temporary Table to Hold The Values
+	DROP TEMPORARY TABLE IF EXISTS StudentTemp;
+	CREATE TEMPORARY TABLE IF NOT EXISTS StudentTemp
+	(
+		-- Add the column definitions for the TABLE variable here
+		row_id int AUTO_INCREMENT,
+		student_id INT, PRIMARY KEY (row_id)
+	);
+
+	IF StudentIDs IS NOT NULL THEN
+		BEGIN
+			DECLARE count INT Default 0 ;
+			DECLARE student_id VARCHAR(255);
+			simple_loop: LOOP
+				SET count = count + 1;
+				SET student_id = SPLIT_STR(StudentIDs, ',', count);
+				IF student_id = '' THEN
+					LEAVE simple_loop;
+				END IF;
+				# Insert into the attend details table those present
+				INSERT INTO StudentTemp(student_id) SELECT student_id;
+			END LOOP simple_loop;
+		END;
+	END IF;
+    
+    Block1: BEGIN
+		-- Delete All the students that have been removed from the subjects
+        DELETE FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID
+        AND student_id NOT IN (SELECT student_id FROM StudentTemp);
+        
+        -- Insert the newly added students that are not in the list of students
+        INSERT INTO student_subjects(subject_classroom_id, student_id)
+        SELECT SubjectClassRoomID, student_id FROM StudentTemp 
+        WHERE student_id NOT IN (SELECT student_id FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID);
+    END Block1;
 END$$
 
 CREATE DEFINER=`solidsteps`@`localhost` PROCEDURE `sp_populateAssessmentDetail`(IN `AssessmentID` INT)
@@ -414,7 +356,15 @@ CREATE TABLE IF NOT EXISTS `assessment_setups` (
   PRIMARY KEY (`assessment_setup_id`),
   KEY `assessment_setups_classgroup_id_index` (`classgroup_id`),
   KEY `assessment_setups_academic_term_id_index` (`academic_term_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
+
+--
+-- Dumping data for table `assessment_setups`
+--
+
+INSERT INTO `assessment_setups` (`assessment_setup_id`, `assessment_no`, `classgroup_id`, `academic_term_id`) VALUES
+(3, 4, 1, 1),
+(4, 4, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -432,7 +382,21 @@ CREATE TABLE IF NOT EXISTS `assessment_setup_details` (
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`assessment_setup_detail_id`),
   KEY `assessment_setup_details_assessment_setup_id_index` (`assessment_setup_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=9 ;
+
+--
+-- Dumping data for table `assessment_setup_details`
+--
+
+INSERT INTO `assessment_setup_details` (`assessment_setup_detail_id`, `number`, `weight_point`, `percentage`, `assessment_setup_id`, `submission_date`, `description`) VALUES
+(1, 1, 10.00, 10, 3, '2016-07-15', 'first test'),
+(2, 2, 20.00, 20, 3, '2016-07-15', 'mid-term test'),
+(3, 3, 10.00, 10, 3, '2016-07-15', 'final test'),
+(4, 4, 60.00, 60, 3, '2016-07-15', 'examination'),
+(5, 1, 10.00, 10, 4, '2016-07-15', 'first test'),
+(6, 2, 20.00, 20, 4, '2016-07-15', 'mid-term test'),
+(7, 3, 10.00, 10, 4, '2016-07-15', 'final test'),
+(8, 4, 60.00, 60, 4, '2016-07-15', 'examination');
 
 -- --------------------------------------------------------
 
@@ -512,6 +476,25 @@ INSERT INTO `classrooms` (`classroom_id`, `classroom`, `class_size`, `class_stat
 (3, 'JSS 2 FAITH (A)', 12, 1, 2, '2016-05-11 15:59:09', '2016-05-13 15:23:54'),
 (4, 'JSS 3 JOY (A)', 8, 1, 3, '2016-05-11 15:59:09', '2016-05-13 15:23:54'),
 (5, 'SS 1 GOLD (A)', 6, 1, 4, '2016-05-13 15:23:54', '2016-05-13 15:23:54');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `class_masters`
+--
+
+CREATE TABLE IF NOT EXISTS `class_masters` (
+  `class_master_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `classroom_id` int(10) unsigned NOT NULL,
+  `academic_year_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`class_master_id`),
+  KEY `class_masters_user_id_index` (`user_id`),
+  KEY `class_masters_classroom_id_index` (`classroom_id`),
+  KEY `class_masters_academic_year_id_index` (`academic_year_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -651,7 +634,7 @@ INSERT INTO `menu_items` (`menu_item_id`, `menu_item`, `menu_item_url`, `menu_it
 (15, 'SUBJECTS', '#', 'fa fa-book', 1, '3', 1, 7, '2016-05-13 02:46:59', '2016-05-16 13:39:21'),
 (16, 'SESSION', '#', 'fa fa-table', 1, '1', 1, 7, '2016-05-13 17:09:07', '2016-05-13 17:09:07'),
 (17, 'CLASS', '#', 'fa fa-table', 1, '2', 1, 7, '2016-05-13 17:09:07', '2016-05-13 17:09:07'),
-(19, 'ASSESSMENTS', '#', 'fa fa-briefcase', 0, '5', 1, 7, '2016-05-16 13:38:22', '2016-05-27 01:29:19'),
+(19, 'ASSESSMENTS', '#', 'fa fa-briefcase', 1, '5', 1, 7, '2016-05-16 13:38:22', '2016-06-01 03:36:27'),
 (20, 'GRADE GROUPING', '/grades', 'fa fa-check', 1, '6', 1, 7, '2016-05-19 03:54:12', '2016-05-19 03:54:12'),
 (21, 'CREATE', '/students/create', 'fa fa-plus', 1, '1', 1, 8, '2016-05-23 14:17:34', '2016-05-23 14:40:11'),
 (22, 'MANAGE', '/students', 'fa fa-list', 1, '2', 1, 8, '2016-05-23 14:19:07', '2016-05-23 14:19:07');
@@ -690,7 +673,8 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 ('2016_05_14_173333_create_subject_classes_table', 3),
 ('2016_05_17_184714_create_students_table', 4),
 ('2016_05_18_182321_create_grades_table', 4),
-('2016_05_20_130901_create_assessments_tables', 5);
+('2016_05_20_130901_create_assessments_tables', 5),
+('2016_05_31_205123_create_class_masters_table', 6);
 
 -- --------------------------------------------------------
 
@@ -1667,6 +1651,789 @@ CREATE TABLE IF NOT EXISTS `student_subjects` (
   KEY `student_subjects_student_id_index` (`student_id`),
   KEY `student_subjects_subject_classroom_id_index` (`subject_classroom_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `student_subjects`
+--
+
+INSERT INTO `student_subjects` (`student_id`, `subject_classroom_id`) VALUES
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(1, 7),
+(1, 8),
+(1, 9),
+(1, 10),
+(1, 11),
+(1, 12),
+(1, 13),
+(1, 14),
+(1, 73),
+(1, 79),
+(1, 80),
+(2, 1),
+(2, 2),
+(2, 3),
+(2, 4),
+(2, 5),
+(2, 6),
+(2, 7),
+(2, 8),
+(2, 9),
+(2, 10),
+(2, 11),
+(2, 12),
+(2, 13),
+(2, 14),
+(2, 73),
+(2, 79),
+(2, 80),
+(3, 1),
+(3, 2),
+(3, 3),
+(3, 4),
+(3, 5),
+(3, 6),
+(3, 7),
+(3, 8),
+(3, 9),
+(3, 10),
+(3, 11),
+(3, 12),
+(3, 13),
+(3, 14),
+(3, 73),
+(3, 79),
+(3, 80),
+(4, 1),
+(4, 2),
+(4, 3),
+(4, 4),
+(4, 5),
+(4, 6),
+(4, 7),
+(4, 8),
+(4, 9),
+(4, 10),
+(4, 11),
+(4, 12),
+(4, 13),
+(4, 14),
+(4, 73),
+(4, 79),
+(4, 80),
+(5, 1),
+(5, 2),
+(5, 3),
+(5, 4),
+(5, 5),
+(5, 6),
+(5, 7),
+(5, 8),
+(5, 9),
+(5, 10),
+(5, 11),
+(5, 12),
+(5, 13),
+(5, 14),
+(5, 73),
+(5, 79),
+(5, 80),
+(6, 1),
+(6, 2),
+(6, 3),
+(6, 4),
+(6, 5),
+(6, 6),
+(6, 7),
+(6, 8),
+(6, 9),
+(6, 10),
+(6, 11),
+(6, 12),
+(6, 13),
+(6, 14),
+(6, 73),
+(6, 79),
+(6, 80),
+(7, 1),
+(7, 2),
+(7, 3),
+(7, 4),
+(7, 5),
+(7, 6),
+(7, 7),
+(7, 8),
+(7, 9),
+(7, 10),
+(7, 11),
+(7, 12),
+(7, 13),
+(7, 14),
+(7, 73),
+(7, 79),
+(7, 80),
+(8, 1),
+(8, 2),
+(8, 3),
+(8, 4),
+(8, 5),
+(8, 6),
+(8, 7),
+(8, 8),
+(8, 9),
+(8, 10),
+(8, 11),
+(8, 12),
+(8, 13),
+(8, 14),
+(8, 73),
+(8, 79),
+(8, 80),
+(9, 1),
+(9, 2),
+(9, 3),
+(9, 4),
+(9, 5),
+(9, 6),
+(9, 7),
+(9, 8),
+(9, 9),
+(9, 10),
+(9, 11),
+(9, 12),
+(9, 13),
+(9, 14),
+(9, 73),
+(9, 79),
+(9, 80),
+(10, 1),
+(10, 2),
+(10, 3),
+(10, 4),
+(10, 5),
+(10, 6),
+(10, 7),
+(10, 8),
+(10, 9),
+(10, 10),
+(10, 11),
+(10, 12),
+(10, 13),
+(10, 14),
+(10, 73),
+(10, 79),
+(10, 80),
+(11, 15),
+(11, 16),
+(11, 17),
+(11, 18),
+(11, 19),
+(11, 20),
+(11, 21),
+(11, 22),
+(11, 23),
+(11, 24),
+(11, 25),
+(11, 26),
+(11, 27),
+(11, 28),
+(11, 72),
+(11, 81),
+(11, 82),
+(12, 15),
+(12, 16),
+(12, 17),
+(12, 18),
+(12, 19),
+(12, 20),
+(12, 21),
+(12, 22),
+(12, 23),
+(12, 24),
+(12, 25),
+(12, 26),
+(12, 27),
+(12, 28),
+(12, 72),
+(12, 81),
+(12, 82),
+(13, 15),
+(13, 16),
+(13, 17),
+(13, 18),
+(13, 19),
+(13, 20),
+(13, 21),
+(13, 22),
+(13, 23),
+(13, 24),
+(13, 25),
+(13, 26),
+(13, 27),
+(13, 28),
+(13, 72),
+(13, 81),
+(13, 82),
+(14, 15),
+(14, 16),
+(14, 17),
+(14, 18),
+(14, 19),
+(14, 20),
+(14, 21),
+(14, 22),
+(14, 23),
+(14, 24),
+(14, 25),
+(14, 26),
+(14, 27),
+(14, 28),
+(14, 72),
+(14, 81),
+(14, 82),
+(15, 15),
+(15, 16),
+(15, 17),
+(15, 18),
+(15, 19),
+(15, 20),
+(15, 21),
+(15, 22),
+(15, 23),
+(15, 24),
+(15, 25),
+(15, 26),
+(15, 27),
+(15, 28),
+(15, 72),
+(15, 81),
+(15, 82),
+(16, 15),
+(16, 16),
+(16, 17),
+(16, 18),
+(16, 19),
+(16, 20),
+(16, 21),
+(16, 22),
+(16, 23),
+(16, 24),
+(16, 25),
+(16, 26),
+(16, 27),
+(16, 28),
+(16, 72),
+(16, 81),
+(16, 82),
+(17, 15),
+(17, 16),
+(17, 17),
+(17, 18),
+(17, 19),
+(17, 20),
+(17, 21),
+(17, 22),
+(17, 23),
+(17, 24),
+(17, 25),
+(17, 26),
+(17, 27),
+(17, 28),
+(17, 72),
+(17, 81),
+(17, 82),
+(18, 15),
+(18, 16),
+(18, 17),
+(18, 18),
+(18, 19),
+(18, 20),
+(18, 21),
+(18, 22),
+(18, 23),
+(18, 24),
+(18, 25),
+(18, 26),
+(18, 27),
+(18, 28),
+(18, 72),
+(18, 81),
+(18, 82),
+(19, 15),
+(19, 16),
+(19, 17),
+(19, 18),
+(19, 19),
+(19, 20),
+(19, 21),
+(19, 22),
+(19, 23),
+(19, 24),
+(19, 25),
+(19, 26),
+(19, 27),
+(19, 28),
+(19, 72),
+(19, 81),
+(19, 82),
+(20, 29),
+(20, 30),
+(20, 31),
+(20, 32),
+(20, 33),
+(20, 34),
+(20, 35),
+(20, 36),
+(20, 37),
+(20, 38),
+(20, 39),
+(20, 75),
+(20, 76),
+(20, 77),
+(20, 78),
+(20, 83),
+(20, 84),
+(21, 29),
+(21, 30),
+(21, 31),
+(21, 32),
+(21, 33),
+(21, 34),
+(21, 35),
+(21, 36),
+(21, 37),
+(21, 38),
+(21, 39),
+(21, 75),
+(21, 76),
+(21, 77),
+(21, 78),
+(21, 83),
+(21, 84),
+(22, 29),
+(22, 30),
+(22, 31),
+(22, 32),
+(22, 33),
+(22, 34),
+(22, 35),
+(22, 36),
+(22, 37),
+(22, 38),
+(22, 39),
+(22, 75),
+(22, 76),
+(22, 77),
+(22, 78),
+(22, 83),
+(22, 84),
+(23, 29),
+(23, 30),
+(23, 31),
+(23, 32),
+(23, 33),
+(23, 34),
+(23, 35),
+(23, 36),
+(23, 37),
+(23, 38),
+(23, 39),
+(23, 75),
+(23, 76),
+(23, 77),
+(23, 78),
+(23, 83),
+(23, 84),
+(24, 29),
+(24, 30),
+(24, 31),
+(24, 32),
+(24, 33),
+(24, 34),
+(24, 35),
+(24, 36),
+(24, 37),
+(24, 38),
+(24, 39),
+(24, 75),
+(24, 76),
+(24, 77),
+(24, 78),
+(24, 83),
+(24, 84),
+(25, 29),
+(25, 30),
+(25, 31),
+(25, 32),
+(25, 33),
+(25, 34),
+(25, 35),
+(25, 36),
+(25, 37),
+(25, 38),
+(25, 39),
+(25, 75),
+(25, 76),
+(25, 77),
+(25, 78),
+(25, 83),
+(25, 84),
+(26, 29),
+(26, 30),
+(26, 31),
+(26, 32),
+(26, 33),
+(26, 34),
+(26, 35),
+(26, 36),
+(26, 37),
+(26, 38),
+(26, 39),
+(26, 75),
+(26, 76),
+(26, 77),
+(26, 78),
+(26, 83),
+(26, 84),
+(27, 29),
+(27, 30),
+(27, 31),
+(27, 32),
+(27, 33),
+(27, 34),
+(27, 35),
+(27, 36),
+(27, 37),
+(27, 38),
+(27, 39),
+(27, 75),
+(27, 76),
+(27, 77),
+(27, 78),
+(27, 83),
+(27, 84),
+(28, 29),
+(28, 30),
+(28, 31),
+(28, 32),
+(28, 33),
+(28, 34),
+(28, 35),
+(28, 36),
+(28, 37),
+(28, 38),
+(28, 39),
+(28, 75),
+(28, 76),
+(28, 77),
+(28, 78),
+(28, 83),
+(28, 84),
+(29, 43),
+(29, 44),
+(29, 45),
+(29, 46),
+(29, 47),
+(29, 48),
+(29, 49),
+(29, 50),
+(29, 51),
+(29, 52),
+(29, 53),
+(29, 54),
+(29, 55),
+(29, 56),
+(29, 74),
+(29, 85),
+(29, 86),
+(29, 87),
+(30, 43),
+(30, 44),
+(30, 45),
+(30, 46),
+(30, 47),
+(30, 48),
+(30, 49),
+(30, 50),
+(30, 51),
+(30, 52),
+(30, 53),
+(30, 54),
+(30, 55),
+(30, 56),
+(30, 74),
+(30, 85),
+(30, 86),
+(30, 87),
+(31, 43),
+(31, 44),
+(31, 45),
+(31, 46),
+(31, 47),
+(31, 48),
+(31, 49),
+(31, 50),
+(31, 51),
+(31, 52),
+(31, 53),
+(31, 54),
+(31, 55),
+(31, 56),
+(31, 74),
+(31, 85),
+(31, 86),
+(31, 87),
+(32, 43),
+(32, 44),
+(32, 45),
+(32, 46),
+(32, 47),
+(32, 48),
+(32, 49),
+(32, 50),
+(32, 51),
+(32, 52),
+(32, 53),
+(32, 54),
+(32, 55),
+(32, 56),
+(32, 74),
+(32, 85),
+(32, 86),
+(32, 87),
+(33, 43),
+(33, 44),
+(33, 45),
+(33, 46),
+(33, 47),
+(33, 48),
+(33, 49),
+(33, 50),
+(33, 51),
+(33, 52),
+(33, 53),
+(33, 54),
+(33, 55),
+(33, 56),
+(33, 74),
+(33, 85),
+(33, 86),
+(33, 87),
+(34, 43),
+(34, 44),
+(34, 45),
+(34, 46),
+(34, 47),
+(34, 48),
+(34, 49),
+(34, 50),
+(34, 51),
+(34, 52),
+(34, 53),
+(34, 54),
+(34, 55),
+(34, 56),
+(34, 74),
+(34, 85),
+(34, 86),
+(34, 87),
+(35, 43),
+(35, 44),
+(35, 45),
+(35, 46),
+(35, 47),
+(35, 48),
+(35, 49),
+(35, 50),
+(35, 51),
+(35, 52),
+(35, 53),
+(35, 54),
+(35, 55),
+(35, 56),
+(35, 74),
+(35, 85),
+(35, 86),
+(35, 87),
+(36, 43),
+(36, 44),
+(36, 45),
+(36, 46),
+(36, 47),
+(36, 48),
+(36, 49),
+(36, 50),
+(36, 51),
+(36, 52),
+(36, 53),
+(36, 54),
+(36, 55),
+(36, 56),
+(36, 74),
+(36, 85),
+(36, 86),
+(36, 87),
+(37, 43),
+(37, 44),
+(37, 45),
+(37, 46),
+(37, 47),
+(37, 48),
+(37, 49),
+(37, 50),
+(37, 51),
+(37, 52),
+(37, 53),
+(37, 54),
+(37, 55),
+(37, 56),
+(37, 74),
+(37, 85),
+(37, 86),
+(37, 87),
+(38, 57),
+(38, 58),
+(38, 59),
+(38, 60),
+(38, 61),
+(38, 62),
+(38, 63),
+(38, 64),
+(38, 65),
+(38, 66),
+(38, 67),
+(38, 68),
+(38, 70),
+(38, 71),
+(38, 88),
+(39, 57),
+(39, 58),
+(39, 59),
+(39, 60),
+(39, 61),
+(39, 62),
+(39, 63),
+(39, 64),
+(39, 65),
+(39, 66),
+(39, 67),
+(39, 68),
+(39, 70),
+(39, 71),
+(39, 88),
+(40, 57),
+(40, 58),
+(40, 59),
+(40, 60),
+(40, 61),
+(40, 62),
+(40, 63),
+(40, 64),
+(40, 65),
+(40, 66),
+(40, 67),
+(40, 68),
+(40, 70),
+(40, 71),
+(40, 88),
+(41, 57),
+(41, 58),
+(41, 59),
+(41, 60),
+(41, 61),
+(41, 62),
+(41, 63),
+(41, 64),
+(41, 65),
+(41, 66),
+(41, 67),
+(41, 68),
+(41, 70),
+(41, 71),
+(41, 88),
+(42, 57),
+(42, 58),
+(42, 59),
+(42, 60),
+(42, 61),
+(42, 62),
+(42, 63),
+(42, 64),
+(42, 65),
+(42, 66),
+(42, 67),
+(42, 68),
+(42, 70),
+(42, 71),
+(42, 88),
+(43, 57),
+(43, 58),
+(43, 59),
+(43, 60),
+(43, 61),
+(43, 62),
+(43, 63),
+(43, 64),
+(43, 65),
+(43, 66),
+(43, 67),
+(43, 68),
+(43, 70),
+(43, 71),
+(43, 88),
+(44, 1),
+(44, 2),
+(44, 3),
+(44, 4),
+(44, 5),
+(44, 6),
+(44, 7),
+(44, 8),
+(44, 9),
+(44, 10),
+(44, 11),
+(44, 12),
+(44, 13),
+(44, 14),
+(44, 73),
+(44, 79),
+(44, 80),
+(45, 15),
+(45, 16),
+(45, 17),
+(45, 18),
+(45, 19),
+(45, 20),
+(45, 21),
+(45, 22),
+(45, 23),
+(45, 24),
+(45, 25),
+(45, 26),
+(45, 27),
+(45, 28),
+(45, 72),
+(45, 81),
+(45, 82),
+(46, 57),
+(46, 58),
+(46, 59),
+(46, 60),
+(46, 61),
+(46, 62),
+(46, 63),
+(46, 64),
+(46, 65),
+(46, 66),
+(46, 67),
+(46, 68),
+(46, 70),
+(46, 71),
+(46, 88);
 
 -- --------------------------------------------------------
 

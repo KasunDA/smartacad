@@ -52,11 +52,11 @@ $(function () {
         e.preventDefault();
 
         var parent = $(this).parent().parent();
-        var user = parent.children(':nth-child(2)').children('input').val();
+        var user = parent.children(':nth-child(2)').html();
         var user_id = $(this).val();
 
         bootbox.dialog({
-            message: "Are You sure You want to permanently delete User "+user+ " and all its reference places",
+            message: "Are You sure You want to permanently delete User: "+user+ " and all its reference places",
             title: "Warning Alert",
             buttons: {
                 danger: {

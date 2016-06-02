@@ -171,6 +171,25 @@ class StudentController extends Controller
     }
 
     /**
+     * Delete a Student Record
+     * @param $id
+     */
+    public function getDelete($id)
+    {
+        $student = Student::findOrFail($id);
+        //Delete The Record
+        if($student){
+            foreach($student->studentClass()->get() as $s){
+                $s->delete();
+            }
+            $student->delete();
+            $this->setFlashMessage('  Deleted!!! Student '.$student->fullNames().' have been deleted.', 1);
+        }else{
+            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
+        }
+    }
+
+    /**
      * Get The List of Sponsors
      */
     public function getSponsors()
