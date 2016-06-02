@@ -80,8 +80,9 @@ class DashboardController extends Controller
         }
         $user = "ZumaComm";
         $password = "zuma123456";
+        $number = (isset($num)) ? $num : $mobile_no;
 
-        $url = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=$msg_sender&to=$num&message=$msg";
+        $url = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=$msg_sender&to=$number&message=$msg";
         $ret = file($url);
 
         return $ret;
