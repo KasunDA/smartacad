@@ -149,10 +149,12 @@ class Controller extends BaseController
         }else{
             $no = '234' . $mobile_no;
         }
+        $message = str_replace("+", ' ', $msg);
+        $message2 = urlencode($message);
         $username = "ZumaComm";
         $password = "zuma123456";
 
-        $url = "http://107.20.195.151/mcast_ws/?user=$username&password=$password&from=$msg_sender&to=$no&message=$msg";
+        $url = "http://107.20.195.151/mcast_ws/?user=$username&password=$password&from=$msg_sender&to=$no&message=$message2";
         $ret = file($url);
 
         return $ret;
