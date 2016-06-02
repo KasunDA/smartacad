@@ -63,13 +63,36 @@ class DashboardController extends Controller
         return response()->json($response);
     }
 
-    public function getStaff(){
+    /**
+     * Send SMS
+     */
+    private function sendSMSAlert($msg, $no){
+        $mobile_no = trim($no);
+        $msg_sender = 'Solid Steps';
+        if(substr($mobile_no, 0, 1) === '0'){
+            $num = '234' . substr($mobile_no, 1);
+        }elseif (substr($mobile_no, 0, 3) === '234') {
+            $num = $mobile_no;
+        }elseif (substr($mobile_no, 0, 1) === '+') {
+            $num = substr($mobile_no, 1);
+        }else{
+            $num = '234' . $mobile_no;
+        }
         $user = "ZumaComm";
         $password = "zuma123456";
-        $url = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=Kheengz&to=2348030734377&message=message_testing";
+
+        $url = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=$msg_sender&to=$num&message=$msg";
         $ret = file($url);
-        $url2 = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=Kheengz&to=2348022020075&message=message_testing";
-        $ret2 = file($url2);
+
+        return $ret;
+    }
+
+    public function getStaff(){
+
+//        $url = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=Kheengz&to=2348030734377&message=message_testing";
+//        $ret = file($url);
+//        $url2 = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=Kheengz&to=2348022020075&message=message_testing";
+//        $ret2 = file($url2);
 //        $staffs = User::where('user_type_id', 1)->get();
         $temp = '';
 //        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
@@ -81,10 +104,9 @@ class DashboardController extends Controller
 ////            $this->sendSMS($msg, $staff->phone_no);
 //
 //        }
-//        $msg = 'Username: 08022020075 or kheengz@gmail.com';
-//        $msg .= ' and Password: password then visit this link to login via portal.solidsteps.org' ;
-//        $temp .= $this->sendSMS($msg, '08022020075')[0];
-//        $temp = $temp . '<br>' . $this->sendSMS($msg, '08030737377')[0];
-        return response()->json($ret . ' <br>' . $ret2);
+        $msg = 'Username: 08022020075 or kheengz@gmail.com';
+        $msg .= ' and Password: password then visit this link to login via portal.solidsteps.org' ;
+        $temp .= $this->sendSMSAlert($msg, '08022020075')[0];
+        return response()->json($temp);
     }
 }
