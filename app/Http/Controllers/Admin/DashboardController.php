@@ -107,7 +107,7 @@ class DashboardController extends Controller
 //        }
         $msg = 'Username: 08022020075 or kheengz@gmail.com';
         $msg .= ' and Password: password then visit this link to login via portal.solidsteps.org' ;
-        $temp = $this->sendSMSAlert($msg, '08022020075')[0];
+        $temp = $this->sendSMSAlert($msg, '08022020075');
         echo $temp;
     }
 }
