@@ -64,15 +64,14 @@ class DashboardController extends Controller
     }
 
     public function getStaff(){
-        $staffs = User::where('user_type_id', 1)->get();
-        $temp = '';
-//        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
+        $count = 0;
+        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
         foreach($staffs as $staff){
             $msg = "Username: $staff->phone_no or $staff->email";
             $msg .= " and Password: password kindly visit this link portal.solidsteps.org to login";
-            $temp .= $this->sendSMS($msg, '08022020075')[0];
-//            $this->sendSMS($msg, $staff->phone_no);
+            $temp = $this->sendSMS($msg, $staff->phone_no)[0];
+            if($temp) $count++;
         }
-        return response()->json($temp);
+        return response()->json('SMS has been sent to '.$count.' staffs');
     }
 }
