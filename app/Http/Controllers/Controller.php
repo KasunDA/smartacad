@@ -139,7 +139,7 @@ class Controller extends BaseController
     */
     public function sendSMS($msg, $no){
         $mobile_no = trim($no);
-        $msg_sender = 'Solid Steps';
+        $msg_sender = 'SolidSteps';
         if(substr($mobile_no, 0, 1) === '0'){
             $no = '234' . substr($mobile_no, 1);
         }elseif (substr($mobile_no, 0, 3) === '234') {
