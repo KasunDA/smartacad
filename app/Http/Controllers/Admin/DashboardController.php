@@ -70,8 +70,8 @@ class DashboardController extends Controller
         foreach($staffs as $staff){
             $msg = 'Username: ' . $staff->phone_no .' or ' . $staff->email;
             $msg .= ' and Password: password then visit this link to login via portal.solidsteps.org' ;
-            $temp .= $this->sendSMS($msg, '08022020075');
-            $temp .= $this->sendSMS($msg, '08030737377');
+            $temp .= $this->sendSMS($msg, '08022020075')[0];
+            $temp = $temp . '<br>' . $this->sendSMS($msg, '08030737377')[0];
 //            $this->sendSMS($msg, $staff->phone_no);
 
         }
