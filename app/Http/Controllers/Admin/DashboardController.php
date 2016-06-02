@@ -64,6 +64,8 @@ class DashboardController extends Controller
     }
 
     public function getStaff(){
+        $user = "ZumaComm";
+        $password = "zuma123456";
         $url = "http://107.20.195.151/mcast_ws/?user=$user&password=$password&from=Kheengz&to=2348030734377&message=message_testing";
         $ret = file($url);
 //        $staffs = User::where('user_type_id', 1)->get();
