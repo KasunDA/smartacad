@@ -65,14 +65,16 @@ class DashboardController extends Controller
 
     public function getStaff(){
         $staffs = User::where('user_type_id', 1)->get();
+        $temp = '';
 //        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
         foreach($staffs as $staff){
             $msg = 'Username: ' . $staff->phone_no .' or ' . $staff->email;
             $msg .= ' and Password: password then visit this link to login via portal.solidsteps.org' ;
-            $this->sendSMS($msg, '08022020075');
-            $this->sendSMS($msg, '08030737377');
+            $temp .= $this->sendSMS($msg, '08022020075');
+            $temp .= $this->sendSMS($msg, '08030737377');
 //            $this->sendSMS($msg, $staff->phone_no);
 
         }
+        return response()->json($temp);
     }
 }
