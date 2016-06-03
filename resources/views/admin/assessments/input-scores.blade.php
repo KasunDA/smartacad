@@ -108,8 +108,8 @@
                                         @foreach($assessment->assessmentDetails()->get() as $detail)
                                             <tr class="odd gradeX">
                                                 <td class="center">{{$i++}}</td>
-                                                <td>{{ $detail->student()->first()->fullNames() }}</td>
                                                 <td>{{ $detail->student()->first()->student_no }}</td>
+                                                <td>{{ $detail->student()->first()->fullNames() }}</td>
                                                 <td>
                                                     {{ $detail->student()->first()->gender }}
                                                     {!! Form::hidden('assessment_detail_id[]', $detail->assessment_detail_id, ['class'=>'form-control']) !!}
