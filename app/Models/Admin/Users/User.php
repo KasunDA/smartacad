@@ -26,6 +26,11 @@ class User extends Authenticatable
     protected $table = 'users';
 
     /**
+     * User Type ID
+     */
+    const DEVELOPER_USER_TYPE = 1;
+
+    /**
      * Dates To Be Treated As Carbon Instance
      * @var array
      */

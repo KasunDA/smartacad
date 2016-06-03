@@ -4,7 +4,7 @@
     <link href="../assets/global/plugins/morris/morris.css" rel="stylesheet" type="text/css" />
 @endsection
 
-@section('title', 'Dashboard')
+@section('title', 'Admin Dashboard')
 
 @section('breadcrumb')
     <li>
@@ -65,6 +65,10 @@
                         <i class=" icon-layers font-green"></i>
                         <span class="caption-subject font-green bold uppercase">Students Gender</span>
                     </div>
+                    <div class="tools">
+                        <a href="javascript:;" class="collapse"> </a>
+                        <a href="javascript:;" class="fullscreen"> </a>
+                    </div>
                 </div>
                 <div class="portlet-body">
                     <div id="student_gender" class="chart"> </div>
@@ -72,56 +76,47 @@
             </div>
         </div>
         <div class="col-md-7">
-            <div class="portlet light portlet-fit bordered">
+            <!-- BEGIN CHART PORTLET-->
+            <div class="portlet light bordered">
                 <div class="portlet-title">
                     <div class="caption">
-                        <i class=" icon-layers font-green"></i>
-                        <span class="caption-subject font-green bold uppercase"> Student Class Levels</span>
+                        <i class="icon-bar-chart font-green-haze"></i>
+                        <span class="caption-subject bold uppercase font-green-haze"> Student Class Level</span>
+                        <span class="caption-helper">Students in {{ AcademicYear::activeYear()->academic_year }} Academic Year</span>
+                    </div>
+                    <div class="tools">
+                        <a href="javascript:;" class="collapse"> </a>
+                        <a href="javascript:;" class="fullscreen"> </a>
                     </div>
                 </div>
                 <div class="portlet-body">
-                    <div id="student-classlevel" style="height:400px;"></div>
+                    <div id="student_classlevel" class="chart" style="height: 400px;"> </div>
                 </div>
             </div>
+            <!-- END CHART PORTLET-->
         </div>
-        {{--<div class="row">--}}
-            {{--<div class="col-md-12">--}}
-                {{--<!-- BEGIN CHART PORTLET-->--}}
-                {{--<div class="portlet light bordered">--}}
-                    {{--<div class="portlet-title">--}}
-                        {{--<div class="caption">--}}
-                            {{--<i class="icon-bar-chart font-green-haze"></i>--}}
-                            {{--<span class="caption-subject bold uppercase font-green-haze"> 3D Chart</span>--}}
-                            {{--<span class="caption-helper">3d cylinder chart</span>--}}
-                        {{--</div>--}}
-                        {{--<div class="tools">--}}
-                            {{--<a href="javascript:;" class="collapse"> </a>--}}
-                            {{--<a href="#portlet-config" data-toggle="modal" class="config"> </a>--}}
-                            {{--<a href="javascript:;" class="reload"> </a>--}}
-                            {{--<a href="javascript:;" class="fullscreen"> </a>--}}
-                            {{--<a href="javascript:;" class="remove"> </a>--}}
-                        {{--</div>--}}
-                    {{--</div>--}}
-                    {{--<div class="portlet-body">--}}
-                        {{--<div id="chart_5" class="chart" style="height: 400px;"> </div>--}}
-                        {{--<div class="well margin-top-20">--}}
-                            {{--<div class="row">--}}
-                                {{--<div class="col-sm-3">--}}
-                                    {{--<label class="text-left">Top Radius:</label>--}}
-                                    {{--<input class="chart_5_chart_input" data-property="topRadius" type="range" min="0" max="1.5" value="1" step="0.01" /> </div>--}}
-                                {{--<div class="col-sm-3">--}}
-                                    {{--<label class="text-left">Angle:</label>--}}
-                                    {{--<input class="chart_5_chart_input" data-property="angle" type="range" min="0" max="89" value="30" step="1" /> </div>--}}
-                                {{--<div class="col-sm-3">--}}
-                                    {{--<label class="text-left">Depth:</label>--}}
-                                    {{--<input class="chart_5_chart_input" data-property="depth3D" type="range" min="1" max="120" value="40" step="1" /> </div>--}}
-                            {{--</div>--}}
-                        {{--</div>--}}
-                    {{--</div>--}}
-                {{--</div>--}}
-                {{--<!-- END CHART PORTLET-->--}}
-            {{--</div>--}}
-        {{--</div>--}}
+        <div class="row">
+            <div class="col-md-10">
+                <!-- BEGIN CHART PORTLET-->
+                <div class="portlet light bordered">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <i class="fa fa-book font-green-haze"></i>
+                            <span class="caption-subject bold uppercase font-green-haze"> Subjects Assigned</span>
+                            <span class="caption-helper"> in {{ AcademicTerm::activeTerm()->academic_term }} Academic Year</span>
+                        </div>
+                        <div class="tools">
+                            <a href="javascript:;" class="collapse"> </a>
+                            <a href="javascript:;" class="fullscreen"> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div id="subject_tutor" class="chart" style="height: 450px;"> </div>
+                    </div>
+                </div>
+                <!-- END CHART PORTLET-->
+            </div>
+        </div>
     </div>
 
 @endsection

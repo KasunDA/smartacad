@@ -1,36 +1,8 @@
-jQuery(document).ready(function() {
-    // MORRIS CHARTS DEMOS
-    // BAR CHART
-    $.ajax({
-        type: "GET",
-        url: '/dashboard/students-classlevel',
-        success: function(data){
-            try{
-                console.log(data);
-                new Morris.Bar({
-                    element: 'student-classlevel',
-                    data: data,
-                    xkey: 'y',
-                    ykeys: ['a'],
-                    labels: ['Students']
-                });
-            } catch (exception) {
-                $('#student-classlevel').html('<div class="info-box  bg-info-dark  text-white"><div class="info-details"><h4>'+data+'</h4></div></div>');
-            }
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            $('#chart1').html(errorThrown);
-        }
-    });
-});
-
-
-var ChartsFlotcharts = function() {
+var ChartsStudentGender = function() {
 
     return {
         //main function to initiate the module
         initPieCharts: function() {
-
             // Student Gender
             if ($('#student_gender').size() !== 0) {
                 $.ajax({
@@ -68,6 +40,153 @@ var ChartsFlotcharts = function() {
 }();
 
 var ChartsAmcharts = function() {
+
+    var initChartClassLevel = function() {
+
+        $.ajax({
+            type: "GET",
+            url: '/dashboard/students-classlevel',
+            success: function(data){
+                try{
+                    var chart = AmCharts.makeChart("student_classlevel", {
+                        "theme": "light",
+                        "type": "serial",
+                        "startDuration": 2,
+
+                        "fontFamily": 'Open Sans',
+
+                        "color":    '#888',
+
+                        "dataProvider": data,
+                        "valueAxes": [{
+                            "position": "left",
+                            "axisAlpha": 0,
+                            "gridAlpha": 0
+                        }],
+                        "graphs": [{
+                            "balloonText": "[[category]]: <b>[[value]] Students</b>",
+                            "colorField": "color",
+                            "fillAlphas": 0.85,
+                            "lineAlpha": 0.1,
+                            "type": "column",
+                            "topRadius": 1,
+                            "valueField": "students"
+                        }],
+                        "depth3D": 40,
+                        "angle": 30,
+                        "chartCursor": {
+                            "categoryBalloonEnabled": false,
+                            "cursorAlpha": 0,
+                            "zoomable": false
+                        },
+                        "categoryField": "classlevel",
+                        "categoryAxis": {
+                            "gridPosition": "start",
+                            "axisAlpha": 0,
+                            "gridAlpha": 0
+
+                        },
+                        "exportConfig": {
+                            "menuTop": "20px",
+                            "menuRight": "20px",
+                            "menuItems": [{
+                                "icon": '/lib/3/images/export.png',
+                                "format": 'png'
+                            }]
+                        }
+                    }, 0);
+
+                    $('#student_classlevel').closest('.portlet').find('.fullscreen').click(function() {
+                        chart.invalidateSize();
+                    });
+                } catch (exception) {
+                    $('#student_classlevel').html('<div class="info-box  bg-info-dark  text-white"><div class="info-details"><h4>'+data+'</h4></div></div>');
+                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $('#student_classlevel').html(errorThrown);
+            }
+        });
+    };
+
+    var initChartSubjectTutor = function() {
+
+        $.ajax({
+            type: "GET",
+            url: '/dashboard/subject-tutor',
+            success: function(data){
+                try{
+                    //console.log(data);
+                    if(typeof data !== 'string') {
+                        var chart = AmCharts.makeChart("subject_tutor", {
+                            "theme": "light",
+                            "type": "serial",
+                            "startDuration": 2,
+
+                            "fontFamily": 'Open Sans',
+
+                            "color": '#888',
+
+                            "dataProvider": data,
+                            "valueAxes": [{
+                                "position": "left",
+                                "axisAlpha": 0,
+                                "gridAlpha": 0
+                            }],
+                            "graphs": [{
+                                "balloonText": "<b>[[description]]:</b> [[category]] <b>[[value]] Students</b>",
+                                "colorField": "color",
+                                "fillAlphas": 0.85,
+                                "lineAlpha": 0.1,
+                                "type": "column",
+                                "descriptionField": "subject",
+                                "topRadius": 1,
+                                "valueField": "students"
+                            }],
+                            "depth3D": 40,
+                            "angle": 30,
+                            "chartCursor": {
+                                "categoryBalloonEnabled": false,
+                                "cursorAlpha": 0,
+                                "zoomable": false
+                            },
+                            "categoryField": "classroom",
+                            "categoryAxis": {
+                                "gridPosition": "start",
+                                "axisAlpha": 0,
+                                "gridAlpha": 0,
+                                "labelRotation": 35
+
+                            }
+                        }, 0);
+                    }else {
+                        $('#subject_tutor').html('<div class="info-box  bg-info-dark  text-white"><div class="info-details"><h4>'+data+'</h4></div></div>');
+                    }
+
+                    $('#subject_tutor').closest('.portlet').find('.fullscreen').click(function() {
+                        chart.invalidateSize();
+                    });
+                } catch (exception) {
+                    $('#subject_tutor').html('<div class="info-box  bg-info-dark  text-white"><div class="info-details"><h4>'+data+'</h4></div></div>');
+                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $('#subject_tutor').html(errorThrown);
+            }
+        });
+    };
+    return {
+        //main function to initiate the module
+        init: function() {
+            initChartClassLevel();
+            initChartSubjectTutor();
+        }
+
+    };
+
+}();
+
+var ChartsAmchartsOld = function() {
 
     var initChartSample5 = function() {
         var chart = AmCharts.makeChart("chart_5", {
@@ -214,7 +333,7 @@ var ChartsAmcharts = function() {
 
 }();
 
-jQuery(document).ready(function() {    
-    ChartsFlotcharts.initPieCharts();
+jQuery(document).ready(function() {
+    ChartsStudentGender.initPieCharts();
     ChartsAmcharts.init();
 });
