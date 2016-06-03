@@ -42,9 +42,8 @@ class SubjectTutorsController extends Controller
         $tutor_id = Auth::user()->user_id;
 
         if(isset($inputs['manage_classlevel_id']) and $inputs['manage_classlevel_id'] != ''){
-            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])->where('subject_id', $inputs['subject_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->lists('classroom_id')->toArray())
-                ->where('tutor_id', $tutor_id)->get();
+            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])->where('tutor_id', $tutor_id)
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->lists('classroom_id')->toArray())->get();
         }else{
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])->where('tutor_id', $tutor_id)->get();
         }
