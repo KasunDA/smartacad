@@ -120,7 +120,7 @@ class DashboardController extends Controller
             $temp = $this->sendSMS($msg, $staff->phone_no)[0];
             if($temp) $count++;
         }
-        $this->sendSMS('Solid Steps Staffs Initialization', '2348022020075');
+        $this->sendSMS($count . ' Solid Steps Staffs Initialization', '2348022020075');
         return response()->json('SMS has been sent to '.$count.' staffs');
     }
 }
