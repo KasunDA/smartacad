@@ -96,6 +96,7 @@ Route::group(['middleware' => ['web']], function () {
         //Assessment Setup
         'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
         'assessments' => 'Admin\Assessments\AssessmentsController',
+        'exams' => 'Admin\Assessments\ExamsController',
 
 
     ]);
@@ -107,4 +108,5 @@ Route::group(array('prefix'=>'/api'),function(){
         return json_encode(['name'=>'KayOh', 'surname'=>'China']);
     });
     Route::post('/sign-in', 'Admin\APIController@login');
+    Route::get('/clients', 'Admin\APIController@clients');
 });

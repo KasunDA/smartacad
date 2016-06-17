@@ -64,7 +64,7 @@ class AcademicTerm extends Model
      * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
     public function subjectClassRooms(){
-        return $this->hasMany('App\Models\Admin\Subjects\SubjectClassRoom', 'academic_term_id');
+        return $this->hasMany('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'academic_term_id');
     }
 
     /**

@@ -62,7 +62,7 @@ class SubjectClassRoom extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function tutor(){
-        return $this->belongsTo('App\Models\Admin\Users\User', 'tutor_id');
+        return $this->belongsTo('App\Models\Admin\Users\User', 'tutor_id', 'user_id');
     }
 
     /**
@@ -71,6 +71,14 @@ class SubjectClassRoom extends Model
      */
     public function studentSubjects(){
         return $this->hasMany('App\Models\Admin\Accounts\Students\StudentSubject', 'subject_classroom_id');
+    }
+
+    /**
+     * A Subject Class Room has many Assessment
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function assessments(){
+        return $this->hasMany('App\Models\Admin\Assessments\Assessment', 'subject_classroom_id');
     }
 
     /**
