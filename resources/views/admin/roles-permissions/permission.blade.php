@@ -15,7 +15,7 @@
         <i class="fa fa-dashboard"></i>
     </li>
     <li>
-        <a href="{{ url('/menu-headers') }}">Menu Item</a>
+        <a href="{{ url('/permissions') }}">Permissions</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop

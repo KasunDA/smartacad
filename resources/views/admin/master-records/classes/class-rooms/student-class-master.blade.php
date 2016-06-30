@@ -23,9 +23,7 @@
         <i class="fa fa-dashboard"></i>
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
-    <li>
-        <span class="icon chevron-right"></span>
-    </li>
+    <li><i class="fa fa-chevron-right"></i></li>
     <li>
         <a href="{{ url('/class-rooms/assign-students') }}">Manage Students / Form Teacher</a>
         <i class="fa fa-circle"></i>

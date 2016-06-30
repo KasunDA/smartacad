@@ -8,13 +8,15 @@
 
 @section('breadcrumb')
     <li>
-        <a href="{{ url('/') }}">Home</a>
         <i class="fa fa-home"></i>
+        <a href="{{ url('/') }}">Home</a>
     </li>
+    <li><i class="fa fa-chevron-right"></i></li>
     <li>
-        <a href="{{ url('/dashboard') }}">Dashboard</a>
         <i class="fa fa-dashboard"></i>
+        <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
+    <li><i class="fa fa-chevron-right"></i></li>
     <li>
         <a href="{{ url('/menu-headers') }}">Menus</a>
         <i class="fa fa-circle"></i>

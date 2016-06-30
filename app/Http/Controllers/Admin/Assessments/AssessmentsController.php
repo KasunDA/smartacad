@@ -29,8 +29,7 @@ class AssessmentsController extends Controller
     {
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
-        $tutors = User::where('user_type_id', Staff::USER_TYPE)->where('status', 1)->orderBy('first_name')->get();
-        return view('admin.assessments.index', compact('academic_years', 'classlevels', 'tutors'));
+        return view('admin.assessments.index', compact('academic_years', 'classlevels'));
     }
 
     /**

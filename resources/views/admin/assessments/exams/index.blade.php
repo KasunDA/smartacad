@@ -10,7 +10,7 @@
     <link href="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/css/bootstrap-editable.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
-@section('title', 'Assessments')
+@section('title', 'Examination')
 
 @section('breadcrumb')
     <li>
@@ -21,14 +21,14 @@
         <i class="fa fa-chevron-right"></i>
     </li>
     <li>
-        <a href="{{ url('/assessments') }}">Assessments</a>
+        <a href="{{ url('/exams') }}">Examination</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page-academic_year">Continuous Assignments</h3>
+    <h3 class="page-academic_year">Exams Score</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -37,7 +37,7 @@
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
                             <li class="active">
-                                <a href="#assessment" data-toggle="tab"> Continuous Assessments  </a>
+                                <a href="#exams_input_score" data-toggle="tab"> Input Scores </a>
                             </li>
                             {{--<li>--}}
                                 {{--<a href="#view_subject" data-toggle="tab"> View Subjects / Assign Tutor</a>--}}
@@ -46,7 +46,7 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
-                            <div class="tab-pane active" id="assessment">
+                            <div class="tab-pane active" id="exams_input_score">
                                 <div class="alert alert-info"> Search for <strong>Subjects Assigned</strong> For The <strong> Academic Term</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',
@@ -182,10 +182,10 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/assessments/assessment.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/assessments/exam.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/assessments"]');
+            setTabActive('[href="/exams"]');
         });
     </script>
 @endsection

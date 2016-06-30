@@ -14,7 +14,7 @@ jQuery(document).ready(function() {
         var wp = parseInt($('#weight_point').val());
         if(val > wp || val < 0) {
             $(this).next('span').addClass('badge badge-danger badge-roundless');
-            $(this).next('span').html('>= and <= ' + wp);
+            $(this).next('span').html('>= 0 and <= ' + wp);
 
         } else {
             $(this).next('span').html('');
@@ -32,7 +32,8 @@ jQuery(document).ready(function() {
             var value = parseInt($(elem).val());
             if(value > wp || value < 0){
                 check = check + 1;
-                name += '<li>' + $(elem).parent().parent().children(':nth-child(2)').html() + ' Score(' + value + ') is less than 0 or more than ' + wp + '</li>'
+                name += '<li>' + $(elem).parent().parent().children(':nth-child(2)').html() + ': ' + $(elem).parent().parent().children(':nth-child(3)').html()
+                    + ' Score(' + value + ') is less than 0 or more than ' + wp + '</li>'
             }
         });
         if(check > 0){

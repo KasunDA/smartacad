@@ -16,7 +16,11 @@
         <i class="fa fa-dashboard"></i>
     </li>
     <li>
-        <span>Manage User</span>
+        <i class="fa fa-chevron-right"></i>
+    </li>
+    <li>
+        <a href="{{ url('/users') }}">Manage User</a>
+        <i class="fa fa-circle"></i>
     </li>
 @stop
 

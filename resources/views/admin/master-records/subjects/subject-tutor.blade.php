@@ -24,7 +24,7 @@
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
     <li>
-        <span class="icon chevron-right"></span>
+        <i class="fa fa-chevron-right"></i>
     </li>
     <li>
         <a href="{{ url('/subject-tutors') }}">Manage Subjects Assignments</a>

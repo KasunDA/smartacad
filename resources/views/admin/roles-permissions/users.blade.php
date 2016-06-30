@@ -18,7 +18,7 @@
         <i class="fa fa-dashboard"></i>
     </li>
     <li>
-        <a href="{{ url('/roles') }}">Roles</a>
+        <a href="{{ url('/roles') }}">Roles to Users</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop

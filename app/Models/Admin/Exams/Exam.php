@@ -30,11 +30,17 @@ class Exam extends Model
     ];
 
     /**
+     * disable the time stamps
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
      * An Assessment Belongs To An Subject Class Room
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function subjectClassroom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassRoom', 'classroom_id');
+        return $this->belongsTo('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'subject_classroom_id');
     }
 
     /**

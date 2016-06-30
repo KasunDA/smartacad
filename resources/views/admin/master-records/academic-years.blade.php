@@ -13,6 +13,7 @@
         <i class="fa fa-dashboard"></i>
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
+    <li><i class="fa fa-chevron-right"></i></li>
     <li>
         <a href="{{ url('/academic-years') }}">Academic Years</a>
         <i class="fa fa-circle"></i>

@@ -82,6 +82,14 @@ class SubjectClassRoom extends Model
     }
 
     /**
+     * A Subject Class Room has many Exams
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function exams(){
+        return $this->hasMany('App\Models\Admin\Exams\Exam', 'subject_classroom_id');
+    }
+
+    /**
      * Assign Subjects To Class Room
      * * @param Int $class
      * * @param Int $term

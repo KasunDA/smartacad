@@ -13,6 +13,9 @@
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
     <li>
+        <i class="fa fa-chevron-right"></i>
+    </li>
+    <li>
         <a href="{{ url('/assessment-setups/details') }}">Assessment Setups Details</a>
         <i class="fa fa-circle"></i>
     </li>

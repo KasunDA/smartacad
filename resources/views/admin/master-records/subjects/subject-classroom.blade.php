@@ -23,9 +23,7 @@
         <i class="fa fa-dashboard"></i>
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
-    <li>
-        <span class="icon chevron-right"></span>
-    </li>
+    <li><i class="fa fa-chevron-right"></i></li>
     <li>
         <a href="{{ url('/subject-classrooms') }}">Manage Subjects Assignments</a>
         <i class="fa fa-circle"></i>

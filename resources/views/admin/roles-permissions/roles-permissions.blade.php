@@ -16,7 +16,7 @@
         <i class="fa fa-dashboard"></i>
     </li>
     <li>
-        <a href="{{ url('/permissions/roles-permissions') }}">Permission to roles</a>
+        <a href="{{ url('/permissions/roles-permissions') }}">Permission to Roles</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop

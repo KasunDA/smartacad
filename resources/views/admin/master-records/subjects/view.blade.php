@@ -7,8 +7,9 @@
         <i class="fa fa-dashboard"></i>
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
+    <li><i class="fa fa-chevron-right"></i></li>
     <li>
-        <a href="{{ url('/academic-years') }}">School Subjects</a>
+        <a href="{{ url('/school-subjects/view') }}">School Subjects</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop

@@ -13,7 +13,7 @@ jQuery(document).ready(function() {
         var wp = parseInt($('#weight_point').val());
         if(val > wp || val < 0) {
             $(this).next('span').addClass('badge badge-danger badge-roundless');
-            $(this).next('span').html('>= and <= ' + wp);
+            $(this).next('span').html('>= 0 and <= ' + wp);
 
         } else {
             $(this).next('span').html('');
@@ -31,7 +31,8 @@ jQuery(document).ready(function() {
             var value = parseInt($(elem).val());
             if(value > wp || value < 0){
                 check = check + 1;
-                name += '<li>' + $(elem).parent().parent().children(':nth-child(2)').html() + ' Score(' + value + ') is less than 0 or more than ' + wp + '</li>'
+                name += '<li>' + $(elem).parent().parent().children(':nth-child(2)').html() + ': ' + $(elem).parent().parent().children(':nth-child(3)').html()
+                    + ' Score(' + value + ') is less than 0 or more than ' + wp + '</li>'
             }
         });
         if(check > 0){
@@ -81,4 +82,86 @@ jQuery(document).ready(function() {
         });
         return false;
     });
+});
+
+var UIBlockUI = function() {
+
+    var handleSample1 = function() {
+
+        //When the search button is clicked
+        $(document.body).on('submit', '#search_subject_staff', function(){
+            var values = $(this).serialize();
+
+            App.blockUI({
+                target: '#exams_input_score',
+                animate: true
+            });
+
+            $.ajax({
+                type: "POST",
+                url: '/exams/subject-assigned',
+                data: values,
+                success: function (data) {
+                    console.log(data);
+
+                    var obj = $.parseJSON(data);
+                    var assign = '<thead>\
+                                <tr>\
+                                    <th>#</th>\
+                                    <th>Academic Term</th>\
+                                    <th>Subject</th>\
+                                    <th>Class Room</th>\
+                                    <th>Tutor</th>\
+                                    <th>Status</th>\
+                                    <th>Input Score</th>\
+                                </tr>\
+                            </thead>\
+                            <tbody>';
+                    if(obj.flag === 1){
+                        $.each(obj.Exam, function(key, value) {
+                            assign += '<tr>' +
+                                '<td>'+(key + 1)+'</td>' +
+                                '<td>'+value.academic_term+'</td>' +
+                                '<td>'+value.subject+'</td>' +
+                                '<td>'+value.classroom+'</td>' +
+                                '<td>'+value.tutor+'</td>' +
+                                '<td>'+value.marked+'</td>' +
+                                '<td><a href="/exams/input-scores/'+value.hashed_id+'" class="btn btn-link"> Proceed</a></td>' +
+                                '</tr>';
+                        });
+                    }
+                    assign += '</tbody>';
+
+                    $('#subject_assigned_datatable').html(assign);
+                    //FormEditable.init();
+                    setTableData($('#subject_assigned_datatable')).refresh();
+                    setTableData($('#subject_assigned_datatable')).init();
+
+                    window.setTimeout(function() {
+                        App.unblockUI('#exams_input_score');
+                    }, 2000);
+                    //Scroll To Div
+                    scroll2Div($('#subject_assigned_datatable'));
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+                    App.unblockUI('#exams_input_score');
+                }
+            });
+            return false;
+        });
+    }
+
+    return {
+        //main function to initiate the module
+        init: function() {
+
+            handleSample1();
+        }
+    };
+}();
+
+jQuery(document).ready(function() {
+    UIBlockUI.init();
+
 });

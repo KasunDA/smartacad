@@ -1,6 +1,6 @@
 @extends('admin.layout.default')
 
-@section('title', 'Assignments Subject Details')
+@section('title', 'Assessments Subject Details')
 
 @section('breadcrumb')
     <li>
@@ -8,10 +8,10 @@
         <a href="{{ url('/dashboard') }}">Dashboard</a>
     </li>
     <li>
-        <span class="icon chevron-right"></span>
+        <i class="fa fa-chevron-right"></i>
     </li>
     <li>
-        <a href="{{ url('/assessments/subject-details') }}">Assessments Details</a>
+        <a href="#">Assessments Details</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop

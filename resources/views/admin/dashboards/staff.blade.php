@@ -8,7 +8,7 @@
 
 @section('breadcrumb')
     <li>
-        <a href="/">Dashobard</a>
+        <a href="/">Dashboard</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
