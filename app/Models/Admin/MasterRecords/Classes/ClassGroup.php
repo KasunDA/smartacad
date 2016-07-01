@@ -30,6 +30,13 @@ class ClassGroup extends Model
     ];
 
     /**
+     * A Class Group Has Many Grades
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function grades(){
+        return $this->hasMany('App\Models\Admin\MasterRecords\Grade', 'classgroup_id');
+    }
+    /**
      * A Class Group Has Many Class Level
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

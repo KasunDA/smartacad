@@ -13,16 +13,16 @@ class GradesController extends Controller
 {
     /**
      * Display a listing of the Menus for Master Records.
-     *
+     * @param String $encodeId
      * @return Response
      */
-    public function getIndex()
+    public function getIndex($encodeId=null)
     {
-        $grades = Grade::all();
+        $classgroup = ($encodeId === null) ? null : ClassGroup::findOrFail($this->getHashIds()->decode($encodeId)[0]);
+        $grades = ($classgroup) ? Grade::where('classgroup_id', $classgroup->classgroup_id)->get() : Grade::all();
         $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('Select Class Group', '');
-        return view('admin.master-records.grades', compact('classgroups', 'grades'));
+        return view('admin.master-records.grades', compact('classgroups', 'grades', 'classgroup'));
     }
-
 
     /**
      * Insert or Update the menu records
@@ -66,5 +66,16 @@ class GradesController extends Controller
         }else{
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
+    }
+
+    /**
+     * Get The Grades Given the class group id
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postClassGroups(Request $request)
+    {
+        $inputs = $request->all();
+        return redirect('/grades/index/' . $this->getHashIds()->encode($inputs['classgroup_id']));
     }
 }

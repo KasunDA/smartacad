@@ -1,6 +1,13 @@
 @extends('admin.layout.default')
 
-@section('title', 'Exam Input Scores')
+@section('layout-style')
+<!-- BEGIN PAGE LEVEL STYLES -->
+<link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
+<!-- END PAGE LEVEL STYLES -->
+@endsection
+
+@section('title', 'Exam Display Scores')
 
 @section('breadcrumb')
     <li>
@@ -74,25 +81,16 @@
                 </div>
                 <div id="error-div"></div>
                 <div class="portlet-body">
-                    {!! Form::open([
-                            'method'=>'POST',
-                            'class'=>'form',
-                            'role'=>'form',
-                            'id'=>'scores-form'
-                        ])
-                    !!}
                     <div class="table-responsive">
-                        {!! Form::hidden('weight_point', $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->exam_weight_point, ['class'=>'form-control', 'id'=>'weight_point']) !!}
-                        {!! Form::hidden('exam_id', $exam->exam_id, ['class'=>'form-control']) !!}
-                        <table class="table table-hover table-bordered">
+                        <table class="table table-hover table-bordered" id="scores_datatable">
                             <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Student Number</th>
                                 <th>Student Name</th>
                                 <th>Gender</th>
-                                <th>C.A Score ({{ $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->ca_weight_point }})</th>
-                                <th>Exam Score ({{ $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->exam_weight_point }})</th>
+                                <th>C.A ({{ $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->ca_weight_point }})</th>
+                                <th>Exam ({{ $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->exam_weight_point }})</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -100,22 +98,13 @@
                                 @if($exam->examDetails()->count() > 0)
                                     <?php $i = 1; ?>
                                     @foreach($exam->examDetails()->get() as $detail)
-{{--                                        {{ dd($detail->student()->first()) }}--}}
                                         <tr class="odd gradeX">
                                             <td class="center">{{$i++}}</td>
                                             <td>{{ $detail->student()->first()["student_no"] }}</td>
                                             <td>{{ $detail->student()->first()["first_name"] . ' ' . $detail->student()->first()["last_name"] }}</td>
-                                            <td>
-                                                {!! ($detail->student()->first()) ? $detail->student()->first()["gender"] : '<span class="label label-danger">nil</span>' !!}
-                                                {!! Form::hidden('exam_detail_id[]', $detail->exam_detail_id, ['class'=>'form-control']) !!}
-                                            </td>
-                                            <td>
-                                                {{ $detail->ca }}
-                                            </td>
-                                            <td>
-                                                {!! Form::text('exam[]', $detail->exam, ['class'=>'form-control scores', 'size'=>4, 'required'=>'required']) !!}
-                                                <span></span>
-                                            </td>
+                                            <td>{!! ($detail->student()->first()) ? $detail->student()->first()["gender"] : '<span class="label label-danger">nil</span>' !!}</td>
+                                            <td>{{ $detail->ca }}</td>
+                                            <td>{{ $detail->exam }}</td>
                                         </tr>
                                     @endforeach
                                 @else
@@ -129,16 +118,12 @@
                                 <th>Student Number</th>
                                 <th>Student Name</th>
                                 <th>Gender</th>
-                                <th>C.A Score ({{ $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->ca_weight_point }})</th>
-                                <th>Exam Score ({{ $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->exam_weight_point }})</th>
+                                <th>C.A ({{ $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->ca_weight_point }})</th>
+                                <th>Exam ({{ $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->exam_weight_point }})</th>
                             </tr>
                             </tfoot>
                         </table>
-                        <div class="form-actions noborder">
-                            <button type="submit" class="btn blue pull-right">Save Scores</button>
-                        </div>
                     </div>
-                    {!! Form::close() !!}
                 </div>
             </div>
             <!-- END SAMPLE TABLE PORTLET-->
@@ -150,16 +135,20 @@
 
     @section('layout-script')
     <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script src="{{ asset('assets/global/scripts/datatable.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/datatables.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
+
     <script src="{{ asset('assets/global/scripts/app.min.js') }}" type="text/javascript"></script>
     <!-- END THEME GLOBAL SCRIPTS -->
     <!-- BEGIN THEME LAYOUT SCRIPTS -->
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/assessments/exam.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/exams"]');
+            setTableData($('#scores_datatable')).init();
         });
     </script>
 @endsection

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin\Assessments;
 
+use App\Models\Admin\Accounts\Students\Student;
+use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\Exams\Exam;
 use App\Models\Admin\Exams\ExamDetail;
 use App\Models\Admin\MasterRecords\AcademicTerm;
@@ -14,6 +16,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use stdClass;
 
 class ExamsController extends Controller
 {
@@ -26,6 +29,15 @@ class ExamsController extends Controller
     {
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
+
+//        $exam_details = ExamDetail::all();
+//        foreach($exam_details as $exam){
+//            $ca = mt_rand(5, 38);
+//            $ex = mt_rand(10, 58);
+//            $exam->ca = ($exam->ca > 5) ? $exam->ca : $ca;
+//            $exam->exam = ($exam->exam > 10) ? $exam->exam : $ex;
+//            $exam->save();
+//        }
         return view('admin.assessments.exams.index', compact('academic_years', 'classlevels'));
     }
 
@@ -95,7 +107,8 @@ class ExamsController extends Controller
         $inputs = $request->all();
         $response = array();
         $response['flag'] = 0;
-        $user_id = Auth::user()->user_id;
+        // TODO:: remove the user_id 6 after testing
+        $user_id = 6;//Auth::user()->user_id;
 
         if($inputs['classlevel_id'] > 0){
             $class_subjects = SubjectClassRoom::where('tutor_id', $user_id)->where('academic_term_id', $inputs['academic_term_id'])
@@ -107,12 +120,14 @@ class ExamsController extends Controller
             $exams = Exam::whereIn('subject_classroom_id', $class_subjects)->get();
             foreach($exams as $exam){
                 $res[] = array(
+                    "ca_wp"=>$exam->subjectClassroom()->first()->classRoom()->first()->classLevel()->first()->classGroup()->first()->ca_weight_point,
+                    "exam_wp"=>$exam->subjectClassroom()->first()->classRoom()->first()->classLevel()->first()->classGroup()->first()->exam_weight_point,
                     "classroom"=>$exam->subjectClassroom()->first()->classRoom()->first()->classroom,
                     "subject"=>$exam->subjectClassroom()->first()->subject()->first()->subject,
                     "exam_id"=>$exam->exam_id,
                     "hashed_id"=>$this->getHashIds()->encode($exam->exam_id),
                     "academic_term"=>$exam->subjectClassroom()->first()->academicTerm()->first()->academic_term,
-                    "tutor"=>($exam->subjectClassroom()->first()->tutor()->first()) ? $exam->subjectClassroom()->first()->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>',
+//                    "tutor"=>($exam->subjectClassroom()->first()->tutor()->first()) ? $exam->subjectClassroom()->first()->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>',
                     "marked"=>($exam->marked == 1) ? '<span class="label label-success">Marked</span>' : '<span class="label label-danger">Not Marked</span>',
                 );
             }
@@ -123,7 +138,7 @@ class ExamsController extends Controller
     }
 
     /**
-     * Displays the details of the subjects and the number of assessments
+     * Displays the details of the subjects students and make provision for inputting scores
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
@@ -134,6 +149,20 @@ class ExamsController extends Controller
         $subject = ($exam) ? $exam->subjectClassroom()->first() : null;
 
         return view('admin.assessments.exams.input-scores', compact('exam', 'subject'));
+    }
+
+    /**
+     * Displays the details of the subject students and their exams scores
+     * @param String $encodeId
+     * @return \Illuminate\View\View
+     */
+    public function getViewScores($encodeId)
+    {
+        $decodeId = $this->getHashIds()->decode($encodeId);
+        $exam = (empty($decodeId)) ? abort(305) : Exam::findOrFail($decodeId[0]);
+        $subject = ($exam) ? $exam->subjectClassroom()->first() : null;
+
+        return view('admin.assessments.exams.view-scores', compact('exam', 'subject'));
     }
 
     /**
@@ -163,5 +192,61 @@ class ExamsController extends Controller
 
         // redirect to the create a new inmate page
         return redirect('/exams/input-scores/'.$this->getHashIds()->encode($exam->exam_id));
+    }
+
+    /**
+     * Search For Students in a classroom for an academic term
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postSearchStudents(Request $request)
+    {
+        $inputs = $request->all();
+
+        $students = StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])->where('classroom_id', $inputs['view_classroom_id'])->get();
+//        $term = AcademicTerm::findOrFail($inputs['view_academic_term_id']);
+        $response = array();
+        $response['flag'] = 0;
+        $output = [];
+
+        if($students->count() > 0){
+            //All the students in the class room for the academic year
+            foreach($students as $student){
+                $object = new stdClass();
+                $object->student_id = $student->student_id;
+                $object->hashed_stud = $this->getHashIds()->encode($student->student_id);
+                $object->hashed_term = $this->getHashIds()->encode($inputs['view_academic_term_id']);
+                $object->student_no = $student->student()->first()->student_no;
+                $object->name = $student->student()->first()->fullNames();
+                $object->gender = $student->student()->first()->gender;
+                $output[] = $object;
+            }
+            //Sort The Students by name
+            usort($output, function($a, $b)
+            {
+                return strcmp($a->name, $b->name);
+            });
+            $response['flag'] = 1;
+            $response['Students'] = isset($output) ? $output : [];
+        }
+        echo json_encode($response);
+    }
+
+    /**
+     * Displays the details of the subjects students scores for a specific academic term
+     * @param String $encodeStud
+     * @param String $encodeTerm
+     * @return \Illuminate\View\View
+     */
+    public function getTerminal($encodeStud, $encodeTerm)
+    {
+        $decodeStud = $this->getHashIds()->decode($encodeStud);
+        $decodeTerm = $this->getHashIds()->decode($encodeTerm);
+        $student = (empty($decodeStud)) ? abort(305) : Student::findOrFail($decodeStud[0]);
+        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
+        $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $student->currentClass($term->academicYear->academic_year_id)->classroom_id)->get();
+
+        return view('admin.assessments.exams.terminal', compact('student', 'subjects', 'term'));
     }
 }

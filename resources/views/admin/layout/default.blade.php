@@ -31,7 +31,8 @@
     <link href="{{ asset('assets/layouts/layout/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
     @yield('layout-style')
     <!-- END THEME LAYOUT STYLES -->
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" /> </head>
+{{--    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" /> </head>--}}
+    <link rel="shortcut icon" href="{{ asset('assets/pages/img/favicon.png') }}" /> </head>
 <!-- END HEAD -->
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white" onload="javascript:showTime();">

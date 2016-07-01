@@ -105,6 +105,16 @@ class Student extends Model
     }
 
     /**
+     * Get The Student's Current Class Room
+     * @param $year
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function currentClass($year){
+        $class = StudentClass::where('academic_year_id', $year)->where('student_id', $this->student_id)->first();
+        return ($class) ? $class->classRoom()->first() : null;
+    }
+
+    /**
      * A Student belongs to a Class Room
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -169,11 +179,19 @@ class Student extends Model
     }
 
     /**
-     * A Student Has Many An Assessment Detail
+     * A Student Has Many Assessment Detail
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function assessmentDetails(){
         return $this->hasMany('App\Models\Admin\MasterRecords\AssessmentDetail', 'student_id');
+    }
+
+    /**
+     * A Student Has Many Exam Detail
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function examDetails(){
+        return $this->hasMany('App\Models\Admin\Exams\ExamDetail', 'student_id');
     }
 
 }

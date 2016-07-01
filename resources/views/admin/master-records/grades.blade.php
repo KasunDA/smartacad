@@ -5,6 +5,7 @@
     <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}" rel="stylesheet" type="text/css"/>
 @endsection
 
 @section('title', 'Grades Grouping')
@@ -26,6 +27,38 @@
     <h3 class="page"> Grades</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
+        <div class="col-md-10 col-md-offset-1 margin-bottom-10">
+            <form method="post" action="/grades/class-groups" role="form" class="form-horizontal">
+                {!! csrf_field() !!}
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Class Groups</label>
+
+                    <div class="col-md-6">
+                        <div class="col-md-9">
+                            <select class="form-control selectpicker" name="classgroup_id" id="classgroup_id">
+                                @foreach($classgroups as $key => $value)
+                                    @if($classgroup && $classgroup->classgroup_id === $key)
+                                        <option selected value="{{$key}}">{{$value}}</option>
+                                    @else
+                                        <option value="{{$key}}">{{$value}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary pull-right" type="submit">Filter</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        <h3 class="text-center">Grades Assigned in:
+                            <span class="text-danger">{{ ($classgroup) ? $classgroup->classgroup : 'All' }}</span> Class Group</h3>
+                    </div>
+                </div>
+            </form>
+        </div>
         <div class="col-md-12">
             <div class="portlet light bordered">
                 <div class="portlet">

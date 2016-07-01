@@ -44,11 +44,20 @@ class Exam extends Model
     }
 
     /**
-     * An Assessment Has Many An Assessment Detail
+     * An Exam Has Many An Exam Detail
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function examDetails(){
         return $this->hasMany('App\Models\Admin\Exams\ExamDetail', 'exam_id');
+    }
+
+    /**
+     * An Exam was written by Many Students Through Exam Details
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function students()
+    {
+        return $this->hasManyThrough('App\Models\Admin\Accounts\Students\Student', 'App\Models\Admin\Exams\ExamDetail', 'exam_id', 'student_id');
     }
 
     /**

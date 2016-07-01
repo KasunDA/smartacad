@@ -39,9 +39,9 @@
                             <li class="active">
                                 <a href="#exams_input_score" data-toggle="tab"> Input Scores </a>
                             </li>
-                            {{--<li>--}}
-                                {{--<a href="#view_subject" data-toggle="tab"> View Subjects / Assign Tutor</a>--}}
-                            {{--</li>--}}
+                            <li>
+                                <a href="#terminal" data-toggle="tab"> Terminal Result</a>
+                            </li>
                         </ul>
                     </div>
                     <div class="portlet-body form">
@@ -97,61 +97,61 @@
                                     </div>
                                 </div>
                             </div>
-                            {{--<div class="tab-pane" id="view_subject">--}}
-                                {{--<div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Subjects</div>--}}
-                                {{--{!! Form::open([--}}
-                                        {{--'method'=>'POST',--}}
-                                        {{--'class'=>'form-horizontal',--}}
-                                        {{--'id' => 'search_view_subject_form'--}}
-                                    {{--])--}}
-                                {{--!!}--}}
-                                    {{--<div class="form-body">--}}
-                                        {{--<div class="form-group">--}}
-                                            {{--<div class="col-md-4 col-md-offset-1">--}}
-                                                {{--<div class="form-group">--}}
-                                                    {{--<label class="control-label">Academic Year </label>--}}
-                                                    {{--<div>--}}
-                                                        {{--{!! Form::select('view_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'view_academic_year_id', 'required'=>'required']) !!}--}}
-                                                    {{--</div>--}}
-                                                {{--</div>--}}
-                                                {{--<div class="form-group">--}}
-                                                    {{--<label class="control-label">Academic Term </label>--}}
-                                                    {{--{!! Form::select('view_academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),--}}
-                                                    {{--AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'view_academic_term_id', 'required'=>'required']) !!}--}}
-                                                {{--</div>--}}
-                                            {{--</div>--}}
-                                            {{--<div class="col-md-4 col-md-offset-1">--}}
-                                                {{--<div class="form-group">--}}
-                                                    {{--<label class="control-label">Class Level </label>--}}
-                                                    {{--<div>--}}
-                                                        {{--{!! Form::select('view_classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'id'=>'view_classlevel_id', 'required'=>'required']) !!}--}}
-                                                    {{--</div>--}}
-                                                {{--</div>--}}
-                                                {{--<div class="form-group">--}}
-                                                    {{--<label class="control-label">Class Room </label>--}}
-                                                    {{--{!! Form::select('view_classroom_id', [], '', ['class'=>'form-control', 'id'=>'view_classroom_id']) !!}--}}
-                                                {{--</div>--}}
-                                            {{--</div>--}}
-                                        {{--</div>--}}
-                                    {{--</div>--}}
-                                    {{--<div class="form-actions noborder">--}}
-                                        {{--<button type="submit" class="btn blue pull-right">--}}
-                                            {{--<i class="fa fa-search"></i> Search--}}
-                                        {{--</button>--}}
-                                    {{--</div>--}}
-                                {{--{!! Form::close() !!}--}}
-                                {{--<div class="row">--}}
-                                    {{--<div class="col-md-12">--}}
-                                        {{--<div class="portlet-body">--}}
-                                            {{--<div class="row">--}}
-                                                {{--<table class="table table-striped table-bordered table-hover" id="view_subject_datatable">--}}
+                            <div class="tab-pane" id="terminal">
+                                <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Subjects</div>
+                                {!! Form::open([
+                                        'method'=>'POST',
+                                        'class'=>'form-horizontal',
+                                        'id' => 'search_view_student_form'
+                                    ])
+                                !!}
+                                    <div class="form-body">
+                                        <div class="form-group">
+                                            <div class="col-md-4 col-md-offset-1">
+                                                <div class="form-group">
+                                                    <label class="control-label">Academic Year <span class="text-danger">*</span></label>
+                                                    <div>
+                                                        {!! Form::select('view_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'view_academic_year_id', 'required'=>'required']) !!}
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Academic Term <span class="text-danger">*</span></label>
+                                                    {!! Form::select('view_academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
+                                                    AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'view_academic_term_id', 'required'=>'required']) !!}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-md-offset-1">
+                                                <div class="form-group">
+                                                    <label class="control-label">Class Level <span class="text-danger">*</span></label>
+                                                    <div>
+                                                        {!! Form::select('view_classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'id'=>'view_classlevel_id', 'required'=>'required']) !!}
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Class Room </label>
+                                                    {!! Form::select('view_classroom_id', [], '', ['class'=>'form-control', 'id'=>'view_classroom_id']) !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-actions noborder">
+                                        <button type="submit" class="btn blue pull-right">
+                                            <i class="fa fa-search"></i> Search
+                                        </button>
+                                    </div>
+                                {!! Form::close() !!}
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <div class="portlet-body">
+                                            <div class="row">
+                                                <table class="table table-striped table-bordered table-hover" id="view_student_datatable">
 
-                                                {{--</table>--}}
-                                            {{--</div>--}}
-                                        {{--</div>--}}
-                                    {{--</div>--}}
-                                {{--</div>--}}
-                            {{--</div>--}}
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

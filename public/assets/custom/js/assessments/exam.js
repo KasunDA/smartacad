@@ -6,6 +6,8 @@ jQuery(document).ready(function() {
 
     // Ajax Get Academic Terms Based on the Academic Year
     getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
+    getDependentListBox($('#view_academic_year_id'), $('#view_academic_term_id'), '/list-box/academic-term/');
+    getDependentListBox($('#view_classlevel_id'), $('#view_classroom_id'), '/list-box/classroom/');
 
     //Validate Scores So that it does'nt exceed the weight point assigned
     $(document.body).on('change', '.scores', function(){
@@ -102,18 +104,18 @@ var UIBlockUI = function() {
                 url: '/exams/subject-assigned',
                 data: values,
                 success: function (data) {
-                    console.log(data);
 
                     var obj = $.parseJSON(data);
                     var assign = '<thead>\
                                 <tr>\
                                     <th>#</th>\
-                                    <th>Academic Term</th>\
                                     <th>Subject</th>\
                                     <th>Class Room</th>\
-                                    <th>Tutor</th>\
+                                    <th>C. A</th>\
+                                    <th>Exam</th>\
                                     <th>Status</th>\
                                     <th>Input Score</th>\
+                                    <th>View Score</th>\
                                 </tr>\
                             </thead>\
                             <tbody>';
@@ -121,12 +123,15 @@ var UIBlockUI = function() {
                         $.each(obj.Exam, function(key, value) {
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
-                                '<td>'+value.academic_term+'</td>' +
+                                //'<td>'+value.academic_term+'</td>' +
                                 '<td>'+value.subject+'</td>' +
                                 '<td>'+value.classroom+'</td>' +
-                                '<td>'+value.tutor+'</td>' +
+                                '<td>'+value.ca_wp+'</td>' +
+                                '<td>'+value.exam_wp+'</td>' +
+                                //'<td>'+value.tutor+'</td>' +
                                 '<td>'+value.marked+'</td>' +
-                                '<td><a href="/exams/input-scores/'+value.hashed_id+'" class="btn btn-link"> Proceed</a></td>' +
+                                '<td><a href="/exams/input-scores/'+value.hashed_id+'" class="btn btn-link"> <i class="fa fa-edit"></i> Proceed</a></td>' +
+                                '<td><a href="/exams/view-scores/'+value.hashed_id+'" class="btn btn-link btn-info"> <i class="fa fa-eye"></i> View</a></td>' +
                                 '</tr>';
                         });
                     }
@@ -152,11 +157,78 @@ var UIBlockUI = function() {
         });
     }
 
+    var handleSample2 = function() {
+
+        //When the search button is clicked
+        $(document.body).on('submit', '#search_view_student_form', function(){
+            var values = $(this).serialize();
+
+            App.blockUI({
+                target: '#terminal',
+                animate: true
+            });
+
+            $.ajax({
+                type: "POST",
+                url: '/exams/search-students',
+                data: values,
+                success: function (data) {
+                    //console.log(data);
+
+                    var obj = $.parseJSON(data);
+                    var assign = '<thead>\
+                                <tr>\
+                                    <th>#</th>\
+                                    <th>Student ID.</th>\
+                                    <th>Student Name</th>\
+                                    <th>Gender</th>\
+                                    <th>View Result</th>\
+                                    <th>Chart</th>\
+                                    <th>Print</th>\
+                                </tr>\
+                            </thead>\
+                            <tbody>';
+                    if(obj.flag === 1){
+                        $.each(obj.Students, function(key, value) {
+                            assign += '<tr>' +
+                                '<td>'+(key + 1)+'</td>' +
+                                '<td>'+value.student_no+'</td>' +
+                                '<td>'+value.name+'</td>' +
+                                '<td>'+value.gender+'</td>' +
+                                '<td><a href="/exams/terminal/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-bookmark"></i> Proceed</a></td>' +
+                                '<td><a href="/exams/chart'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-default btn-xs"> <i class="fa fa-bar-chart"></i> View</a></td>' +
+                                '<td><a href="/exams/print'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-primary btn-xs"> <i class="fa fa-eye"></i> Print</a></td>' +
+                                '</tr>';
+                        });
+                    }
+                    assign += '</tbody>';
+
+                    $('#view_student_datatable').html(assign);
+                    //FormEditable.init();
+                    setTableData($('#view_student_datatable')).refresh();
+                    setTableData($('#view_student_datatable')).init();
+
+                    window.setTimeout(function() {
+                        App.unblockUI('#terminal');
+                    }, 2000);
+                    //Scroll To Div
+                    scroll2Div($('#view_student_datatable'));
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+                    App.unblockUI('#terminal');
+                }
+            });
+            return false;
+        });
+    }
+
     return {
         //main function to initiate the module
         init: function() {
 
             handleSample1();
+            handleSample2();
         }
     };
 }();
