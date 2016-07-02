@@ -171,11 +171,19 @@ class Student extends Model
     }
 
     /**
-     * A Student registers has many subjects
+     * A Student registers many subjects
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function studentSubjects(){
         return $this->hasMany('App\Models\Admin\MasterRecords\Accounts\Students\StudentSubject');
+    }
+
+    /**
+     * A Student registers many subjects in a class room for an academic term
+     * @return \Illuminate\Database\Eloquent\Relations\hasManyThrough
+     */
+    public function subjectClassRooms(){
+        return $this->hasManyThrough('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'App\Models\Admin\MasterRecords\Accounts\Students\StudentSubject', 'student_id', 'subject_classroom_id');
     }
 
     /**

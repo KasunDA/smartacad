@@ -160,4 +160,13 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Models\Admin\RolesAndPermissions\Role', 'role_user', 'user_id', 'role_id');
     }
+
+    /**
+     * A Tutor input assessments scores Through Subjects assigned in a class room for an academic term
+     * @return \Illuminate\Database\Eloquent\Relations\hasManyThrough
+     */
+    public function assessments()
+    {
+        return $this->hasManyThrough('App\Models\Admin\Assessments\Assessment', 'App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'tutor_id', 'subject_classroom_id');
+    }
 }

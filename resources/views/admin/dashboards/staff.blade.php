@@ -38,6 +38,106 @@
                 <!-- END CHART PORTLET-->
             </div>
         </div>
+        @if(Auth::user()->assessments()->where('marked', '<>', 1)->count() > 0)
+            <div class="row">
+                <div class="col-md-10">
+                    <!-- BEGIN CHART PORTLET-->
+                    <div class="portlet light bordered">
+                        <div class="portlet-title">
+                            <div class="caption">
+                                <i class="fa fa-book font-green"></i>
+                                <span class="caption-subject font-red bold uppercase">Assessments Outstanding (Unmarked).</span>
+                            </div>
+                        </div>
+                        <div class="portlet-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Academic Term</th>
+                                        <th>Subject Name</th>
+                                        <th>Class Room</th>
+                                        <th>Description</th>
+                                        <th>No.</th>
+                                        <th>Due Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $i = 1; ?>
+                                        @foreach(Auth::user()->assessments()->where('marked', '<>', 1)->get() as $assessment)
+                                            <tr class="odd gradeX">
+                                                <td class="center">{{$i++}}</td>
+                                                <td>{{ $assessment->subjectClassroom->academicTerm->academic_term }}</td>
+                                                <td>{{ $assessment->subjectClassroom->subject->subject }}</td>
+                                                <td>{{ $assessment->subjectClassroom->classRoom->classroom }}</td>
+                                                <td>{{ $assessment->assessmentSetupDetail->description }}</td>
+                                                <td>{{ Assessment::formatPosition($assessment->assessmentSetupDetail->number) }}</td>
+                                                <td>{{ $assessment->assessmentSetupDetail->submission_date->format('jS M, Y') }}</td>
+                                                <td>
+                                                    <a href="{{ url('/assessments/input-scores/'.$hashIds->encode($assessment->assessment_setup_detail_id).'/'.$hashIds->encode($assessment->subject_classroom_id)) }}" class="btn btn-link btn-xs">
+                                                        <span class="fa fa-check-square"></span> Input Scores
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END CHART PORTLET-->
+                </div>
+            </div>
+        @endif
+        @if(Auth::user()->assessments()->where('marked', 1)->count() > 0)
+            <div class="row">
+                <div class="col-md-10">
+                    <!-- BEGIN CHART PORTLET-->
+                    <div class="portlet light bordered">
+                        <div class="portlet-title">
+                            <div class="caption">
+                                <i class="fa fa-bar-chart font-green"></i>
+                                <span class="caption-subject font-green bold uppercase">Assessments Marked.</span>
+                            </div>
+                        </div>
+                        <div class="portlet-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Academic Term</th>
+                                        <th>Subject Name</th>
+                                        <th>Class Room</th>
+                                        <th>Description</th>
+                                        <th>No.</th>
+                                        <th>Due Date</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php $i = 1; ?>
+                                    @foreach(Auth::user()->assessments()->where('marked', 1)->get() as $assessment)
+                                        <tr class="odd gradeX">
+                                            <td class="center">{{$i++}}</td>
+                                            <td>{{ $assessment->subjectClassroom->academicTerm->academic_term }}</td>
+                                            <td>{{ $assessment->subjectClassroom->subject->subject }}</td>
+                                            <td>{{ $assessment->subjectClassroom->classRoom->classroom }}</td>
+                                            <td>{{ $assessment->assessmentSetupDetail->description }}</td>
+                                            <td>{{ Assessment::formatPosition($assessment->assessmentSetupDetail->number) }}</td>
+                                            <td>{{ $assessment->assessmentSetupDetail->submission_date->format('jS M, Y') }}</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END CHART PORTLET-->
+                </div>
+            </div>
+        @endif
     </div>
 
 @endsection

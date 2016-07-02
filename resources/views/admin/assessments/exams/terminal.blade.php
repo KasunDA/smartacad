@@ -88,7 +88,7 @@
                 <div id="error-div"></div>
                 <div class="portlet-body">
                     <div class="table-responsive">
-                        <table class="table table-hover table-bordered">
+                        <table class="table table-hover table-bordered table-striped">
                             <thead>
                             <tr>
                                 <th colspan="2"></th>

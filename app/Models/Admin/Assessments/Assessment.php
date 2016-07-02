@@ -49,7 +49,7 @@ class Assessment extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function subjectClassroom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassRoom', 'classroom_id');
+        return $this->belongsTo('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'subject_classroom_id');
     }
 
     /**

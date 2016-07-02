@@ -43,6 +43,7 @@ class DashboardController extends Controller
         $sponsors_count = User::where('user_type_id', Sponsor::USER_TYPE)->count();
         $staff_count = User::where('user_type_id', Staff::USER_TYPE)->count();
         $students_count = Student::count();
+
         if(Auth::user()->user_type_id == Staff::USER_TYPE){
             return view('admin.dashboards.staff');
         }else{

@@ -53,7 +53,7 @@ class Exam extends Model
 
     /**
      * An Exam was written by Many Students Through Exam Details
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\hasManyThrough
      */
     public function students()
     {
