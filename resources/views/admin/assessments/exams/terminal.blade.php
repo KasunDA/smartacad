@@ -1,12 +1,5 @@
 @extends('admin.layout.default')
 
-@section('layout-style')
-<!-- BEGIN PAGE LEVEL STYLES -->
-<link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
-<link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
-<!-- END PAGE LEVEL STYLES -->
-@endsection
-
 @section('title', 'Terminal Student Assessments Details')
 
 @section('breadcrumb')
@@ -58,18 +51,26 @@
                                 <th> Class Level </th>
                                 <td> {{ $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classlevel }} </td>
                             </tr>
-                            <tr>
-                                <th> Student Total Score </th>
-                                <td></td>
-                                <th> Assessment Perfect Score </th>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th> Class Position </th>
-                                <td></td>
-                                <th> Number of Students (Out of) </th>
-                                <td></td>
-                            </tr>
+                            @if(isset($position->student_sum_total))
+                                <tr>
+                                    <th> Student Total Score </th>
+                                    <td> {{ $position->student_sum_total }}</td>
+                                    <th> Assessment Perfect Score </th>
+                                    <td> {{ $position->exam_perfect_score }} </td>
+                                </tr>
+                                <tr>
+                                    <th> Class Position </th>
+                                    <td>{{ Assessment::formatPosition($position->class_position) }}</td>
+                                    <th> Number of Students (Out of) </th>
+                                    <td>{{ $position->class_size }}</td>
+                                </tr>
+                                <tr>
+                                    <th> Class Average </th>
+                                    <td>{{ number_format($position->class_average, 2) }}</td>
+                                    <th></th>
+                                    <td></td>
+                                </tr>
+                            @endif
                         </table>
                     </div>
                 </div>
@@ -94,18 +95,18 @@
                                 <th colspan="2"></th>
                                 <th class="center" colspan="3">Student Scores</th>
                                 <th class="center" colspan="2">Grades</th>
-                                <th class="center" colspan="2">Weight Point</th>
                             </tr>
                             <tr>
                                 <th>#</th>
                                 <th>Subject Name</th>
-                                <th>C. A</th>
-                                <th>Exam</th>
-                                <th>Total</th>
+                                <th>C. A ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->ca_weight_point}})</th>
+                                <th>Exam ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->exam_weight_point}})</th>
+                                <th>
+                                    Total ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->ca_weight_point +
+                                    $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->exam_weight_point}})
+                                </th>
                                 <th>Grade</th>
                                 <th>Abbr.</th>
-                                <th>C.A </th>
-                                <th>Exam </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -114,27 +115,21 @@
                                 @foreach($subjects as $subjectClass)
                                     <?php
                                         $ca = ($subjectClass->examDetails()->where('student_id', $student->student_id))
-                                            ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()->ca : null;
+                                            ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()["ca"] : null;
                                         $exam = ($subjectClass->examDetails()->where('student_id', $student->student_id))
-                                            ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()->exam : null;
+                                            ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()["exam"] : null;
+                                        $grade = $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()
+                                                ->grades()->where('lower_bound', '<=', ($ca+$exam))->where('upper_bound', '>=', ($ca+$exam))->first();
                                     ?>
-                                    @if($ca || $exam)
+                                    @if($exam && $subjectClass->examDetails()->where('student_id', $student->student_id)->first()->exam()->where('marked', 1)->count() > 0)
                                         <tr class="odd gradeX">
                                             <td class="center">{{$i++}}</td>
-                                            <td>{{ $subjectClass->subject->subject }}</td>
+                                            <td>{{ $subjectClass->subject()->first()->subject }}</td>
                                             <td>{!! ($ca) !!}</td>
                                             <td>{!! ($exam) ? $exam : '<span class="label label-danger">nil</span>' !!}</td>
                                             <td>{!! ($ca || $exam) ? ($ca + $exam) : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>
-                                                {{ $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()
-                                                ->grades()->where('lower_bound', '<=', ($ca+$exam))->where('upper_bound', '>=', ($ca+$exam))->first()->grade }}
-                                            </td>
-                                            <td>
-                                                {{ $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()
-                                                ->grades()->where('lower_bound', '<=', ($ca+$exam))->where('upper_bound', '>=', ($ca+$exam))->first()->grade_abbr }}
-                                            </td>
-                                            <td>{{ $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->ca_weight_point }}</td>
-                                            <td>{{ $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->exam_weight_point }}</td>
+                                            <td>{{ $grade->grade }}</td>
+                                            <td>{{ $grade->grade_abbr }}</td>
                                         </tr>
                                     @endif
                                 @endforeach
@@ -146,13 +141,14 @@
                             <tr>
                                 <th>#</th>
                                 <th>Subject Name</th>
-                                <th>C. A</th>
-                                <th>Exam</th>
-                                <th>Total</th>
+                                <th>C. A ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->ca_weight_point}})</th>
+                                <th>Exam ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->exam_weight_point}})</th>
+                                <th>
+                                    Total ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->ca_weight_point +
+                                    $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->exam_weight_point}})
+                                </th>
                                 <th>Grade</th>
                                 <th>Abbr.</th>
-                                <th>C.A </th>
-                                <th>Exam </th>
                             </tr>
                             </tfoot>
                         </table>
@@ -163,25 +159,21 @@
         </div>
     </div>
     <!-- END CONTENT BODY -->
-    @endsection
+@endsection
 
 
-    @section('layout-script')
+@section('layout-script')
     <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <script src="{{ asset('assets/global/scripts/datatable.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/datatables/datatables.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
-
     <script src="{{ asset('assets/global/scripts/app.min.js') }}" type="text/javascript"></script>
     <!-- END THEME GLOBAL SCRIPTS -->
     <!-- BEGIN THEME LAYOUT SCRIPTS -->
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/assessments/exam.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/exams"]');
-            setTableData($('#scores_datatable')).init();
         });
     </script>
 @endsection

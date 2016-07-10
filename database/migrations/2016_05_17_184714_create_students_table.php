@@ -47,6 +47,7 @@ class CreateStudentsTable extends Migration
             $table->timestamps();
 
             $table->foreign('classroom_id')->references('classroom_id')->on('classrooms')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('student_id')->references('student_id')->on('students')->onUpdate('cascade')->onDelete('cascade');
             $table->engine = 'InnoDB';
         });
 
@@ -55,6 +56,8 @@ class CreateStudentsTable extends Migration
             $table->integer('subject_classroom_id')->index()->unsigned();
 
             $table->primary(['student_id', 'subject_classroom_id']);
+            $table->foreign('student_id')->references('student_id')->on('students')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('subject_classroom_id')->references('subject_classroom_id')->on('subject_classrooms')->onUpdate('cascade')->onDelete('cascade');
             $table->engine = 'InnoDB';
         });
     }
@@ -66,9 +69,9 @@ class CreateStudentsTable extends Migration
      */
     public function down()
     {
-        Schema::connection('admin_mysql')->drop('status');
-        Schema::drop('students');
-        Schema::drop('student_classes');
         Schema::drop('student_subjects');
+        Schema::drop('student_classes');
+        Schema::drop('students');
+        Schema::connection('admin_mysql')->drop('status');
     }
 }

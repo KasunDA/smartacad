@@ -62,11 +62,11 @@ class Assessment extends Model
 
     /**
      * Populate Assessment Details // Ready for inputting Scores
+     * @param $assessment_id
      */
     public static function populatedAssessmentDetails($assessment_id){
         return DB::statement('call sp_populateAssessmentDetail(' . $assessment_id . ')');
     }
-
 
     /**
      * Format Numbers as Position

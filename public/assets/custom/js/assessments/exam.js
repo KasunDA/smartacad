@@ -183,8 +183,6 @@ var UIBlockUI = function() {
                                     <th>Student Name</th>\
                                     <th>Gender</th>\
                                     <th>View Result</th>\
-                                    <th>Chart</th>\
-                                    <th>Print</th>\
                                 </tr>\
                             </thead>\
                             <tbody>';
@@ -196,8 +194,8 @@ var UIBlockUI = function() {
                                 '<td>'+value.name+'</td>' +
                                 '<td>'+value.gender+'</td>' +
                                 '<td><a href="/exams/terminal/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-bookmark"></i> Proceed</a></td>' +
-                                '<td><a href="/exams/chart'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-default btn-xs"> <i class="fa fa-bar-chart"></i> View</a></td>' +
-                                '<td><a href="/exams/print'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-primary btn-xs"> <i class="fa fa-eye"></i> Print</a></td>' +
+                                //'<td><a href="/exams/chart/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-default btn-xs"> <i class="fa fa-bar-chart"></i> View</a></td>' +
+                                //'<td><a href="/exams/print/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-primary btn-xs"> <i class="fa fa-eye"></i> Print</a></td>' +
                                 '</tr>';
                         });
                     }

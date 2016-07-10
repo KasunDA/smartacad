@@ -106,19 +106,21 @@
                                     @if($assessment->assessmentDetails()->count() > 0)
                                         <?php $i = 1; ?>
                                         @foreach($assessment->assessmentDetails()->get() as $detail)
-                                            <tr class="odd gradeX">
-                                                <td class="center">{{$i++}}</td>
-                                                <td>{{ $detail->student()->first()->student_no }}</td>
-                                                <td>{{ $detail->student()->first()->fullNames() }}</td>
-                                                <td>
-                                                    {{ $detail->student()->first()->gender }}
-                                                    {!! Form::hidden('assessment_detail_id[]', $detail->assessment_detail_id, ['class'=>'form-control']) !!}
-                                                </td>
-                                                <td>
-                                                    {!! Form::text('score[]', $detail->score, ['class'=>'form-control scores', 'size'=>4, 'required'=>'required']) !!}
-                                                    <span></span>
-                                                </td>
-                                            </tr>
+                                            @if($detail->student()->first())
+                                                <tr class="odd gradeX">
+                                                    <td class="center">{{$i++}}</td>
+                                                    <td>{{ $detail->student()->first()->student_no }}</td>
+                                                    <td>{{ $detail->student()->first()->fullNames() }}</td>
+                                                    <td>
+                                                        {{ $detail->student()->first()->gender }}
+                                                        {!! Form::hidden('assessment_detail_id[]', $detail->assessment_detail_id, ['class'=>'form-control']) !!}
+                                                    </td>
+                                                    <td>
+                                                        {!! Form::text('score[]', $detail->score, ['class'=>'form-control scores', 'size'=>4, 'required'=>'required']) !!}
+                                                        <span></span>
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @endforeach
                                     @else
                                         <tr><th colspan="5">No Record Found</th></tr>

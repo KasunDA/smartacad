@@ -100,23 +100,24 @@
                                 @if($exam->examDetails()->count() > 0)
                                     <?php $i = 1; ?>
                                     @foreach($exam->examDetails()->get() as $detail)
-{{--                                        {{ dd($detail->student()->first()) }}--}}
-                                        <tr class="odd gradeX">
-                                            <td class="center">{{$i++}}</td>
-                                            <td>{{ $detail->student()->first()["student_no"] }}</td>
-                                            <td>{{ $detail->student()->first()["first_name"] . ' ' . $detail->student()->first()["last_name"] }}</td>
-                                            <td>
-                                                {!! ($detail->student()->first()) ? $detail->student()->first()["gender"] : '<span class="label label-danger">nil</span>' !!}
-                                                {!! Form::hidden('exam_detail_id[]', $detail->exam_detail_id, ['class'=>'form-control']) !!}
-                                            </td>
-                                            <td>
-                                                {{ $detail->ca }}
-                                            </td>
-                                            <td>
-                                                {!! Form::text('exam[]', $detail->exam, ['class'=>'form-control scores', 'size'=>4, 'required'=>'required']) !!}
-                                                <span></span>
-                                            </td>
-                                        </tr>
+                                        @if($detail->student()->first())
+                                            <tr class="odd gradeX">
+                                                <td class="center">{{$i++}}</td>
+                                                <td>{{ $detail->student()->first()->student_no }}</td>
+                                                <td>{{ $detail->student()->first()->fullNames() }}</td>
+                                                <td>
+                                                    {!! ($detail->student()->first()) ? $detail->student()->first()->gender : '<span class="label label-danger">nil</span>' !!}
+                                                    {!! Form::hidden('exam_detail_id[]', $detail->exam_detail_id, ['class'=>'form-control']) !!}
+                                                </td>
+                                                <td>
+                                                    {{ $detail->ca }}
+                                                </td>
+                                                <td>
+                                                    {!! Form::text('exam[]', $detail->exam, ['class'=>'form-control scores', 'size'=>4, 'required'=>'required']) !!}
+                                                    <span></span>
+                                                </td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                 @else
                                     <tr><th colspan="6">No Record Found</th></tr>

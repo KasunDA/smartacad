@@ -2,8 +2,10 @@
 
 namespace App\Models\Admin\Exams;
 
+use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use PDO;
 
 class Exam extends Model
 {
@@ -67,4 +69,18 @@ class Exam extends Model
     public static function processExam($term_id){
         return DB::statement('call sp_processExams(' . $term_id . ')');
     }
+
+    /**
+     * Calculate the terminal class positions
+     * @param $term_id
+     * @param $classroom_id
+     * @param $student_id
+     */
+    public static function terminalClassPosition($term_id, $classroom_id, $student_id=0){
+        $pdo = DB::connection()->getPdo();
+        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+
+        return DB::select('call sp_terminalClassPosition(?,?,?)', array($term_id, $classroom_id, $student_id));
+    }
+
 }

@@ -15,6 +15,13 @@ class StudentSubject extends Model
     protected $table = 'student_subjects';
 
     /**
+     * The table users primary key
+     * @var string
+     */
+    protected $primaryKey = 'subject_classroom_id';
+
+
+    /**
      * The attributes that are mass assignable.
      * @var array
      */

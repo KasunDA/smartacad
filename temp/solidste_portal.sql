@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost:3306
--- Generation Time: Jul 02, 2016 at 06:39 AM
+-- Generation Time: Jul 10, 2016 at 01:50 PM
 -- Server version: 5.5.50-cll
 -- PHP Version: 5.4.31
 
@@ -578,7 +578,6 @@ INSERT INTO `assessment_details` (`assessment_detail_id`, `student_id`, `score`,
 (25, 44, 0.00, 2),
 (31, 1, 0.00, 3),
 (32, 2, 0.00, 3),
-(33, 3, 0.00, 3),
 (34, 4, 0.00, 3),
 (35, 5, 0.00, 3),
 (36, 6, 0.00, 3),
@@ -602,7 +601,6 @@ INSERT INTO `assessment_details` (`assessment_detail_id`, `student_id`, `score`,
 (64, 41, 0.00, 5),
 (65, 42, 0.00, 5),
 (66, 43, 0.00, 5),
-(67, 46, 0.00, 5),
 (68, 1, 10.00, 6),
 (69, 2, 17.00, 6),
 (71, 4, 10.00, 6),
@@ -625,7 +623,6 @@ INSERT INTO `assessment_details` (`assessment_detail_id`, `student_id`, `score`,
 (93, 44, 10.00, 7),
 (98, 1, 7.00, 8),
 (99, 2, 10.00, 8),
-(100, 3, 0.00, 8),
 (101, 4, 4.00, 8),
 (102, 5, 9.00, 8),
 (103, 6, 8.00, 8),
@@ -636,7 +633,6 @@ INSERT INTO `assessment_details` (`assessment_detail_id`, `student_id`, `score`,
 (108, 44, 6.00, 8),
 (113, 1, 10.00, 9),
 (114, 2, 14.00, 9),
-(115, 3, 0.00, 9),
 (116, 4, 8.00, 9),
 (117, 5, 10.00, 9),
 (118, 6, 10.00, 9),
@@ -826,11 +822,9 @@ CREATE TABLE IF NOT EXISTS `assessment_detailsviews` (
 ,`ca_weight_point` int(10) unsigned
 ,`exam_weight_point` int(10) unsigned
 ,`sponsor_id` int(10) unsigned
-,`avatar` varchar(255)
-,`sponsor_no` varchar(20)
 ,`phone_no` varchar(20)
-,`email` varchar(150)
-,`sponsor_name` varchar(301)
+,`email` varchar(255)
+,`sponsor_name` varchar(91)
 ,`subject_id` int(10) unsigned
 ,`classroom_id` int(10) unsigned
 ,`classroom` varchar(255)
@@ -976,6 +970,25 @@ INSERT INTO `classrooms` (`classroom_id`, `classroom`, `class_size`, `class_stat
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `classrooms_studentviews`
+--
+CREATE TABLE IF NOT EXISTS `classrooms_studentviews` (
+`fullname` varchar(152)
+,`student_no` varchar(10)
+,`classroom` varchar(255)
+,`classroom_id` int(10) unsigned
+,`student_id` int(10) unsigned
+,`classlevel` varchar(255)
+,`classlevel_id` int(10) unsigned
+,`sponsor_id` int(10) unsigned
+,`sponsor_name` varchar(91)
+,`academic_year_id` int(10) unsigned
+,`academic_year` varchar(100)
+,`status_id` int(10) unsigned
+);
+-- --------------------------------------------------------
+
+--
 -- Stand-in structure for view `classrooms_subjectviews`
 --
 CREATE TABLE IF NOT EXISTS `classrooms_subjectviews` (
@@ -1010,84 +1023,20 @@ CREATE TABLE IF NOT EXISTS `class_masters` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `exams`
+-- Table structure for table `exams_detailsviews`
 --
 
-CREATE TABLE IF NOT EXISTS `exams` (
-  `exam_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `subject_classroom_id` int(10) unsigned NOT NULL,
-  `marked` int(10) unsigned NOT NULL DEFAULT '2',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`exam_id`),
-  KEY `exams_subject_classroom_id_index` (`subject_classroom_id`),
-  KEY `exams_marked_index` (`marked`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`solidste_portal`@`%` SQL SECURITY DEFINER VIEW `solidste_portal`.`exams_detailsviews` AS select `solidste_portal`.`exam_details`.`exam_detail_id` AS `exam_detail_id`,`solidste_portal`.`exams`.`exam_id` AS `exam_id`,`solidste_portal`.`subject_classrooms`.`subject_classroom_id` AS `subject_classroom_id`,`solidste_portal`.`subject_classrooms`.`subject_id` AS `subject_id`,`solidste_portal`.`classrooms`.`classlevel_id` AS `classlevel_id`,`solidste_portal`.`student_classes`.`classroom_id` AS `classroom_id`,`solidste_portal`.`students`.`student_id` AS `student_id`,`solidste_portal`.`classrooms`.`classroom` AS `classroom`,concat(ucase(`solidste_portal`.`students`.`first_name`),' ',lcase(`solidste_portal`.`students`.`last_name`)) AS `fullname`,`solidste_portal`.`exam_details`.`ca` AS `ca`,`solidste_portal`.`exam_details`.`exam` AS `exam`,(`solidste_portal`.`exam_details`.`exam` + `solidste_portal`.`exam_details`.`ca`) AS `student_total`,`solidste_portal`.`classgroups`.`ca_weight_point` AS `ca_weight_point`,`solidste_portal`.`classgroups`.`exam_weight_point` AS `exam_weight_point`,(`solidste_portal`.`classgroups`.`exam_weight_point` + `solidste_portal`.`classgroups`.`ca_weight_point`) AS `weight_point_total`,`solidste_portal`.`academic_terms`.`academic_term_id` AS `academic_term_id`,`solidste_portal`.`academic_terms`.`academic_term` AS `academic_term`,`solidste_portal`.`exams`.`marked` AS `marked`,`solidste_portal`.`academic_terms`.`academic_year_id` AS `academic_year_id`,`solidste_portal`.`academic_years`.`academic_year` AS `academic_year`,`solidste_portal`.`classlevels`.`classlevel` AS `classlevel`,`solidste_portal`.`classlevels`.`classgroup_id` AS `classgroup_id` from (((((((((`solidste_portal`.`exams` join `solidste_portal`.`exam_details` on((`solidste_portal`.`exams`.`exam_id` = `solidste_portal`.`exam_details`.`exam_id`))) join `solidste_portal`.`subject_classrooms` on((`solidste_portal`.`exams`.`subject_classroom_id` = `solidste_portal`.`subject_classrooms`.`subject_classroom_id`))) join `solidste_portal`.`students` on((`solidste_portal`.`exam_details`.`student_id` = `solidste_portal`.`students`.`student_id`))) join `solidste_portal`.`academic_terms` on((`solidste_portal`.`subject_classrooms`.`academic_term_id` = `solidste_portal`.`academic_terms`.`academic_term_id`))) join `solidste_portal`.`academic_years` on((`solidste_portal`.`academic_years`.`academic_year_id` = `solidste_portal`.`academic_terms`.`academic_year_id`))) join `solidste_portal`.`student_classes` on((`solidste_portal`.`students`.`student_id` = `solidste_portal`.`student_classes`.`student_id`))) join `solidste_portal`.`classrooms` on((`solidste_portal`.`student_classes`.`classroom_id` = `solidste_portal`.`classrooms`.`classroom_id`))) join `solidste_portal`.`classlevels` on((`solidste_portal`.`classrooms`.`classlevel_id` = `solidste_portal`.`classlevels`.`classlevel_id`))) join `solidste_portal`.`classgroups` on((`solidste_portal`.`classgroups`.`classgroup_id` = `solidste_portal`.`classlevels`.`classgroup_id`)));
+-- Error reading data: (#1356 - View 'solidste_portal.exams_detailsviews' references invalid table(s) or column(s) or function(s) or definer/invoker of view lack rights to use them)
 
 -- --------------------------------------------------------
 
 --
--- Stand-in structure for view `exams_detailsviews`
---
-CREATE TABLE IF NOT EXISTS `exams_detailsviews` (
-`exam_detail_id` int(10) unsigned
-,`exam_id` int(10) unsigned
-,`subject_classroom_id` int(10) unsigned
-,`subject_id` int(10) unsigned
-,`classlevel_id` int(10) unsigned
-,`classroom_id` int(10) unsigned
-,`student_id` int(10) unsigned
-,`classroom` varchar(255)
-,`fullname` varchar(101)
-,`ca` double(5,2) unsigned
-,`exam` double(5,2) unsigned
-,`ca_weight_point` int(10) unsigned
-,`exam_weight_point` int(10) unsigned
-,`academic_term_id` int(10) unsigned
-,`academic_term` varchar(100)
-,`marked` int(10) unsigned
-,`academic_year_id` int(10) unsigned
-,`academic_year` varchar(100)
-,`classlevel` varchar(255)
-,`classgroup_id` int(10) unsigned
-);
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `exams_subjectviews`
---
-CREATE TABLE IF NOT EXISTS `exams_subjectviews` (
-`exam_id` int(10) unsigned
-,`classroom_id` int(10) unsigned
-,`classroom` varchar(255)
-,`subject_id` int(10) unsigned
-,`subject_classroom_id` int(10) unsigned
-,`ca_weight_point` int(10) unsigned
-,`exam_weight_point` int(10) unsigned
-,`marked` int(10) unsigned
-,`classlevel_id` int(10) unsigned
-,`classlevel` varchar(255)
-,`academic_term_id` int(10) unsigned
-,`academic_term` varchar(100)
-,`academic_year_id` int(10) unsigned
-,`academic_year` varchar(100)
-);
--- --------------------------------------------------------
-
---
--- Table structure for table `exam_details`
+-- Table structure for table `exams_subjectviews`
 --
 
-CREATE TABLE IF NOT EXISTS `exam_details` (
-  `exam_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `exam_id` int(10) unsigned NOT NULL,
-  `student_id` int(10) unsigned NOT NULL,
-  `ca` double(5,2) unsigned NOT NULL DEFAULT '0.00',
-  `exam` double(5,2) unsigned NOT NULL DEFAULT '0.00',
-  PRIMARY KEY (`exam_detail_id`),
-  KEY `exam_details_exam_id_index` (`exam_id`),
-  KEY `exam_details_student_id_index` (`student_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`solidste_portal`@`%` SQL SECURITY DEFINER VIEW `solidste_portal`.`exams_subjectviews` AS select `a`.`exam_id` AS `exam_id`,`f`.`classroom_id` AS `classroom_id`,`f`.`classroom` AS `classroom`,`b`.`subject_id` AS `subject_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`h`.`ca_weight_point` AS `ca_weight_point`,`h`.`exam_weight_point` AS `exam_weight_point`,`a`.`marked` AS `marked`,`f`.`classlevel_id` AS `classlevel_id`,`g`.`classlevel` AS `classlevel`,`b`.`academic_term_id` AS `academic_term_id`,`d`.`academic_term` AS `academic_term`,`d`.`academic_year_id` AS `academic_year_id`,`e`.`academic_year` AS `academic_year` from (((((`solidste_portal`.`exams` `a` join `solidste_portal`.`subject_classrooms` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) left join (`solidste_portal`.`classlevels` `g` join `solidste_portal`.`classrooms` `f` on((`f`.`classlevel_id` = `g`.`classlevel_id`))) on((`b`.`classroom_id` = `f`.`classroom_id`))) join `solidste_portal`.`academic_terms` `d` on((`b`.`academic_term_id` = `d`.`academic_term_id`))) join `solidste_portal`.`academic_years` `e` on((`d`.`academic_year_id` = `e`.`academic_year_id`))) join `solidste_portal`.`classgroups` `h` on((`g`.`classgroup_id` = `h`.`classgroup_id`)));
+-- Error reading data: (#1356 - View 'solidste_portal.exams_subjectviews' references invalid table(s) or column(s) or function(s) or definer/invoker of view lack rights to use them)
 
 -- --------------------------------------------------------
 
@@ -1269,8 +1218,7 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 ('2016_05_17_184714_create_students_table', 4),
 ('2016_05_18_182321_create_grades_table', 4),
 ('2016_05_20_130901_create_assessments_tables', 5),
-('2016_05_31_205123_create_class_masters_table', 6),
-('2016_06_13_084933_create_exams_table', 7);
+('2016_05_31_205123_create_class_masters_table', 6);
 
 -- --------------------------------------------------------
 
@@ -2123,7 +2071,6 @@ CREATE TABLE IF NOT EXISTS `students` (
 INSERT INTO `students` (`student_id`, `first_name`, `last_name`, `middle_name`, `student_no`, `gender`, `dob`, `avatar`, `sponsor_id`, `classroom_id`, `status_id`, `admitted_term_id`, `lga_id`, `created_by`, `created_at`, `updated_at`) VALUES
 (1, 'Chijioke', 'casmir', NULL, 'STD00001', 'Male', NULL, NULL, 62, 1, 1, 1, NULL, 2, '2016-05-31 15:04:09', '2016-05-31 15:04:10'),
 (2, 'Omotoke', 'Elizabeth', NULL, 'STD00002', 'Female', NULL, NULL, 102, 1, 1, 1, NULL, 2, '2016-05-31 15:06:36', '2016-05-31 15:06:36'),
-(3, 'Omotoke', 'Elizabeth', NULL, 'STD00003', 'Female', NULL, NULL, 102, 1, 1, 1, NULL, 2, '2016-05-31 15:06:39', '2016-05-31 15:06:39'),
 (4, 'Sharon', 'Ajoke', NULL, 'STD00004', 'Female', NULL, NULL, 54, 1, 1, 1, NULL, 2, '2016-05-31 15:34:39', '2016-05-31 15:34:39'),
 (5, 'Stephanie', 'Uche', NULL, 'STD00005', 'Female', NULL, NULL, 74, 1, 1, 1, NULL, 2, '2016-05-31 15:36:08', '2016-05-31 15:36:08'),
 (6, 'Naomi', 'Nkemjikam', NULL, 'STD00006', 'Female', NULL, NULL, 88, 1, 1, 1, NULL, 2, '2016-05-31 15:37:24', '2016-05-31 15:37:24'),
@@ -2191,7 +2138,6 @@ CREATE TABLE IF NOT EXISTS `student_classes` (
 INSERT INTO `student_classes` (`student_class_id`, `student_id`, `classroom_id`, `academic_year_id`, `created_at`, `updated_at`) VALUES
 (1, 1, 1, 1, '2016-05-31 15:04:09', '2016-05-31 15:04:09'),
 (2, 2, 1, 1, '2016-05-31 15:06:36', '2016-05-31 15:06:36'),
-(3, 3, 1, 1, '2016-05-31 15:06:39', '2016-05-31 15:06:39'),
 (4, 4, 1, 1, '2016-05-31 15:34:39', '2016-05-31 15:34:39'),
 (5, 5, 1, 1, '2016-05-31 15:36:08', '2016-05-31 15:36:08'),
 (6, 6, 1, 1, '2016-05-31 15:37:24', '2016-05-31 15:37:24'),
@@ -2286,20 +2232,6 @@ INSERT INTO `student_subjects` (`student_id`, `subject_classroom_id`) VALUES
 (2, 73),
 (2, 79),
 (2, 80),
-(3, 2),
-(3, 3),
-(3, 4),
-(3, 6),
-(3, 7),
-(3, 8),
-(3, 9),
-(3, 10),
-(3, 11),
-(3, 12),
-(3, 14),
-(3, 73),
-(3, 79),
-(3, 80),
 (4, 1),
 (4, 2),
 (4, 3),
@@ -2504,19 +2436,6 @@ INSERT INTO `student_subjects` (`student_id`, `subject_classroom_id`) VALUES
 (15, 72),
 (15, 81),
 (15, 82),
-(16, 16),
-(16, 18),
-(16, 20),
-(16, 21),
-(16, 22),
-(16, 23),
-(16, 24),
-(16, 25),
-(16, 26),
-(16, 28),
-(16, 72),
-(16, 81),
-(16, 82),
 (17, 15),
 (17, 16),
 (17, 17),
@@ -2534,19 +2453,6 @@ INSERT INTO `student_subjects` (`student_id`, `subject_classroom_id`) VALUES
 (17, 72),
 (17, 81),
 (17, 82),
-(18, 16),
-(18, 18),
-(18, 20),
-(18, 21),
-(18, 22),
-(18, 23),
-(18, 24),
-(18, 25),
-(18, 26),
-(18, 28),
-(18, 72),
-(18, 81),
-(18, 82),
 (19, 15),
 (19, 16),
 (19, 17),
@@ -2752,23 +2658,6 @@ INSERT INTO `student_subjects` (`student_id`, `subject_classroom_id`) VALUES
 (30, 85),
 (30, 86),
 (30, 87),
-(31, 43),
-(31, 44),
-(31, 45),
-(31, 46),
-(31, 47),
-(31, 48),
-(31, 49),
-(31, 50),
-(31, 51),
-(31, 52),
-(31, 54),
-(31, 55),
-(31, 56),
-(31, 74),
-(31, 85),
-(31, 86),
-(31, 87),
 (32, 43),
 (32, 44),
 (32, 45),
@@ -2989,17 +2878,6 @@ INSERT INTO `student_subjects` (`student_id`, `subject_classroom_id`) VALUES
 (45, 72),
 (45, 81),
 (45, 82),
-(46, 59),
-(46, 61),
-(46, 62),
-(46, 63),
-(46, 64),
-(46, 65),
-(46, 67),
-(46, 68),
-(46, 70),
-(46, 71),
-(46, 88),
 (47, 15),
 (47, 17),
 (47, 19),
@@ -3247,9 +3125,9 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `last_name`, `middle_name`, `gender`, `dob`, `phone_no2`, `user_type_id`, `lga_id`, `salutation_id`, `verified`, `status`, `avatar`, `verification_code`, `remember_token`, `created_at`, `updated_at`) VALUES
 (1, '$2y$10$WgHQSaszEOSJpz2HsoUToeJoyCxh7fGuc3ZoLJA.NubXU42L6E3SG', '08011223344', 'admin@gmail.com', 'Emma', 'Okafor', '', 'Male', '2016-04-05', '', 1, 0, 1, 1, 1, '1_avatar.jpg', NULL, '1446PKoOgmmlps6Bzb7qf8ATpWQcOd1PY2rT8mqUb8VW629mGAIOXdjdcVtS', NULL, '2016-06-27 19:55:06'),
-(2, '$2y$10$/VnAIZSpHw2o042t.bmP7eqCPAN/imxPcaAaTkTfno1uPi8BaOQCa', '08161730788', 'bamidelemike2003@yahoo.com', 'Bamidele', 'Micheal', '', 'Male', '1976-02-11', '08066303843', 2, 476, 1, 1, 1, '2_avatar.jpg', 'x9pxH08aB60ZKwe12DDKbiD3V5628TyGMd1v8Q5I', 'tloH9zaiLzVY7e3xNPNvSA8IIz7qxkG8kyG2TS4mvg3a6NQGLK1qAActTeLp', '2016-04-28 22:21:05', '2016-06-27 20:39:21'),
+(2, '$2y$10$/VnAIZSpHw2o042t.bmP7eqCPAN/imxPcaAaTkTfno1uPi8BaOQCa', '08161730788', 'bamidelemike2003@yahoo.com', 'Bamidele', 'Micheal', '', 'Male', '1976-02-11', '08066303843', 2, 476, 1, 1, 1, '2_avatar.jpg', 'x9pxH08aB60ZKwe12DDKbiD3V5628TyGMd1v8Q5I', 'VJgePRFqWzOgaZHQVsoXHfYE7fkvLZrV4xEe9MCa89dwkib5njgl09O4ZPem', '2016-04-28 22:21:05', '2016-07-08 18:59:35'),
 (3, '$2y$10$Pc9CBBOKkpbTAlnoxc0iveGkS5xRKREBYlwyPRzxSUxsb.9nNJ9cS', '08186644996', 'onegirl2004@yahoo.com', 'Emina', 'Omotolani', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, '3_avatar.png', 'sJkNJULOX0XDBVHoG929c8zOuHvuQJ8taqOE4MK7', NULL, '2016-05-05 19:29:34', '2016-05-21 00:00:37'),
-(4, '$2y$10$eouumWL7oBFrGRwQLcPRe.uv5CRlFKFNSLvni8eLBM4n3Lb9al/Wm', '08032492560', 'agiebabe2003@yahoo.comk', 'Agetu', 'Agnes', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'mBFoXfYp7feFMhsnzYWkh616IV2wq2e5LdtOOYRl', '66HrPC4m5rBylIWijiseFLGA7rYhKLYKlgp4it0I3bUo8ic7lx9dwgLXfQtZ', '2016-05-05 19:30:48', '2016-06-27 16:09:20'),
+(4, '$2y$10$eouumWL7oBFrGRwQLcPRe.uv5CRlFKFNSLvni8eLBM4n3Lb9al/Wm', '08032492560', 'agiebabe2003@yahoo.comk', 'Agetu', 'Agnes', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'mBFoXfYp7feFMhsnzYWkh616IV2wq2e5LdtOOYRl', 'HVyaTHIXvzsl9trbMR5wm7HMBq3lt4fD3gbbCREggeP1mnrPlVZ0i36g96Ut', '2016-05-05 19:30:48', '2016-07-08 17:59:12'),
 (5, '$2y$10$08ymddnGq3lEWheZSMe3Puc/fLtGo7pDZ5dm1Pmh9CupX3AV/KvO6', '08138281504', 'thesuccessor2020@yahoo.com', 'Akinremi', 'omobolaji', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'kmmCEClYr018UobxCFrOHmDVVOaz1eaD60Nn2ow9', NULL, '2016-05-05 19:32:16', '2016-05-05 19:32:16'),
 (6, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '08032984249', 'chukwuonyelilian@gmail.com', 'Chukwuka', 'Lilian', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'rPp9ofMqUMCat73BPt0Pod2v2Rg362iUtO5QNzU0', NULL, '2016-05-05 19:34:16', '2016-05-05 19:34:16'),
 (7, '$2y$10$MDDp2iaWLGqwbDvYBpsB/.YB12d45YNbknT6yEMWWPi5JRBPW9AiG', '08066451585', 'soldemo20042001@yahoo.com', 'Ademola', 'Solomon', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'MZXJDhTOSnwR0ZXphZLBScldsf880b3vzyoHTrfK', '6vJ4DUKF7ppC5eIbJUbIYG60qssmXqFxlvmhpCW8qdZueC5lbXh8CF94eBuH', '2016-05-05 19:36:04', '2016-06-03 18:32:58'),
@@ -3407,7 +3285,16 @@ INSERT INTO `user_types` (`user_type_id`, `user_type`, `type`, `created_at`, `up
 --
 DROP TABLE IF EXISTS `assessment_detailsviews`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`solidste_portal`@`%` SQL SECURITY DEFINER VIEW `assessment_detailsviews` AS select `f`.`assessment_id` AS `assessment_id`,`f`.`subject_classroom_id` AS `subject_classroom_id`,`f`.`assessment_setup_detail_id` AS `assessment_setup_detail_id`,`f`.`marked` AS `marked`,`g`.`assessment_detail_id` AS `assessment_detail_id`,`g`.`student_id` AS `student_id`,`j`.`student_no` AS `student_no`,concat(`j`.`first_name`,' ',`j`.`last_name`) AS `student_name`,`j`.`gender` AS `gender`,`g`.`score` AS `score`,`h`.`weight_point` AS `weight_point`,`h`.`number` AS `number`,`h`.`percentage` AS `percentage`,`h`.`description` AS `description`,`h`.`submission_date` AS `submission_date`,`i`.`assessment_setup_id` AS `assessment_setup_id`,`i`.`assessment_no` AS `assessment_no`,`m`.`ca_weight_point` AS `ca_weight_point`,`m`.`exam_weight_point` AS `exam_weight_point`,`j`.`sponsor_id` AS `sponsor_id`,`j`.`avatar` AS `avatar`,`k`.`sponsor_no` AS `sponsor_no`,`k`.`phone_no` AS `phone_no`,`k`.`email` AS `email`,concat(`k`.`first_name`,' ',`k`.`other_name`) AS `sponsor_name`,`a`.`subject_id` AS `subject_id`,`a`.`classroom_id` AS `classroom_id`,`c`.`classroom` AS `classroom`,`c`.`classlevel_id` AS `classlevel_id`,`d`.`classlevel` AS `classlevel`,`d`.`classgroup_id` AS `classgroup_id`,`a`.`academic_term_id` AS `academic_term_id`,`e`.`academic_term` AS `academic_term` from ((((((((((`subject_classrooms` `a` join `classrooms` `c` on((`a`.`classroom_id` = `c`.`classroom_id`))) join `classlevels` `d` on((`c`.`classlevel_id` = `d`.`classlevel_id`))) join `academic_terms` `e` on((`a`.`academic_term_id` = `e`.`academic_term_id`))) join `assessments` `f` on((`a`.`subject_classroom_id` = `f`.`subject_classroom_id`))) join `assessment_details` `g` on((`f`.`assessment_id` = `g`.`assessment_id`))) join `assessment_setup_details` `h` on((`f`.`assessment_setup_detail_id` = `h`.`assessment_setup_detail_id`))) join `assessment_setups` `i` on((`h`.`assessment_setup_id` = `i`.`assessment_setup_id`))) join `students` `j` on((`g`.`student_id` = `j`.`student_id`))) left join `sponsors` `k` on((`j`.`sponsor_id` = `k`.`sponsor_id`))) join `classgroups` `m` on((`d`.`classgroup_id` = `m`.`classgroup_id`)));
+CREATE ALGORITHM=UNDEFINED DEFINER=`solidste_portal`@`%` SQL SECURITY DEFINER VIEW `assessment_detailsviews` AS select `f`.`assessment_id` AS `assessment_id`,`f`.`subject_classroom_id` AS `subject_classroom_id`,`f`.`assessment_setup_detail_id` AS `assessment_setup_detail_id`,`f`.`marked` AS `marked`,`g`.`assessment_detail_id` AS `assessment_detail_id`,`g`.`student_id` AS `student_id`,`j`.`student_no` AS `student_no`,concat(`j`.`first_name`,' ',`j`.`last_name`) AS `student_name`,`j`.`gender` AS `gender`,`g`.`score` AS `score`,`h`.`weight_point` AS `weight_point`,`h`.`number` AS `number`,`h`.`percentage` AS `percentage`,`h`.`description` AS `description`,`h`.`submission_date` AS `submission_date`,`i`.`assessment_setup_id` AS `assessment_setup_id`,`i`.`assessment_no` AS `assessment_no`,`m`.`ca_weight_point` AS `ca_weight_point`,`m`.`exam_weight_point` AS `exam_weight_point`,`j`.`sponsor_id` AS `sponsor_id`,`k`.`phone_no` AS `phone_no`,`k`.`email` AS `email`,concat(`k`.`first_name`,' ',`k`.`last_name`) AS `sponsor_name`,`a`.`subject_id` AS `subject_id`,`a`.`classroom_id` AS `classroom_id`,`c`.`classroom` AS `classroom`,`c`.`classlevel_id` AS `classlevel_id`,`d`.`classlevel` AS `classlevel`,`d`.`classgroup_id` AS `classgroup_id`,`a`.`academic_term_id` AS `academic_term_id`,`e`.`academic_term` AS `academic_term` from ((((((((((`subject_classrooms` `a` join `classrooms` `c` on((`a`.`classroom_id` = `c`.`classroom_id`))) join `classlevels` `d` on((`c`.`classlevel_id` = `d`.`classlevel_id`))) join `academic_terms` `e` on((`a`.`academic_term_id` = `e`.`academic_term_id`))) join `assessments` `f` on((`a`.`subject_classroom_id` = `f`.`subject_classroom_id`))) join `assessment_details` `g` on((`f`.`assessment_id` = `g`.`assessment_id`))) join `assessment_setup_details` `h` on((`f`.`assessment_setup_detail_id` = `h`.`assessment_setup_detail_id`))) join `assessment_setups` `i` on((`h`.`assessment_setup_id` = `i`.`assessment_setup_id`))) join `students` `j` on((`g`.`student_id` = `j`.`student_id`))) left join `users` `k` on((`j`.`sponsor_id` = `k`.`user_id`))) join `classgroups` `m` on((`d`.`classgroup_id` = `m`.`classgroup_id`)));
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `classrooms_studentviews`
+--
+DROP TABLE IF EXISTS `classrooms_studentviews`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`solidste_portal`@`%` SQL SECURITY DEFINER VIEW `classrooms_studentviews` AS select concat(ucase(`students`.`first_name`),' ',`students`.`first_name`,' ',`students`.`last_name`) AS `fullname`,`students`.`student_no` AS `student_no`,`classrooms`.`classroom` AS `classroom`,`classrooms`.`classroom_id` AS `classroom_id`,`students`.`student_id` AS `student_id`,`classlevels`.`classlevel` AS `classlevel`,`classrooms`.`classlevel_id` AS `classlevel_id`,`students`.`sponsor_id` AS `sponsor_id`,concat(ucase(`users`.`first_name`),' ',`users`.`last_name`) AS `sponsor_name`,`student_classes`.`academic_year_id` AS `academic_year_id`,`academic_years`.`academic_year` AS `academic_year`,`students`.`status_id` AS `status_id` from (((((`students` join `student_classes` on((`student_classes`.`student_id` = `students`.`student_id`))) join `classrooms` on((`student_classes`.`classroom_id` = `classrooms`.`classroom_id`))) join `classlevels` on((`classlevels`.`classlevel_id` = `classrooms`.`classlevel_id`))) join `academic_years` on((`student_classes`.`academic_year_id` = `academic_years`.`academic_year_id`))) join `users` on((`students`.`sponsor_id` = `users`.`user_id`)));
 
 -- --------------------------------------------------------
 
@@ -3417,24 +3304,6 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`solidste_portal`@`%` SQL SECURITY DEFINER VI
 DROP TABLE IF EXISTS `classrooms_subjectviews`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`solidste_portal`@`%` SQL SECURITY DEFINER VIEW `classrooms_subjectviews` AS select `a`.`student_id` AS `student_id`,`b`.`classroom_id` AS `classroom_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`b`.`subject_id` AS `subject_id`,`b`.`academic_term_id` AS `academic_term_id`,`b`.`exam_status_id` AS `exam_status_id`,`c`.`classlevel_id` AS `classlevel_id`,`c`.`classroom` AS `classroom` from ((`student_subjects` `a` join `subject_classrooms` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) join `classrooms` `c` on((`b`.`classroom_id` = `c`.`classroom_id`))) group by `b`.`classroom_id`,`a`.`subject_classroom_id`;
-
--- --------------------------------------------------------
-
---
--- Structure for view `exams_detailsviews`
---
-DROP TABLE IF EXISTS `exams_detailsviews`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`solidste_portal`@`%` SQL SECURITY DEFINER VIEW `exams_detailsviews` AS select `exam_details`.`exam_detail_id` AS `exam_detail_id`,`exams`.`exam_id` AS `exam_id`,`subject_classrooms`.`subject_classroom_id` AS `subject_classroom_id`,`subject_classrooms`.`subject_id` AS `subject_id`,`classrooms`.`classlevel_id` AS `classlevel_id`,`student_classes`.`classroom_id` AS `classroom_id`,`students`.`student_id` AS `student_id`,`classrooms`.`classroom` AS `classroom`,concat(ucase(`students`.`first_name`),' ',lcase(`students`.`last_name`)) AS `fullname`,`exam_details`.`ca` AS `ca`,`exam_details`.`exam` AS `exam`,`classgroups`.`ca_weight_point` AS `ca_weight_point`,`classgroups`.`exam_weight_point` AS `exam_weight_point`,`academic_terms`.`academic_term_id` AS `academic_term_id`,`academic_terms`.`academic_term` AS `academic_term`,`exams`.`marked` AS `marked`,`academic_terms`.`academic_year_id` AS `academic_year_id`,`academic_years`.`academic_year` AS `academic_year`,`classlevels`.`classlevel` AS `classlevel`,`classlevels`.`classgroup_id` AS `classgroup_id` from (((((((((`exams` join `exam_details` on((`exams`.`exam_id` = `exam_details`.`exam_id`))) join `subject_classrooms` on((`exams`.`subject_classroom_id` = `subject_classrooms`.`subject_classroom_id`))) join `students` on((`exam_details`.`student_id` = `students`.`student_id`))) join `academic_terms` on((`subject_classrooms`.`academic_term_id` = `academic_terms`.`academic_term_id`))) join `academic_years` on((`academic_years`.`academic_year_id` = `academic_terms`.`academic_year_id`))) join `student_classes` on((`students`.`student_id` = `student_classes`.`student_id`))) join `classrooms` on((`student_classes`.`classroom_id` = `classrooms`.`classroom_id`))) join `classlevels` on((`classrooms`.`classlevel_id` = `classlevels`.`classlevel_id`))) join `classgroups` on((`classgroups`.`classgroup_id` = `classlevels`.`classgroup_id`)));
-
--- --------------------------------------------------------
-
---
--- Structure for view `exams_subjectviews`
---
-DROP TABLE IF EXISTS `exams_subjectviews`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`solidste_portal`@`%` SQL SECURITY DEFINER VIEW `exams_subjectviews` AS select `a`.`exam_id` AS `exam_id`,`f`.`classroom_id` AS `classroom_id`,`f`.`classroom` AS `classroom`,`b`.`subject_id` AS `subject_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`h`.`ca_weight_point` AS `ca_weight_point`,`h`.`exam_weight_point` AS `exam_weight_point`,`a`.`marked` AS `marked`,`f`.`classlevel_id` AS `classlevel_id`,`g`.`classlevel` AS `classlevel`,`b`.`academic_term_id` AS `academic_term_id`,`d`.`academic_term` AS `academic_term`,`d`.`academic_year_id` AS `academic_year_id`,`e`.`academic_year` AS `academic_year` from (((((`exams` `a` join `subject_classrooms` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) left join (`classlevels` `g` join `classrooms` `f` on((`f`.`classlevel_id` = `g`.`classlevel_id`))) on((`b`.`classroom_id` = `f`.`classroom_id`))) join `academic_terms` `d` on((`b`.`academic_term_id` = `d`.`academic_term_id`))) join `academic_years` `e` on((`d`.`academic_year_id` = `e`.`academic_year_id`))) join `classgroups` `h` on((`g`.`classgroup_id` = `h`.`classgroup_id`)));
 
 --
 -- Constraints for dumped tables
@@ -3450,13 +3319,22 @@ ALTER TABLE `academic_terms`
 -- Constraints for table `assessments`
 --
 ALTER TABLE `assessments`
+  ADD CONSTRAINT `assessments_subject_classroom_id_foreign` FOREIGN KEY (`subject_classroom_id`) REFERENCES `subject_classrooms` (`subject_classroom_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `assessments_assessment_setup_detail_id_foreign` FOREIGN KEY (`assessment_setup_detail_id`) REFERENCES `assessment_setup_details` (`assessment_setup_detail_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `assessment_details`
 --
 ALTER TABLE `assessment_details`
+  ADD CONSTRAINT `assessment_details_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `assessment_details_assessment_id_foreign` FOREIGN KEY (`assessment_id`) REFERENCES `assessments` (`assessment_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `assessment_setups`
+--
+ALTER TABLE `assessment_setups`
+  ADD CONSTRAINT `assessment_setups_academic_term_id_foreign` FOREIGN KEY (`academic_term_id`) REFERENCES `academic_terms` (`academic_term_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `assessment_setups_classgroup_id_foreign` FOREIGN KEY (`classgroup_id`) REFERENCES `classgroups` (`classgroup_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `assessment_setup_details`
@@ -3517,7 +3395,15 @@ ALTER TABLE `role_user`
 -- Constraints for table `student_classes`
 --
 ALTER TABLE `student_classes`
+  ADD CONSTRAINT `student_classes_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `student_classes_classroom_id_foreign` FOREIGN KEY (`classroom_id`) REFERENCES `classrooms` (`classroom_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `student_subjects`
+--
+ALTER TABLE `student_subjects`
+  ADD CONSTRAINT `student_subjects_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `student_subjects_subject_classroom_id_foreign` FOREIGN KEY (`subject_classroom_id`) REFERENCES `subject_classrooms` (`subject_classroom_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `subject_classrooms`

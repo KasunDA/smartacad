@@ -107,8 +107,8 @@ class ExamsController extends Controller
         $inputs = $request->all();
         $response = array();
         $response['flag'] = 0;
-        // TOD:: remove the user_id 6 after testing
-        $user_id = Auth::user()->user_id;
+        // TODO:: remove the user_id 6 after testing
+        $user_id = 6;//Auth::user()->user_id;
 
         if($inputs['classlevel_id'] > 0){
             $class_subjects = SubjectClassRoom::where('tutor_id', $user_id)->where('academic_term_id', $inputs['academic_term_id'])
@@ -244,9 +244,13 @@ class ExamsController extends Controller
         $decodeTerm = $this->getHashIds()->decode($encodeTerm);
         $student = (empty($decodeStud)) ? abort(305) : Student::findOrFail($decodeStud[0]);
         $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
-        $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)
-            ->where('classroom_id', $student->currentClass($term->academicYear->academic_year_id)->classroom_id)->get();
+        $class_id = $student->currentClass($term->academicYear->academic_year_id)->classroom_id;
 
-        return view('admin.assessments.exams.terminal', compact('student', 'subjects', 'term'));
+        $position = Exam::terminalClassPosition($term->academic_term_id, $class_id, $student->student_id);
+        $position = (object) array_shift($position);
+//        $subjects = $student->subjectClassRooms()->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
+        $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
+
+        return view('admin.assessments.exams.terminal', compact('student', 'subjects', 'term', 'position'));
     }
 }

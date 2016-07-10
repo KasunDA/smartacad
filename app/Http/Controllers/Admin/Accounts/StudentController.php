@@ -179,9 +179,9 @@ class StudentController extends Controller
         $student = Student::findOrFail($id);
         //Delete The Record
         if($student){
-            foreach($student->studentClass()->get() as $s){
-                $s->delete();
-            }
+//            foreach($student->studentClass()->get() as $s){
+//                $s->delete();
+//            }
             $student->delete();
             $this->setFlashMessage('  Deleted!!! Student '.$student->fullNames().' have been deleted.', 1);
         }else{

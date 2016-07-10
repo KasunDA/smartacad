@@ -183,7 +183,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\hasManyThrough
      */
     public function subjectClassRooms(){
-        return $this->hasManyThrough('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'App\Models\Admin\MasterRecords\Accounts\Students\StudentSubject', 'student_id', 'subject_classroom_id');
+        return $this->hasManyThrough('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'App\Models\Admin\Accounts\Students\StudentSubject', 'student_id', 'subject_classroom_id');
     }
 
     /**

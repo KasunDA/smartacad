@@ -17,8 +17,12 @@ class CreateAssessmentsTables extends Migration
             $table->tinyInteger('assessment_no');
             $table->integer('classgroup_id')->index()->unsigned();
             $table->integer('academic_term_id')->index()->unsigned();
-            $table->engine = 'InnoDB';
 
+            $table->foreign('academic_term_id')->references('academic_term_id')
+                ->on('academic_terms')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('classgroup_id')->references('classgroup_id')
+                ->on('classgroups')->onUpdate('cascade')->onDelete('cascade');
+            $table->engine = 'InnoDB';
         });
 
         Schema::create('assessment_setup_details', function (Blueprint $table) {
@@ -43,6 +47,8 @@ class CreateAssessmentsTables extends Migration
 
             $table->foreign('assessment_setup_detail_id')->references('assessment_setup_detail_id')
                 ->on('assessment_setup_details')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('subject_classroom_id')->references('subject_classroom_id')
+                ->on('subject_classrooms')->onUpdate('cascade')->onDelete('cascade');
             $table->engine = 'InnoDB';
         });
 
@@ -53,6 +59,7 @@ class CreateAssessmentsTables extends Migration
             $table->integer('assessment_id')->index()->unsigned();
 
             $table->foreign('assessment_id')->references('assessment_id')->on('assessments')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('student_id')->references('student_id')->on('students')->onUpdate('cascade')->onDelete('cascade');
             $table->engine = 'InnoDB';
         });
     }

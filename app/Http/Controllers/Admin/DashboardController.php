@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -47,7 +48,13 @@ class DashboardController extends Controller
         if(Auth::user()->user_type_id == Staff::USER_TYPE){
             return view('admin.dashboards.staff');
         }else{
-            return view('admin.dashboards.admin', compact('sponsors_count','staff_count', 'students_count'));
+            $unmarked = DB::table('subjects_classroomviews')
+                ->leftJoin('assessments', 'assessments.subject_classroom_id', '=', 'subjects_classroomviews.subject_classroom_id')
+                ->select('subjects_classroomviews.tutor', 'subjects_classroomviews.tutor_id', DB::raw('COUNT(subjects_classroomviews.subject_classroom_id) AS subjects'))
+                ->whereNull('assessment_id')->orWhere('marked', 2)
+                ->groupBy('subjects_classroomviews.tutor', 'subjects_classroomviews.tutor_id')->get();
+
+            return view('admin.dashboards.admin', compact('sponsors_count','staff_count', 'students_count', 'unmarked'));
         }
     }
 
@@ -112,16 +119,16 @@ class DashboardController extends Controller
         return response()->json($response);
     }
 
-    public function getStaff(){
-        $count = 0;
-        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
-        foreach($staffs as $staff){
-            $msg = "Username: $staff->phone_no or $staff->email";
-            $msg .= " and Password: password kindly visit this link portal.solidsteps.org to login";
-            $temp = $this->sendSMS($msg, $staff->phone_no)[0];
-            if($temp) $count++;
-        }
-        $this->sendSMS($count . ' Solid Steps Staffs Initialization', '2348022020075');
-        return response()->json('SMS has been sent to '.$count.' staffs');
-    }
+//    public function getStaff(){
+//        $count = 0;
+//        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
+//        foreach($staffs as $staff){
+//            $msg = "Username: $staff->phone_no or $staff->email";
+//            $msg .= " and Password: password kindly visit this link portal.solidsteps.org to login";
+//            $temp = $this->sendSMS($msg, $staff->phone_no)[0];
+//            if($temp) $count++;
+//        }
+//        $this->sendSMS($count . ' Solid Steps Staffs Initialization', '2348022020075');
+//        return response()->json('SMS has been sent to '.$count.' staffs');
+//    }
 }

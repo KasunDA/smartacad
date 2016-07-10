@@ -16,29 +16,40 @@
 
 @section('content')
     <div class="row widget-row" style="margin-top: 30px;">
-        <div class="row">
-            <div class="col-md-10">
-                <!-- BEGIN CHART PORTLET-->
-                <div class="portlet light bordered">
-                    <div class="portlet-title">
-                        <div class="caption">
-                            <i class="fa fa-book font-green-haze"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Subjects Assigned</span>
-                            <span class="caption-helper"> in {{ AcademicTerm::activeTerm()->academic_term }} Academic Year</span>
+        @if(Auth::user()->subjectClassRooms()->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->count() > 0)
+            <div class="row">
+                <div class="col-md-10">
+                    <!-- BEGIN CHART PORTLET-->
+                    <div class="portlet light bordered">
+                        <div class="portlet-title">
+                            <div class="caption">
+                                <i class="fa fa-book font-green-haze"></i>
+                                <span class="caption-subject bold uppercase font-green-haze"> Subjects Assigned</span>
+                                <span class="caption-helper"> in {{ AcademicTerm::activeTerm()->academic_term }} Academic Year</span>
+                            </div>
+                            <div class="tools">
+                                <a href="javascript:;" class="collapse"> </a>
+                                <a href="javascript:;" class="fullscreen"> </a>
+                            </div>
                         </div>
-                        <div class="tools">
-                            <a href="javascript:;" class="collapse"> </a>
-                            <a href="javascript:;" class="fullscreen"> </a>
+                        <div class="portlet-body">
+                            <div id="subject_tutor" class="chart" style="height: 450px;"> </div>
                         </div>
                     </div>
-                    <div class="portlet-body">
-                        <div id="subject_tutor" class="chart" style="height: 450px;"> </div>
-                    </div>
+                    <!-- END CHART PORTLET-->
                 </div>
-                <!-- END CHART PORTLET-->
             </div>
-        </div>
-        @if(Auth::user()->assessments()->where('marked', '<>', 1)->count() > 0)
+        @endif
+        <?php
+        $j = 1;
+        $assessments = DB::table('subjects_classroomviews')
+            ->leftJoin('assessments', 'assessments.subject_classroom_id', '=', 'subjects_classroomviews.subject_classroom_id')
+            ->leftJoin('assessment_setup_details', 'assessments.assessment_setup_detail_id', '=', 'assessment_setup_details.assessment_setup_detail_id')
+            ->select('subject', 'classroom', 'academic_term', 'description', 'number', 'submission_date')
+            ->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
+            ->where('tutor_id', Auth::user()->user_id)->where(function ($query) { $query->whereNull('assessment_id')->orWhere('marked', 2); })->get();
+        ?>
+        @if(count($assessments) > 0)
             <div class="row">
                 <div class="col-md-10">
                     <!-- BEGIN CHART PORTLET-->
@@ -46,44 +57,39 @@
                         <div class="portlet-title">
                             <div class="caption">
                                 <i class="fa fa-book font-green"></i>
-                                <span class="caption-subject font-red bold uppercase">Assessments Outstanding (Unmarked).</span>
+                                <span class="caption-subject font-red bold uppercase">Assessments Outstanding (Unmarked) for {{ AcademicTerm::activeTerm()->academic_term }} Academic Term.</span>
                             </div>
                         </div>
                         <div class="portlet-body">
                             <div class="table-responsive">
-                                <table class="table table-hover table-bordered table-striped">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Academic Term</th>
-                                        <th>Subject Name</th>
-                                        <th>Class Room</th>
-                                        <th>Description</th>
-                                        <th>No.</th>
-                                        <th>Due Date</th>
-                                        <th>Action</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php $i = 1; ?>
-                                        @foreach(Auth::user()->assessments()->where('marked', '<>', 1)->get() as $assessment)
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-bordered table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Academic Term</th>
+                                            <th>Subject Name</th>
+                                            <th>Class Room</th>
+                                            <th>Description</th>
+                                            <th>Number</th>
+                                            <th>Due Date</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($assessments as $assessment)
                                             <tr class="odd gradeX">
-                                                <td class="center">{{$i++}}</td>
-                                                <td>{{ $assessment->subjectClassroom->academicTerm->academic_term }}</td>
-                                                <td>{{ $assessment->subjectClassroom->subject->subject }}</td>
-                                                <td>{{ $assessment->subjectClassroom->classRoom->classroom }}</td>
-                                                <td>{{ $assessment->assessmentSetupDetail->description }}</td>
-                                                <td>{{ Assessment::formatPosition($assessment->assessmentSetupDetail->number) }}</td>
-                                                <td>{{ $assessment->assessmentSetupDetail->submission_date->format('jS M, Y') }}</td>
-                                                <td>
-                                                    <a href="{{ url('/assessments/input-scores/'.$hashIds->encode($assessment->assessment_setup_detail_id).'/'.$hashIds->encode($assessment->subject_classroom_id)) }}" class="btn btn-link btn-xs">
-                                                        <span class="fa fa-check-square"></span> Input Scores
-                                                    </a>
-                                                </td>
+                                                <td class="center">{{$j++}}</td>
+                                                <td>{{ $assessment->academic_term }}</td>
+                                                <td>{{ $assessment->subject }}</td>
+                                                <td>{{ $assessment->classroom }}</td>
+                                                <td>{!! (isset($assessment->description)) ? $assessment->description : '<span class="label label-danger">nill</span>' !!}</td>
+                                                <td>{!! (isset($assessment->number)) ? Assessment::formatPosition($assessment->number) : '<span class="label label-danger">nil</span>' !!}</td>
+                                                <td>{!! (isset($assessment->submission_date)) ? $assessment->submission_date : '<span class="label label-danger">nill</span>' !!}</td>
                                             </tr>
                                         @endforeach
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -99,7 +105,7 @@
                         <div class="portlet-title">
                             <div class="caption">
                                 <i class="fa fa-bar-chart font-green"></i>
-                                <span class="caption-subject font-green bold uppercase">Assessments Marked.</span>
+                                <span class="caption-subject font-green bold uppercase">Assessments Marked for {{ AcademicTerm::activeTerm()->academic_term }} Academic Term.</span>
                             </div>
                         </div>
                         <div class="portlet-body">

@@ -169,4 +169,12 @@ class User extends Authenticatable
     {
         return $this->hasManyThrough('App\Models\Admin\Assessments\Assessment', 'App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'tutor_id', 'subject_classroom_id');
     }
+
+    /**
+     * A Tutor Teaches many subjects in a classroom
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function subjectClassRooms(){
+        return $this->hasMany('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'tutor_id');
+    }
 }

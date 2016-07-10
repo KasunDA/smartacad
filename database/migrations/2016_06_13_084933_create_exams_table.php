@@ -16,6 +16,9 @@ class CreateExamsTable extends Migration
             $table->increments('exam_id');
             $table->integer('subject_classroom_id')->unsigned()->index();
             $table->integer('marked')->unsigned()->index()->default(2);
+
+            $table->foreign('subject_classroom_id')->references('subject_classroom_id')->on('subject_classrooms')->onUpdate('cascade')->onDelete('cascade');
+            $table->engine = 'InnoDB';
         });
 
         Schema::create('exam_details', function (Blueprint $table) {
@@ -24,6 +27,10 @@ class CreateExamsTable extends Migration
             $table->integer('student_id')->unsigned()->index();
             $table->float('ca', 5, 2)->unsigned()->default(0.0);
             $table->float('exam', 5, 2)->unsigned()->default(0.0);
+
+            $table->foreign('student_id')->references('student_id')->on('students')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('exam_id')->references('exam_id')->on('exams')->onUpdate('cascade')->onDelete('cascade');
+            $table->engine = 'InnoDB';
         });
     }
 
@@ -34,7 +41,7 @@ class CreateExamsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('exams');
         Schema::drop('exam_details');
+        Schema::drop('exams');
     }
 }
