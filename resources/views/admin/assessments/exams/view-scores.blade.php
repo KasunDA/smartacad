@@ -98,14 +98,16 @@
                                 @if($exam->examDetails()->count() > 0)
                                     <?php $i = 1; ?>
                                     @foreach($exam->examDetails()->get() as $detail)
-                                        <tr class="odd gradeX">
-                                            <td class="center">{{$i++}}</td>
-                                            <td>{{ $detail->student()->first()["student_no"] }}</td>
-                                            <td>{{ $detail->student()->first()["first_name"] . ' ' . $detail->student()->first()["last_name"] }}</td>
-                                            <td>{!! ($detail->student()->first()) ? $detail->student()->first()["gender"] : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{{ $detail->ca }}</td>
-                                            <td>{{ $detail->exam }}</td>
-                                        </tr>
+                                        @if($detail->student()->first())
+                                            <tr class="odd gradeX">
+                                                <td class="center">{{$i++}}</td>
+                                                <td>{{ $detail->student()->first()->student_no }}</td>
+                                                <td>{{ $detail->student()->first()->fullNames() }}</td>
+                                                <td>{!! ($detail->student()->first()) ? $detail->student()->first()->gender : '<span class="label label-danger">nil</span>' !!}</td>
+                                                <td>{{ $detail->ca }}</td>
+                                                <td>{{ $detail->exam }}</td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                 @else
                                     <tr><th colspan="6">No Record Found</th></tr>

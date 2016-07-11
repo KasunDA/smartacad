@@ -107,7 +107,7 @@ jQuery(document).ready(function() {
                                 window.location.replace('/subject-classrooms');
                             },
                             error: function(xhr,textStatus,error){
-                                bootbox.alert("Error encountered pls try again later..", function() {
+                                bootbox.alert("Error encountered pls try again later... or contact your Admin Provider", function() {
                                     $(this).hide();
                                 });
                             }

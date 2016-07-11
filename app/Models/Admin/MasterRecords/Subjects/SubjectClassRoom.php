@@ -122,9 +122,9 @@ class SubjectClassRoom extends Model
     /**
      * Delete Subjects Assigned To Class Room
      */
-    public function deleteSubjectClassRoom(){
-        return DB::statement('call sp_deleteSubjectClassRoom(' . $this->subject_classroom_id . ')');
-    }
+//    public function deleteSubjectClassRoom(){
+//        return DB::statement('call sp_deleteSubjectClassRoom(' . $this->subject_classroom_id . ')');
+//    }
 
     /**
      * Update Subjects Students Registered Table with the list of students

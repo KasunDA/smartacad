@@ -188,8 +188,6 @@ class SubjectClassRoomsController extends Controller
         echo json_encode($response);
     }
 
-
-
     /**
      * Search For Subjects to be managed
      * @param Int $id
@@ -245,5 +243,23 @@ class SubjectClassRoomsController extends Controller
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
 //        $student_ids = rtrim($student_ids, ',') . ')';
+    }
+
+    /**
+     * Delete a Subject Class Room and all its equivalent relations
+     * @param $id
+     */
+    public function getDelete($id)
+    {
+        $subject = SubjectClassRoom::findOrFail($id);
+
+        //Delete The Record
+        $delete = ($subject !== null) ? $subject->delete() : null;
+
+        if($delete){
+            $this->setFlashMessage('  Deleted!!! '.$subject->subject()->first()->subject.' Subject in '.$subject->classRoom()->first()->classroom.' class room have been deleted.', 1);
+        }else{
+            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
+        }
     }
 }
