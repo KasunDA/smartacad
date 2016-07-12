@@ -1,6 +1,7 @@
 APP_ENV=local
 APP_DEBUG=true
 APP_KEY=Xi1DQi4lA94edD0vDt3NedqYdAmN90y7
+SCHOOL_ID=1
 
 APP_URL==http://portal.solidstpes.org
 APP_NAME=SmartSchool
@@ -31,11 +32,19 @@ REDIS_PASSWORD=null
 REDIS_PORT=6379
 
 MAIL_DRIVER=smtp
+
 MAIL_HOST=solidsteps.org
 MAIL_PORT=587
 MAIL_USERNAME=solidsteps
 MAIL_PASSWORD=Student_1
 MAIL_ENCRYPTION=tls
+
+MAIL_HOST2=smtp.mailgun.org
+MAIL_PORT2=2525
+MAIL_USERNAME2=solidsteps
+MAIL_PASSWORD2=a60350baba65b88f26b07550d682e63f
+MAILGUN_DOMAIN2=https://api.mailgun.net/v3/sandbox4337f439402940e58004f639515d82c7.mailgun.org
+MAILGUN_SECRET2=key-a57de151ed512ab052a73ae121bba24f
 
 DOMAIN_URL=http://portal.solidstpes.org
 
@@ -50,5 +59,3 @@ AWS_SECRET_ACCESS_KEY=dsJYiu2KlcHsFhgxtE2UJu4/STlt8eCNSJEvXU5i
 AWS_BUCKET=ekaruz
 AWS_REGION=oregon
 AMAZON_PATH=https://s3-us-west-2.amazonaws.com/ekaruz/
-
-SCHOOL_ID=1

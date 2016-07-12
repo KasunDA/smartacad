@@ -103,6 +103,8 @@ class UserController extends Controller
         $user->attachRole($role);
         ///////////////////////////////////////////////////////// mail sending using $user object ///////////////////////////////////////////
         // TODO Sending of SMS
+        // TODO:: Grab uploaded file sample of attaching files to mail
+        //$attach = $request->file('file');
         if($user){
             //Verification Mail Sending
             $content = 'Welcome to Smart School, kindly click on the link below to complete your registration. Thank You';
@@ -112,6 +114,8 @@ class UserController extends Controller
                 $message->from(env('APP_MAIL'), env('APP_NAME'));
                 $message->subject("Account Creation");
                 $message->to($user->email);
+                //Attach file
+                //$message->attach($attach);
             });
             if($result) $temp = ' and a mail has been sent to '.$user->email;
         }

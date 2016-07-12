@@ -169,14 +169,15 @@ class AuthController extends Controller
             //Password Reset Mail Sending
             $content = "Welcome to Smart School application, kindly find below your new credentials to access the application. Thank You \n";
             $content .= "Here is your new password: <strong>" . $password . "</strong> ";
-            Mail::send('emails.reset-password', ['user' => $user, 'content' => $content], function ($message) use ($user) {
+            Mail::send('emails.reset-password', ['user' => $user, 'content' => $content], function ($message) use ($user, $password) {
                 $message->from(env('APP_MAIL'), env('APP_NAME'));
                 $message->subject("Password Reset");
                 $message->to($user->email);
+
+                $user->password = Hash::make($password);
+                $user->save();
+                $this->setFlashMessage(' Reset Successful!!! Your Password has been reset' . ' kindly login to ' . $user->email . ' to view your new password', 1);
             });
-            $user->password = Hash::make($password);
-            $user->save();
-            $this->setFlashMessage(' Reset Successful!!! Your Password has been reset' . ' kindly login to ' . $user->email . ' to view your new password', 1);
         } else {
             $this->setFlashMessage(' Failed!!! Reset was not successful with this email ' . $inputs['email'] . ' kindly enter your registered email or contact your admin', 2);
         }
