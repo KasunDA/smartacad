@@ -170,10 +170,9 @@ var UIBlockUI = function() {
 
             $.ajax({
                 type: "POST",
-                url: '/exams/search-students',
+                url: '/exams/search-results',
                 data: values,
                 success: function (data) {
-                    //console.log(data);
 
                     var obj = $.parseJSON(data);
                     var assign = '<thead>\
@@ -193,9 +192,29 @@ var UIBlockUI = function() {
                                 '<td>'+value.student_no+'</td>' +
                                 '<td>'+value.name+'</td>' +
                                 '<td>'+value.gender+'</td>' +
-                                '<td><a href="/exams/terminal/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-bookmark"></i> Proceed</a></td>' +
+                                '<td><a href="/exams/student-terminal-result/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-bookmark"></i> Proceed</a></td>' +
                                 //'<td><a href="/exams/chart/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-default btn-xs"> <i class="fa fa-bar-chart"></i> View</a></td>' +
                                 //'<td><a href="/exams/print/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-primary btn-xs"> <i class="fa fa-eye"></i> Print</a></td>' +
+                                '</tr>';
+                        });
+                    }else if(obj.flag === 2){
+                        assign = '<thead>\
+                                <tr>\
+                                    <th>#</th>\
+                                    <th>Academic Term.</th>\
+                                    <th>Class Room</th>\
+                                    <th>Class Room Size</th>\
+                                    <th>View Result</th>\
+                                </tr>\
+                            </thead>\
+                            <tbody>';
+                        $.each(obj.Classrooms, function(key, value) {
+                            assign += '<tr>' +
+                                '<td>'+(key + 1)+'</td>' +
+                                '<td>'+value.academic_term+'</td>' +
+                                '<td>'+value.classroom+'</td>' +
+                                '<td>'+value.student_count+' Student(s)</td>' +
+                                '<td><a href="/exams/classroom-terminal-result/'+value.hashed_class+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-bookmark"></i> Proceed</a></td>' +
                                 '</tr>';
                         });
                     }

@@ -81,9 +81,9 @@
                                         <div class="form-group">
                                             <label class="control-label">Title</label>
                                             @if($user->salutation_id === null)
-                                                {!! Form::select('salutation_id', $salutations, old('salutation_id'), ['class'=>'form-control input-lg selectpicker']) !!}
+                                                {!! Form::select('salutation_id', $salutations, old('salutation_id'), ['class'=>'form-control input-lg selectpicker', 'required'=>'required']) !!}
                                             @else
-                                                {!! Form::select('salutation_id', $salutations, $user->salutation_id, ['class'=>'form-control input-lg selectpicker']) !!}
+                                                {!! Form::select('salutation_id', $salutations, $user->salutation_id, ['class'=>'form-control input-lg selectpicker', 'required'=>'required']) !!}
                                             @endif
                                         </div>
                                         <div class="form-group">
@@ -100,7 +100,7 @@
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">Email</label>
-                                            {!! Form::text('email', $user->email, ['placeholder'=>'Email', 'class'=>'form-control', 'required'=>'required', 'disabled'=>true]) !!}
+                                            {!! Form::text('email', $user->email, ['placeholder'=>'Email', 'class'=>'form-control', 'required'=>'required']) !!}
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">Mobile Number</label>
@@ -117,7 +117,7 @@
                                         <div class="form-group">
                                             <label class="control-label">Date Of Birth </label>
                                             <input class="form-control date-picker" data-date-format="yyyy-mm-dd" name="dob" type="text"
-                                                   value="{!! ($user->dob) ?  $user->dob->format('Y-m-d') : old('dob') !!}"/>
+                                                   value="{!! ($user->dob) ?  $user->dob->format('Y-m-d') : old('dob') !!}" required/>
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">State </label>
@@ -141,12 +141,10 @@
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label>Contact Address</label>
-                                            <textarea class="form-control input-lg" rows="3" required
-                                                      placeholder="Contact Address"
-                                                      name="address">{{ $user->address }}</textarea>
-                                        </div>
+                                        {{--<div class="form-group">--}}
+                                            {{--<label>Contact Address</label>--}}
+                                            {{--<textarea class="form-control input-lg" rows="3" required placeholder="Contact Address" name="address">{{ $user->address }}</textarea>--}}
+                                        {{--</div>--}}
                                         <div class="margiv-top-10">
                                             <button class="btn green"> Update Info</button>
                                         </div>

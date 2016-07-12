@@ -107,10 +107,10 @@
                                                         <td>{{ $staff->lga()->first()->lga }}</td>
                                                     </tr>
                                                 @endif
-                                                <tr>
-                                                    <td>Address.</td>
-                                                    <td>{!! ($staff->address) ? $staff->address . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
+                                                {{--<tr>--}}
+                                                    {{--<td>Address.</td>--}}
+                                                    {{--<td>{!! ($staff->address) ? $staff->address . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>--}}
+                                                {{--</tr>--}}
                                             </table>
                                         </div>
                                     </div>

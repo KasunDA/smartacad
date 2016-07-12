@@ -199,17 +199,20 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postSearchStudents(Request $request)
+    public function postSearchResults(Request $request)
     {
         $inputs = $request->all();
 
-        $students = StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])->where('classroom_id', $inputs['view_classroom_id'])->get();
-//        $term = AcademicTerm::findOrFail($inputs['view_academic_term_id']);
+        $students = (isset($inputs['view_classroom_id']))
+            ? StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])->where('classroom_id', $inputs['view_classroom_id'])->get() : [];
+        $classrooms = (empty($inputs['view_classroom_id'])) ? ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->get() : [];
+        $term = AcademicTerm::findOrFail($inputs['view_academic_term_id']);
+
         $response = array();
         $response['flag'] = 0;
         $output = [];
 
-        if($students->count() > 0){
+        if(count($students) > 0){
             //All the students in the class room for the academic year
             foreach($students as $student){
                 $object = new stdClass();
@@ -227,7 +230,22 @@ class ExamsController extends Controller
                 return strcmp($a->name, $b->name);
             });
             $response['flag'] = 1;
-            $response['Students'] = isset($output) ? $output : [];
+            $response['Students'] = $output;
+        }
+
+        if(count($classrooms) > 0){
+            //All the class rooms in the class level for the academic year
+            foreach($classrooms as $classroom){
+                $res[] = array(
+                    "classroom"=>$classroom->classroom,
+                    "hashed_class"=>$this->getHashIds()->encode($classroom->classroom_id),
+                    "academic_term"=>$term->academic_term,
+                    "hashed_term"=>$this->getHashIds()->encode($term->academic_term_id),
+                    "student_count"=>$classroom->studentClasses()->where('academic_year_id', $inputs['view_academic_year_id'])->count()
+                );
+            }
+            $response['flag'] = 2;
+            $response['Classrooms'] = isset($res) ? $res : [];
         }
         echo json_encode($response);
     }
@@ -238,7 +256,7 @@ class ExamsController extends Controller
      * @param String $encodeTerm
      * @return \Illuminate\View\View
      */
-    public function getTerminal($encodeStud, $encodeTerm)
+    public function getStudentTerminalResult($encodeStud, $encodeTerm)
     {
         $decodeStud = $this->getHashIds()->decode($encodeStud);
         $decodeTerm = $this->getHashIds()->decode($encodeTerm);
@@ -251,6 +269,26 @@ class ExamsController extends Controller
 //        $subjects = $student->subjectClassRooms()->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
         $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
 
-        return view('admin.assessments.exams.terminal', compact('student', 'subjects', 'term', 'position'));
+        return view('admin.assessments.exams.terminal.student', compact('student', 'subjects', 'term', 'position'));
+    }
+
+    /**
+     * Displays the assessment details for the class room students scores for a specific academic term
+     * @param String $encodeClass
+     * @param String $encodeTerm
+     * @return \Illuminate\View\View
+     */
+    public function getClassroomTerminalResult($encodeClass, $encodeTerm)
+    {
+        $decodeClass = $this->getHashIds()->decode($encodeClass);
+        $decodeTerm = $this->getHashIds()->decode($encodeTerm);
+        $classroom = (empty($decodeClass)) ? abort(305) : ClassRoom::findOrFail($decodeClass[0]);
+        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
+
+        $results = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id);
+        $exam = $results[0];
+        $results = (object) $results;
+
+        return view('admin.assessments.exams.terminal.classroom', compact('exam', 'classroom', 'term', 'results'));
     }
 }

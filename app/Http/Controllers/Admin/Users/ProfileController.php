@@ -86,21 +86,21 @@ class ProfileController extends Controller
             'salutation_id.required' => 'Title is Required!',
             'first_name.required' => 'First Name is Required!',
             'last_name.required' => 'Last Name is Required!',
-//            'email.unique' => 'This E-Mail Address Has Already Been Assigned!',
-            'phone_no.unique' => 'The Mobile Number Has Already Been Assigned!',
+            'email.unique' => 'This E-Mail Address Has Already Been Used!',
+            'phone_no.unique' => 'The Mobile Number Has Already Been Used!',
             'gender.required' => 'Gender is Required!',
             'dob.required' => 'Date of Birth is Required!',
-            'address.required' => 'Contact Address is Required!',
+//            'address.required' => 'Contact Address is Required!',
         ];
         $validator = Validator::make($inputs, [
             'salutation_id' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
-//            'email' => 'required|email|max:255|unique:users,email,'.$user->user_id.',user_id',
+            'email' => 'required|email|max:255|unique:users,email,'.$user->user_id.',user_id',
             'phone_no' => 'required|max:15|min:11|unique:users,phone_no,'.$user->user_id.',user_id',
             'gender' => 'required',
             'dob' => 'required',
-            'address' => 'required',
+//            'address' => 'required',
         ], $messages);
 
         if ($validator->fails()) {

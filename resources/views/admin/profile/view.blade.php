@@ -121,10 +121,10 @@
                                                     <td>Age:</td>
                                                     <td>{!! ($user->dob) ? $user->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
                                                 </tr>
-                                                <tr>
-                                                    <td>Address:</td>
-                                                    <td>{!! ($user->address) ? $user->address : '<span class="label label-danger">nil</span>' !!}</td>
-                                                </tr>
+                                                {{--<tr>--}}
+                                                    {{--<td>Address:</td>--}}
+                                                    {{--<td>{!! ($user->address) ? $user->address : '<span class="label label-danger">nil</span>' !!}</td>--}}
+                                                {{--</tr>--}}
                                             </table>
                                         </div>
                                     </div>

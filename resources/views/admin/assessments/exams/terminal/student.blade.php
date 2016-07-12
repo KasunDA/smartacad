@@ -1,4 +1,4 @@
-@extends('admin.layout.default')
+@extends('admin.layout.terminal.default')
 
 @section('title', 'Terminal Student Assessments Details')
 
@@ -35,13 +35,17 @@
                         <table class="table table-hover table-striped">
                             <tr>
                                 <th> Student Name </th>
-                                <td> {{ $student->fullNames() }} </td>
+                                <td>{{ $student->fullNames() }}</td>
                                 <th> Academic Term </th>
                                 <td> {{ $term->academic_term }} </td>
                             </tr>
                             <tr>
                                 <th> Student No. </th>
-                                <td> {{ $student->student_no }} </td>
+                                <td>
+                                    <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-link btn-xs">
+                                        {{ $student->student_no }}
+                                    </a>
+                                </td>
                                 <th> Gender </th>
                                 <td> {{ $student->gender }} </td>
                             </tr>
