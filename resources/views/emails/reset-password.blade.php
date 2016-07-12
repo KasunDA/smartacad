@@ -1,4 +1,4 @@
-@extends('admin.partials.emails')
+@extends('admin.partials.emails.emails')
 
 @section('title', 'Password Reset')
 
