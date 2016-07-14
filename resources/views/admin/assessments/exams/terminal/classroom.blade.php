@@ -39,18 +39,20 @@
                                 <th> Class Level </th>
                                 <td> {{ $classroom->classLevel->classlevel }} </td>
                             </tr>
-                            <tr>
-                                <th> Class Average </th>
-                                <td> {{ $exam->class_average }}</td>
-                                <th> Number of Students (Out of) </th>
-                                <td>{{ $exam->class_size }}</td>
-                            </tr>
-                            <tr>
-                                <th> Perfect Score </th>
-                                <td> {{ $exam->exam_perfect_score }}</td>
-                                <th> Academic Term </th>
-                                <td>{{ $exam->academic_term }}</td>
-                            </tr>
+                            @if($exam)
+                                <tr>
+                                    <th> Class Average </th>
+                                    <td> {{ $exam->class_average }}</td>
+                                    <th> Number of Students (Out of) </th>
+                                    <td>{{ $exam->class_size }}</td>
+                                </tr>
+                                <tr>
+                                    <th> Perfect Score </th>
+                                    <td> {{ $exam->exam_perfect_score }}</td>
+                                    <th> Academic Term </th>
+                                    <td>{{ $exam->academic_term }}</td>
+                                </tr>
+                            @endif
                         </table>
                     </div>
                 </div>
