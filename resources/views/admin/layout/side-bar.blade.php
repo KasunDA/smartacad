@@ -69,7 +69,7 @@
                                         {{--  Loop Through The Menus--}}
                                         @foreach($menu_header->menus()->orderBy('sequence')->get() as $menu)
                                             {{--  Check if the menu has been displayed and its enabled--}}
-                                            @if(!in_array($menu->menu_id, $show_menu) and $menu->active === 1)
+                                            @if(!in_array($menu->menu_id, $show_menu) and $menu->active == 1)
 
                                                 {{--Check if the logged in user have access to view the menu --}}
                                                 @if(in_array($menu->menu_id, $role->menus()->get()->lists('menu_id')->toArray()))
@@ -91,7 +91,7 @@
                                                             {{--  Loop Through The Menu Items--}}
                                                                 @foreach($menu->menuItems()->orderBy('sequence')->get() as $menu_item)
                                                                     {{--  Check if the menu item has been displayed and its enabled--}}
-                                                                    @if(!in_array($menu_item->menu_item_id, $show_menu_item) and $menu_item->active === 1)
+                                                                    @if(!in_array($menu_item->menu_item_id, $show_menu_item) and $menu_item->active == 1)
 
                                                                         {{--Check if the logged in user have access to view the menu item --}}
                                                                         @if(in_array($menu_item->menu_item_id, $role->menuItems()->get()->lists('menu_item_id')->toArray()))
@@ -114,7 +114,7 @@
                                                                                     {{--  Loop Through The Sub Menu Items--}}
                                                                                     @foreach($menu_item->subMenuItems()->orderBy('sequence')->get() as $sub_menu_item)
                                                                                         {{--  Check if the sub menu item has been displayed and its enabled--}}
-                                                                                        @if(!in_array($sub_menu_item->sub_menu_item_id, $show_sub_menu_item) and $sub_menu_item->active === 1)
+                                                                                        @if(!in_array($sub_menu_item->sub_menu_item_id, $show_sub_menu_item) and $sub_menu_item->active == 1)
 
                                                                                             {{--Check if the logged in user have access to view the sub menu item --}}
                                                                                             @if(in_array($sub_menu_item->sub_menu_item_id, $role->subMenuItems()->get()->lists('sub_menu_item_id')->toArray()))
@@ -135,7 +135,7 @@
                                                                                                         {{--  Loop Through The Sub Most Menu Items--}}
                                                                                                         @foreach($sub_menu_item->subMostMenuItems()->orderBy('sequence')->get() as $sub_most_menu_item)
                                                                                                             {{--  Check if the sub most menu item has been displayed and its enabled--}}
-                                                                                                            @if(!in_array($sub_most_menu_item->sub_most_menu_item_id, $show_sub_most_menu_item) and $sub_most_menu_item->active === 1)
+                                                                                                            @if(!in_array($sub_most_menu_item->sub_most_menu_item_id, $show_sub_most_menu_item) and $sub_most_menu_item->active == 1)
 
                                                                                                                 {{--Check if the logged in user have access to view the sub most menu item --}}
                                                                                                                 @if(in_array($sub_most_menu_item->sub_most_menu_item_id, $role->subMostMenuItems()->get()->lists('sub_most_menu_item_id')->toArray()))
