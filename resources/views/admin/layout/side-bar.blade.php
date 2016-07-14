@@ -44,8 +44,12 @@
                     <span class="title">Dashboard</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="/users/show">
+                    <i class="icon-lock"></i> <span class="title">Show Na</span> </a>
+            </li>
             {{-- Check if the user is logged in--}}
-            {{--@if(Auth::check())--}}
+            @if(Auth::check())
                 <?php $show_menu_header = []?>
                 {{--Loop Through The Users Roles--}}
                 @foreach(Auth::user()->roles()->get() as $role)
@@ -185,7 +189,7 @@
                         @endforeach  {{--Loop Through The Menu Headers --}}
                     @endif
                 @endforeach {{--Loop Through The Users Roles--}}
-            {{--@endif--}}{{-- Check if the user is logged in--}}
+            @endif{{-- Check if the user is logged in--}}
             <li class="nav-item">
                 <a href="/users/change">
                     <i class="icon-lock"></i> <span class="title">Change Password</span> </a>
