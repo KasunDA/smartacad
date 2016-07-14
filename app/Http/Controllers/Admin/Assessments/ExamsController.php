@@ -282,8 +282,8 @@ class ExamsController extends Controller
     {
         $decodeClass = $this->getHashIds()->decode($encodeClass);
         $decodeTerm = $this->getHashIds()->decode($encodeTerm);
-        $classroom = (empty($decodeClass)) ? abort(305) : ClassRoom::findOrFail($decodeClass[0]);
-        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
+        $classroom = (empty($decodeClass)) ? abort(305) : ClassRoom::findOrFail(array_shift($decodeClass));
+        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail(array_shift($decodeTerm));
 
         $results = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id);
         $exam = $results[0];
