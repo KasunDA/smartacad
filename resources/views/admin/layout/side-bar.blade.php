@@ -187,7 +187,7 @@
                 @endforeach {{--Loop Through The Users Roles--}}
             @endif{{-- Check if the user is logged in--}}
             <li class="nav-item">
-                <a href="{{ url('/users/change') }}">
+                <a href="/users/change">
                     <i class="icon-lock"></i> <span class="title">Change Password</span> </a>
             </li>
             <li class="nav-item">

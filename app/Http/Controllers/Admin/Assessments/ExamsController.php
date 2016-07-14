@@ -286,7 +286,6 @@ class ExamsController extends Controller
         $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
 
         $results = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id);
-//        dd($results);
         $exam = (empty($results)) ? null : $results[0];
         $results = (object) $results;
 
