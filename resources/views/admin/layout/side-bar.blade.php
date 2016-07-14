@@ -64,7 +64,7 @@
                                         <h3>{{$menu_header->menu_header}}</h3>
                                     </li>
                                     {{-- Check if the menu header has menus--}}
-                                    @if($menu_header->menus()->count() > 0)
+                                    @if($menu_header->menus->count() > 0)
                                         <?php $show_menu = []?>
                                         {{--  Loop Through The Menus--}}
                                         @foreach($menu_header->menus()->orderBy('sequence')->get() as $menu)
