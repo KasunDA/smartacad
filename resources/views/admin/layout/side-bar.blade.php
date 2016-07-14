@@ -44,10 +44,6 @@
                     <span class="title">Dashboard</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="/users/show">
-                    <i class="icon-lock"></i> <span class="title">Show Na</span> </a>
-            </li>
             {{-- Check if the user is logged in--}}
             @if(Auth::check())
                 <?php $show_menu_header = []?>
