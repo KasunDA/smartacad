@@ -84,6 +84,16 @@
                                                                 <span class="arrow "></span>
                                                             @endif
                                                         </a>
+                                                        <ul class="sub-menu">
+                                                            <li class="nav-item">
+                                                                <a href="/users/change">
+                                                                    <i class="icon-lock"></i> <span class="title">Change Password</span> </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a href="/users/change">
+                                                                    <i class="icon-lock"></i> <span class="title">Change Password 2</span> </a>
+                                                            </li>
+                                                        </ul>
 
                                                     </li>
                                                 @endif{{--Check if the logged in user have access to view the menu --}}
