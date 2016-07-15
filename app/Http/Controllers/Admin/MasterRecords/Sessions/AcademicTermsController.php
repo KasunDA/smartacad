@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\MasterRecords\Sessions;
 
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -20,9 +21,8 @@ class AcademicTermsController extends Controller
     {
         $academic_terms = AcademicTerm::all();
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Academic Year', '');
-        return view('admin.master-records.academic-terms', compact('academic_terms', 'academic_years'));
+        return view('admin.master-records.sessions.academic-terms', compact('academic_terms', 'academic_years'));
     }
-
 
     /**
      * Insert or Update the menu records
@@ -74,6 +74,72 @@ class AcademicTermsController extends Controller
             $this->setFlashMessage('  Deleted!!! '.$academic_term->academic_term.' Academic Term have been deleted.', 1);
         }else{
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
+        }
+    }
+
+    /**
+     * Cloning an Academic term records form an existing term.
+     * @return Response
+     */
+    public function getClones()
+    {
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
+        return view('admin.master-records.sessions.clones', compact('academic_years'));
+    }
+
+    /**
+     * Validate if the subject assigned has been clone
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postValidateClone(Request $request)
+    {
+        $inputs = $request->all();
+        $from_term = AcademicTerm::findOrFail($inputs['academic_term_id']);
+        $to_term = AcademicTerm::findOrFail($inputs['to_academic_term_id']);
+        $from = SubjectClassRoom::where('academic_term_id', $from_term->academic_term_id)->count();
+        $to = SubjectClassRoom::where('academic_term_id', $to_term->academic_term_id)->count();
+        $response = [];
+
+        if ($from > 0 and $to == 0) {
+            //Clone
+            $response['flag'] = 1;
+            $response['from'] = $from_term;
+            $response['to'] = $to_term;
+        }else if($from == 0 and $to == 0) {
+            $output = ' <h4>Whoops!!! You cannot clone from <strong>'.$from_term->academic_term.
+                ' Academic Term</strong> to <strong> '.$to_term->academic_term.'</strong><br> Because it has no record to clone from</h4>';
+            $response['flag'] = 2;
+        }else{
+            $output = ' <h4>Subjects Has Been Assigned To Class Room And Tutors Already for '.$to_term->academic_term.
+                '. <br>Kindly Navigate To <strong> Setups > Master Records > Subjects > Assign To Class</strong> For Modifications</h4>';
+            $response['flag'] = 3;
+        }
+
+        $response['output'] = isset($output) ? $output : [];
+        return response()->json($response);
+    }
+
+    /**
+     * Clone the subject assigned from an academic term to an academic term 
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postCloning(Request $request)
+    {
+        $inputs = $request->all();
+        $from_term = AcademicTerm::findOrFail($inputs['from_academic_term_id']);
+        $to_term = AcademicTerm::findOrFail($inputs['to_academic_term_id']);
+
+        if ($from_term and $to_term) {
+            //Cloning
+            $result = AcademicTerm::cloneSubjectAssigned($from_term->academic_term_id, $to_term->academic_term_id);
+            if ($result) {
+                $this->setFlashMessage(' Cloned!!! ' . $from_term->academic_term .
+                    ' Academic Term Subject Assigned To Class Rooms and Tutors has been Cloned to ' . $to_term->academic_term , 1);
+            } else {
+                $this->setFlashMessage('Error!!! Unable to clone record kindly retry.', 2);
+            }
         }
     }
 }

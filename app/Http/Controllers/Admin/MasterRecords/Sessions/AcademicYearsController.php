@@ -18,7 +18,7 @@ class AcademicYearsController extends Controller
     public function getIndex()
     {
         $academic_years = AcademicYear::all();
-        return view('admin.master-records.academic-years', compact('academic_years'));
+        return view('admin.master-records.sessions.academic-years', compact('academic_years'));
     }
 
 

@@ -4,6 +4,7 @@ namespace App\Models\Admin\MasterRecords;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class AcademicTerm extends Model
 {
@@ -73,5 +74,14 @@ class AcademicTerm extends Model
     public static function activeTerm(){
 
         return AcademicTerm::where('status', 1)->first();
+    }
+
+    /**
+     * Clone Subjects assigned Records
+     * * @param Int $from
+     * * @param Int $to
+     */
+    public static function cloneSubjectAssigned($from, $to){
+        return DB::statement('call sp_cloneSubjectsAssigned(' . $from . ', "' . $to . '")');
     }
 }

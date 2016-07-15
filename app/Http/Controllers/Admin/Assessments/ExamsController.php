@@ -107,7 +107,6 @@ class ExamsController extends Controller
         $inputs = $request->all();
         $response = array();
         $response['flag'] = 0;
-        // TOD:: remove the user_id 6 after testing
         $user_id = Auth::user()->user_id;
 
         if($inputs['classlevel_id'] > 0){
