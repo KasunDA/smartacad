@@ -108,7 +108,8 @@ class Handler extends ExceptionHandler
             return response()->view('errors.custom', [
                 'code'=>'507.3',
                 'header'=>'Bad or Poor Network Issues',
-                'message'=>'<strong>Whoops!!!</strong> Something went wrong with your network kindly retry again<br>' . $e->getMessage()
+                'message'=>'<strong>Whoops!!!</strong> Something went wrong with your network kindly retry again and 
+                    <strong>allow the page to load completely</strong><br>' . $e->getMessage()
             ]);
         }
         //If Token Mismatch Exception Occur i.e csrf error
