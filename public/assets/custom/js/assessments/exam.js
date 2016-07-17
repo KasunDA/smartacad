@@ -51,7 +51,7 @@ jQuery(document).ready(function() {
         $.ajax({
             type: "POST",
             data: values,
-            url: '/exams/validate-all-setup/',
+            url: '/exams/validate-all-setup',
             success: function(data,textStatus){
                 if(data.flag === 1){
                     //set_msg_box($('#error-box'), data.output, 2);
@@ -74,7 +74,7 @@ jQuery(document).ready(function() {
         $.ajax({
             type: "POST",
             data: {academic_term_id: $(this).val()},
-            url: '/exams/all-setup/',
+            url: '/exams/all-setup',
             success: function(data,textStatus){
                 console.log("Data", data);
                 window.location.reload();
@@ -101,7 +101,7 @@ var UIBlockUI = function() {
 
             $.ajax({
                 type: "POST",
-                url: '/exams/validate-my-setup/',
+                url: '/exams/validate-my-setup',
                 data: values,
                 success: function (data) {
                     // console.log(data);
@@ -125,7 +125,7 @@ var UIBlockUI = function() {
                                         $.ajax({
                                             type: 'POST',
                                             data:{academic_term_id: data.term.academic_term_id},
-                                            url: '/exams/my-setup/',
+                                            url: '/exams/my-setup',
                                             success: function(data,textStatus){
                                                 // console.log(data);
                                                 window.location.replace('/exams');

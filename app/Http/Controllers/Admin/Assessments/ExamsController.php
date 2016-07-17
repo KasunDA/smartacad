@@ -300,7 +300,7 @@ class ExamsController extends Controller
     public function postValidateMySetup(Request $request)
     {
         $inputs = $request->all();
-        $view = SubjectAssessmentView::where('academic_term_id', $inputs['setup_academic_term_id'])->where('tutor_id', 4)
+        $view = SubjectAssessmentView::where('academic_term_id', $inputs['setup_academic_term_id'])->where('tutor_id', Auth::user()->user_id)
             ->where(function ($query) {
                 $query->whereNull('marked')->orWhere('marked', '<>', '1');
             })->count();
