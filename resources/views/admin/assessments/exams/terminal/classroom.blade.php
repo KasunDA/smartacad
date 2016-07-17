@@ -1,4 +1,4 @@
-@extends('admin.layout.terminal.default')
+@extends('admin.layout.default')
 
 @section('title', 'Terminal Class Room Assessments')
 
