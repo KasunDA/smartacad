@@ -63,12 +63,22 @@ class Exam extends Model
     }
 
     /**
-     * Populate Assessment Details // Ready for inputting Scores
+     * Setup Exams To Populate Assessment Details // Ready for inputting Scores
      * @param $term_id
+     * @param $tutor_id
      */
-    public static function processExam($term_id){
-        return DB::statement('call sp_processExams(' . $term_id . ')');
+    public static function processExams($term_id, $tutor_id=null){
+        return DB::statement('call sp_processExams(' . $term_id . ', '.$tutor_id.')');
     }
+
+    /**
+     * Setup My Exams To Populate Assessment Details // Ready for inputting Scores
+     * @param $term_id
+     * @param $tutor_id
+     */
+//    public static function processMyExams($term_id, $tutor_id){
+//        return DB::statement('call sp_processMyExams(' . $term_id . ', ' . $tutor_id . ')');
+//    }
 
     /**
      * Calculate the terminal class positions

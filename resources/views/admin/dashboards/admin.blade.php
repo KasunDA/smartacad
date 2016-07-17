@@ -137,9 +137,7 @@
                                                             <tbody>
                                                             <?php
                                                                 $j = 1;
-                                                                $assessments = DB::table('subjects_classroomviews')
-                                                                    ->leftJoin('assessments', 'assessments.subject_classroom_id', '=', 'subjects_classroomviews.subject_classroom_id')
-                                                                    ->leftJoin('assessment_setup_details', 'assessments.assessment_setup_detail_id', '=', 'assessment_setup_details.assessment_setup_detail_id')
+                                                                $assessments = DB::table('subjects_assessmentsviews')
                                                                     ->select('subject', 'classroom', 'academic_term', 'description', 'number', 'submission_date')
                                                                     ->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
                                                                     ->where('tutor_id', $unmark->tutor_id)->where(function ($query) { $query->whereNull('assessment_id')->orWhere('marked', 2); })->get();

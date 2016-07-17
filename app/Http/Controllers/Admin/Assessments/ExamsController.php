@@ -10,6 +10,7 @@ use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
+use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use Illuminate\Http\Request;
 
@@ -56,7 +57,7 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postValidateSetup(Request $request)
+    public function postValidateAllSetup(Request $request)
     {
         $inputs = $request->all();
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
@@ -81,7 +82,7 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postSetup(Request $request)
+    public function postAllSetup(Request $request)
     {
         $inputs = $request->all();
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
@@ -90,7 +91,7 @@ class ExamsController extends Controller
         $term->exam_setup_date = date('Y-m-d');
         if($term->save()){
             //Update
-            Exam::processExam($term->academic_term_id);
+            Exam::processExams($term->academic_term_id);
             $this->setFlashMessage('Exams for ' . $term->academic_term . ' Academic Term has been successfully setup.', 1);
         }
 
@@ -289,5 +290,50 @@ class ExamsController extends Controller
         $results = (object) $results;
 
         return view('admin.assessments.exams.terminal.classroom', compact('exam', 'classroom', 'term', 'results'));
+    }
+
+    /**
+     * Validate if my (Individual Staffs) exam has been setup
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postValidateMySetup(Request $request)
+    {
+        $inputs = $request->all();
+        // TODO :: Change tutor_id to Auth::user()->user_id
+        $view = SubjectAssessmentView::where('academic_term_id', $inputs['setup_academic_term_id'])->where('tutor_id', 4)
+            ->where(function ($query) {
+                $query->whereNull('marked')->orWhere('marked', '<>', '1');
+            })->count();
+        $term = AcademicTerm::findOrFail($inputs['setup_academic_term_id']);
+        $response = [];
+
+        if ($view > 0 ) {
+            $output = ' <strong> ' . $view  . ' Assessment(s) for ' . $term->academic_term .
+                ' are yet to be marked? </strong>Kindly input the C.A assessment before you can setup your exams';
+            $response['flag'] = 2;
+        }else{
+            $response['flag'] = 1;
+            $response['term'] = $term;
+        }
+        $response['output'] = isset($output) ? $output : [];
+        return response()->json($response);
+    }
+
+    /**
+     * Process My (Individual Staffs) Exam Set Up
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postMySetup(Request $request)
+    {
+        $inputs = $request->all();
+        $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
+        if($term){
+            //Process Only my exams so as to input scores
+            Exam::processExams($term->academic_term_id, Auth::user()->user_id);
+            $this->setFlashMessage('Your Exams for ' . $term->academic_term . ' Academic Year has been successfully setup.', 1);
+        }
+        return response()->json($term);
     }
 }

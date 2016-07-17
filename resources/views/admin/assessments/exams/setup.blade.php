@@ -55,17 +55,6 @@
                             </button>
                         </div>
                     {!! Form::close() !!}
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="portlet-body">
-                                <div class="row">
-                                    <table class="table table-striped table-bordered table-hover" id="subject_assigned_datatable">
-
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

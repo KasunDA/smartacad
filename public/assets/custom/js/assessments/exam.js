@@ -6,6 +6,7 @@ jQuery(document).ready(function() {
 
     // Ajax Get Academic Terms Based on the Academic Year
     getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
+    getDependentListBox($('#setup_academic_year_id'), $('#setup_academic_term_id'), '/list-box/academic-term/');
     getDependentListBox($('#view_academic_year_id'), $('#view_academic_term_id'), '/list-box/academic-term/');
     getDependentListBox($('#view_classlevel_id'), $('#view_classroom_id'), '/list-box/classroom/');
 
@@ -50,7 +51,7 @@ jQuery(document).ready(function() {
         $.ajax({
             type: "POST",
             data: values,
-            url: '/exams/validate-setup/',
+            url: '/exams/validate-all-setup/',
             success: function(data,textStatus){
                 if(data.flag === 1){
                     //set_msg_box($('#error-box'), data.output, 2);
@@ -73,7 +74,7 @@ jQuery(document).ready(function() {
         $.ajax({
             type: "POST",
             data: {academic_term_id: $(this).val()},
-            url: '/exams/setup/',
+            url: '/exams/all-setup/',
             success: function(data,textStatus){
                 console.log("Data", data);
                 window.location.reload();
@@ -87,6 +88,74 @@ jQuery(document).ready(function() {
 });
 
 var UIBlockUI = function() {
+    var handleSample0 = function() {
+
+        //Setup My Exam Form when submitted
+        $(document.body).on('submit', '#my_exam_setup_form', function(){
+            var values = $(this).serialize();
+
+            App.blockUI({
+                target: '#my_exams_setup',
+                animate: true
+            });
+
+            $.ajax({
+                type: "POST",
+                url: '/exams/validate-my-setup/',
+                data: values,
+                success: function (data) {
+                    // console.log(data);
+                    if(data.flag === 1){
+                        bootbox.dialog({
+                            message: '<h4>Are You Sure You Want To Setup your exams for <strong>'+data.term.academic_term+' Academic Year? </strong>' +
+                            '<span class="text-danger">Note: its not reversible</span></h4>',
+                            title: '<h3><span class="text-primary">Exam Setup Confirmation</span></h3>',
+                            buttons: {
+                                danger: {
+                                    label: "NO",
+                                    className: "btn-danger",
+                                    callback: function() {
+                                        $(this).hide();
+                                    }
+                                },
+                                success: {
+                                    label: "YES Set It Up",
+                                    className: "btn-success",
+                                    callback: function() {
+                                        $.ajax({
+                                            type: 'POST',
+                                            data:{academic_term_id: data.term.academic_term_id},
+                                            url: '/exams/my-setup/',
+                                            success: function(data,textStatus){
+                                                // console.log(data);
+                                                window.location.replace('/exams');
+                                            },
+                                            error: function(xhr,textStatus,error){
+                                                bootbox.alert("Error encountered pls try again later..", function() {
+                                                    $(this).hide();
+                                                });
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                    }else{
+                        set_msg_box($('#error-box'), data.output, 2);
+                    }
+
+                    window.setTimeout(function() {
+                        App.unblockUI('#my_exams_setup');
+                    }, 2000);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    set_msg_box($('#error-box'), 'Error...Kindly Try Again', 2);
+                    App.unblockUI('#my_exams_setup');
+                }
+            });
+            return false;
+        });
+    }
 
     var handleSample1 = function() {
 
@@ -244,6 +313,7 @@ var UIBlockUI = function() {
         //main function to initiate the module
         init: function() {
 
+            handleSample0();
             handleSample1();
             handleSample2();
         }

@@ -37,6 +37,9 @@
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
                             <li class="active">
+                                <a href="#my_exams_setup" data-toggle="tab"> Setup My Exams </a>
+                            </li>
+                            <li>
                                 <a href="#exams_input_score" data-toggle="tab"> Input Scores </a>
                             </li>
                             <li>
@@ -46,7 +49,40 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
-                            <div class="tab-pane active" id="exams_input_score">
+                            <div id="error-box"></div>
+                            <div class="tab-pane active" id="my_exams_setup">
+                                <div class="alert alert-info"> Setup Exam For an <strong> Academic Term</strong></div>
+                                {!! Form::open([
+                                        'method'=>'POST',
+                                        'class'=>'form-horizontal',
+                                        'id' => 'my_exam_setup_form'
+                                    ])
+                                !!}
+                                <div class="form-body">
+                                    <div class="form-group">
+                                        <div class="col-md-6 col-md-offset-1">
+                                            <div class="form-group">
+                                                <label class="control-label">Academic Year <span class="text-danger">*</span></label>
+                                                <div>
+                                                    {!! Form::select('setup_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'setup_academic_year_id', 'required'=>'required']) !!}
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Academic Term <span class="text-danger">*</span></label>
+                                                {!! Form::select('setup_academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
+                                                AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'setup_academic_term_id', 'required'=>'required']) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-actions noborder">
+                                    <button type="submit" class="btn blue pull-right">
+                                        <i class="fa fa-gears"></i> Setup Exam
+                                    </button>
+                                </div>
+                                {!! Form::close() !!}
+                            </div>
+                            <div class="tab-pane" id="exams_input_score">
                                 <div class="alert alert-info"> Search for <strong>Subjects Assigned</strong> For The <strong> Academic Term</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',
@@ -175,10 +211,12 @@
     <script src="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/js/bootstrap-editable.js') }}" type="text/javascript" ></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
+    <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/scripts/app.min.js') }}" type="text/javascript"></script>
     <!-- END THEME GLOBAL SCRIPTS -->
     <!-- BEGIN THEME LAYOUT SCRIPTS -->
+    <script src="{{ asset('assets/pages/scripts/ui-bootbox.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
@@ -186,6 +224,8 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/exams"]');
+
+            $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
         });
     </script>
 @endsection
