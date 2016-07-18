@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 15, 2016 at 09:25 PM
+-- Generation Time: Jul 18, 2016 at 03:29 PM
 -- Server version: 5.6.26
 -- PHP Version: 5.6.12
 
@@ -49,8 +49,8 @@ BEGIN
 							IF @chk = 0 THEN
 								BEGIN
 									#Insert into subject classroom those newly cloned subjects
-									INSERT INTO subject_classrooms(subject_id, class_id, academic_term_id, tutor_id)
-									VALUES(SubjectID, ClassID, TermToID, TutorID);
+									INSERT INTO subject_classrooms(subject_id, classroom_id, academic_term_id, tutor_id)
+									VALUES(SubjectID, ClassRoomID, TermToID, TutorID);
 
 									#Get the newly inserted subject classroom id
 									SET @New_ID = LAST_INSERT_ID();
@@ -150,177 +150,182 @@ BEGIN
 	-- END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_processAssessmentCA`(IN `TermID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_processAssessmentCA`(IN `TermID` INT, IN `TutorID` INT)
 Block0: BEGIN
+	#(tutor_id = TutorID OR ISNULL(TutorID) = 1) 
+	#Check if no tutor was supplied, then its for the academic term else the exam set up it for only the tutor
+	Block1: BEGIN
+		#Declare Variable to be used in looping through the record set or cursor
+		DECLARE done1 BOOLEAN DEFAULT FALSE;
+		DECLARE StudentID, ClassID, CA_WP INT;
+		DECLARE StudentName VARCHAR(100);
 
-      Block1: BEGIN
-      -- Declare Variable to be used in looping through the record set or cursor
-      DECLARE done1 BOOLEAN DEFAULT FALSE;
-      DECLARE StudentID, ClassID, CA_WP INT;
-      DECLARE StudentName VARCHAR(100);
+		DECLARE cur1 CURSOR FOR
+		SELECT student_id, classroom_id, ca_weight_point, student_name FROM assessment_detailsviews
+        WHERE academic_term_id=TermID AND (tutor_id = TutorID OR ISNULL(TutorID) = 1) 
+        GROUP BY student_id, classroom_id, ca_weight_point;
 
-      DECLARE cur1 CURSOR FOR
-        SELECT student_id, classroom_id, ca_weight_point, student_name FROM assessment_detailsviews
-        WHERE academic_term_id=TermID GROUP BY student_id, classroom_id, ca_weight_point;
+		  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
+		  #Open The Cursor For Iterating Through The Recordset cur1
+		  OPEN cur1;
+		  REPEAT
+			FETCH cur1 INTO StudentID, ClassID, CA_WP, StudentName;
+			IF NOT done1 THEN
 
-      DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-      #Open The Cursor For Iterating Through The Recordset cur1
-      OPEN cur1;
-      REPEAT
-        FETCH cur1 INTO StudentID, ClassID, CA_WP, StudentName;
-        IF NOT done1 THEN
+			  -- Second Iteration get the subjects a student offered during the assessment for the academic term
+				Block2: BEGIN
+				-- Declare Variable to be used in looping through the record set or cursor
+				DECLARE done2 BOOLEAN DEFAULT FALSE;
+				DECLARE SubjectID, SubClassroom int;
 
-          -- Second Iteration get the subjects a student offered during the assessment for the academic term
-            Block2: BEGIN
-            -- Declare Variable to be used in looping through the record set or cursor
-            DECLARE done2 BOOLEAN DEFAULT FALSE;
-            DECLARE SubjectID, SubClassroom int;
+				DECLARE cur2 CURSOR FOR
+				  SELECT subject_id, subject_classroom_id FROM assessment_detailsviews
+				  WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID
+                  AND (tutor_id = TutorID OR ISNULL(TutorID) = 1) AND marked=1
+				  GROUP BY subject_id, subject_classroom_id;
 
-            DECLARE cur2 CURSOR FOR
-              SELECT subject_id, subject_classroom_id FROM assessment_detailsviews
-              WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID AND marked=1
-              GROUP BY subject_id, subject_classroom_id;
+					DECLARE CONTINUE HANDLER FOR NOT FOUND SET done2 = TRUE;
+					#Open The Cursor For Iterating Through The Record set cur1
+					OPEN cur2;
+					REPEAT
+					  FETCH cur2 INTO SubjectID, SubClassroom;
+					  IF NOT done2 THEN
 
-            DECLARE CONTINUE HANDLER FOR NOT FOUND SET done2 = TRUE;
-            #Open The Cursor For Iterating Through The Record set cur1
-            OPEN cur2;
-            REPEAT
-              FETCH cur2 INTO SubjectID, SubClassroom;
-              IF NOT done2 THEN
+						SET @TEMP_SUM = 0.0;
+						-- Third Iteration computes each subjects score student offered during the assessment for the academic term
+						  Block3: BEGIN
+						  -- Declare Variable to be used in looping through the record set or cursor
+						  DECLARE done3 BOOLEAN DEFAULT FALSE;
+						  DECLARE W_CA, WW_Point, WW_Percent FLOAT;
 
-                SET @TEMP_SUM = 0.0;
-                -- Third Iteration computes each subjects score student offered during the assessment for the academic term
-                  Block3: BEGIN
-                  -- Declare Variable to be used in looping through the record set or cursor
-                  DECLARE done3 BOOLEAN DEFAULT FALSE;
-                  DECLARE W_CA, WW_Point, WW_Percent FLOAT;
+						  DECLARE cur3 CURSOR FOR
+							SELECT  score, weight_point, percentage FROM assessment_detailsviews
+							WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID AND marked=1
+							AND subject_id=SubjectID AND subject_classroom_id=SubClassroom;
 
-                  DECLARE cur3 CURSOR FOR
-                    SELECT  score, weight_point, percentage FROM assessment_detailsviews
-                    WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID AND marked=1
-                          AND subject_id=SubjectID AND subject_classroom_id=SubClassroom;
+						  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done3 = TRUE;
+						  #Open The Cursor For Iterating Through The Record set cur1
+						  OPEN cur3;
+						  REPEAT
+							FETCH cur3 INTO W_CA, WW_Point, WW_Percent;
+							IF NOT done3 THEN
+							  BEGIN
+								-- Get the sum of the weight point percent (100)
+								SET @PercentSUM = (SELECT SUM(percentage) FROM assessment_detailsviews
+								WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID AND marked=1
+								AND subject_id=SubjectID AND subject_classroom_id=SubClassroom);
 
-                  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done3 = TRUE;
-                  #Open The Cursor For Iterating Through The Record set cur1
-                  OPEN cur3;
-                  REPEAT
-                    FETCH cur3 INTO W_CA, WW_Point, WW_Percent;
-                    IF NOT done3 THEN
-                      BEGIN
-                        -- Get the sum of the weight point percent (100)
-                        SET @PercentSUM = (SELECT SUM(percentage) FROM assessment_detailsviews
-                        WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID AND marked=1
-                              AND subject_id=SubjectID AND subject_classroom_id=SubClassroom);
+								-- Get the new weight point assigned to the assessment ((25/100) * 30)
+								-- i.e the (assessment weight point percentage (/) divides the sum of the percentages) (*) multiply by the original C.A weight point
+								SET @Temp_WP = ROUND(((WW_Percent / @PercentSUM) * CA_WP), 2);
+								-- Get the new calculated C.A of the assessment ((11/15) * (((25/100) * 30)))
+								-- i.e the (assessment C.A score (/) divides the assessment weight point) (*) multiply by the calculated weight point above
+								SET @Temp_CA = ROUND(((W_CA / WW_Point) * @Temp_WP), 2);
+								-- Sum up all the calculated C.A weekly reports for the subjects
+								SET @TEMP_SUM = @TEMP_SUM + @TEMP_CA;
 
-                        -- Get the new weight point assigned to the assessment ((25/100) * 30)
-                        -- i.e the (assessment weight point percentage (/) divides the sum of the percentages) (*) multiply by the original C.A weight point
-                        SET @Temp_WP = ROUND(((WW_Percent / @PercentSUM) * CA_WP), 2);
-                        -- Get the new calculated C.A of the assessment ((11/15) * (((25/100) * 30)))
-                        -- i.e the (assessment C.A score (/) divides the assessment weight point) (*) multiply by the calculated weight point above
-                        SET @Temp_CA = ROUND(((W_CA / WW_Point) * @Temp_WP), 2);
-                        -- Sum up all the calculated C.A weekly reports for the subjects
-                        SET @TEMP_SUM = @TEMP_SUM + @TEMP_CA;
+							  END;
 
-                      END;
+							END IF;
+						  UNTIL done3 END REPEAT;
+						  CLOSE cur3;
+						END Block3;
+					  
+						  Block3_1: BEGIN
+						  -- Get the exam details id for that subject
+						  SET @ExamDetailID = (SELECT exam_detail_id FROM exams_detailsviews
+						  WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID
+								AND subject_id=SubjectID AND subject_classroom_id=SubClassroom);
 
-                    END IF;
-                  UNTIL done3 END REPEAT;
-                  CLOSE cur3;
-                END Block3;
-              
-                  Block3_1: BEGIN
-                  -- Get the exam details id for that subject
-                  SET @ExamDetailID = (SELECT exam_detail_id FROM exams_detailsviews
-                  WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID
-                        AND subject_id=SubjectID AND subject_classroom_id=SubClassroom);
+						  -- Update the exam details table and set the students C.A for that subject with the calculated C.A score
+						  UPDATE exam_details SET ca=@TEMP_SUM WHERE exam_detail_id=@ExamDetailID;
 
-                  -- Update the exam details table and set the students C.A for that subject with the calculated C.A score
-                  UPDATE exam_details SET ca=@TEMP_SUM WHERE exam_detail_id=@ExamDetailID;
+						END Block3_1;
+					  END IF;
+					UNTIL done2 END REPEAT;
+					CLOSE cur2;
+			  END Block2;
 
-                END Block3_1;
-              END IF;
-            UNTIL done2 END REPEAT;
-            CLOSE cur2;
-          END Block2;
-
-        END IF;
-      UNTIL done1 END REPEAT;
+			END IF;
+		  UNTIL done1 END REPEAT;
       CLOSE cur1;
     END Block1;
   END Block0$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_processExams`(IN `TermID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_processExams`(IN `TermID` INT, IN `TutorID` INT)
 BEGIN
-      Block0: BEGIN
-      -- Delete the exams details record for that term if its has not been marked already
-      DELETE FROM exam_details WHERE exam_id IN
-        (SELECT exam_id FROM exams_subjectviews WHERE academic_term_id=TermID AND marked <> 1);
+	#(tutor_id = TutorID OR ISNULL(TutorID) = 1) 
+    #Check if no tutor was supplied, then its for the academic term else the exam set up it for only the tutor
+	Block0: BEGIN
+		#Delete the exams details record for that term for the tutor assigned, if its has not been marked already
+		DELETE FROM exam_details WHERE exam_id IN
+        (SELECT exam_id FROM exams_subjectviews WHERE academic_term_id=TermID
+        AND (tutor_id = TutorID OR ISNULL(TutorID) = 1) AND marked <> 1);
 
-      -- Delete the exams record for that term if its has not been marked already
-      DELETE FROM exams WHERE marked <> 1 AND subject_classroom_id IN
-      (SELECT subject_classroom_id FROM subject_classrooms WHERE academic_term_id=TermID);
+		#Delete the exams record for that term for the tutor assigned, if its has not been marked already
+		DELETE FROM exams WHERE marked <> 1 AND subject_classroom_id IN
+		(SELECT subject_classroom_id FROM subject_classrooms WHERE academic_term_id=TermID 
+        AND (tutor_id = TutorID OR ISNULL(TutorID) = 1) );
     END Block0;
 
-      Block1: BEGIN
-      -- Insert into exams table with all the subjects that has assigned to a class room with students offering them
-      -- also skip those records that exist already to avoid duplicates in terms of classroom_id and subject_classroom_id
+	Block1: BEGIN
+		#Insert into exams table with all the subjects that has assigned to a class room with students offering them
+		#also skip those records that exist already to avoid duplicates in terms of subject_classroom_id
 		INSERT IGNORE INTO exams(subject_classroom_id)
         SELECT a.subject_classroom_id FROM student_subjects a JOIN subject_classrooms b
 		ON a.subject_classroom_id = b.subject_classroom_id
-		WHERE b.academic_term_id=TermID AND a.subject_classroom_id NOT IN (SELECT subject_classroom_id FROM exams)
+		WHERE b.academic_term_id=TermID AND (b.tutor_id = TutorID OR ISNULL(TutorID) = 1)
+        AND a.subject_classroom_id NOT IN (SELECT subject_classroom_id FROM exams)
         GROUP BY a.subject_classroom_id ORDER BY a.subject_classroom_id;
     END Block1;
 
-    -- insert into exams details the students offering such subjects in the class room using the exams assigned
-    -- cursor block for inserting exam details from exams and subject_students_registers
-      Block2: BEGIN
-      DECLARE done1 BOOLEAN DEFAULT FALSE;
-      DECLARE ExamID, SubjectClassRoomID, ExamMarkStatusID INT;
-      -- DECLARE cur1 CURSOR FOR SELECT a.exam_id, a.class_id, a.subject_classroom_id, a.exammarked_status_id
-      DECLARE cur1 CURSOR FOR SELECT a.exam_id, a.subject_classroom_id, a.marked
-      FROM exams a INNER JOIN subject_classrooms b ON a.subject_classroom_id=b.subject_classroom_id
-      WHERE b.academic_term_id=TermID;
-      DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
+	#insert into exams details the students offering such subjects in the class room using the exams assigned
+	#cursor block for inserting exam details from exams and subject_students_registers
+	Block2: BEGIN
+		DECLARE done1 BOOLEAN DEFAULT FALSE;
+		DECLARE ExamID, SubjectClassRoomID, ExamMarkStatusID INT;
+		#DECLARE cur1 CURSOR FOR SELECT a.exam_id, a.class_id, a.subject_classroom_id, a.exammarked_status_id
+		  DECLARE cur1 CURSOR FOR SELECT a.exam_id, a.subject_classroom_id, a.marked
+		  FROM exams a INNER JOIN subject_classrooms b ON a.subject_classroom_id=b.subject_classroom_id
+		  WHERE b.academic_term_id=TermID AND (tutor_id = TutorID OR ISNULL(TutorID) = 1);
+		  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
 
-      #Open The Cursor For Iterating Through The Recordset cur1
-      OPEN cur1;
-      REPEAT
-        FETCH cur1 INTO ExamID, SubjectClassRoomID, ExamMarkStatusID;
-        IF NOT done1 THEN
-          BEGIN
-            IF ExamMarkStatusID <> 1 THEN
-              BEGIN
-                # Insert into the details table all the students that registered the subject
-                INSERT IGNORE INTO exam_details(exam_id, student_id)
-                  SELECT	ExamID, student_id
-                  FROM	student_subjects
-                  WHERE 	subject_classroom_id=SubjectClassRoomID;
-              END;
-            ELSE
-              BEGIN
-                # Insert into the details table the students that was just added to offer the subject
-                INSERT IGNORE INTO exam_details(exam_id, student_id)
-                  SELECT	ExamID, student_id
-                  FROM 	student_subjects
-                  WHERE 	subject_classroom_id=SubjectClassRoomID AND student_id NOT IN
-                  (SELECT student_id FROM exam_details WHERE exam_id=ExamID);
+		  #Open The Cursor For Iterating Through The Recordset cur1
+		  OPEN cur1;
+		  REPEAT
+			FETCH cur1 INTO ExamID, SubjectClassRoomID, ExamMarkStatusID;
+			IF NOT done1 THEN
+			  BEGIN
+				IF ExamMarkStatusID <> 1 THEN
+					BEGIN
+						# Insert into the details table all the students that registered the subject
+						INSERT IGNORE INTO exam_details(exam_id, student_id)
+						SELECT ExamID, student_id FROM	student_subjects WHERE subject_classroom_id=SubjectClassRoomID;
+					END;
+				ELSE
+					BEGIN
+						# Insert into the details table the students that was just added to offer the subject
+						INSERT IGNORE INTO exam_details(exam_id, student_id)
+						SELECT ExamID, student_id FROM 	student_subjects
+						WHERE subject_classroom_id=SubjectClassRoomID AND student_id NOT IN
+						(SELECT student_id FROM exam_details WHERE exam_id=ExamID);
 
-                # remove the students that was just removed from the list of students to offer the subject
-				DELETE FROM exam_details WHERE exam_id=ExamID AND student_id NOT IN
-				(SELECT student_id FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID);
-              END;
-            END IF;
-            
-            -- Update the exam setup status_id = 1
-			UPDATE subject_classrooms set exam_status_id=1 WHERE subject_classroom_id = SubjectClassRoomID;
-          END;
-        END IF;
-      UNTIL done1 END REPEAT;
-      CLOSE cur1;
+						# remove the students that was just removed from the list of students to offer the subject
+						DELETE FROM exam_details WHERE exam_id=ExamID AND student_id NOT IN
+						(SELECT student_id FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID);
+					END;
+				END IF;
+				
+					#Update the exam setup status_id = 1
+					UPDATE subject_classrooms set exam_status_id=1 WHERE subject_classroom_id = SubjectClassRoomID;
+			  END;
+			END IF;
+		  UNTIL done1 END REPEAT;
+		  CLOSE cur1;
     END Block2;
 
     -- Update the C.A with the calculated values from the assessments
-	call sp_processAssessmentCA(TermID);
+	call sp_processAssessmentCA(TermID, TutorID);
 
   END$$
 
@@ -598,15 +603,16 @@ CREATE TABLE IF NOT EXISTS `academic_terms` (
   `exam_setup_date` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `academic_terms`
 --
 
 INSERT INTO `academic_terms` (`academic_term_id`, `academic_term`, `status`, `academic_year_id`, `term_type_id`, `term_begins`, `term_ends`, `exam_status_id`, `exam_setup_by`, `exam_setup_date`, `created_at`, `updated_at`) VALUES
-(1, 'Third Term 2015 - 2016', 1, 1, 3, '2016-04-15', '2016-07-15', 1, 1, '2016-07-15', '2016-05-11 15:41:04', '2016-07-15 17:49:18'),
-(2, 'Second Term 2015 - 2016', 2, 1, 2, '2016-07-01', '2016-07-21', 2, NULL, NULL, '2016-07-15 17:49:18', '2016-07-15 17:49:18');
+(1, 'Third Term 2015 - 2016', 1, 1, 3, '2016-04-15', '2016-07-15', 1, 1, '2016-07-15', '2016-05-11 15:41:04', '2016-07-18 12:14:01'),
+(2, 'Second Term 2015 - 2016', 2, 1, 2, '2016-01-11', '2016-04-01', 2, NULL, NULL, '2016-07-15 17:49:18', '2016-07-18 12:14:01'),
+(3, 'First Term 2015 - 2016', 2, 1, 1, '2015-09-21', '2015-12-18', 2, NULL, NULL, '2016-07-18 12:14:01', '2016-07-18 12:14:01');
 
 -- --------------------------------------------------------
 
@@ -1543,6 +1549,8 @@ CREATE TABLE IF NOT EXISTS `assessment_detailsviews` (
 ,`sponsor_name` varchar(91)
 ,`subject_id` int(10) unsigned
 ,`classroom_id` int(10) unsigned
+,`tutor_id` int(10) unsigned
+,`tutor` varchar(91)
 ,`classroom` varchar(255)
 ,`classlevel_id` int(10) unsigned
 ,`classlevel` varchar(255)
@@ -1562,7 +1570,7 @@ CREATE TABLE IF NOT EXISTS `assessment_setups` (
   `assessment_no` tinyint(4) NOT NULL,
   `classgroup_id` int(10) unsigned NOT NULL,
   `academic_term_id` int(10) unsigned NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `assessment_setups`
@@ -1570,7 +1578,9 @@ CREATE TABLE IF NOT EXISTS `assessment_setups` (
 
 INSERT INTO `assessment_setups` (`assessment_setup_id`, `assessment_no`, `classgroup_id`, `academic_term_id`) VALUES
 (3, 3, 1, 1),
-(4, 3, 2, 1);
+(4, 3, 2, 1),
+(5, 1, 1, 2),
+(6, 1, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -1586,7 +1596,7 @@ CREATE TABLE IF NOT EXISTS `assessment_setup_details` (
   `assessment_setup_id` int(10) unsigned NOT NULL,
   `submission_date` date DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `assessment_setup_details`
@@ -1598,7 +1608,9 @@ INSERT INTO `assessment_setup_details` (`assessment_setup_detail_id`, `number`, 
 (3, 3, 10.00, 25, 3, '2016-07-15', 'final test'),
 (5, 1, 10.00, 25, 4, '2016-07-15', 'first test'),
 (6, 2, 20.00, 50, 4, '2016-07-15', 'mid-term test'),
-(7, 3, 10.00, 25, 4, '2016-07-15', 'final test');
+(7, 3, 10.00, 25, 4, '2016-07-15', 'final test'),
+(8, 1, 40.00, 100, 5, '2016-02-19', 'Second Term C.A'),
+(9, 1, 40.00, 100, 6, '2016-02-19', 'Second Term C.A');
 
 -- --------------------------------------------------------
 
@@ -1707,96 +1719,23 @@ CREATE TABLE IF NOT EXISTS `exams` (
   `exam_id` int(10) unsigned NOT NULL,
   `subject_classroom_id` int(10) unsigned NOT NULL,
   `marked` int(10) unsigned NOT NULL DEFAULT '2'
-) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `exams`
 --
 
 INSERT INTO `exams` (`exam_id`, `subject_classroom_id`, `marked`) VALUES
-(1, 1, 2),
-(2, 2, 2),
-(3, 3, 2),
-(4, 4, 2),
-(5, 5, 2),
-(6, 6, 2),
-(7, 7, 2),
-(8, 8, 2),
-(9, 9, 2),
-(10, 10, 2),
-(11, 11, 2),
-(12, 12, 2),
-(13, 13, 2),
-(14, 14, 2),
-(15, 15, 2),
-(16, 16, 2),
-(17, 17, 2),
-(18, 18, 2),
-(19, 19, 2),
-(20, 20, 2),
-(21, 21, 2),
-(22, 22, 2),
-(23, 23, 2),
-(24, 24, 2),
-(25, 25, 2),
-(26, 26, 2),
-(27, 27, 2),
-(28, 28, 2),
-(29, 29, 2),
-(30, 30, 2),
-(31, 31, 2),
-(32, 32, 2),
-(33, 33, 2),
-(34, 34, 2),
-(35, 35, 2),
-(36, 36, 2),
-(37, 37, 2),
-(38, 38, 2),
-(39, 39, 2),
-(40, 43, 2),
-(41, 44, 2),
-(42, 45, 2),
-(43, 46, 2),
-(44, 47, 2),
-(45, 48, 2),
-(46, 49, 2),
-(47, 50, 2),
-(48, 51, 2),
-(49, 52, 2),
-(50, 53, 2),
-(51, 54, 2),
-(52, 55, 2),
-(53, 56, 2),
-(54, 57, 2),
-(55, 58, 2),
-(56, 59, 2),
-(57, 60, 2),
-(58, 61, 2),
-(59, 62, 2),
-(60, 63, 2),
-(61, 64, 2),
-(62, 65, 2),
-(63, 66, 2),
-(64, 67, 2),
-(65, 68, 2),
-(66, 70, 2),
-(67, 71, 2),
-(68, 72, 2),
-(69, 73, 2),
-(70, 74, 2),
-(71, 75, 2),
-(72, 76, 2),
-(73, 77, 2),
-(74, 78, 2),
-(75, 79, 2),
-(76, 80, 2),
-(77, 81, 2),
-(78, 82, 2),
-(79, 83, 2),
-(80, 84, 2),
-(81, 85, 2),
-(82, 86, 2),
-(83, 87, 2);
+(18, 19, 1),
+(21, 34, 1),
+(31, 5, 2),
+(32, 13, 2),
+(33, 27, 2),
+(34, 33, 2),
+(35, 48, 2),
+(36, 55, 2),
+(37, 66, 2),
+(38, 77, 2);
 
 -- --------------------------------------------------------
 
@@ -1808,6 +1747,7 @@ CREATE TABLE IF NOT EXISTS `exams_detailsviews` (
 ,`exam_id` int(10) unsigned
 ,`subject_classroom_id` int(10) unsigned
 ,`subject_id` int(10) unsigned
+,`tutor_id` int(10) unsigned
 ,`classlevel_id` int(10) unsigned
 ,`classroom_id` int(10) unsigned
 ,`student_id` int(10) unsigned
@@ -1841,6 +1781,8 @@ CREATE TABLE IF NOT EXISTS `exams_subjectviews` (
 ,`classroom` varchar(255)
 ,`subject_id` int(10) unsigned
 ,`subject_classroom_id` int(10) unsigned
+,`tutor_id` int(10) unsigned
+,`tutor` varchar(91)
 ,`ca_weight_point` int(10) unsigned
 ,`exam_weight_point` int(10) unsigned
 ,`marked` int(10) unsigned
@@ -1864,691 +1806,97 @@ CREATE TABLE IF NOT EXISTS `exam_details` (
   `student_id` int(10) unsigned NOT NULL,
   `ca` double(5,2) unsigned NOT NULL DEFAULT '0.00',
   `exam` double(5,2) unsigned NOT NULL DEFAULT '0.00'
-) ENGINE=InnoDB AUTO_INCREMENT=1124 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=397 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `exam_details`
 --
 
 INSERT INTO `exam_details` (`exam_detail_id`, `exam_id`, `student_id`, `ca`, `exam`) VALUES
-(1, 1, 1, 26.00, 0.00),
-(2, 1, 2, 36.00, 0.00),
-(3, 1, 4, 20.00, 0.00),
-(4, 1, 5, 36.00, 0.00),
-(5, 1, 6, 34.00, 0.00),
-(6, 1, 7, 32.00, 0.00),
-(7, 1, 8, 30.00, 0.00),
-(8, 1, 9, 32.00, 0.00),
-(9, 1, 10, 15.00, 0.00),
-(10, 1, 44, 29.00, 0.00),
-(16, 2, 1, 32.00, 0.00),
-(17, 2, 2, 35.00, 0.00),
-(18, 2, 4, 24.00, 0.00),
-(19, 2, 5, 35.00, 0.00),
-(20, 2, 6, 33.00, 0.00),
-(21, 2, 7, 31.00, 0.00),
-(22, 2, 8, 33.00, 0.00),
-(23, 2, 9, 35.00, 0.00),
-(24, 2, 10, 14.00, 0.00),
-(25, 2, 44, 27.00, 0.00),
-(31, 3, 1, 26.00, 0.00),
-(32, 3, 2, 37.00, 0.00),
-(33, 3, 4, 24.00, 0.00),
-(34, 3, 5, 29.00, 0.00),
-(35, 3, 6, 32.00, 0.00),
-(36, 3, 7, 29.00, 0.00),
-(37, 3, 8, 34.00, 0.00),
-(38, 3, 9, 36.00, 0.00),
-(39, 3, 10, 25.00, 0.00),
-(40, 3, 44, 32.00, 0.00),
-(46, 4, 1, 0.00, 0.00),
-(47, 4, 2, 0.00, 0.00),
-(48, 4, 4, 0.00, 0.00),
-(49, 4, 5, 0.00, 0.00),
-(50, 4, 6, 0.00, 0.00),
-(51, 4, 7, 0.00, 0.00),
-(52, 4, 8, 0.00, 0.00),
-(53, 4, 9, 0.00, 0.00),
-(54, 4, 10, 0.00, 0.00),
-(55, 4, 44, 0.00, 0.00),
-(61, 5, 1, 28.00, 0.00),
-(62, 5, 2, 35.00, 0.00),
-(63, 5, 4, 28.00, 0.00),
-(64, 5, 5, 35.00, 0.00),
-(65, 5, 6, 30.00, 0.00),
-(66, 5, 7, 30.00, 0.00),
-(67, 5, 8, 30.00, 0.00),
-(68, 5, 9, 33.00, 0.00),
-(69, 5, 10, 14.00, 0.00),
-(70, 5, 44, 31.00, 0.00),
-(76, 6, 1, 0.00, 0.00),
-(77, 6, 2, 0.00, 0.00),
-(78, 6, 4, 0.00, 0.00),
-(79, 6, 5, 0.00, 0.00),
-(80, 6, 6, 0.00, 0.00),
-(81, 6, 7, 0.00, 0.00),
-(82, 6, 8, 0.00, 0.00),
-(83, 6, 9, 0.00, 0.00),
-(84, 6, 10, 0.00, 0.00),
-(85, 6, 44, 0.00, 0.00),
-(91, 7, 1, 32.00, 0.00),
-(92, 7, 2, 26.00, 0.00),
-(93, 7, 4, 16.00, 0.00),
-(94, 7, 5, 32.00, 0.00),
-(95, 7, 6, 28.00, 0.00),
-(96, 7, 7, 29.00, 0.00),
-(97, 7, 8, 35.00, 0.00),
-(98, 7, 9, 31.00, 0.00),
-(99, 7, 10, 15.00, 0.00),
-(100, 7, 44, 33.00, 0.00),
-(106, 8, 1, 0.00, 0.00),
-(107, 8, 2, 0.00, 0.00),
-(108, 8, 4, 0.00, 0.00),
-(109, 8, 5, 0.00, 0.00),
-(110, 8, 6, 0.00, 0.00),
-(111, 8, 7, 0.00, 0.00),
-(112, 8, 8, 0.00, 0.00),
-(113, 8, 9, 0.00, 0.00),
-(114, 8, 10, 0.00, 0.00),
-(115, 8, 44, 0.00, 0.00),
-(121, 9, 1, 0.00, 0.00),
-(122, 9, 2, 0.00, 0.00),
-(123, 9, 4, 0.00, 0.00),
-(124, 9, 5, 0.00, 0.00),
-(125, 9, 6, 0.00, 0.00),
-(126, 9, 7, 0.00, 0.00),
-(127, 9, 8, 0.00, 0.00),
-(128, 9, 9, 0.00, 0.00),
-(129, 9, 10, 0.00, 0.00),
-(130, 9, 44, 0.00, 0.00),
-(136, 10, 1, 29.00, 0.00),
-(137, 10, 2, 35.00, 0.00),
-(138, 10, 4, 29.00, 0.00),
-(139, 10, 5, 33.00, 0.00),
-(140, 10, 6, 37.00, 0.00),
-(141, 10, 7, 33.00, 0.00),
-(142, 10, 8, 33.00, 0.00),
-(143, 10, 9, 33.00, 0.00),
-(144, 10, 10, 27.00, 0.00),
-(145, 10, 44, 32.00, 0.00),
-(151, 11, 1, 25.00, 0.00),
-(152, 11, 2, 30.00, 0.00),
-(153, 11, 4, 22.00, 0.00),
-(154, 11, 5, 32.00, 0.00),
-(155, 11, 6, 26.00, 0.00),
-(156, 11, 7, 33.00, 0.00),
-(157, 11, 8, 35.00, 0.00),
-(158, 11, 9, 33.00, 0.00),
-(159, 11, 10, 29.00, 0.00),
-(160, 11, 44, 29.00, 0.00),
-(166, 12, 1, 0.00, 0.00),
-(167, 12, 2, 0.00, 0.00),
-(168, 12, 4, 0.00, 0.00),
-(169, 12, 5, 0.00, 0.00),
-(170, 12, 6, 0.00, 0.00),
-(171, 12, 7, 0.00, 0.00),
-(172, 12, 8, 0.00, 0.00),
-(173, 12, 9, 0.00, 0.00),
-(174, 12, 10, 0.00, 0.00),
-(175, 12, 44, 0.00, 0.00),
-(181, 13, 1, 27.00, 0.00),
-(182, 13, 2, 34.00, 0.00),
-(183, 13, 4, 22.00, 0.00),
-(184, 13, 5, 29.00, 0.00),
-(185, 13, 6, 28.00, 0.00),
-(186, 13, 7, 27.00, 0.00),
-(187, 13, 8, 36.00, 0.00),
-(188, 13, 9, 27.00, 0.00),
-(189, 13, 10, 14.00, 0.00),
-(190, 13, 44, 26.00, 0.00),
-(196, 14, 1, 0.00, 0.00),
-(197, 14, 2, 0.00, 0.00),
-(198, 14, 4, 0.00, 0.00),
-(199, 14, 5, 0.00, 0.00),
-(200, 14, 6, 0.00, 0.00),
-(201, 14, 7, 0.00, 0.00),
-(202, 14, 8, 0.00, 0.00),
-(203, 14, 9, 0.00, 0.00),
-(204, 14, 10, 0.00, 0.00),
-(205, 14, 44, 0.00, 0.00),
-(211, 15, 11, 37.00, 0.00),
-(212, 15, 12, 31.00, 0.00),
-(213, 15, 13, 35.00, 0.00),
-(214, 15, 14, 27.00, 0.00),
-(215, 15, 15, 35.00, 0.00),
-(216, 15, 17, 36.00, 0.00),
-(217, 15, 19, 34.00, 0.00),
-(218, 15, 45, 35.00, 0.00),
-(219, 15, 47, 31.00, 0.00),
-(226, 16, 11, 34.00, 0.00),
-(227, 16, 12, 28.00, 0.00),
-(228, 16, 13, 37.00, 0.00),
-(229, 16, 14, 31.00, 0.00),
-(230, 16, 15, 26.00, 0.00),
-(231, 16, 17, 33.00, 0.00),
-(232, 16, 19, 33.00, 0.00),
-(233, 16, 45, 33.00, 0.00),
-(241, 17, 11, 34.00, 0.00),
-(242, 17, 12, 36.00, 0.00),
-(243, 17, 13, 36.00, 0.00),
-(244, 17, 14, 29.00, 0.00),
-(245, 17, 15, 29.00, 0.00),
-(246, 17, 17, 35.00, 0.00),
-(247, 17, 19, 39.00, 0.00),
-(248, 17, 45, 29.00, 0.00),
-(249, 17, 47, 29.00, 0.00),
-(256, 18, 11, 0.00, 0.00),
-(257, 18, 12, 0.00, 0.00),
-(258, 18, 13, 0.00, 0.00),
-(259, 18, 14, 0.00, 0.00),
-(260, 18, 15, 0.00, 0.00),
-(261, 18, 17, 0.00, 0.00),
-(262, 18, 19, 0.00, 0.00),
-(263, 18, 45, 0.00, 0.00),
-(271, 19, 11, 30.00, 0.00),
-(272, 19, 12, 35.00, 0.00),
-(273, 19, 13, 33.00, 0.00),
-(274, 19, 14, 24.00, 0.00),
-(275, 19, 15, 29.00, 0.00),
-(276, 19, 17, 31.00, 0.00),
-(277, 19, 19, 27.00, 0.00),
-(278, 19, 45, 29.00, 0.00),
-(279, 19, 47, 31.00, 0.00),
-(286, 20, 11, 0.00, 0.00),
-(287, 20, 12, 0.00, 0.00),
-(288, 20, 13, 0.00, 0.00),
-(289, 20, 14, 0.00, 0.00),
-(290, 20, 15, 0.00, 0.00),
-(291, 20, 17, 0.00, 0.00),
-(292, 20, 19, 0.00, 0.00),
-(293, 20, 45, 0.00, 0.00),
-(301, 21, 11, 25.00, 0.00),
-(302, 21, 12, 28.00, 0.00),
-(303, 21, 13, 34.00, 0.00),
-(304, 21, 14, 18.00, 0.00),
-(305, 21, 15, 19.00, 0.00),
-(306, 21, 17, 22.00, 0.00),
-(307, 21, 19, 34.00, 0.00),
-(308, 21, 45, 31.00, 0.00),
-(316, 22, 11, 0.00, 0.00),
-(317, 22, 12, 0.00, 0.00),
-(318, 22, 13, 0.00, 0.00),
-(319, 22, 14, 0.00, 0.00),
-(320, 22, 15, 0.00, 0.00),
-(321, 22, 17, 0.00, 0.00),
-(322, 22, 19, 0.00, 0.00),
-(323, 22, 45, 0.00, 0.00),
-(331, 23, 11, 0.00, 0.00),
-(332, 23, 12, 0.00, 0.00),
-(333, 23, 13, 0.00, 0.00),
-(334, 23, 14, 0.00, 0.00),
-(335, 23, 15, 0.00, 0.00),
-(336, 23, 17, 0.00, 0.00),
-(337, 23, 19, 0.00, 0.00),
-(338, 23, 45, 0.00, 0.00),
-(346, 24, 11, 32.00, 0.00),
-(347, 24, 12, 33.00, 0.00),
-(348, 24, 13, 38.00, 0.00),
-(349, 24, 14, 20.00, 0.00),
-(350, 24, 15, 19.00, 0.00),
-(351, 24, 17, 24.00, 0.00),
-(352, 24, 19, 24.00, 0.00),
-(353, 24, 45, 18.00, 0.00),
-(361, 25, 11, 30.00, 0.00),
-(362, 25, 12, 33.00, 0.00),
-(363, 25, 13, 26.00, 0.00),
-(364, 25, 14, 25.00, 0.00),
-(365, 25, 15, 24.00, 0.00),
-(366, 25, 17, 28.00, 0.00),
-(367, 25, 19, 36.00, 0.00),
-(368, 25, 45, 27.00, 0.00),
-(376, 26, 11, 0.00, 0.00),
-(377, 26, 12, 0.00, 0.00),
-(378, 26, 13, 0.00, 0.00),
-(379, 26, 14, 0.00, 0.00),
-(380, 26, 15, 0.00, 0.00),
-(381, 26, 17, 0.00, 0.00),
-(382, 26, 19, 0.00, 0.00),
-(383, 26, 45, 0.00, 0.00),
-(391, 27, 11, 33.00, 0.00),
-(392, 27, 12, 38.00, 0.00),
-(393, 27, 13, 34.00, 0.00),
-(394, 27, 14, 22.00, 0.00),
-(395, 27, 15, 27.00, 0.00),
-(396, 27, 17, 30.00, 0.00),
-(397, 27, 19, 35.00, 0.00),
-(398, 27, 45, 31.00, 0.00),
-(399, 27, 47, 36.00, 0.00),
-(406, 28, 11, 0.00, 0.00),
-(407, 28, 12, 0.00, 0.00),
-(408, 28, 13, 0.00, 0.00),
-(409, 28, 14, 0.00, 0.00),
-(410, 28, 15, 0.00, 0.00),
-(411, 28, 17, 0.00, 0.00),
-(412, 28, 19, 0.00, 0.00),
-(413, 28, 45, 0.00, 0.00),
-(421, 29, 20, 0.00, 0.00),
-(422, 29, 21, 0.00, 0.00),
-(423, 29, 22, 0.00, 0.00),
-(424, 29, 23, 0.00, 0.00),
-(425, 29, 24, 0.00, 0.00),
-(426, 29, 25, 0.00, 0.00),
-(427, 29, 26, 0.00, 0.00),
-(428, 29, 27, 0.00, 0.00),
-(429, 29, 28, 0.00, 0.00),
-(436, 30, 20, 25.00, 0.00),
-(437, 30, 21, 34.00, 0.00),
-(438, 30, 22, 33.00, 0.00),
-(439, 30, 23, 28.00, 0.00),
-(440, 30, 24, 38.00, 0.00),
-(441, 30, 25, 28.00, 0.00),
-(442, 30, 26, 21.00, 0.00),
-(443, 30, 27, 22.00, 0.00),
-(444, 30, 28, 29.00, 0.00),
-(451, 31, 20, 33.00, 0.00),
-(452, 31, 21, 36.00, 0.00),
-(453, 31, 22, 30.00, 0.00),
-(454, 31, 23, 25.00, 0.00),
-(455, 31, 24, 33.00, 0.00),
-(456, 31, 25, 31.00, 0.00),
-(457, 31, 26, 27.00, 0.00),
-(458, 31, 27, 28.00, 0.00),
-(459, 31, 28, 26.00, 0.00),
-(466, 32, 20, 0.00, 0.00),
-(467, 32, 21, 0.00, 0.00),
-(468, 32, 22, 0.00, 0.00),
-(469, 32, 23, 0.00, 0.00),
-(470, 32, 24, 0.00, 0.00),
-(471, 32, 25, 0.00, 0.00),
-(472, 32, 26, 0.00, 0.00),
-(473, 32, 27, 0.00, 0.00),
-(474, 32, 28, 0.00, 0.00),
-(481, 33, 20, 29.00, 0.00),
-(482, 33, 21, 38.00, 0.00),
-(483, 33, 22, 31.00, 0.00),
-(484, 33, 24, 39.00, 0.00),
-(485, 33, 25, 31.00, 0.00),
-(486, 33, 26, 35.00, 0.00),
-(487, 33, 27, 22.00, 0.00),
-(488, 33, 28, 34.00, 0.00),
-(496, 34, 20, 24.00, 0.00),
-(497, 34, 21, 36.00, 0.00),
-(498, 34, 22, 32.00, 0.00),
-(499, 34, 23, 23.00, 0.00),
-(500, 34, 24, 38.00, 0.00),
-(501, 34, 25, 37.00, 0.00),
-(502, 34, 26, 24.00, 0.00),
-(503, 34, 27, 23.00, 0.00),
-(504, 34, 28, 33.00, 0.00),
-(511, 35, 20, 0.00, 0.00),
-(512, 35, 21, 0.00, 0.00),
-(513, 35, 22, 0.00, 0.00),
-(514, 35, 23, 0.00, 0.00),
-(515, 35, 24, 0.00, 0.00),
-(516, 35, 25, 0.00, 0.00),
-(517, 35, 26, 0.00, 0.00),
-(518, 35, 27, 0.00, 0.00),
-(519, 35, 28, 0.00, 0.00),
-(526, 36, 20, 0.00, 0.00),
-(527, 36, 21, 0.00, 0.00),
-(528, 36, 22, 0.00, 0.00),
-(529, 36, 23, 0.00, 0.00),
-(530, 36, 24, 0.00, 0.00),
-(531, 36, 25, 0.00, 0.00),
-(532, 36, 26, 0.00, 0.00),
-(533, 36, 27, 0.00, 0.00),
-(534, 36, 28, 0.00, 0.00),
-(541, 37, 20, 0.00, 0.00),
-(542, 37, 21, 0.00, 0.00),
-(543, 37, 22, 0.00, 0.00),
-(544, 37, 23, 0.00, 0.00),
-(545, 37, 24, 0.00, 0.00),
-(546, 37, 25, 0.00, 0.00),
-(547, 37, 26, 0.00, 0.00),
-(548, 37, 27, 0.00, 0.00),
-(549, 37, 28, 0.00, 0.00),
-(556, 38, 20, 0.00, 0.00),
-(557, 38, 21, 0.00, 0.00),
-(558, 38, 22, 0.00, 0.00),
-(559, 38, 23, 0.00, 0.00),
-(560, 38, 24, 0.00, 0.00),
-(561, 38, 25, 0.00, 0.00),
-(562, 38, 26, 0.00, 0.00),
-(563, 38, 27, 0.00, 0.00),
-(564, 38, 28, 0.00, 0.00),
-(571, 39, 20, 25.00, 0.00),
-(572, 39, 21, 34.00, 0.00),
-(573, 39, 22, 22.00, 0.00),
-(574, 39, 23, 25.00, 0.00),
-(575, 39, 24, 30.00, 0.00),
-(576, 39, 25, 28.00, 0.00),
-(577, 39, 26, 24.00, 0.00),
-(578, 39, 27, 25.00, 0.00),
-(579, 39, 28, 25.00, 0.00),
-(586, 40, 29, 0.00, 0.00),
-(587, 40, 30, 0.00, 0.00),
-(588, 40, 32, 0.00, 0.00),
-(589, 40, 33, 0.00, 0.00),
-(590, 40, 34, 0.00, 0.00),
-(591, 40, 35, 0.00, 0.00),
-(592, 40, 36, 0.00, 0.00),
-(593, 40, 37, 0.00, 0.00),
-(601, 41, 29, 0.00, 0.00),
-(602, 41, 30, 0.00, 0.00),
-(603, 41, 32, 0.00, 0.00),
-(604, 41, 33, 0.00, 0.00),
-(605, 41, 34, 0.00, 0.00),
-(606, 41, 35, 0.00, 0.00),
-(607, 41, 36, 0.00, 0.00),
-(608, 41, 37, 0.00, 0.00),
-(616, 42, 29, 20.00, 0.00),
-(617, 42, 30, 37.00, 0.00),
-(618, 42, 32, 26.00, 0.00),
-(619, 42, 33, 25.00, 0.00),
-(620, 42, 34, 12.00, 0.00),
-(621, 42, 35, 31.00, 0.00),
-(622, 42, 36, 30.00, 0.00),
-(623, 42, 37, 26.00, 0.00),
-(631, 43, 29, 0.00, 0.00),
-(632, 43, 30, 0.00, 0.00),
-(633, 43, 32, 0.00, 0.00),
-(634, 43, 33, 0.00, 0.00),
-(635, 43, 34, 0.00, 0.00),
-(636, 43, 35, 0.00, 0.00),
-(637, 43, 36, 0.00, 0.00),
-(638, 43, 37, 0.00, 0.00),
-(646, 44, 29, 0.00, 0.00),
-(647, 44, 30, 0.00, 0.00),
-(648, 44, 32, 0.00, 0.00),
-(649, 44, 33, 0.00, 0.00),
-(650, 44, 34, 0.00, 0.00),
-(651, 44, 35, 0.00, 0.00),
-(652, 44, 36, 0.00, 0.00),
-(653, 44, 37, 0.00, 0.00),
-(661, 45, 29, 28.00, 0.00),
-(662, 45, 30, 32.00, 0.00),
-(663, 45, 32, 28.00, 0.00),
-(664, 45, 33, 29.00, 0.00),
-(665, 45, 34, 25.00, 0.00),
-(666, 45, 35, 24.00, 0.00),
-(667, 45, 36, 34.00, 0.00),
-(668, 45, 37, 32.00, 0.00),
-(676, 46, 29, 0.00, 0.00),
-(677, 46, 30, 0.00, 0.00),
-(678, 46, 32, 0.00, 0.00),
-(679, 46, 33, 0.00, 0.00),
-(680, 46, 34, 0.00, 0.00),
-(681, 46, 35, 0.00, 0.00),
-(682, 46, 36, 0.00, 0.00),
-(683, 46, 37, 0.00, 0.00),
-(691, 47, 29, 0.00, 0.00),
-(692, 47, 30, 0.00, 0.00),
-(693, 47, 32, 0.00, 0.00),
-(694, 47, 33, 0.00, 0.00),
-(695, 47, 34, 0.00, 0.00),
-(696, 47, 35, 0.00, 0.00),
-(697, 47, 36, 0.00, 0.00),
-(698, 47, 37, 0.00, 0.00),
-(706, 48, 29, 0.00, 0.00),
-(707, 48, 30, 0.00, 0.00),
-(708, 48, 32, 0.00, 0.00),
-(709, 48, 33, 0.00, 0.00),
-(710, 48, 34, 0.00, 0.00),
-(711, 48, 35, 0.00, 0.00),
-(712, 48, 36, 0.00, 0.00),
-(713, 48, 37, 0.00, 0.00),
-(721, 49, 29, 0.00, 0.00),
-(722, 49, 30, 0.00, 0.00),
-(723, 49, 32, 0.00, 0.00),
-(724, 49, 33, 0.00, 0.00),
-(725, 49, 34, 0.00, 0.00),
-(726, 49, 35, 0.00, 0.00),
-(727, 49, 36, 0.00, 0.00),
-(728, 49, 37, 0.00, 0.00),
-(736, 50, 29, 14.00, 0.00),
-(737, 50, 30, 33.00, 0.00),
-(738, 50, 32, 20.00, 0.00),
-(739, 50, 33, 20.00, 0.00),
-(740, 50, 34, 25.00, 0.00),
-(741, 50, 35, 22.00, 0.00),
-(742, 50, 36, 30.00, 0.00),
-(743, 50, 37, 20.00, 0.00),
-(751, 51, 29, 0.00, 0.00),
-(752, 51, 30, 0.00, 0.00),
-(753, 51, 32, 0.00, 0.00),
-(754, 51, 33, 0.00, 0.00),
-(755, 51, 34, 0.00, 0.00),
-(756, 51, 35, 0.00, 0.00),
-(757, 51, 36, 0.00, 0.00),
-(758, 51, 37, 0.00, 0.00),
-(766, 52, 29, 24.00, 0.00),
-(767, 52, 30, 30.00, 0.00),
-(768, 52, 32, 18.00, 0.00),
-(769, 52, 33, 25.00, 0.00),
-(770, 52, 34, 18.00, 0.00),
-(771, 52, 35, 21.00, 0.00),
-(772, 52, 36, 32.00, 0.00),
-(773, 52, 37, 27.00, 0.00),
-(781, 53, 29, 0.00, 0.00),
-(782, 53, 30, 0.00, 0.00),
-(783, 53, 32, 0.00, 0.00),
-(784, 53, 33, 0.00, 0.00),
-(785, 53, 34, 0.00, 0.00),
-(786, 53, 35, 0.00, 0.00),
-(787, 53, 36, 0.00, 0.00),
-(788, 53, 37, 0.00, 0.00),
-(796, 54, 38, 0.00, 0.00),
-(797, 54, 39, 0.00, 0.00),
-(798, 54, 40, 0.00, 0.00),
-(799, 54, 41, 0.00, 0.00),
-(800, 54, 42, 0.00, 0.00),
-(801, 54, 43, 0.00, 0.00),
-(803, 55, 39, 0.00, 0.00),
-(804, 55, 43, 0.00, 0.00),
-(806, 56, 38, 0.00, 0.00),
-(807, 56, 39, 0.00, 0.00),
-(808, 56, 40, 0.00, 0.00),
-(809, 56, 41, 0.00, 0.00),
-(810, 56, 42, 0.00, 0.00),
-(811, 56, 43, 0.00, 0.00),
-(813, 57, 38, 0.00, 0.00),
-(814, 57, 39, 0.00, 0.00),
-(815, 57, 40, 0.00, 0.00),
-(816, 57, 41, 0.00, 0.00),
-(817, 57, 42, 0.00, 0.00),
-(818, 57, 43, 0.00, 0.00),
-(820, 58, 38, 0.00, 0.00),
-(821, 58, 39, 0.00, 0.00),
-(822, 58, 40, 0.00, 0.00),
-(823, 58, 41, 0.00, 0.00),
-(824, 58, 42, 0.00, 0.00),
-(825, 58, 43, 0.00, 0.00),
-(827, 59, 38, 0.00, 0.00),
-(828, 59, 39, 0.00, 0.00),
-(829, 59, 40, 0.00, 0.00),
-(830, 59, 41, 0.00, 0.00),
-(831, 59, 42, 0.00, 0.00),
-(832, 59, 43, 0.00, 0.00),
-(834, 60, 38, 0.00, 0.00),
-(835, 60, 39, 0.00, 0.00),
-(836, 60, 40, 0.00, 0.00),
-(837, 60, 41, 0.00, 0.00),
-(838, 60, 42, 0.00, 0.00),
-(839, 60, 43, 0.00, 0.00),
-(841, 61, 38, 0.00, 0.00),
-(842, 61, 39, 0.00, 0.00),
-(843, 61, 40, 0.00, 0.00),
-(844, 61, 41, 0.00, 0.00),
-(845, 61, 42, 0.00, 0.00),
-(846, 61, 43, 0.00, 0.00),
-(848, 62, 38, 0.00, 0.00),
-(849, 62, 39, 0.00, 0.00),
-(850, 62, 40, 0.00, 0.00),
-(851, 62, 41, 0.00, 0.00),
-(852, 62, 42, 0.00, 0.00),
-(853, 62, 43, 0.00, 0.00),
-(855, 63, 38, 31.00, 0.00),
-(856, 63, 40, 30.00, 0.00),
-(857, 63, 41, 23.00, 0.00),
-(858, 63, 42, 10.00, 0.00),
-(862, 64, 38, 0.00, 0.00),
-(863, 64, 39, 0.00, 0.00),
-(864, 64, 40, 0.00, 0.00),
-(865, 64, 41, 0.00, 0.00),
-(866, 64, 42, 0.00, 0.00),
-(867, 64, 43, 0.00, 0.00),
-(869, 65, 38, 30.00, 0.00),
-(870, 65, 39, 28.00, 0.00),
-(871, 65, 40, 31.00, 0.00),
-(872, 65, 41, 23.00, 0.00),
-(873, 65, 42, 25.00, 0.00),
-(876, 66, 39, 27.00, 0.00),
-(877, 67, 38, 0.00, 0.00),
-(878, 67, 39, 0.00, 0.00),
-(879, 67, 40, 0.00, 0.00),
-(880, 67, 41, 0.00, 0.00),
-(881, 67, 42, 0.00, 0.00),
-(882, 67, 43, 0.00, 0.00),
-(884, 68, 11, 0.00, 0.00),
-(885, 68, 12, 0.00, 0.00),
-(886, 68, 13, 0.00, 0.00),
-(887, 68, 14, 0.00, 0.00),
-(888, 68, 15, 0.00, 0.00),
-(889, 68, 17, 0.00, 0.00),
-(890, 68, 19, 0.00, 0.00),
-(891, 68, 45, 0.00, 0.00),
-(899, 69, 1, 0.00, 0.00),
-(900, 69, 2, 0.00, 0.00),
-(901, 69, 4, 0.00, 0.00),
-(902, 69, 5, 0.00, 0.00),
-(903, 69, 6, 0.00, 0.00),
-(904, 69, 7, 0.00, 0.00),
-(905, 69, 8, 0.00, 0.00),
-(906, 69, 9, 0.00, 0.00),
-(907, 69, 10, 0.00, 0.00),
-(908, 69, 44, 0.00, 0.00),
-(914, 70, 29, 0.00, 0.00),
-(915, 70, 30, 0.00, 0.00),
-(916, 70, 32, 0.00, 0.00),
-(917, 70, 33, 0.00, 0.00),
-(918, 70, 34, 0.00, 0.00),
-(919, 70, 35, 0.00, 0.00),
-(920, 70, 36, 0.00, 0.00),
-(921, 70, 37, 0.00, 0.00),
-(929, 71, 20, 0.00, 0.00),
-(930, 71, 21, 0.00, 0.00),
-(931, 71, 22, 0.00, 0.00),
-(932, 71, 23, 0.00, 0.00),
-(933, 71, 24, 0.00, 0.00),
-(934, 71, 25, 0.00, 0.00),
-(935, 71, 26, 0.00, 0.00),
-(936, 71, 27, 0.00, 0.00),
-(937, 71, 28, 0.00, 0.00),
-(944, 72, 20, 0.00, 0.00),
-(945, 72, 21, 0.00, 0.00),
-(946, 72, 22, 0.00, 0.00),
-(947, 72, 23, 0.00, 0.00),
-(948, 72, 24, 0.00, 0.00),
-(949, 72, 25, 0.00, 0.00),
-(950, 72, 26, 0.00, 0.00),
-(951, 72, 27, 0.00, 0.00),
-(952, 72, 28, 0.00, 0.00),
-(959, 73, 20, 29.00, 0.00),
-(960, 73, 21, 36.00, 0.00),
-(961, 73, 22, 32.00, 0.00),
-(962, 73, 23, 30.00, 0.00),
-(963, 73, 24, 37.00, 0.00),
-(964, 73, 25, 37.00, 0.00),
-(965, 73, 26, 28.00, 0.00),
-(966, 73, 27, 30.00, 0.00),
-(967, 73, 28, 30.00, 0.00),
-(974, 74, 20, 0.00, 0.00),
-(975, 74, 21, 0.00, 0.00),
-(976, 74, 22, 0.00, 0.00),
-(977, 74, 23, 0.00, 0.00),
-(978, 74, 24, 0.00, 0.00),
-(979, 74, 25, 0.00, 0.00),
-(980, 74, 26, 0.00, 0.00),
-(981, 74, 27, 0.00, 0.00),
-(982, 74, 28, 0.00, 0.00),
-(989, 75, 1, 0.00, 0.00),
-(990, 75, 2, 0.00, 0.00),
-(991, 75, 4, 0.00, 0.00),
-(992, 75, 5, 0.00, 0.00),
-(993, 75, 6, 0.00, 0.00),
-(994, 75, 7, 0.00, 0.00),
-(995, 75, 8, 0.00, 0.00),
-(996, 75, 9, 0.00, 0.00),
-(997, 75, 10, 0.00, 0.00),
-(998, 75, 44, 0.00, 0.00),
-(1004, 76, 1, 0.00, 0.00),
-(1005, 76, 2, 0.00, 0.00),
-(1006, 76, 4, 0.00, 0.00),
-(1007, 76, 5, 0.00, 0.00),
-(1008, 76, 6, 0.00, 0.00),
-(1009, 76, 7, 0.00, 0.00),
-(1010, 76, 8, 0.00, 0.00),
-(1011, 76, 9, 0.00, 0.00),
-(1012, 76, 10, 0.00, 0.00),
-(1013, 76, 44, 0.00, 0.00),
-(1019, 77, 11, 0.00, 0.00),
-(1020, 77, 12, 0.00, 0.00),
-(1021, 77, 13, 0.00, 0.00),
-(1022, 77, 14, 0.00, 0.00),
-(1023, 77, 15, 0.00, 0.00),
-(1024, 77, 17, 0.00, 0.00),
-(1025, 77, 19, 0.00, 0.00),
-(1026, 77, 45, 0.00, 0.00),
-(1034, 78, 11, 0.00, 0.00),
-(1035, 78, 12, 0.00, 0.00),
-(1036, 78, 13, 0.00, 0.00),
-(1037, 78, 14, 0.00, 0.00),
-(1038, 78, 15, 0.00, 0.00),
-(1039, 78, 17, 0.00, 0.00),
-(1040, 78, 19, 0.00, 0.00),
-(1041, 78, 45, 0.00, 0.00),
-(1049, 79, 20, 0.00, 0.00),
-(1050, 79, 21, 0.00, 0.00),
-(1051, 79, 22, 0.00, 0.00),
-(1052, 79, 23, 0.00, 0.00),
-(1053, 79, 24, 0.00, 0.00),
-(1054, 79, 25, 0.00, 0.00),
-(1055, 79, 26, 0.00, 0.00),
-(1056, 79, 27, 0.00, 0.00),
-(1057, 79, 28, 0.00, 0.00),
-(1064, 80, 20, 0.00, 0.00),
-(1065, 80, 21, 0.00, 0.00),
-(1066, 80, 22, 0.00, 0.00),
-(1067, 80, 23, 0.00, 0.00),
-(1068, 80, 24, 0.00, 0.00),
-(1069, 80, 25, 0.00, 0.00),
-(1070, 80, 26, 0.00, 0.00),
-(1071, 80, 27, 0.00, 0.00),
-(1072, 80, 28, 0.00, 0.00),
-(1079, 81, 29, 0.00, 0.00),
-(1080, 81, 30, 0.00, 0.00),
-(1081, 81, 32, 0.00, 0.00),
-(1082, 81, 33, 0.00, 0.00),
-(1083, 81, 34, 0.00, 0.00),
-(1084, 81, 35, 0.00, 0.00),
-(1085, 81, 36, 0.00, 0.00),
-(1086, 81, 37, 0.00, 0.00),
-(1094, 82, 29, 0.00, 0.00),
-(1095, 82, 30, 0.00, 0.00),
-(1096, 82, 32, 0.00, 0.00),
-(1097, 82, 33, 0.00, 0.00),
-(1098, 82, 34, 0.00, 0.00),
-(1099, 82, 35, 0.00, 0.00),
-(1100, 82, 36, 0.00, 0.00),
-(1101, 82, 37, 0.00, 0.00),
-(1109, 83, 29, 0.00, 0.00),
-(1110, 83, 30, 0.00, 0.00),
-(1111, 83, 32, 0.00, 0.00),
-(1112, 83, 33, 0.00, 0.00),
-(1113, 83, 34, 0.00, 0.00),
-(1114, 83, 35, 0.00, 0.00),
-(1115, 83, 36, 0.00, 0.00),
-(1116, 83, 37, 0.00, 0.00);
+(173, 18, 11, 30.00, 0.00),
+(174, 18, 12, 35.00, 0.00),
+(175, 18, 13, 33.00, 0.00),
+(176, 18, 14, 24.00, 0.00),
+(177, 18, 15, 29.00, 0.00),
+(178, 18, 17, 31.00, 0.00),
+(179, 18, 19, 27.00, 0.00),
+(180, 18, 45, 29.00, 0.00),
+(181, 18, 47, 31.00, 0.00),
+(218, 21, 20, 24.00, 0.00),
+(219, 21, 21, 36.00, 0.00),
+(220, 21, 22, 32.00, 0.00),
+(221, 21, 23, 23.00, 0.00),
+(222, 21, 24, 38.00, 0.00),
+(223, 21, 25, 37.00, 0.00),
+(224, 21, 26, 24.00, 0.00),
+(225, 21, 27, 23.00, 0.00),
+(226, 21, 28, 33.00, 0.00),
+(285, 31, 1, 28.00, 0.00),
+(286, 31, 2, 35.00, 0.00),
+(287, 31, 4, 28.00, 0.00),
+(288, 31, 5, 35.00, 0.00),
+(289, 31, 6, 30.00, 0.00),
+(290, 31, 7, 30.00, 0.00),
+(291, 31, 8, 30.00, 0.00),
+(292, 31, 9, 33.00, 0.00),
+(293, 31, 10, 14.00, 0.00),
+(294, 31, 44, 31.00, 0.00),
+(300, 32, 1, 27.00, 0.00),
+(301, 32, 2, 34.00, 0.00),
+(302, 32, 4, 22.00, 0.00),
+(303, 32, 5, 29.00, 0.00),
+(304, 32, 6, 28.00, 0.00),
+(305, 32, 7, 27.00, 0.00),
+(306, 32, 8, 36.00, 0.00),
+(307, 32, 9, 27.00, 0.00),
+(308, 32, 10, 14.00, 0.00),
+(309, 32, 44, 26.00, 0.00),
+(315, 33, 11, 33.00, 0.00),
+(316, 33, 12, 38.00, 0.00),
+(317, 33, 13, 34.00, 0.00),
+(318, 33, 14, 22.00, 0.00),
+(319, 33, 15, 27.00, 0.00),
+(320, 33, 17, 30.00, 0.00),
+(321, 33, 19, 35.00, 0.00),
+(322, 33, 45, 31.00, 0.00),
+(323, 33, 47, 36.00, 0.00),
+(330, 34, 20, 29.00, 0.00),
+(331, 34, 21, 38.00, 0.00),
+(332, 34, 22, 31.00, 0.00),
+(333, 34, 24, 39.00, 0.00),
+(334, 34, 25, 31.00, 0.00),
+(335, 34, 26, 35.00, 0.00),
+(336, 34, 27, 22.00, 0.00),
+(337, 34, 28, 34.00, 0.00),
+(345, 35, 29, 28.00, 0.00),
+(346, 35, 30, 32.00, 0.00),
+(347, 35, 32, 28.00, 0.00),
+(348, 35, 33, 29.00, 0.00),
+(349, 35, 34, 25.00, 0.00),
+(350, 35, 35, 24.00, 0.00),
+(351, 35, 36, 34.00, 0.00),
+(352, 35, 37, 32.00, 0.00),
+(360, 36, 29, 24.00, 0.00),
+(361, 36, 30, 30.00, 0.00),
+(362, 36, 32, 18.00, 0.00),
+(363, 36, 33, 25.00, 0.00),
+(364, 36, 34, 18.00, 0.00),
+(365, 36, 35, 21.00, 0.00),
+(366, 36, 36, 32.00, 0.00),
+(367, 36, 37, 27.00, 0.00),
+(375, 37, 38, 31.00, 0.00),
+(376, 37, 40, 30.00, 0.00),
+(377, 37, 41, 23.00, 0.00),
+(378, 37, 42, 10.00, 0.00),
+(382, 38, 20, 29.00, 0.00),
+(383, 38, 21, 36.00, 0.00),
+(384, 38, 22, 32.00, 0.00),
+(385, 38, 23, 30.00, 0.00),
+(386, 38, 24, 37.00, 0.00),
+(387, 38, 25, 37.00, 0.00),
+(388, 38, 26, 28.00, 0.00),
+(389, 38, 27, 30.00, 0.00),
+(390, 38, 28, 30.00, 0.00);
 
 -- --------------------------------------------------------
 
@@ -2666,7 +2014,7 @@ CREATE TABLE IF NOT EXISTS `menu_items` (
   `menu_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menu_items`
@@ -2683,13 +2031,14 @@ INSERT INTO `menu_items` (`menu_item_id`, `menu_item`, `menu_item_url`, `menu_it
 (9, 'MANAGE', '/staffs', 'fa fa-list', 1, '1', 1, 6, '2016-04-18 19:51:45', '2016-04-18 20:41:57'),
 (15, 'SUBJECTS', '#', 'fa fa-book', 1, '3', 1, 7, '2016-05-13 02:46:59', '2016-05-16 13:39:21'),
 (16, 'SESSION', '#', 'fa fa-table', 1, '1', 1, 7, '2016-05-13 17:09:07', '2016-05-13 17:09:07'),
-(17, 'CLASS', '#', 'fa fa-table', 1, '2', 1, 7, '2016-05-13 17:09:07', '2016-05-13 17:09:07'),
+(17, 'CLASS', '#', 'fa fa-university', 1, '2', 1, 7, '2016-05-13 17:09:07', '2016-07-15 18:51:06'),
 (20, 'GRADE GROUPING', '/grades', 'fa fa-check', 1, '6', 1, 7, '2016-05-19 03:54:12', '2016-05-19 03:54:12'),
 (21, 'CREATE', '/students/create', 'fa fa-plus', 1, '1', 1, 8, '2016-05-23 14:17:34', '2016-05-23 14:40:11'),
 (22, 'MANAGE', '/students', 'fa fa-list', 1, '2', 1, 8, '2016-05-23 14:19:07', '2016-05-23 14:19:07'),
 (23, 'ASSESSMENTS', '#', 'fa fa-briefcase', 1, '5', 1, 7, '2016-05-26 08:00:04', '2016-05-26 08:00:04'),
 (24, 'CONTINUOUS', '/assessments', 'fa fa-check', 1, '1', 1, 9, '2016-07-10 15:20:36', '2016-07-10 15:23:03'),
-(25, 'EXAMS', '/exams', 'fa fa-folder-open-o', 1, '2', 1, 9, '2016-07-10 15:20:36', '2016-07-10 15:22:24');
+(25, 'EXAMS', '/exams', 'fa fa-folder-open-o', 1, '2', 1, 9, '2016-07-10 15:20:36', '2016-07-10 15:22:24'),
+(26, 'CLONE RECORDS', '/academic-terms/clones', 'fa fa-clone', 1, '6', 1, 7, '2016-07-15 18:47:37', '2016-07-15 18:47:37');
 
 -- --------------------------------------------------------
 
@@ -3234,7 +2583,9 @@ INSERT INTO `roles_menu_items` (`role_id`, `menu_item_id`) VALUES
 (1, 24),
 (4, 24),
 (1, 25),
-(4, 25);
+(4, 25),
+(1, 26),
+(2, 26);
 
 -- --------------------------------------------------------
 
@@ -3298,9 +2649,7 @@ INSERT INTO `roles_sub_menu_items` (`role_id`, `sub_menu_item_id`) VALUES
 (1, 24),
 (2, 24),
 (1, 25),
-(2, 25),
-(1, 26),
-(2, 26);
+(2, 25);
 
 -- --------------------------------------------------------
 
@@ -4447,80 +3796,80 @@ CREATE TABLE IF NOT EXISTS `subject_classrooms` (
 --
 
 INSERT INTO `subject_classrooms` (`subject_classroom_id`, `subject_id`, `classroom_id`, `academic_term_id`, `exam_status_id`, `tutor_id`, `created_at`, `updated_at`) VALUES
-(1, 14, 1, 1, 1, 122, '2016-05-18 17:41:54', '2016-05-18 17:41:45'),
-(2, 3, 1, 1, 1, 122, '2016-05-18 17:41:54', '2016-05-18 17:41:54'),
-(3, 4, 1, 1, 1, 7, '2016-05-18 17:41:54', '2016-05-18 17:16:01'),
-(4, 5, 1, 1, 1, 8, '2016-05-18 17:41:54', '2016-05-18 17:16:08'),
-(5, 16, 1, 1, 1, 4, NULL, '2016-05-18 17:19:27'),
-(6, 38, 1, 1, 1, 6, '2016-05-18 17:41:54', '2016-05-18 17:17:08'),
-(7, 9, 1, 1, 1, 3, NULL, '2016-05-18 17:17:07'),
-(8, 1, 1, 1, 1, 6, NULL, '2016-05-18 17:17:14'),
-(9, 39, 1, 1, 1, 123, NULL, '2016-05-18 17:42:01'),
-(10, 15, 1, 1, 1, 3, NULL, '2016-05-18 17:17:32'),
-(11, 2, 1, 1, 1, 7, NULL, '2016-05-18 17:19:42'),
-(12, 8, 1, 1, 1, 12, NULL, '2016-05-18 17:19:47'),
-(13, 6, 1, 1, 1, 4, NULL, '2016-05-18 17:19:50'),
-(14, 13, 1, 1, 1, 124, NULL, '2016-05-18 17:42:08'),
-(15, 14, 2, 1, 1, 122, NULL, '2016-05-18 17:42:54'),
-(16, 3, 2, 1, 1, 122, NULL, '2016-05-18 17:42:58'),
-(17, 4, 2, 1, 1, 7, NULL, '2016-05-18 17:43:03'),
-(18, 5, 2, 1, 1, 8, NULL, '2016-05-18 17:43:06'),
-(19, 16, 2, 1, 1, 4, NULL, '2016-05-18 17:43:12'),
-(20, 38, 2, 1, 1, 6, NULL, '2016-05-18 17:43:18'),
-(21, 9, 2, 1, 1, 3, NULL, '2016-05-18 17:43:22'),
-(22, 1, 2, 1, 1, 6, NULL, '2016-05-18 17:43:26'),
-(23, 39, 2, 1, 1, 123, NULL, '2016-05-18 17:43:30'),
-(24, 15, 2, 1, 1, 3, NULL, '2016-05-18 17:43:33'),
-(25, 2, 2, 1, 1, 7, NULL, '2016-05-18 17:43:40'),
-(26, 8, 2, 1, 1, 12, NULL, '2016-05-18 17:43:43'),
-(27, 6, 2, 1, 1, 4, NULL, '2016-05-18 17:43:54'),
-(28, 13, 2, 1, 1, 124, NULL, '2016-05-18 17:43:58'),
-(29, 14, 3, 1, 1, 3, NULL, '2016-05-18 17:49:07'),
-(30, 3, 3, 1, 1, 122, NULL, '2016-05-18 17:45:42'),
-(31, 4, 3, 1, 1, 7, NULL, '2016-05-18 17:45:49'),
-(32, 5, 3, 1, 1, 8, NULL, '2016-05-18 17:46:01'),
-(33, 16, 3, 1, 1, 4, NULL, '2016-06-10 18:14:23'),
-(34, 38, 3, 1, 1, 4, NULL, '2016-05-18 17:46:20'),
-(35, 9, 3, 1, 1, 3, NULL, '2016-05-18 17:46:23'),
-(36, 1, 3, 1, 1, 6, NULL, '2016-05-18 17:46:30'),
-(37, 39, 3, 1, 1, 123, NULL, '2016-05-18 17:46:36'),
-(38, 15, 3, 1, 1, 3, NULL, '2016-05-18 17:46:38'),
-(39, 2, 3, 1, 1, 7, NULL, '2016-05-18 17:46:51'),
-(43, 14, 4, 1, 1, 122, NULL, '2016-05-18 17:50:43'),
-(44, 3, 4, 1, 1, 122, NULL, '2016-05-18 17:50:47'),
-(45, 4, 4, 1, 1, 7, NULL, '2016-05-18 17:50:51'),
-(46, 5, 4, 1, 1, 8, NULL, '2016-05-18 17:50:59'),
-(47, 16, 4, 1, 1, 124, NULL, '2016-05-18 17:51:10'),
-(48, 38, 4, 1, 1, 4, NULL, '2016-05-18 17:51:14'),
-(49, 9, 4, 1, 1, 3, NULL, '2016-05-18 17:51:17'),
-(50, 1, 4, 1, 1, 6, NULL, '2016-05-18 17:51:28'),
-(51, 39, 4, 1, 1, 123, NULL, '2016-05-18 17:51:38'),
-(52, 15, 4, 1, 1, 3, NULL, '2016-05-18 17:51:41'),
-(53, 2, 4, 1, 1, 7, NULL, '2016-05-18 17:51:47'),
-(54, 8, 4, 1, 1, 12, NULL, '2016-05-18 17:51:50'),
-(55, 6, 4, 1, 1, 4, NULL, '2016-05-18 17:51:56'),
-(56, 13, 4, 1, 1, 124, NULL, '2016-05-18 17:52:01'),
-(57, 23, 5, 1, 1, 122, NULL, '2016-05-18 17:52:27'),
-(58, 22, 5, 1, 1, 122, NULL, '2016-05-18 17:52:31'),
-(59, 16, 5, 1, 1, 124, NULL, '2016-05-18 17:52:42'),
-(60, 38, 5, 1, 1, 6, NULL, '2016-06-10 18:15:31'),
-(61, 9, 5, 1, 1, 3, NULL, '2016-05-18 17:52:54'),
-(62, 32, 5, 1, 1, 10, NULL, '2016-05-18 17:52:57'),
-(63, 1, 5, 1, 1, 6, NULL, '2016-05-18 17:53:02'),
-(64, 24, 5, 1, 1, 3, NULL, '2016-05-18 17:53:12'),
-(65, 34, 5, 1, 1, 9, NULL, '2016-05-18 17:53:16'),
-(66, 33, 5, 1, 1, 4, NULL, '2016-05-18 17:53:20'),
-(67, 19, 5, 1, 1, 6, NULL, '2016-05-18 17:53:31'),
-(68, 2, 5, 1, 1, 7, NULL, '2016-05-18 17:53:34'),
-(70, 21, 5, 1, 1, 7, NULL, '2016-05-18 17:53:49'),
-(71, 13, 5, 1, 1, 124, NULL, '2016-05-18 17:53:52'),
-(72, 26, 2, 1, 1, 125, NULL, '2016-05-18 18:03:06'),
-(73, 26, 1, 1, 1, 125, NULL, '2016-05-18 18:02:37'),
-(74, 26, 4, 1, 1, 125, NULL, '2016-05-18 18:03:53'),
-(75, 26, 3, 1, 1, 125, NULL, '2016-05-18 18:03:31'),
-(76, 8, 3, 1, 1, 12, NULL, '2016-05-18 17:48:40'),
-(77, 6, 3, 1, 1, 4, NULL, '2016-05-18 17:48:44'),
-(78, 13, 3, 1, 1, 124, NULL, '2016-05-18 17:48:50'),
+(1, 14, 1, 1, 1, 122, '2016-05-18 16:41:54', '2016-05-18 16:41:45'),
+(2, 3, 1, 1, 1, 122, '2016-05-18 16:41:54', '2016-05-18 16:41:54'),
+(3, 4, 1, 1, 1, 7, '2016-05-18 16:41:54', '2016-05-18 16:16:01'),
+(4, 5, 1, 1, 1, 8, '2016-05-18 16:41:54', '2016-05-18 16:16:08'),
+(5, 16, 1, 1, 1, 4, NULL, '2016-05-18 16:19:27'),
+(6, 38, 1, 1, 1, 6, '2016-05-18 16:41:54', '2016-05-18 16:17:08'),
+(7, 9, 1, 1, 1, 3, NULL, '2016-05-18 16:17:07'),
+(8, 1, 1, 1, 1, 6, NULL, '2016-05-18 16:17:14'),
+(9, 39, 1, 1, 1, 123, NULL, '2016-05-18 16:42:01'),
+(10, 15, 1, 1, 1, 3, NULL, '2016-05-18 16:17:32'),
+(11, 2, 1, 1, 1, 7, NULL, '2016-05-18 16:19:42'),
+(12, 8, 1, 1, 1, 12, NULL, '2016-05-18 16:19:47'),
+(13, 6, 1, 1, 1, 4, NULL, '2016-05-18 16:19:50'),
+(14, 13, 1, 1, 1, 124, NULL, '2016-05-18 16:42:08'),
+(15, 14, 2, 1, 1, 122, NULL, '2016-05-18 16:42:54'),
+(16, 3, 2, 1, 1, 122, NULL, '2016-05-18 16:42:58'),
+(17, 4, 2, 1, 1, 7, NULL, '2016-05-18 16:43:03'),
+(18, 5, 2, 1, 1, 8, NULL, '2016-05-18 16:43:06'),
+(19, 16, 2, 1, 1, 4, NULL, '2016-05-18 16:43:12'),
+(20, 38, 2, 1, 1, 6, NULL, '2016-05-18 16:43:18'),
+(21, 9, 2, 1, 1, 3, NULL, '2016-05-18 16:43:22'),
+(22, 1, 2, 1, 1, 6, NULL, '2016-05-18 16:43:26'),
+(23, 39, 2, 1, 1, 123, NULL, '2016-05-18 16:43:30'),
+(24, 15, 2, 1, 1, 3, NULL, '2016-05-18 16:43:33'),
+(25, 2, 2, 1, 1, 7, NULL, '2016-05-18 16:43:40'),
+(26, 8, 2, 1, 1, 12, NULL, '2016-05-18 16:43:43'),
+(27, 6, 2, 1, 1, 4, NULL, '2016-05-18 16:43:54'),
+(28, 13, 2, 1, 1, 124, NULL, '2016-05-18 16:43:58'),
+(29, 14, 3, 1, 1, 3, NULL, '2016-05-18 16:49:07'),
+(30, 3, 3, 1, 1, 122, NULL, '2016-05-18 16:45:42'),
+(31, 4, 3, 1, 1, 7, NULL, '2016-05-18 16:45:49'),
+(32, 5, 3, 1, 1, 8, NULL, '2016-05-18 16:46:01'),
+(33, 16, 3, 1, 1, 4, NULL, '2016-06-10 17:14:23'),
+(34, 38, 3, 1, 1, 4, NULL, '2016-05-18 16:46:20'),
+(35, 9, 3, 1, 1, 3, NULL, '2016-05-18 16:46:23'),
+(36, 1, 3, 1, 1, 6, NULL, '2016-05-18 16:46:30'),
+(37, 39, 3, 1, 1, 123, NULL, '2016-05-18 16:46:36'),
+(38, 15, 3, 1, 1, 3, NULL, '2016-05-18 16:46:38'),
+(39, 2, 3, 1, 1, 7, NULL, '2016-05-18 16:46:51'),
+(43, 14, 4, 1, 1, 122, NULL, '2016-05-18 16:50:43'),
+(44, 3, 4, 1, 1, 122, NULL, '2016-05-18 16:50:47'),
+(45, 4, 4, 1, 1, 7, NULL, '2016-05-18 16:50:51'),
+(46, 5, 4, 1, 1, 8, NULL, '2016-05-18 16:50:59'),
+(47, 16, 4, 1, 1, 124, NULL, '2016-05-18 16:51:10'),
+(48, 38, 4, 1, 1, 4, NULL, '2016-05-18 16:51:14'),
+(49, 9, 4, 1, 1, 3, NULL, '2016-05-18 16:51:17'),
+(50, 1, 4, 1, 1, 6, NULL, '2016-05-18 16:51:28'),
+(51, 39, 4, 1, 1, 123, NULL, '2016-05-18 16:51:38'),
+(52, 15, 4, 1, 1, 3, NULL, '2016-05-18 16:51:41'),
+(53, 2, 4, 1, 1, 7, NULL, '2016-05-18 16:51:47'),
+(54, 8, 4, 1, 1, 12, NULL, '2016-05-18 16:51:50'),
+(55, 6, 4, 1, 1, 4, NULL, '2016-05-18 16:51:56'),
+(56, 13, 4, 1, 1, 124, NULL, '2016-05-18 16:52:01'),
+(57, 23, 5, 1, 1, 122, NULL, '2016-05-18 16:52:27'),
+(58, 22, 5, 1, 1, 122, NULL, '2016-05-18 16:52:31'),
+(59, 16, 5, 1, 1, 124, NULL, '2016-05-18 16:52:42'),
+(60, 38, 5, 1, 1, 6, NULL, '2016-06-10 17:15:31'),
+(61, 9, 5, 1, 1, 3, NULL, '2016-05-18 16:52:54'),
+(62, 32, 5, 1, 1, 10, NULL, '2016-05-18 16:52:57'),
+(63, 1, 5, 1, 1, 6, NULL, '2016-05-18 16:53:02'),
+(64, 24, 5, 1, 1, 3, NULL, '2016-05-18 16:53:12'),
+(65, 34, 5, 1, 1, 9, NULL, '2016-05-18 16:53:16'),
+(66, 33, 5, 1, 1, 4, NULL, '2016-05-18 16:53:20'),
+(67, 19, 5, 1, 1, 6, NULL, '2016-05-18 16:53:31'),
+(68, 2, 5, 1, 1, 7, NULL, '2016-05-18 16:53:34'),
+(70, 21, 5, 1, 1, 7, NULL, '2016-05-18 16:53:49'),
+(71, 13, 5, 1, 1, 124, NULL, '2016-05-18 16:53:52'),
+(72, 26, 2, 1, 1, 125, NULL, '2016-05-18 17:03:06'),
+(73, 26, 1, 1, 1, 125, NULL, '2016-05-18 17:02:37'),
+(74, 26, 4, 1, 1, 125, NULL, '2016-05-18 17:03:53'),
+(75, 26, 3, 1, 1, 125, NULL, '2016-05-18 17:03:31'),
+(76, 8, 3, 1, 1, 12, NULL, '2016-05-18 16:48:40'),
+(77, 6, 3, 1, 1, 4, NULL, '2016-05-18 16:48:44'),
+(78, 13, 3, 1, 1, 124, NULL, '2016-05-18 16:48:50'),
 (79, 48, 1, 1, 1, NULL, NULL, NULL),
 (80, 47, 1, 1, 1, NULL, NULL, NULL),
 (81, 48, 2, 1, 1, NULL, NULL, NULL),
@@ -4548,7 +3897,7 @@ CREATE TABLE IF NOT EXISTS `sub_menu_items` (
   `menu_item_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `sub_menu_items`
@@ -4573,14 +3922,13 @@ INSERT INTO `sub_menu_items` (`sub_menu_item_id`, `sub_menu_item`, `sub_menu_ite
 (16, 'MANAGE', '/school-subjects', 'fa fa-plus-square', 1, '1', 1, 15, '2016-05-13 02:48:47', '2016-05-13 02:48:47'),
 (17, 'VIEW LIST', '/school-subjects/view', 'fa fa-eye', 1, '2', 1, 15, '2016-05-13 02:48:47', '2016-05-13 02:48:47'),
 (18, 'ACADEMIC YEAR', '/academic-years', 'fa fa-plus', 1, '1', 1, 16, '2016-05-13 17:10:24', '2016-05-13 17:11:39'),
-(19, 'ACADEMIC TERM', '/academic-terms', 'fa fa-plus', 1, '2', 1, 16, '2016-05-13 17:11:39', '2016-05-13 17:11:39'),
+(19, 'ACADEMIC TERM', '/academic-terms', 'fa fa-paperclip', 1, '2', 1, 16, '2016-05-13 17:11:39', '2016-07-15 18:50:48'),
 (20, 'CLASS GROUP', '/class-groups', 'fa fa-plus', 1, '1', 1, 17, '2016-05-13 17:13:48', '2016-05-13 17:13:48'),
 (21, 'CLASS LEVEL', '/class-levels', 'fa fa-plus', 1, '2', 1, 17, '2016-05-13 17:13:48', '2016-05-13 17:13:48'),
 (22, 'CLASS ROOMS', '/class-rooms', 'fa fa-plus', 1, '3', 1, 17, '2016-05-13 17:13:48', '2016-05-13 17:13:48'),
 (23, 'ASSIGN TO CLASS', '/subject-classrooms', 'fa fa-list', 1, '3', 1, 15, '2016-05-26 08:02:55', '2016-05-26 09:45:02'),
 (24, 'SETUP', '/assessment-setups', 'fa fa-ticket', 1, '1', 1, 23, '2016-05-26 08:08:47', '2016-05-26 08:12:15'),
-(25, 'SETUP DETAILS', '/assessment-setups/details', 'fa fa-list-alt', 1, '2', 1, 23, '2016-05-26 08:08:47', '2016-05-26 08:12:15'),
-(26, 'CLONE RECORDS', '/academic-terms/clones', 'fa fa-clone', 1, '3', 1, 16, '2016-07-15 17:43:20', '2016-07-15 17:43:20');
+(25, 'SETUP DETAILS', '/assessment-setups/details', 'fa fa-list-alt', 1, '2', 1, 23, '2016-05-26 08:08:47', '2016-05-26 08:12:15');
 
 -- --------------------------------------------------------
 
@@ -4650,10 +3998,10 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `last_name`, `middle_name`, `gender`, `dob`, `phone_no2`, `user_type_id`, `lga_id`, `salutation_id`, `verified`, `status`, `avatar`, `verification_code`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '08011223344', 'admin@gmail.com', 'Emma', 'Okafor', '', 'Male', '2016-04-05', '', 1, 0, 1, 1, 1, '1_avatar.jpg', NULL, 'kh26H0iVNvHfjmh3UF81GsxZmPpcDoYUwlM2PWoo6dRFV68PjHTvI6kz5Ci1', NULL, '2016-07-13 19:38:45'),
+(1, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '08011223344', 'admin@gmail.com', 'Emma', 'Okafor', '', 'Male', '2016-04-05', '', 1, 0, 1, 1, 1, '1_avatar.jpg', NULL, 'k67MrgprcgPwzwYKm2D3VhaKrvlO2KvJixkkPGBppvabo4Jqc1YuM40dqcYe', NULL, '2016-07-17 15:05:18'),
 (2, '$2y$10$/VnAIZSpHw2o042t.bmP7eqCPAN/imxPcaAaTkTfno1uPi8BaOQCa', '08161730788', 'bamidelemike2003@yahoo.com', 'Bamidele', 'Micheal', '', 'Male', '1976-02-11', '08066303843', 2, 476, 1, 1, 1, '2_avatar.jpg', 'x9pxH08aB60ZKwe12DDKbiD3V5628TyGMd1v8Q5I', 'tloH9zaiLzVY7e3xNPNvSA8IIz7qxkG8kyG2TS4mvg3a6NQGLK1qAActTeLp', '2016-04-28 21:21:05', '2016-06-27 19:39:21'),
 (3, '$2y$10$Pc9CBBOKkpbTAlnoxc0iveGkS5xRKREBYlwyPRzxSUxsb.9nNJ9cS', '08186644996', 'onegirl2004@yahoo.com', 'Emina', 'Omotolani', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, '3_avatar.png', 'sJkNJULOX0XDBVHoG929c8zOuHvuQJ8taqOE4MK7', NULL, '2016-05-05 18:29:34', '2016-05-20 23:00:37'),
-(4, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '08032492560', 'agiebabe2003@yahoo.comk', 'Agetu', 'Agnes', '', 'Female', '2016-07-13', '', 4, 0, 2, 1, 1, NULL, 'mBFoXfYp7feFMhsnzYWkh616IV2wq2e5LdtOOYRl', 'NXq0kZdIPsTZvqNwQkrlNEaciIp55szeaerWqnPjJf7tPmSUqWSxOtFB7Hqv', '2016-05-05 18:30:48', '2016-07-12 13:06:43'),
+(4, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '08032492560', 'agiebabe2003@yahoo.comk', 'Agetu', 'Agnes', '', 'Female', '2016-07-13', '', 4, 0, 2, 1, 1, NULL, 'mBFoXfYp7feFMhsnzYWkh616IV2wq2e5LdtOOYRl', 'PH9ASqB8PuhIzAXupZr0dCGWxOIIxv7s50r4zKp1zEpcZfBACZoXOQbhvKTW', '2016-05-05 18:30:48', '2016-07-16 19:27:23'),
 (5, '$2y$10$08ymddnGq3lEWheZSMe3Puc/fLtGo7pDZ5dm1Pmh9CupX3AV/KvO6', '08138281504', 'thesuccessor2020@yahoo.com', 'Akinremi', 'omobolaji', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'kmmCEClYr018UobxCFrOHmDVVOaz1eaD60Nn2ow9', NULL, '2016-05-05 18:32:16', '2016-05-05 18:32:16'),
 (6, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '08032984249', 'chukwuonyelilian@gmail.com', 'Chukwuka', 'Lilian', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'rPp9ofMqUMCat73BPt0Pod2v2Rg362iUtO5QNzU0', 'VjyDF5OpKXJMP4NDl18WtM74LEZ0c5EAOwkiWOHM8izAXghOEB3czO981vkr', '2016-05-05 18:34:16', '2016-07-02 11:43:55'),
 (7, '$2y$10$MDDp2iaWLGqwbDvYBpsB/.YB12d45YNbknT6yEMWWPi5JRBPW9AiG', '08066451585', 'soldemo20042001@yahoo.com', 'Ademola', 'Solomon', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'MZXJDhTOSnwR0ZXphZLBScldsf880b3vzyoHTrfK', '6vJ4DUKF7ppC5eIbJUbIYG60qssmXqFxlvmhpCW8qdZueC5lbXh8CF94eBuH', '2016-05-05 18:36:04', '2016-06-03 17:32:58'),
@@ -4810,7 +4158,7 @@ INSERT INTO `user_types` (`user_type_id`, `user_type`, `type`, `created_at`, `up
 --
 DROP TABLE IF EXISTS `assessment_detailsviews`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `assessment_detailsviews` AS select `f`.`assessment_id` AS `assessment_id`,`f`.`subject_classroom_id` AS `subject_classroom_id`,`f`.`assessment_setup_detail_id` AS `assessment_setup_detail_id`,`f`.`marked` AS `marked`,`g`.`assessment_detail_id` AS `assessment_detail_id`,`g`.`student_id` AS `student_id`,`j`.`student_no` AS `student_no`,concat(`j`.`first_name`,' ',`j`.`last_name`) AS `student_name`,`j`.`gender` AS `gender`,`g`.`score` AS `score`,`h`.`weight_point` AS `weight_point`,`h`.`number` AS `number`,`h`.`percentage` AS `percentage`,`h`.`description` AS `description`,`h`.`submission_date` AS `submission_date`,`i`.`assessment_setup_id` AS `assessment_setup_id`,`i`.`assessment_no` AS `assessment_no`,`m`.`ca_weight_point` AS `ca_weight_point`,`m`.`exam_weight_point` AS `exam_weight_point`,`j`.`sponsor_id` AS `sponsor_id`,`k`.`phone_no` AS `phone_no`,`k`.`email` AS `email`,concat(`k`.`first_name`,' ',`k`.`last_name`) AS `sponsor_name`,`a`.`subject_id` AS `subject_id`,`a`.`classroom_id` AS `classroom_id`,`c`.`classroom` AS `classroom`,`c`.`classlevel_id` AS `classlevel_id`,`d`.`classlevel` AS `classlevel`,`d`.`classgroup_id` AS `classgroup_id`,`a`.`academic_term_id` AS `academic_term_id`,`e`.`academic_term` AS `academic_term` from ((((((((((`subject_classrooms` `a` join `classrooms` `c` on((`a`.`classroom_id` = `c`.`classroom_id`))) join `classlevels` `d` on((`c`.`classlevel_id` = `d`.`classlevel_id`))) join `academic_terms` `e` on((`a`.`academic_term_id` = `e`.`academic_term_id`))) join `assessments` `f` on((`a`.`subject_classroom_id` = `f`.`subject_classroom_id`))) join `assessment_details` `g` on((`f`.`assessment_id` = `g`.`assessment_id`))) join `assessment_setup_details` `h` on((`f`.`assessment_setup_detail_id` = `h`.`assessment_setup_detail_id`))) join `assessment_setups` `i` on((`h`.`assessment_setup_id` = `i`.`assessment_setup_id`))) join `students` `j` on((`g`.`student_id` = `j`.`student_id`))) left join `users` `k` on((`j`.`sponsor_id` = `k`.`user_id`))) join `classgroups` `m` on((`d`.`classgroup_id` = `m`.`classgroup_id`)));
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `assessment_detailsviews` AS select `f`.`assessment_id` AS `assessment_id`,`f`.`subject_classroom_id` AS `subject_classroom_id`,`f`.`assessment_setup_detail_id` AS `assessment_setup_detail_id`,`f`.`marked` AS `marked`,`g`.`assessment_detail_id` AS `assessment_detail_id`,`g`.`student_id` AS `student_id`,`j`.`student_no` AS `student_no`,concat(`j`.`first_name`,' ',`j`.`last_name`) AS `student_name`,`j`.`gender` AS `gender`,`g`.`score` AS `score`,`h`.`weight_point` AS `weight_point`,`h`.`number` AS `number`,`h`.`percentage` AS `percentage`,`h`.`description` AS `description`,`h`.`submission_date` AS `submission_date`,`i`.`assessment_setup_id` AS `assessment_setup_id`,`i`.`assessment_no` AS `assessment_no`,`m`.`ca_weight_point` AS `ca_weight_point`,`m`.`exam_weight_point` AS `exam_weight_point`,`j`.`sponsor_id` AS `sponsor_id`,`k`.`phone_no` AS `phone_no`,`k`.`email` AS `email`,concat(`k`.`first_name`,' ',`k`.`last_name`) AS `sponsor_name`,`a`.`subject_id` AS `subject_id`,`a`.`classroom_id` AS `classroom_id`,`a`.`tutor_id` AS `tutor_id`,concat(`n`.`first_name`,' ',`n`.`last_name`) AS `tutor`,`c`.`classroom` AS `classroom`,`c`.`classlevel_id` AS `classlevel_id`,`d`.`classlevel` AS `classlevel`,`d`.`classgroup_id` AS `classgroup_id`,`a`.`academic_term_id` AS `academic_term_id`,`e`.`academic_term` AS `academic_term` from (((((((((((`subject_classrooms` `a` join `classrooms` `c` on((`a`.`classroom_id` = `c`.`classroom_id`))) join `classlevels` `d` on((`c`.`classlevel_id` = `d`.`classlevel_id`))) join `academic_terms` `e` on((`a`.`academic_term_id` = `e`.`academic_term_id`))) join `assessments` `f` on((`a`.`subject_classroom_id` = `f`.`subject_classroom_id`))) join `assessment_details` `g` on((`f`.`assessment_id` = `g`.`assessment_id`))) join `assessment_setup_details` `h` on((`f`.`assessment_setup_detail_id` = `h`.`assessment_setup_detail_id`))) join `assessment_setups` `i` on((`h`.`assessment_setup_id` = `i`.`assessment_setup_id`))) join `students` `j` on((`g`.`student_id` = `j`.`student_id`))) left join `users` `k` on((`j`.`sponsor_id` = `k`.`user_id`))) join `classgroups` `m` on((`d`.`classgroup_id` = `m`.`classgroup_id`))) left join `users` `n` on((`a`.`tutor_id` = `n`.`user_id`)));
 
 -- --------------------------------------------------------
 
@@ -4819,7 +4167,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `exams_detailsviews`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `exams_detailsviews` AS select `exam_details`.`exam_detail_id` AS `exam_detail_id`,`exams`.`exam_id` AS `exam_id`,`subject_classrooms`.`subject_classroom_id` AS `subject_classroom_id`,`subject_classrooms`.`subject_id` AS `subject_id`,`classrooms`.`classlevel_id` AS `classlevel_id`,`student_classes`.`classroom_id` AS `classroom_id`,`students`.`student_id` AS `student_id`,`classrooms`.`classroom` AS `classroom`,concat(ucase(`students`.`first_name`),' ',lcase(`students`.`last_name`)) AS `fullname`,`students`.`gender` AS `student_gender`,`students`.`student_no` AS `student_no`,`exam_details`.`ca` AS `ca`,`exam_details`.`exam` AS `exam`,(`exam_details`.`exam` + `exam_details`.`ca`) AS `student_total`,`classgroups`.`ca_weight_point` AS `ca_weight_point`,`classgroups`.`exam_weight_point` AS `exam_weight_point`,(`classgroups`.`exam_weight_point` + `classgroups`.`ca_weight_point`) AS `weight_point_total`,`academic_terms`.`academic_term_id` AS `academic_term_id`,`academic_terms`.`academic_term` AS `academic_term`,`exams`.`marked` AS `marked`,`academic_terms`.`academic_year_id` AS `academic_year_id`,`academic_years`.`academic_year` AS `academic_year`,`classlevels`.`classlevel` AS `classlevel`,`classlevels`.`classgroup_id` AS `classgroup_id` from (((((((((`exams` join `exam_details` on((`exams`.`exam_id` = `exam_details`.`exam_id`))) join `subject_classrooms` on((`exams`.`subject_classroom_id` = `subject_classrooms`.`subject_classroom_id`))) join `students` on((`exam_details`.`student_id` = `students`.`student_id`))) join `academic_terms` on((`subject_classrooms`.`academic_term_id` = `academic_terms`.`academic_term_id`))) join `academic_years` on((`academic_years`.`academic_year_id` = `academic_terms`.`academic_year_id`))) join `student_classes` on((`students`.`student_id` = `student_classes`.`student_id`))) join `classrooms` on((`student_classes`.`classroom_id` = `classrooms`.`classroom_id`))) join `classlevels` on((`classrooms`.`classlevel_id` = `classlevels`.`classlevel_id`))) join `classgroups` on((`classgroups`.`classgroup_id` = `classlevels`.`classgroup_id`)));
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `exams_detailsviews` AS select `exam_details`.`exam_detail_id` AS `exam_detail_id`,`exams`.`exam_id` AS `exam_id`,`subject_classrooms`.`subject_classroom_id` AS `subject_classroom_id`,`subject_classrooms`.`subject_id` AS `subject_id`,`subject_classrooms`.`tutor_id` AS `tutor_id`,`classrooms`.`classlevel_id` AS `classlevel_id`,`student_classes`.`classroom_id` AS `classroom_id`,`students`.`student_id` AS `student_id`,`classrooms`.`classroom` AS `classroom`,concat(ucase(`students`.`first_name`),' ',lcase(`students`.`last_name`)) AS `fullname`,`students`.`gender` AS `student_gender`,`students`.`student_no` AS `student_no`,`exam_details`.`ca` AS `ca`,`exam_details`.`exam` AS `exam`,(`exam_details`.`exam` + `exam_details`.`ca`) AS `student_total`,`classgroups`.`ca_weight_point` AS `ca_weight_point`,`classgroups`.`exam_weight_point` AS `exam_weight_point`,(`classgroups`.`exam_weight_point` + `classgroups`.`ca_weight_point`) AS `weight_point_total`,`academic_terms`.`academic_term_id` AS `academic_term_id`,`academic_terms`.`academic_term` AS `academic_term`,`exams`.`marked` AS `marked`,`academic_terms`.`academic_year_id` AS `academic_year_id`,`academic_years`.`academic_year` AS `academic_year`,`classlevels`.`classlevel` AS `classlevel`,`classlevels`.`classgroup_id` AS `classgroup_id` from (((((((((`exams` join `exam_details` on((`exams`.`exam_id` = `exam_details`.`exam_id`))) join `subject_classrooms` on((`exams`.`subject_classroom_id` = `subject_classrooms`.`subject_classroom_id`))) join `students` on((`exam_details`.`student_id` = `students`.`student_id`))) join `academic_terms` on((`subject_classrooms`.`academic_term_id` = `academic_terms`.`academic_term_id`))) join `academic_years` on((`academic_years`.`academic_year_id` = `academic_terms`.`academic_year_id`))) join `student_classes` on((`students`.`student_id` = `student_classes`.`student_id`))) join `classrooms` on((`student_classes`.`classroom_id` = `classrooms`.`classroom_id`))) join `classlevels` on((`classrooms`.`classlevel_id` = `classlevels`.`classlevel_id`))) join `classgroups` on((`classgroups`.`classgroup_id` = `classlevels`.`classgroup_id`)));
 
 -- --------------------------------------------------------
 
@@ -4828,7 +4176,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `exams_subjectviews`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `exams_subjectviews` AS select `a`.`exam_id` AS `exam_id`,`f`.`classroom_id` AS `classroom_id`,`f`.`classroom` AS `classroom`,`b`.`subject_id` AS `subject_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`h`.`ca_weight_point` AS `ca_weight_point`,`h`.`exam_weight_point` AS `exam_weight_point`,`a`.`marked` AS `marked`,`f`.`classlevel_id` AS `classlevel_id`,`g`.`classlevel` AS `classlevel`,`b`.`academic_term_id` AS `academic_term_id`,`d`.`academic_term` AS `academic_term`,`d`.`academic_year_id` AS `academic_year_id`,`e`.`academic_year` AS `academic_year` from (((((`exams` `a` join `subject_classrooms` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) left join (`classlevels` `g` join `classrooms` `f` on((`f`.`classlevel_id` = `g`.`classlevel_id`))) on((`b`.`classroom_id` = `f`.`classroom_id`))) join `academic_terms` `d` on((`b`.`academic_term_id` = `d`.`academic_term_id`))) join `academic_years` `e` on((`d`.`academic_year_id` = `e`.`academic_year_id`))) join `classgroups` `h` on((`g`.`classgroup_id` = `h`.`classgroup_id`)));
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `exams_subjectviews` AS select `a`.`exam_id` AS `exam_id`,`f`.`classroom_id` AS `classroom_id`,`f`.`classroom` AS `classroom`,`b`.`subject_id` AS `subject_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`b`.`tutor_id` AS `tutor_id`,concat(ucase(`j`.`first_name`),' ',`j`.`last_name`) AS `tutor`,`h`.`ca_weight_point` AS `ca_weight_point`,`h`.`exam_weight_point` AS `exam_weight_point`,`a`.`marked` AS `marked`,`f`.`classlevel_id` AS `classlevel_id`,`g`.`classlevel` AS `classlevel`,`b`.`academic_term_id` AS `academic_term_id`,`d`.`academic_term` AS `academic_term`,`d`.`academic_year_id` AS `academic_year_id`,`e`.`academic_year` AS `academic_year` from ((((((`exams` `a` join `subject_classrooms` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) left join (`classlevels` `g` join `classrooms` `f` on((`f`.`classlevel_id` = `g`.`classlevel_id`))) on((`b`.`classroom_id` = `f`.`classroom_id`))) join `academic_terms` `d` on((`b`.`academic_term_id` = `d`.`academic_term_id`))) join `academic_years` `e` on((`d`.`academic_year_id` = `e`.`academic_year_id`))) join `classgroups` `h` on((`g`.`classgroup_id` = `h`.`classgroup_id`))) left join `users` `j` on((`b`.`tutor_id` = `j`.`user_id`)));
 
 -- --------------------------------------------------------
 
@@ -5144,7 +4492,7 @@ ALTER TABLE `user_types`
 -- AUTO_INCREMENT for table `academic_terms`
 --
 ALTER TABLE `academic_terms`
-  MODIFY `academic_term_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+  MODIFY `academic_term_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT for table `academic_years`
 --
@@ -5164,12 +4512,12 @@ ALTER TABLE `assessment_details`
 -- AUTO_INCREMENT for table `assessment_setups`
 --
 ALTER TABLE `assessment_setups`
-  MODIFY `assessment_setup_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `assessment_setup_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=7;
 --
 -- AUTO_INCREMENT for table `assessment_setup_details`
 --
 ALTER TABLE `assessment_setup_details`
-  MODIFY `assessment_setup_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=8;
+  MODIFY `assessment_setup_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10;
 --
 -- AUTO_INCREMENT for table `classgroups`
 --
@@ -5194,12 +4542,12 @@ ALTER TABLE `class_masters`
 -- AUTO_INCREMENT for table `exams`
 --
 ALTER TABLE `exams`
-  MODIFY `exam_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=128;
+  MODIFY `exam_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=46;
 --
 -- AUTO_INCREMENT for table `exam_details`
 --
 ALTER TABLE `exam_details`
-  MODIFY `exam_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1124;
+  MODIFY `exam_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=397;
 --
 -- AUTO_INCREMENT for table `grades`
 --
@@ -5219,7 +4567,7 @@ ALTER TABLE `menu_headers`
 -- AUTO_INCREMENT for table `menu_items`
 --
 ALTER TABLE `menu_items`
-  MODIFY `menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=26;
+  MODIFY `menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=27;
 --
 -- AUTO_INCREMENT for table `permissions`
 --
@@ -5259,7 +4607,7 @@ ALTER TABLE `subject_classrooms`
 -- AUTO_INCREMENT for table `sub_menu_items`
 --
 ALTER TABLE `sub_menu_items`
-  MODIFY `sub_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=27;
+  MODIFY `sub_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=26;
 --
 -- AUTO_INCREMENT for table `sub_most_menu_items`
 --

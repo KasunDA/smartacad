@@ -30,19 +30,31 @@
             <form method="post" action="/assessment-setups/terms" role="form" class="form-horizontal">
                 {!! csrf_field() !!}
                 <div class="form-group">
+                    <label class="col-md-3 control-label">Academic Year</label>
+
+                    <div class="col-md-6">
+                        <div class="col-md-9">
+                            {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required']) !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-md-3 control-label">Academic Term</label>
 
                     <div class="col-md-6">
                         <div class="col-md-9">
-                            <select class="form-control selectpicker" name="academic_term_id" id="academic_term_id">
-                                @foreach($academic_terms as $key => $value)
-                                    @if($academic_term && $academic_term->academic_term_id === $key)
-                                        <option selected value="{{$key}}">{{$value}}</option>
-                                    @else
-                                        <option value="{{$key}}">{{$value}}</option>
-                                    @endif
-                                @endforeach
-                            </select>
+                            {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', $academic_term->academic_year_id)
+                            ->orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
+                            $academic_term->academic_term_id, ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required']) !!}
+                            {{--<select class="form-control selectpicker" name="academic_term_id" id="academic_term_id">--}}
+                                {{--@foreach($academic_terms as $key => $value)--}}
+                                    {{--@if($academic_term && $academic_term->academic_term_id === $key)--}}
+                                        {{--<option selected value="{{$key}}">{{$value}}</option>--}}
+                                    {{--@else--}}
+                                        {{--<option value="{{$key}}">{{$value}}</option>--}}
+                                    {{--@endif--}}
+                                {{--@endforeach--}}
+                            {{--</select>--}}
                         </div>
                         <div class="col-md-3">
                             <button class="btn btn-primary pull-right" type="submit">Filter</button>

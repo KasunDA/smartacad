@@ -191,7 +191,7 @@ class ExamsController extends Controller
         }
 
         // redirect to the create a new inmate page
-        return redirect('/exams/input-scores/'.$this->getHashIds()->encode($exam->exam_id));
+        return redirect('/exams/view-scores/'.$this->getHashIds()->encode($exam->exam_id));
     }
 
     /**

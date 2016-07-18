@@ -3,6 +3,9 @@
  */
 
 $(function () {
+    // Ajax Get Academic Terms Based on the Academic Year
+    getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
+    
     $('.add_assessment_setup').click(function(e){
         e.preventDefault();
         var clone_row = $('#assessment_setup_table tbody tr:last-child').clone();
