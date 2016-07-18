@@ -21,7 +21,7 @@ class AssessmentSetupsController extends Controller
     public function getIndex()
     {
         $assessment_setups = AssessmentSetup::all();
-        $academic_terms = AcademicTerm::lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', '');
+        $academic_terms = AcademicTerm::orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', '');
         $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('Select Class Group', '');
         return view('admin.master-records.assessment-setups.index', compact('academic_terms', 'classgroups', 'assessment_setups'));
     }
