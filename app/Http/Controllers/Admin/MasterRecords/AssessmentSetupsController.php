@@ -78,7 +78,7 @@ class AssessmentSetupsController extends Controller
     {
         $academic_term = ($encodeId === null) ? AcademicTerm::activeTerm() : AcademicTerm::findOrFail($this->getHashIds()->decode($encodeId)[0]);
         $assessment_setups = AssessmentSetup::where('academic_term_id', $academic_term->academic_term_id)->get();
-        $academic_terms = AcademicTerm::lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', '');
+        $academic_terms = AcademicTerm::orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', '');
 
         return view('admin.master-records.assessment-setups.detail', compact('academic_terms', 'assessment_setups', 'academic_term'));
     }
