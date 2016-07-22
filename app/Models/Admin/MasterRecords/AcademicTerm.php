@@ -24,7 +24,7 @@ class AcademicTerm extends Model
      * Dates To Be Treated As Carbon Instance
      * @var array
      */
-    protected $dates = ['term_begins', 'term_ends', 'exam_setup_date'];
+    protected $dates = ['term_begins', 'term_ends'];
 
     /**
      * The attributes that are mass assignable.
@@ -38,9 +38,9 @@ class AcademicTerm extends Model
         'term_type_id',
         'term_begins',
         'term_ends',
-        'exam_status_id',
-        'exam_setup_by',
-        'exam_setup_date',
+//        'exam_status_id',
+//        'exam_setup_by',
+//        'exam_setup_date',
     ];
 
     /**
@@ -56,9 +56,9 @@ class AcademicTerm extends Model
      * An Academic Term was created by A User
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function examSetupBy(){
-        return $this->belongsTo('App\Models\Admin\Users\User', 'exam_setup_by', 'user_id');
-    }
+//    public function examSetupBy(){
+//        return $this->belongsTo('App\Models\Admin\Users\User', 'exam_setup_by', 'user_id');
+//    }
 
     /**
      * An Academic Term Has Many Subject Class Room

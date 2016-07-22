@@ -27,9 +27,9 @@ class CreateAcademicYearsAndTermsTable extends Migration
             $table->integer('term_type_id')->index()->unsigned();
             $table->date('term_begins')->nullable();
             $table->date('term_ends')->nullable();
-            $table->integer('exam_status_id')->index()->unsigned()->default(2);
-            $table->integer('exam_setup_by')->index()->unsigned()->nullable();
-            $table->date('exam_setup_date')->nullable();
+//            $table->integer('exam_status_id')->index()->unsigned()->default(2);
+//            $table->integer('exam_setup_by')->index()->unsigned()->nullable();
+//            $table->date('exam_setup_date')->nullable();
             $table->timestamps();
 
             $table->foreign('academic_year_id')->references('academic_year_id')->on('academic_years')

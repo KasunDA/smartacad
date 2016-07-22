@@ -12,6 +12,7 @@ use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
+use App\Models\Admin\Users\User;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -60,19 +61,21 @@ class ExamsController extends Controller
     public function postValidateAllSetup(Request $request)
     {
         $inputs = $request->all();
-        $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
         $response = [];
-
-        if ($term->exam_status_id == 1) {
-            $output = ' Exam for ' . $term->academic_term . ' Has Already Been Setup By ' . $term->examSetupBy()->first()->fullNames();
-            $output .= ' on: ' . $term->exam_setup_date->format('D jS, M Y') . '. <strong>Do You Want To Continue anyway?</strong>';
-            $response['flag'] = 1;
-        }else{
+        $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
+        $view = SubjectAssessmentView::where('academic_term_id', $term->academic_term_id)
+                                        ->where(function ($query) {
+                                            $query->whereNull('marked')->orWhere('marked', '<>', '1');
+                                        })->count();
+        if ($view > 0 ) {
             $output = '<h4>Make sure all assessments has been inputted before setting up an exam . <strong>Do You Want To Continue anyway?</strong></h4>';
             $response['flag'] = 2;
+        }else{
+            $output = ' Exam for ' . $term->academic_term . ' Has Already Been Setup <strong>Do You Want To Continue anyway?</strong>';
+            $response['flag'] = 1;
         }
 
-        $response['output'] = $output;
+        $response['output'] = isset($output) ? $output : [];
         $response['term'] = $inputs['academic_term_id'];
         return response()->json($response);
     }
@@ -86,10 +89,11 @@ class ExamsController extends Controller
     {
         $inputs = $request->all();
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
-        $term->exam_status_id = 1;
-        $term->exam_setup_by = Auth::user()->user_id;
-        $term->exam_setup_date = date('Y-m-d');
-        if($term->save()){
+//        $term->exam_status_id = 1;
+//        $term->exam_setup_by = Auth::user()->user_id;
+//        $term->exam_setup_date = date('Y-m-d');
+//        if($term->save()){
+        if($term){
             //Update
             Exam::processExams($term->academic_term_id);
             $this->setFlashMessage('Exams for ' . $term->academic_term . ' Academic Term has been successfully setup.', 1);
@@ -108,16 +112,28 @@ class ExamsController extends Controller
         $inputs = $request->all();
         $response = array();
         $response['flag'] = 0;
-        $user_id = Auth::user()->user_id;
+        $user_id = (Auth::user()->user_type_id == User::DEVELOPER_USER_TYPE) ? null : Auth::user()->user_id;
 
         if($inputs['classlevel_id'] > 0){
-            $class_subjects = SubjectClassRoom::where('tutor_id', $user_id)->where('academic_term_id', $inputs['academic_term_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['classlevel_id'])->lists('classroom_id')->toArray())->lists('subject_classroom_id')->toArray();
+            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['classlevel_id'])->lists('classroom_id')->toArray())
+                ->where(function ($query) use ($user_id) {
+                    //If its not a developer admin filter by the logged in user else return all records in the class level
+                    if($user_id)
+                        $query->where('tutor_id', $user_id);
+                })->lists('subject_classroom_id')->toArray();
         }else{
-            $class_subjects = SubjectClassRoom::where('tutor_id', $user_id)->where('academic_term_id', $inputs['academic_term_id'])->lists('subject_classroom_id')->toArray();
+            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
+                ->where(function ($query) use ($user_id) {
+                    //If its not a developer admin filter by the logged in user else return all records in the class room
+                    if($user_id)
+                        $query->where('tutor_id', $user_id);
+                })->lists('subject_classroom_id')->toArray();
         }
         if(isset($class_subjects)){
+            //Get all the exams that are ready (assessments that have been marked completely before exams will be enable for score input)
             $exams = Exam::whereIn('subject_classroom_id', $class_subjects)->get();
+            //format the record sets as json readable
             foreach($exams as $exam){
                 $res[] = array(
                     "ca_wp"=>$exam->subjectClassroom()->first()->classRoom()->first()->classLevel()->first()->classGroup()->first()->ca_weight_point,
@@ -300,12 +316,12 @@ class ExamsController extends Controller
     public function postValidateMySetup(Request $request)
     {
         $inputs = $request->all();
-        $view = SubjectAssessmentView::where('academic_term_id', $inputs['setup_academic_term_id'])->where('tutor_id', Auth::user()->user_id)
-            ->where(function ($query) {
-                $query->whereNull('marked')->orWhere('marked', '<>', '1');
-            })->count();
-        $term = AcademicTerm::findOrFail($inputs['setup_academic_term_id']);
         $response = [];
+        $term = AcademicTerm::findOrFail($inputs['setup_academic_term_id']);
+        $view = SubjectAssessmentView::where('academic_term_id', $term->academic_term_id)->where('tutor_id', Auth::user()->user_id)
+                                        ->where(function ($query) {
+                                            $query->whereNull('marked')->orWhere('marked', '<>', '1');
+                                        })->count();
 
         if ($view > 0 ) {
             $output = ' <strong> ' . $view  . ' Assessment(s) for ' . $term->academic_term .
