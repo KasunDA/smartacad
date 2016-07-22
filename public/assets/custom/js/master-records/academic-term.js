@@ -80,7 +80,7 @@ $(function () {
         $.ajax({
             type: "POST",
             data: values,
-            url: '/academic-terms/validate-clone/',
+            url: '/academic-terms/validate-clone',
             success: function(data,textStatus){
                 if(data.flag === 1){
                     // set_msg_box($('#error-box'), data.output, 1);
@@ -103,7 +103,7 @@ $(function () {
                                     $.ajax({
                                         type: 'POST',
                                         data:{from_academic_term_id:data.from.academic_term_id, to_academic_term_id:data.to.academic_term_id},
-                                        url: '/academic-terms/cloning/',
+                                        url: '/academic-terms/cloning',
                                         success: function(data,textStatus){
                                             window.location.replace('/academic-terms/clones');
                                         },
