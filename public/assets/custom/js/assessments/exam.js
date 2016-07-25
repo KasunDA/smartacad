@@ -77,7 +77,7 @@ jQuery(document).ready(function() {
             url: '/exams/all-setup',
             success: function(data,textStatus){
                 console.log("Data", data);
-                // window.location.reload();
+                window.location.reload();
             },
             error: function(xhr,textStatus,error){
                 set_msg_box($('#error-box'), 'Error...Kindly Try Again', 2);
