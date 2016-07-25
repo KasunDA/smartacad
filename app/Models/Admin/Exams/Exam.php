@@ -67,7 +67,7 @@ class Exam extends Model
      * @param $term_id
      * @param $tutor_id
      */
-    public static function processExams($term_id, $tutor_id=null){
+    public static function processExams($term_id, $tutor_id='null'){
         return DB::statement('call sp_processExams(' . $term_id . ', '.$tutor_id.')');
     }
 
