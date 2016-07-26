@@ -55,8 +55,8 @@ class DashboardController extends Controller
             $unmarked = DB::table('subjects_assessmentsviews')
                 ->select('tutor', 'tutor_id', DB::raw('COUNT(subject_classroom_id) AS subjects'))
                 ->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
-                ->whereNull('assessment_id')->orWhere('marked', 2)
-                ->groupBy('tutor', 'tutor_id', 'academic_term_id')->get();
+                ->where(function ($query) { $query->whereNull('assessment_id')->orWhere('marked', '<>', 1); })
+                ->groupBy('tutor', 'tutor_id')->get();
 
             return view('admin.dashboards.admin', compact('sponsors_count','staff_count', 'students_count', 'unmarked'));
         }

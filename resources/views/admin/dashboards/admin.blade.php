@@ -109,9 +109,9 @@
                         </div>
                         <div class="portlet-body">
                             <div class="panel-group accordion scrollable" id="accordion1">
-                                <?php $i = 1; ?>
+                                <?php $i = 1;?>
                                 @foreach($unmarked as $unmark)
-                                    @if($unmark->tutor)
+                                    {{--@if($unmark->tutor)--}}
                                         <?php $collapse = ($i == 1) ? 'in' : 'collapse'; ?>
                                         <div class="panel panel-default">
                                             <div class="panel-heading">
@@ -159,7 +159,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    @endif
+                                    {{--@endif--}}
                                 @endforeach
                             </div>
                         </div>
