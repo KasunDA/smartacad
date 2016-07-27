@@ -55,7 +55,7 @@
                                 <th> Marked Status </th>
                                 <td> {!! ($exam->marked == 1) ? '<span class="label label-success">Marked</span>' : '<span class="label label-danger">Not Marked</span>' !!} </td>
                                 <th> Tutor </th>
-                                <td> {!! ($subject->tutor()) ? $subject->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>' !!} </td>
+                                <td> {!! (isset($subject->tutor_id) ? $subject->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>' !!} </td>
                             </tr>
                         </table>
                     </div>
