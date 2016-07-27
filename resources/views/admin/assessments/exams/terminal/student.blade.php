@@ -70,7 +70,7 @@
                                 </tr>
                                 <tr>
                                     <th> Class Average </th>
-                                    <td>{{ number_format($position->class_average, 2) }}</td>
+                                    <td>{{ $position->class_average }}</td>
                                     <th></th>
                                     <td></td>
                                 </tr>
