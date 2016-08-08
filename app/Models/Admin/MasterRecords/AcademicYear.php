@@ -43,4 +43,23 @@ class AcademicYear extends Model
 
         return AcademicYear::where('status', 1)->first();
     }
+
+    /**
+     * Get the next academic year
+     * @return null
+     */
+    public function nextAcademicYear(){
+        if(isset($this->academic_year_id)) {
+            $year = substr($this->academic_year, -4);
+            $results = AcademicYear::all();
+            foreach($results as $result){
+                $next_year = substr($result->academic_year, -4);
+                if((intval($year) + 1) === intval($next_year)){
+                    return $result;
+                    break;
+                }
+            }
+        }
+        return null;
+    }
 }

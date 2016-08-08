@@ -278,14 +278,14 @@ class ExamsController extends Controller
         $decodeTerm = $this->getHashIds()->decode($encodeTerm);
         $student = (empty($decodeStud)) ? abort(305) : Student::findOrFail($decodeStud[0]);
         $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
-        $class_id = $student->currentClass($term->academicYear->academic_year_id)->classroom_id;
+        $classroom = $student->currentClass($term->academicYear->academic_year_id);
 
-        $position = Exam::terminalClassPosition($term->academic_term_id, $class_id, $student->student_id);
+        $position = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id, $student->student_id);
         $position = (object) array_shift($position);
 //        $subjects = $student->subjectClassRooms()->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
-        $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
+        $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->get();
 
-        return view('admin.assessments.exams.terminal.student', compact('student', 'subjects', 'term', 'position'));
+        return view('admin.assessments.exams.terminal.student', compact('student', 'subjects', 'term', 'position', 'classroom'));
     }
 
     /**
@@ -350,5 +350,27 @@ class ExamsController extends Controller
             $this->setFlashMessage('Your Exams for ' . $term->academic_term . ' Academic Year has been successfully setup.', 1);
         }
         return response()->json($term);
+    }
+
+    /**
+     * Displays a printable details of the subjects students scores for a specific academic term
+     * @param String $encodeStud
+     * @param String $encodeTerm
+     * @return \Illuminate\View\View
+     */
+    public function getPrintStudentTerminalResult($encodeStud, $encodeTerm)
+    {
+        $decodeStud = $this->getHashIds()->decode($encodeStud);
+        $decodeTerm = $this->getHashIds()->decode($encodeTerm);
+        $student = (empty($decodeStud)) ? abort(305) : Student::findOrFail($decodeStud[0]);
+        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
+        $classroom = $student->currentClass($term->academicYear->academic_year_id);
+
+        $position = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id, $student->student_id);
+        $position = (object) array_shift($position);
+//        $subjects = $student->subjectClassRooms()->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
+        $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->get();
+
+        return view('admin.assessments.exams.terminal.print', compact('student', 'subjects', 'term', 'position', 'classroom'));
     }
 }

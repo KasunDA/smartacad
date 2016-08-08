@@ -84,4 +84,24 @@ class AcademicTerm extends Model
     public static function cloneSubjectAssigned($from, $to){
         return DB::statement('call sp_cloneSubjectsAssigned(' . $from . ', "' . $to . '")');
     }
+
+    /**
+     * get the next academic term
+     * @return null
+     */
+    public function nextAcademicTerm(){
+        $year = $this->academicYear()->first();
+        
+        if($this->term_type_id == 1) {
+            //if its first term then get second term
+            return AcademicTerm::where('academic_year_id', $year->academic_year_id)->where('term_type_id', 2)->first();
+        }elseif($this->term_type_id == 2) {
+            //if its second term then get third term
+            return AcademicTerm::where('academic_year_id', $year->academic_year_id)->where('term_type_id', 3)->first();
+        }elseif($this->term_type_id == 3 && $year->nextAcademicYear()) {
+            //if its second term then get third term
+            return AcademicTerm::where('academic_year_id', $year->nextAcademicYear()->academic_year_id)->where('term_type_id', 1)->first();
+        }
+        return null;
+    }
 }

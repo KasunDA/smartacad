@@ -1,0 +1,47 @@
+/*
+*	 Author: Vijay Kumar
+*	 Template: Archon - Flat & Responsive Bootstrap Admin Template
+*	 Version: 1.0
+*	 Bootstrap version: 3.0.0
+*	 Copyright 2013 bootstrapguru
+*	 www: http://bootstrapguru.com
+*	 mail: support@bootstrapguru.com
+*	 You can find our other themes on: https://bootstrapguru.com/themes/
+---------------------------------------------------------------------------------------------- */
+
+@media print {
+    .table th,
+    .table td {
+        padding: 6px;
+        line-height: 13px;
+        text-align: left;
+        vertical-align: top;
+        border-top: 1px solid #dddddd;
+    }
+    #apDiv1 {
+        position:absolute;
+        left:0px;
+        top:90px;
+        width:750px;
+        z-index:1;
+        text-align: center;
+    }
+    #apDiv2 {
+        position:absolute;
+        left:779px;
+        top:10px;
+        width:300px;
+        z-index:2;
+    }
+
+    #apDi1 {
+        position:absolute;
+        left:0px;
+        top:30px;
+        width:650px;
+        z-index:3;
+    }
+    .style1 {font-size: x-small;}
+}
+
+

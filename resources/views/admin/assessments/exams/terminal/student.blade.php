@@ -27,7 +27,12 @@
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="fa fa-book font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">Student Details</span>
+                        <span class="caption-subject font-green bold uppercase">
+                            Student Details
+                            <a target="_blank" href="{{ url('/exams/print-student-terminal-result/'.$hashIds->encode($student->student_id).
+                                '/'.$hashIds->encode($term->academic_term_id)) }}" class="btn btn-link btn-xs">
+                                <span class="fa fa-print fa-3x"></span> Print
+                            </a>
                     </div>
                 </div>
                 <div class="portlet-body">
@@ -51,9 +56,9 @@
                             </tr>
                             <tr>
                                 <th> Class Room </th>
-                                <td> {{ $student->currentClass($term->academicYear->academic_year_id)->classroom }} </td>
+                                <td> {{ $classroom->classroom }} </td>
                                 <th> Class Level </th>
-                                <td> {{ $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classlevel }} </td>
+                                <td> {{ $classroom->classLevel()->first()->classlevel }} </td>
                             </tr>
                             @if(isset($position->student_sum_total))
                                 <tr>
@@ -87,7 +92,13 @@
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="fa fa-gears font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">Assessments Details By Subject.</span>
+                        <span class="caption-subject font-green bold uppercase">
+                            Assessments Details By Subject.
+                            <a target="_blank" href="{{ url('/exams/print-student-terminal-result/'.$hashIds->encode($student->student_id).
+                                '/'.$hashIds->encode($term->academic_term_id)) }}" class="btn btn-link btn-xs">
+                                <span class="fa fa-print fa-3x"></span> Print
+                            </a>
+                        </span>
                     </div>
                 </div>
                 <div id="error-div"></div>
@@ -95,23 +106,23 @@
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered table-striped">
                             <thead>
-                            <tr>
-                                <th colspan="2"></th>
-                                <th class="center" colspan="3">Student Scores</th>
-                                <th class="center" colspan="2">Grades</th>
-                            </tr>
-                            <tr>
-                                <th>#</th>
-                                <th>Subject Name</th>
-                                <th>C. A ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->ca_weight_point}})</th>
-                                <th>Exam ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->exam_weight_point}})</th>
-                                <th>
-                                    Total ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->ca_weight_point +
-                                    $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->exam_weight_point}})
-                                </th>
-                                <th>Grade</th>
-                                <th>Abbr.</th>
-                            </tr>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th class="center" colspan="3">Student Scores</th>
+                                    <th class="center" colspan="2">Grades</th>
+                                </tr>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Subject Name</th>
+                                    <th>C. A ({{$classroom->classLevel()->first()->classGroup()->first()->ca_weight_point}})</th>
+                                    <th>Exam ({{$classroom->classLevel()->first()->classGroup()->first()->exam_weight_point}})</th>
+                                    <th>
+                                        Total ({{$classroom->classLevel()->first()->classGroup()->first()->ca_weight_point +
+                                        $classroom->classLevel()->first()->classGroup()->first()->exam_weight_point}})
+                                    </th>
+                                    <th>Grade</th>
+                                    <th>Abbr.</th>
+                                </tr>
                             </thead>
                             <tbody>
                             @if($subjects->count() > 0)
@@ -122,14 +133,14 @@
                                             ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()["ca"] : null;
                                         $exam = ($subjectClass->examDetails()->where('student_id', $student->student_id))
                                             ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()["exam"] : null;
-                                        $grade = $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()
+                                        $grade = $classroom->classLevel()->first()->classGroup()->first()
                                                 ->grades()->where('lower_bound', '<=', ($ca+$exam))->where('upper_bound', '>=', ($ca+$exam))->first();
                                     ?>
                                     @if($exam && $subjectClass->examDetails()->where('student_id', $student->student_id)->first()->exam()->where('marked', 1)->count() > 0)
                                         <tr class="odd gradeX">
                                             <td class="center">{{$i++}}</td>
                                             <td>{{ $subjectClass->subject()->first()->subject }}</td>
-                                            <td>{!! ($ca) !!}</td>
+                                            <td>{!! ($ca) ? $ca : '<span class="label label-danger">nil</span>' !!}</td>
                                             <td>{!! ($exam) ? $exam : '<span class="label label-danger">nil</span>' !!}</td>
                                             <td>{!! ($ca || $exam) ? ($ca + $exam) : '<span class="label label-danger">nil</span>' !!}</td>
                                             <td>{{ $grade->grade }}</td>
@@ -138,18 +149,18 @@
                                     @endif
                                 @endforeach
                             @else
-                                <tr><th colspan="8">No Record Found</th></tr>
+                                <tr><th colspan="7">No Record Found</th></tr>
                             @endif
                             </tbody>
                             <tfoot>
                             <tr>
                                 <th>#</th>
                                 <th>Subject Name</th>
-                                <th>C. A ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->ca_weight_point}})</th>
-                                <th>Exam ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->exam_weight_point}})</th>
+                                <th>C. A ({{$classroom->classLevel()->first()->classGroup()->first()->ca_weight_point}})</th>
+                                <th>Exam ({{$classroom->classLevel()->first()->classGroup()->first()->exam_weight_point}})</th>
                                 <th>
-                                    Total ({{$student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->ca_weight_point +
-                                    $student->currentClass($term->academicYear->academic_year_id)->classLevel()->first()->classGroup()->first()->exam_weight_point}})
+                                    Total ({{$classroom->classLevel()->first()->classGroup()->first()->ca_weight_point +
+                                        $classroom->classLevel()->first()->classGroup()->first()->exam_weight_point}})
                                 </th>
                                 <th>Grade</th>
                                 <th>Abbr.</th>

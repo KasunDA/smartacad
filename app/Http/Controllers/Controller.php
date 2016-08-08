@@ -137,9 +137,9 @@ class Controller extends BaseController
     /**
      * Send SMS
     */
-    public function sendSMS($msg, $no){
+    public function sendSMS($msg, $no, $msg_sender = 'SolidSteps'){
         $mobile_no = trim($no);
-        $msg_sender = 'SolidSteps';
+//        $msg_sender = 'SolidSteps';
         if(substr($mobile_no, 0, 1) === '0'){
             $no = '234' . substr($mobile_no, 1);
         }elseif (substr($mobile_no, 0, 3) === '234') {
@@ -155,6 +155,7 @@ class Controller extends BaseController
         $password = "zuma123456";
 
         $url = "http://107.20.195.151/mcast_ws/?user=$username&password=$password&from=$msg_sender&to=$no&message=$message2";
+//        $url = "http://www.mcastmessaging.com/mcast_ws/?user=$username&password=$password&from=$msg_sender&to=$no&message=$message2";
         $ret = file($url);
 
         return $ret;
