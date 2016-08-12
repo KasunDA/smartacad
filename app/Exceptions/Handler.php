@@ -8,6 +8,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Auth;
 use InvalidArgumentException;
+use PDOException;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use Illuminate\Validation\ValidationException;
@@ -110,6 +111,16 @@ class Handler extends ExceptionHandler
                 'header'=>'Bad or Poor Network Issues',
                 'message'=>'<strong>Whoops!!!</strong> Something went wrong with your network kindly retry again and 
                     <strong>allow the page to load completely</strong><br>' . $e->getMessage()
+            ]);
+        }
+        
+        // Bad Network Issues Method NotAllowed HttpException
+        if ($e instanceof PDOException){
+            return response()->view('errors.custom', [
+                'code'=>'507.3',
+                'header'=>'Error establishing a database connection',
+                'message'=>'<strong>Whoops!!!</strong> Something went wrong with your our server kindly retry few minutes later or 
+                    <strong> Contact your systems administrator</strong><br>' . $e->getMessage()
             ]);
         }
         //If Token Mismatch Exception Occur i.e csrf error
