@@ -117,7 +117,7 @@ class Handler extends ExceptionHandler
         // Bad Network Issues Method NotAllowed HttpException
         if ($e instanceof PDOException){
             return response()->view('errors.custom', [
-                'code'=>'507.3',
+                'code'=>'509',
                 'header'=>'Error establishing a database connection',
                 'message'=>'<strong>Whoops!!!</strong> Something went wrong with your our server kindly retry few minutes later or 
                     <strong> Contact your systems administrator</strong><br>' . $e->getMessage()
