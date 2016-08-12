@@ -38,14 +38,15 @@
                 </form>
                 <!-- END RESPONSIVE QUICK SEARCH FORM -->
             </li>
-            <li class="nav-item start open">
-                <a href="{{ url('/dashboard') }}" class="nav-link">
-                    <i class="icon-home"></i>
-                    <span class="title">Dashboard</span>
-                </a>
-            </li>
             {{-- Check if the user is logged in--}}
             @if(Auth::check())
+                <li class="nav-item start open">
+                    <a href="{{ url('/dashboard') }}" class="nav-link">
+                        <i class="icon-home"></i>
+                        <span class="title">Dashboard</span>
+                    </a>
+                </li>
+
                 <?php $show_menu_header = []?>
                 {{--Loop Through The Users Roles--}}
                 @foreach(Auth::user()->roles()->get() as $role)
@@ -185,17 +186,17 @@
                         @endforeach  {{--Loop Through The Menu Headers --}}
                     @endif
                 @endforeach {{--Loop Through The Users Roles--}}
+                <li class="nav-item">
+                    <a href="/users/change">
+                        <i class="icon-lock"></i> <span class="title">Change Password</span> </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/auth/logout') }}" class="nav-link">
+                        <i class="fa fa-power-off"></i>
+                        <span class="title">Log Out</span>
+                    </a>
+                </li>
             @endif{{-- Check if the user is logged in--}}
-            <li class="nav-item">
-                <a href="/users/change">
-                    <i class="icon-lock"></i> <span class="title">Change Password</span> </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ url('/auth/logout') }}" class="nav-link">
-                    <i class="fa fa-power-off"></i>
-                    <span class="title">Log Out</span>
-                </a>
-            </li>
         </ul>
         <!-- END SIDEBAR MENU -->
         <!-- END SIDEBAR MENU -->

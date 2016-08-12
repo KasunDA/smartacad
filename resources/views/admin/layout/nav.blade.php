@@ -14,21 +14,23 @@
                 </span>
                 <i class="fa fa-angle-down"></i>
             </a>
-            <ul class="dropdown-menu dropdown-menu-default">
-                <li>
-                    <a href="{{ url('/profiles') }}">
-                        <i class="icon-user"></i> My Profile </a>
-                </li>
-                <li class="divider"> </li>
-                <li>
-                    <a href="{{ url('/users/change') }}">
-                        <i class="icon-lock"></i> Change Password </a>
-                </li>
-                <li>
-                    <a href="{{ url('/auth/logout') }}">
-                        <i class="fa fa-power-off"></i> Log Out </a>
-                </li>
-            </ul>
+            @if(Auth::check())
+                <ul class="dropdown-menu dropdown-menu-default">
+                    <li>
+                        <a href="{{ url('/profiles') }}">
+                            <i class="icon-user"></i> My Profile </a>
+                    </li>
+                    <li class="divider"> </li>
+                    <li>
+                        <a href="{{ url('/users/change') }}">
+                            <i class="icon-lock"></i> Change Password </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('/auth/logout') }}">
+                            <i class="fa fa-power-off"></i> Log Out </a>
+                    </li>
+                </ul>
+            @endif
         </li>
     </ul>
 </div>
