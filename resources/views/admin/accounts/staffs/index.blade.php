@@ -35,65 +35,37 @@
                     </div>
                 </div>
                 <div class="portlet-body">
-                    <div class="row">
+                    <div class="table-container">
+                        <div class="table-actions-wrapper">
+                            <span> </span>
+                            Search: <input type="text" class="form-control input-inline input-small input-sm" id="search_param"/><br>
+                        </div>
                         <table class="table table-striped table-bordered table-hover" id="staff_tabledata">
                             <thead>
-                                <tr>
-                                    <th style="width: 1%;">#</th>
-                                    <th style="width: 20%;">Full Name</th>
-                                    <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 19%;">Email</th>
-                                    <th style="width: 5%;">Gender</th>
-                                    <th style="width: 15%;">Registered On</th>
-                                    <th style="width: 5%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
-                                </tr>
+                            <tr role="row" class="heading">
+                                <th width="2%">#</th>
+                                <th width="30%">Full Name</th>
+                                <th width="12%">Phone No.</th>
+                                <th width="23%">Email</th>
+                                <th width="15%">Gender</th>
+                                <th width="8%">Status</th>
+                                <th width="5%">View</th>
+                                <th width="5%">Edit</th>
+                            </tr>
                             </thead>
                             <tbody>
-                            @if(count($staffs) > 0)
-                                <?php $i = 1; ?>
-                                @foreach($staffs as $staff)
-                                    <tr class="odd gradeX">
-                                        <td class="center">{{$i++}}</td>
-                                        <td>{{ $staff->fullNames() }}</td>
-                                        <td>{{ $staff->phone_no }}</td>
-                                        <td>{{ $staff->email }}</td>
-                                        <td>{!! ($staff->gender) ? $staff->gender : '<span class="label label-danger">nil</span>' !!}</td>
-                                        <td>{{ $staff->created_at->format('jS M, Y') }}</td>
-                                        <td>
-                                            @if($staff->status === 1)
-                                                <label class="label label-success">Activated</label>
-                                            @else
-                                                <label class="label label-danger">Deactivated</label>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a target="_blank" href="{{ url('/staffs/view/'.$hashIds->encode($staff->user_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-eye-slash"></span>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a href="{{ url('/staffs/edit/'.$hashIds->encode($staff->user_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-edit"></span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <th style="width: 1%;">#</th>
-                                    <th style="width: 20%;">Full Name</th>
-                                    <th style="width: 10%;">Mobile</th>
-                                    <th style="width: 19%;">Email</th>
-                                    <th style="width: 5%;">Gender</th>
-                                    <th style="width: 15%;">Registered On</th>
-                                    <th style="width: 5%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
-                                </tr>
+                            <tr role="row" class="heading">
+                                <th width="2%">#</th>
+                                <th width="30%">Full Name</th>
+                                <th width="12%">Phone No.</th>
+                                <th width="23%">Email</th>
+                                <th width="15%">Gender</th>
+                                <th width="8%">Status</th>
+                                <th width="5%">View</th>
+                                <th width="5%">Edit</th>
+                            </tr>
                             </tfoot>
 
                         </table>
@@ -123,7 +95,10 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/staffs"]');
-            setTableData($('#staff_tabledata')).init();
+
+            $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
+
+            TableDatatablesAjax.init();
         });
     </script>
 @endsection

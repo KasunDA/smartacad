@@ -50,10 +50,13 @@ Route::group(['middleware' => ['web']], function () {
 
     Route::controllers([
         'auth' => 'Auth\AuthController',
-        'dashboard' => 'Admin\DashboardController',
+        'dashboard' => 'Admin\Utilities\DashboardController',
         //Dependent List Box
-        'list-box' => 'Admin\ListBoxController',
+        'list-box' => 'Admin\Utilities\ListBoxController',
 
+        //Messaging
+        'messages' => 'Admin\Utilities\MessageController',
+        
         'menu-headers' => 'Admin\Menus\MenuHeaderController',
         'menus' => 'Admin\Menus\MenuController',
         'menu-items' => 'Admin\Menus\MenuItemController',

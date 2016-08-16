@@ -36,62 +36,37 @@
                     </div>
                 </div>
                 <div class="portlet-body">
-                    <div class="row">
+                    <div class="table-container">
+                        <div class="table-actions-wrapper">
+                            <span> </span>
+                            Search: <input type="text" class="form-control input-inline input-small input-sm" id="search_param"/><br>
+                        </div>
                         <table class="table table-striped table-bordered table-hover" id="sponsor_tabledata">
                             <thead>
-                            <tr>
-                                <th style="width: 1%;">#</th>
-                                <th style="width: 20%;">Full Name</th>
-                                <th style="width: 15%;">Mobile</th>
-                                <th style="width: 19%;">Email</th>
-                                <th style="width: 15%;">Registered On</th>
-                                <th style="width: 5%;">Status</th>
-                                <th style="width: 5%;">View</th>
-                                <th style="width: 5%;">Edit</th>
-                            </tr>
+                                <tr role="row" class="heading">
+                                    <th width="2%">#</th>
+                                    <th width="30%">Full Name</th>
+                                    <th width="12%">Phone No.</th>
+                                    <th width="23%">Email</th>
+                                    <th width="15%">Registered On</th>
+                                    <th width="8%">Status</th>
+                                    <th width="5%">View</th>
+                                    <th width="5%">Edit</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            @if(count($sponsors) > 0)
-                                <?php $i = 1; ?>
-                                @foreach($sponsors as $sponsor)
-                                    <tr class="odd gradeX">
-                                        <td class="center">{{$i++}}</td>
-                                        <td>{{ $sponsor->fullNames() }}</td>
-                                        <td>{{ $sponsor->phone_no }}</td>
-                                        <td>{{ $sponsor->email }}</td>
-                                        <td>{{ $sponsor->created_at->format('jS M, Y') }}</td>
-                                        <td>
-                                            @if($sponsor->status === 1)
-                                                <label class="label label-success">Activated</label>
-                                            @else
-                                                <label class="label label-danger">Deactivated</label>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($sponsor->user_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-eye-slash"></span>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a href="{{ url('/sponsors/edit/'.$hashIds->encode($sponsor->user_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-edit"></span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
                             </tbody>
                             <tfoot>
-                            <tr>
-                                <th style="width: 1%;">#</th>
-                                <th style="width: 20%;">Full Name</th>
-                                <th style="width: 15%;">Mobile</th>
-                                <th style="width: 19%;">Email</th>
-                                <th style="width: 15%;">Registered On</th>
-                                <th style="width: 5%;">Status</th>
-                                <th style="width: 5%;">View</th>
-                                <th style="width: 5%;">Edit</th>
-                            </tr>
+                                <tr role="row" class="heading">
+                                    <th width="2%">#</th>
+                                    <th width="30%">Full Name</th>
+                                    <th width="12%">Phone No.</th>
+                                    <th width="23%">Email</th>
+                                    <th width="15%">Registered On</th>
+                                    <th width="8%">Status</th>
+                                    <th width="5%">View</th>
+                                    <th width="5%">Edit</th>
+                                </tr>
                             </tfoot>
 
                         </table>
@@ -122,7 +97,10 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/sponsors"]');
-            setTableData($('#sponsor_tabledata')).init();
+//            setTableData($('#sponsor_tabledata')).init();
+            $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
+
+            TableDatatablesAjax.init();
         });
     </script>
 @endsection

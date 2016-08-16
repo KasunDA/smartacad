@@ -37,7 +37,7 @@
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
                             <li class="active">
-                                <a href="#assessment" data-toggle="tab"> Continuous Assessments  </a>
+                                <a href="#assessment" data-toggle="tab"><i class="fa fa-pencil-square-o"></i> Continuous Assessments  </a>
                             </li>
                             {{--<li>--}}
                                 {{--<a href="#view_subject" data-toggle="tab"> View Subjects / Assign Tutor</a>--}}

@@ -134,9 +134,9 @@
                                         <tr style="background-color: #F2F0F0 !important; font-weight:bold">
                                             <td class="center">{{$i++}}</td>
                                             <td>{{ $subjectClass->subject()->first()->subject }}</td>
-                                            <td>{!! ($ca) ? $ca : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($exam) ? $exam : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($ca || $exam) ? number_format(($ca + $exam), 2) : '<span class="label label-danger">nil</span>' !!}</td>
+                                            <td>{!! ($ca) ? number_format($ca, 0) : '<span class="label label-danger">nil</span>' !!}</td>
+                                            <td>{!! ($exam) ? number_format($exam, 0) : '<span class="label label-danger">nil</span>' !!}</td>
+                                            <td>{!! ($ca || $exam) ? number_format(($ca + $exam), 1) : '<span class="label label-danger">nil</span>' !!}</td>
                                             <td>{{ $grade->grade_abbr }}</td>
                                             <td>{{ $grade->grade }}</td>
                                         </tr>

@@ -63,6 +63,71 @@ class UserController extends Controller
     }
 
     /**
+     * Display a listing of the Users using Ajax Datatable.
+     * @return Response
+     */
+    public function postAllUsers()
+    {
+
+        $iTotalRecords = User::orderBy('first_name')->whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())->count();;
+        $iDisplayLength = intval($_REQUEST['length']);
+        $iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength;
+        $iDisplayStart = intval($_REQUEST['start']);
+        $sEcho = intval($_REQUEST['draw']);
+
+        $q = @$_REQUEST['sSearch'];
+
+        $users = User::orderBy('first_name')->whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())
+        ->where(function ($query) use ($q) {
+            //Filter by either email, name or phone number
+            if (!empty($q))
+                $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%')
+                        ->orWhere('email', 'like', '%'.$q.'%')->orWhere('phone_no', 'like', '%'.$q.'%');
+        });
+        // iTotalDisplayRecords = filtered result count
+        $iTotalDisplayRecords = $users->count();
+
+
+        $records = array();
+        $records["data"] = array();
+
+        $end = $iDisplayStart + $iDisplayLength;
+        $end = $end > $iTotalRecords ? $iTotalRecords : $end;
+
+        $i = $iDisplayStart;
+        $allUsers = $users->skip($iDisplayStart)->take($iDisplayLength)->get();
+        foreach ($allUsers as $user){
+            $status = ($user->status == 1)
+                ? '<button value="'.$user->user_id.'" rel="2" class="btn btn-success btn-rounded btn-condensed btn-xs user_status">Deactivate</button>'
+                : '<button value="'.$user->user_id.'" rel="1" class="btn btn-danger btn-rounded btn-condensed btn-xs user_status">Activate</button>';
+            $records["data"][] = array(
+                ($i++ + 1),
+                $user->fullNames(),
+                $user->phone_no,
+                $user->email,
+                $user->userType()->first()->user_type,
+                $status,
+                '<a target="_blank" href="/users/view/'.$this->getHashIds()->encode($user->user_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-eye-slash"></span>
+                 </a>',
+                '<a target="_blank" href="/users/edit/'.$this->getHashIds()->encode($user->user_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-edit"></span>
+                 </a>',
+                '<button class="btn btn-danger btn-rounded btn-xs delete_user" value=".'.$user->user_id.'">
+                    <span class="fa fa-trash-o"></span>
+                 </button>'
+//                '<span class="label label-sm label-'.(key($status)).'">'.(current($status)).'</span>',
+            );
+        }
+
+        $records["draw"] = $sEcho;
+        $records["recordsTotal"] = $iTotalRecords;
+        $records["recordsFiltered"] = isset($iTotalDisplayRecords) ? $iTotalDisplayRecords :$iTotalRecords;
+
+        echo json_encode($records);
+    }
+
+    /**
      * Show the form for creating a new resource.
      * @return Response
      */

@@ -96,6 +96,7 @@ class ExamsController extends Controller
         if($term){
             //Update
             Exam::processExams($term->academic_term_id);
+            session()->put('active', 'setup-exam');
             $this->setFlashMessage('Exams for ' . $term->academic_term . ' Academic Term has been successfully setup.', 1);
         }
 
@@ -203,6 +204,7 @@ class ExamsController extends Controller
         if($count > 0){
             $exam->marked = 1;
             $exam->save();
+            session()->put('active', 'input-scores');
             $this->setFlashMessage($count . ' Students Scores has been successfully inputted.', 1);
         }
 
@@ -347,6 +349,7 @@ class ExamsController extends Controller
         if($term){
             //Process Only my exams so as to input scores
             Exam::processExams($term->academic_term_id, Auth::user()->user_id);
+            session()->put('active', 'setup-exam');
             $this->setFlashMessage('Your Exams for ' . $term->academic_term . ' Academic Year has been successfully setup.', 1);
         }
         return response()->json($term);

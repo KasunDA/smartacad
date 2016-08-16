@@ -56,8 +56,98 @@ class StudentController extends Controller
      */
     public function getIndex()
     {
-        $students = Student::orderBy('first_name')->get();
-        return view('admin.accounts.students.index', compact('students'));
+//        $students = Student::orderBy('first_name')->get();
+        $classrooms = ClassRoom::orderBy('classroom')->lists('classroom', 'classroom_id')->prepend('Class Room', '');;
+        $status = Status::orderBy('status')->lists('status', 'status_id')->prepend('Status', '');;
+
+        return view('admin.accounts.students.index', compact('classrooms', 'status'));
+    }
+
+    /**
+     * Display a listing of the Students using Ajax Datatable.
+     * @return Response
+     */
+    public function postAllStudents()
+    {
+        $iTotalRecords = Student::orderBy('first_name')->count();;
+        $iDisplayLength = intval($_REQUEST['length']);
+        $iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength;
+        $iDisplayStart = intval($_REQUEST['start']);
+        $sEcho = intval($_REQUEST['draw']);
+        
+        $q = @$_REQUEST['sSearch'];
+        $gender = @$_REQUEST['search']['gender'];
+        $status_id = @$_REQUEST['search']['status_id'];
+        $classroom_id = @$_REQUEST['search']['classroom_id'];
+
+        //Filter by sponsor name
+        $sponsors = (!empty($q))
+             ? User::where('user_type_id', Sponsor::USER_TYPE)->where(function ($query) use ($q) {
+                $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%');
+            })->lists('user_id')->toArray() : [];
+
+        //List of Students
+        $students = Student::orderBy('first_name')->where(function ($query) use ($q, $gender, $status_id, $classroom_id, $sponsors) {
+            //Filter by name
+            if (!empty($q)) {
+                $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%');
+                if(count($sponsors) > 0)
+                    $query->orWhereIn('sponsor_id', $sponsors);
+            }
+            //Filter by gender
+            if (!empty($gender))
+                $query->where('gender', $gender);
+            //Filter by status
+            if (!empty($status_id))
+                $query->where('status_id', $status_id);
+            //Filter by class room
+            if (!empty($classroom_id))
+                $query->where('classroom_id', $classroom_id);
+
+        });
+        // iTotalDisplayRecords = filtered result count
+        $iTotalDisplayRecords = $students->count();
+        $records = array();
+        $records["data"] = array();
+
+        $end = $iDisplayStart + $iDisplayLength;
+        $end = $end > $iTotalRecords ? $iTotalRecords : $end;
+
+        $i = $iDisplayStart;
+        $allStudents = $students->skip($iDisplayStart)->take($iDisplayLength)->get();
+        foreach ($allStudents as $student){
+            $status = (isset($student->status_id))
+                ? '<label class="label label-'.$student->status()->first()->label.'">'.$student->status()->first()->status.'</label>'
+                : '<label class="label label-danger">nil</label>';
+            $sponsor = ($student->sponsor_id)
+                ? '<a target="_blank" href="/sponsors/view/'.$this->getHashIds()->encode($student->sponsor()->first()->user_id).'" class="btn btn-info btn-link btn-sm">
+                    <span class="fa fa-eye-slash"></span> '.$student->sponsor()->first()->fullNames().'</a>'
+                : '<span class="label label-danger">nil</span>';
+
+            $records["data"][] = array(
+                ($i++ + 1),
+                $student->fullNames(),
+                $sponsor,
+                ($student->classroom_id) ? $student->classRoom()->first()->classroom : '<span class="label label-danger">nil</span>',
+                ($student->gender) ? $student->gender : '<span class="label label-danger">nil</span>',
+                $status,
+                '<a target="_blank" href="/students/view/'.$this->getHashIds()->encode($student->student_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-eye-slash"></span>
+                 </a>',
+                '<a target="_blank" href="/students/edit/'.$this->getHashIds()->encode($student->student_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-edit"></span>
+                 </a>',
+                '<button class="btn btn-danger btn-rounded btn-xs delete_student" value=".'.$student->student_id.'">
+                    <span class="fa fa-trash-o"></span>
+                 </button>'
+            );
+        }
+
+        $records["draw"] = $sEcho;
+        $records["recordsTotal"] = $iTotalRecords;
+        $records["recordsFiltered"] = isset($iTotalDisplayRecords) ? $iTotalDisplayRecords :$iTotalRecords;
+
+        echo json_encode($records);
     }
 
     /**

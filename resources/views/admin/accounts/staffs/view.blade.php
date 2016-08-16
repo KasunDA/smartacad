@@ -1,13 +1,16 @@
 @extends('admin.layout.default')
 
 @section('layout-style')
-        <!-- BEGIN PAGE LEVEL PLUGINS -->
-<link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet" type="text/css" />
-<!-- END PAGE LEVEL PLUGINS -->
-<!-- BEGIN THEME GLOBAL STYLES -->
-<!-- BEGIN PAGE LEVEL STYLES -->
-<link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css" />
-<!-- END PAGE LEVEL STYLES -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/css/bootstrap-editable.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet" type="text/css" />
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN THEME GLOBAL STYLES -->
+    <!-- BEGIN PAGE LEVEL STYLES -->
+    <link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css" />
+    <!-- END PAGE LEVEL STYLES -->
 @endsection
 
 @section('title', 'Staff Profile')
@@ -117,6 +120,52 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-10 col-md-offset-1">
+                            <div class="row">
+                                <div class="portlet">
+                                    <div class="alert alert-info"> Subjects <strong>Assigned To: {{ $staff->fullNames() }}</strong> For An Academic Term</div>
+                                    <div class="portlet-body">
+                                        <div class="table-container">
+                                            <table class="table table-striped table-bordered table-hover" id="subject_tabledata">
+                                                <thead>
+                                                <tr role="row" class="heading">
+                                                    <th width="2%">#</th>
+                                                    <th width="30%">Academic Term</th>
+                                                    <th width="25%">Subject</th>
+                                                    <th width="18%">No. of Students</th>
+                                                    <th width="25%">Class Room</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php $i=1;?>
+                                                    @if($staff->subjectClassRooms()->count() > 0)
+                                                        @foreach($staff->subjectClassRooms()->get() as $subject)
+                                                            <tr>
+                                                                <td>{{ $i++ }}</td>
+                                                                <td>{{ $subject->academicTerm->academic_term }}</td>
+                                                                <td>{{ $subject->subject->subject }}</td>
+                                                                <td>{{ $subject->studentSubjects()->count() }}</td>
+                                                                <td>{{ $subject->classRoom->classroom }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    @endif
+                                                </tbody>
+                                                <tfoot>
+                                                <tr role="row" class="heading">
+                                                    <th width="2%">#</th>
+                                                    <th width="30%">Academic Term</th>
+                                                    <th width="25%">Subject</th>
+                                                    <th width="18%">No. of Students</th>
+                                                    <th width="25%">Class Room</th>
+                                                </tr>
+                                                </tfoot>
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -125,6 +174,11 @@
 @endsection
 
 @section('layout-script')
+        <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script src="{{ asset('assets/global/scripts/datatable.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/datatables.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
+    <!-- END PAGE LEVEL PLUGINS -->
     <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}" type="text/javascript"></script>
     <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/gmaps/gmaps.min.js') }}" type="text/javascript"></script>
@@ -134,6 +188,8 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/staffs"]');
+
+            setTableData($('#subject_tabledata')).init();
         });
     </script>
 @endsection

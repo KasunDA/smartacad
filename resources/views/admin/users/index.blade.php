@@ -40,75 +40,39 @@
                     </div>
                 </div>
                 <div class="portlet-body">
-                    <div class="row">
+                    <div class="table-container">
+                        <div class="table-actions-wrapper">
+                            <span> </span>
+                            Search: <input type="text" class="form-control input-inline input-small input-sm" id="search_param"/>
+                        </div>
                         <table class="table table-striped table-bordered table-hover" id="users_datatable">
                             <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Names</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    {{--<th>Gender</th>--}}
-                                    <th>User Type</th>
-                                    <th>Status</th>
-                                    <th>View</th>
-                                    <th>Edit</th>
-                                    <th>Delete</th>
+                                <tr role="row" class="heading">
+                                    <th width="2%">#</th>
+                                    <th width="28%">Names</th>
+                                    <th width="12%">Phone No.</th>
+                                    <th width="21%">Email</th>
+                                    <th width="12%">User Type</th>
+                                    <th width="10%">Status</th>
+                                    <th width="5%">View</th>
+                                    <th width="5%">Edit</th>
+                                    <th width="5%">Delete</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            @if(count($users) > 0)
-                                <?php $i = 1; ?>
-                                @foreach($users as $user)
-                                    <tr class="odd gradeX">
-                                        <td class="center">{{$i++}}</td>
-                                        <td>{{ $user->fullNames() }}</td>
-                                        <td>{{ $user->phone_no }}</td>
-                                        <td>{{ $user->email }}</td>
-{{--                                        <td>{!! ($user->gender) ? $user->gender : '<span class="label label-danger">nil</span>' !!}</td>--}}
-                                        <td>{{ $user->userType()->first()->user_type }}</td>
-                                        <td>
-                                            @if($user->status === 1)
-                                                <button value="{{ $user->user_id }}" rel="2" class="btn btn-success btn-rounded btn-condensed btn-xs user_status">
-                                                    Deactivate
-                                                </button>
-                                            @else
-                                                <button value="{{ $user->user_id }}" rel="1" class="btn btn-danger btn-rounded btn-condensed btn-xs user_status">
-                                                    Activate
-                                                </button>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a target="_blank" href="{{ url('/users/view/'.$hashIds->encode($user->user_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-eye-slash"></span>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a href="{{ url('/users/edit/'.$hashIds->encode($user->user_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-edit"></span>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-danger btn-rounded btn-xs delete_user" value="{{ $user->user_id }}">
-                                                <span class="fa fa-trash-o"></span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
+
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Names</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    {{--<th>Gender</th>--}}
-                                    <th>User Type</th>
-                                    <th>Status</th>
-                                    <th>View</th>
-                                    <th>Edit</th>
-                                    <th>Delete</th>
+                                <tr role="row" class="heading">
+                                    <th width="2%">#</th>
+                                    <th width="28%">Names</th>
+                                    <th width="12%">Phone No.</th>
+                                    <th width="21%">Email</th>
+                                    <th width="12%">User Type</th>
+                                    <th width="10%">Status</th>
+                                    <th width="5%">View</th>
+                                    <th width="5%">Edit</th>
+                                    <th width="5%">Delete</th>
                                 </tr>
                             </tfoot>
 
@@ -140,7 +104,17 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/users"]');
-            setTableData($('#users_datatable')).init();
+            $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
+
+//            App.alert({
+//                type: 'danger',
+//                icon: 'warning',
+//                message: 'No record selected',
+//                container: grid.getTableWrapper(),
+//                place: 'prepend'
+//            });
+//            setTableData($('#users_datatable')).init();
+            TableDatatablesAjax.init();
         });
     </script>
 @endsection

@@ -75,7 +75,7 @@
                             <div class="tab-content">
                                 @if($user)
                                     <div id="info"
-                                         class="tab-pane {{ (session('active') == 'info') ? 'active' : '' }} {{ (!session()->has('active')) ? 'active' : '' }} )">
+                                         class="tab-pane {{ (session('active') == 'info') ? 'active' : '' }} {{ (!session()->has('active')) ? 'active' : '' }}">
                                         <form action="/profiles/edit" role="form" method="post" class="form">
                                             {{ csrf_field() }}
                                         <div class="form-group">

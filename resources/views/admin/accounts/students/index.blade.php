@@ -35,76 +35,54 @@
                     </div>
                 </div>
                 <div class="portlet-body">
-                    <div class="row">
+                    <div class="table-container">
+                        <div class="table-actions-wrapper">
+                            <span> </span>
+                            Search: <input type="text" class="form-control input-inline input-small input-sm" id="search_param"/><br>
+                        </div>
                         <table class="table table-striped table-bordered table-hover" id="student_tabledata">
                             <thead>
-                                <tr>
-                                    <th style="width: 1%;">#</th>
-                                    <th style="width: 20%;">Full Name</th>
-                                    <th style="width: 10%;">Current Class</th>
-                                    <th style="width: 5%;">Gender</th>
-                                    <th style="width: 19%;">Sponsor</th>
-                                    <th style="width: 5%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
-                                    <th style="width: 5%;">Delete</th>
+                                <tr role="row" class="heading">
+                                    <th width="2%">#</th>
+                                    <th width="28%">Full Name</th>
+                                    <th width="20%">Sponsor</th>
+                                    <th width="15%">Current Class</th>
+                                    <th width="10%">Gender</th>
+                                    <th width="10%">Status</th>
+                                    <th width="5%">View</th>
+                                    <th width="5%">Edit</th>
+                                    <th width="5%">Delete</th>
+                                </tr>
+                                <tr role="row" class="filter">
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        {!! Form::select('classroom_id', $classrooms, '', ['class'=>'form-control input-inline input-sm search-params', 'id'=>'classroom_id']) !!}
+                                    </td>
+                                    <td>
+                                        {!! Form::select('gender', [''=>'Gender', 'Male'=>'Male', 'Female'=>'Female'], '',
+                                        ['id'=>'gender', 'class'=>'form-control input-inline input-xsmall input-sm search-params']) !!}
+                                    </td>
+                                    <td>
+                                        {!! Form::select('status_id', $status, '', ['class'=>'form-control input-inline input-xsmall input-sm search-params', 'id'=>'status_id']) !!}
+                                    </td>
+                                    <td colspan="3"></td>
                                 </tr>
                             </thead>
                             <tbody>
-                            @if(count($students) > 0)
-                                <?php $i = 1; ?>
-                                @foreach($students as $student)
-                                    <tr class="odd gradeX">
-                                        <td class="center">{{$i++}}</td>
-                                        <td>{{ $student->fullNames() }}</td>
-                                        <td>{!! ($student->classroom_id) ? $student->classRoom()->first()->classroom : '<span class="label label-danger">nil</span>' !!}</td>
-                                        <td>{!! ($student->gender) ? $student->gender : '<span class="label label-danger">nil</span>' !!}</td>
-                                        <td>
-                                            @if($student->sponsor()->first())
-                                                <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($student->sponsor()->first()->user_id)) }}" class="btn btn-info btn-link btn-sm">
-                                                    <span class="fa fa-eye-slash"></span> {{$student->sponsor()->first()->fullNames()}}
-                                                </a>
-                                            @else
-                                                <span class="label label-danger">nil</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($student->status_id)
-                                                <label class="label label-{{$student->status()->first()->label}}">{{ $student->status()->first()->status }}</label>
-                                            @else
-                                                <label class="label label-danger">nil</label>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-eye-slash"></span>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a href="{{ url('/students/edit/'.$hashIds->encode($student->student_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
-                                                <span class="fa fa-edit"></span>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-danger btn-rounded btn-xs delete_student" value="{{ $student->student_id }}">
-                                                <span class="fa fa-trash-o"></span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <th style="width: 1%;">#</th>
-                                    <th style="width: 20%;">Full Name</th>
-                                    <th style="width: 10%;">Current Class</th>
-                                    <th style="width: 5%;">Gender</th>
-                                    <th style="width: 19%;">Sponsor</th>
-                                    <th style="width: 5%;">Status</th>
-                                    <th style="width: 5%;">View</th>
-                                    <th style="width: 5%;">Edit</th>
-                                    <th style="width: 5%;">Delete</th>
+                                <tr role="row" class="heading">
+                                    <th width="2%">#</th>
+                                    <th width="28%">Full Name</th>
+                                    <th width="20%">Sponsor</th>
+                                    <th width="15%">Current Class</th>
+                                    <th width="10%">Gender</th>
+                                    <th width="10%">Status</th>
+                                    <th width="5%">View</th>
+                                    <th width="5%">Edit</th>
+                                    <th width="5%">Delete</th>
                                 </tr>
                             </tfoot>
 
@@ -131,52 +109,14 @@
 
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-{{--    <script src="{{ asset('assets/custom/js/accounts/students.js') }}" type="text/javascript"></script>--}}
+    <script src="{{ asset('assets/custom/js/accounts/students.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/students"]');
-            setTableData($('#student_tabledata')).init();
 
-            $(document.body).on('click', '.delete_student',function(e){
-                e.preventDefault();
+            $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
 
-                var parent = $(this).parent().parent();
-                var student = parent.children(':nth-child(2)').html();
-                var student_id = $(this).val();
-
-                bootbox.dialog({
-                    message: "Are You sure You want to permanently delete Student: "+student+ " and all its reference places",
-                    title: "Warning Alert",
-                    buttons: {
-                        danger: {
-                            label: "NO",
-                            className: "btn-default",
-                            callback: function() {
-                                $(this).hide();
-                            }
-                        },
-                        success: {
-                            label: "YES",
-                            className: "btn-success",
-                            callback: function() {
-                                $.ajax({
-                                    type: 'GET',
-                                    async: true,
-                                    url: '/students/delete/' + student_id,
-                                    success: function(data,textStatus){
-                                        window.location.replace('/students');
-                                    },
-                                    error: function(xhr,textStatus,error){
-                                        bootbox.alert("Error encountered pls try again later..", function() {
-                                            $(this).hide();
-                                        });
-                                    }
-                                });
-                            }
-                        }
-                    }
-                });
-            });
+            TableDatatablesAjax.init();
         });
     </script>
 @endsection

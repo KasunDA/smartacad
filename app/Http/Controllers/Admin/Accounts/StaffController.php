@@ -21,8 +21,65 @@ class StaffController extends Controller
      */
     public function getIndex()
     {
-        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
-        return view('admin.accounts.staffs.index', compact('staffs'));
+//        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
+        return view('admin.accounts.staffs.index');
+    }
+
+    /**
+     * Display a listing of the Staffs using Ajax Datatable.
+     * @return Response
+     */
+    public function postAllStaffs()
+    {
+        $iTotalRecords = User::where('user_type_id', Staff::USER_TYPE)->orderBy('first_name')->count();;
+        $iDisplayLength = intval($_REQUEST['length']);
+        $iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength;
+        $iDisplayStart = intval($_REQUEST['start']);
+        $sEcho = intval($_REQUEST['draw']);
+
+        $q = @$_REQUEST['sSearch'];
+
+        //List of Sponsors
+        $staffs = User::where('user_type_id', Staff::USER_TYPE)->orderBy('first_name')->where(function ($query) use ($q) {
+            if (!empty($q))
+                $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%')
+                    ->orWhere('email', 'like', '%'.$q.'%')->orWhere('phone_no', 'like', '%'.$q.'%');
+        });
+        // iTotalDisplayRecords = filtered result count
+        $iTotalDisplayRecords = $staffs->count();
+        $records = array();
+        $records["data"] = array();
+
+        $end = $iDisplayStart + $iDisplayLength;
+        $end = $end > $iTotalRecords ? $iTotalRecords : $end;
+
+        $i = $iDisplayStart;
+        $allStaffs = $staffs->skip($iDisplayStart)->take($iDisplayLength)->get();
+        foreach ($allStaffs as $staff){
+            $status = ($staff->status == 1)
+                ? '<label class="label label-success">Activated</label>' : '<label class="label label-danger">Deactivated</label>';
+
+            $records["data"][] = array(
+                ($i++ + 1),
+                $staff->fullNames(),
+                $staff->phone_no,
+                $staff->email,
+                ($staff->gender) ? $staff->gender : '<span class="label label-danger">nil</span>',
+                $status,
+                '<a target="_blank" href="/staffs/view/'.$this->getHashIds()->encode($staff->user_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-eye-slash"></span>
+                 </a>',
+                '<a target="_blank" href="/staffs/edit/'.$this->getHashIds()->encode($staff->user_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-edit"></span>
+                 </a>'
+            );
+        }
+
+        $records["draw"] = $sEcho;
+        $records["recordsTotal"] = $iTotalRecords;
+        $records["recordsFiltered"] = isset($iTotalDisplayRecords) ? $iTotalDisplayRecords :$iTotalRecords;
+
+        echo json_encode($records);
     }
 
     /**

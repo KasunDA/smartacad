@@ -108,6 +108,9 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/students/create"]');
+
+            // Auto Complete of Sponsor Name
+            autoCompleteField($("#sponsor_name"), $("#sponsor_id"), "/students/sponsors/");
         });
     </script>
 @endsection

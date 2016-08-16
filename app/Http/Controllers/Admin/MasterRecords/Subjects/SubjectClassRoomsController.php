@@ -81,9 +81,11 @@ class SubjectClassRoomsController extends Controller
             $sub = implode(',', $inputs['subject_id']);
             if(isset($inputs['assign_classroom_id']) and $inputs['assign_classroom_id'] != ''){
                 $temp = ClassRoom::find($inputs['assign_classroom_id'])->classroom;
+                session()->put('active', 'classroom');
                 $result = SubjectClassRoom::assignSubject2Class($inputs['assign_classroom_id'], $inputs['assign_academic_term_id'], $sub);
             }elseif(isset($inputs['assign_classlevel_id']) and $inputs['assign_classlevel_id'] != ''){
                 $temp = ClassLevel::find($inputs['assign_classlevel_id'])->classlevel;
+                session()->put('active', 'classlevel');
                 $result = SubjectClassRoom::assignSubject2Level($inputs['assign_classlevel_id'], $inputs['assign_academic_term_id'], $sub);
             }
 
@@ -239,6 +241,7 @@ class SubjectClassRoomsController extends Controller
         if($subject->modifyStudentsSubject($student_ids)){
             $this->setFlashMessage(count($inputs['student_id']) . ' Students has been enrolled for '
                 . $subject->subject()->first()->subject.' Subject in '.$subject->classRoom()->first()->classroom.' class room.', 1);
+            session()->put('active', 'manage-subject');
         }else{
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
@@ -257,6 +260,7 @@ class SubjectClassRoomsController extends Controller
         $delete = ($subject !== null) ? $subject->delete() : null;
 
         if($delete){
+            session()->put('active', 'manage-subject');
             $this->setFlashMessage('  Deleted!!! '.$subject->subject()->first()->subject.' Subject in '.$subject->classRoom()->first()->classroom.' class room have been deleted.', 1);
         }else{
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
