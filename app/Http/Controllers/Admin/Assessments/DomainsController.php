@@ -13,6 +13,7 @@ use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
+use App\Models\Admin\Users\User;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -42,15 +43,18 @@ class DomainsController extends Controller
     {
         $inputs = $request->all();
         $response = array();
-        $response['flag'] = 0;
-//        $user_id = (Auth::user()->user_type_id == User::DEVELOPER_USER_TYPE) ? null : Auth::user()->user_id;
 
-        // TODO ::  Filter by class masters assigned to the class room
-        $classrooms = ClassRoom::all();
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
+        $response['flag'] = 0;
+        $response['term'] = $term->academic_term;
+        
+        $classrooms = Auth::user()->classMasters()->where('academic_year_id', $term->academic_year_id)->get();
+        //Returns All the class rooms for the super admins only
+        if(Auth::user()->user_type_id == User::DEVELOPER or Auth::user()->user_type_id == User::SUPER_ADMIN)
+            $classrooms = ClassRoom::all();
 
         //format the record sets as json readable
-        if(isset($classrooms)){
+        if(isset($classrooms) and $classrooms->count() > 0){
             foreach($classrooms as $classroom){
                 $res[] = array(
                     "classroom"=>$classroom->classroom,
@@ -159,9 +163,7 @@ class DomainsController extends Controller
         $academic_term_id = $this->getHashIds()->decode($term_id)[0];
         $classroom = ClassRoom::findOrFail($classroom_id);
         $term = AcademicTerm::findOrFail($academic_term_id);
-//        $remarks = Remark::where('student_id', $student->student_id)->where('academic_term_id', $term->academic_term_id);
         $studentClasses = [];
-
         if($classroom){
             $studentClasses = $classroom->studentClasses()->where('academic_year_id', $term->academic_year_id)->get();
         }

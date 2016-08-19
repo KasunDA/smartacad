@@ -89,10 +89,6 @@ class ExamsController extends Controller
     {
         $inputs = $request->all();
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
-//        $term->exam_status_id = 1;
-//        $term->exam_setup_by = Auth::user()->user_id;
-//        $term->exam_setup_date = date('Y-m-d');
-//        if($term->save()){
         if($term){
             //Update
             Exam::processExams($term->academic_term_id);
@@ -113,7 +109,7 @@ class ExamsController extends Controller
         $inputs = $request->all();
         $response = array();
         $response['flag'] = 0;
-        $user_id = (Auth::user()->user_type_id == User::DEVELOPER_USER_TYPE) ? null : Auth::user()->user_id;
+        $user_id = (Auth::user()->user_type_id == User::DEVELOPER) ? null : Auth::user()->user_id;
 
         if($inputs['classlevel_id'] > 0){
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])

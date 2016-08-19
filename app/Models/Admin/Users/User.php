@@ -28,7 +28,8 @@ class User extends Authenticatable
     /**
      * User Type ID
      */
-    const DEVELOPER_USER_TYPE = 1;
+    const DEVELOPER = 1;
+    const SUPER_ADMIN = 2;
 
     /**
      * Dates To Be Treated As Carbon Instance
@@ -150,6 +151,14 @@ class User extends Authenticatable
      */
     public function students(){
         return $this->hasMany('App\Models\Admin\Accounts\Students\Student');
+    }
+
+    /**
+     * A Staff (User) has many Class Rooms He is Mastering
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function classMasters(){
+        return $this->hasMany('App\Models\Admin\MasterRecords\Classes\ClassMaster', 'user_id');
     }
 
     /**

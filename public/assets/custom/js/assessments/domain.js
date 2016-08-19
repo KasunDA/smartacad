@@ -51,6 +51,14 @@ var UIBlockUI = function() {
                                 '<td><a href="/domains/remark/'+value.hashed_class_id+'/'+value.hashed_term_id+'" class="btn btn-warning btn-xs"><i class="fa fa-comments"></i> Remark</a></td>' +
                                 '</tr>';
                         });
+                    }else if(obj.flag === 0){
+                        App.alert({
+                            icon: 'warning',
+                            type: 'danger',
+                            message: 'No Class Room Has Been Assigned To You as a Class Master '+obj.term+' for Academic Year',
+                            container: '#domains',
+                            place: 'prepend'
+                        });
                     }
                     assign += '</tbody>';
 

@@ -42,7 +42,7 @@ class AssessmentsController extends Controller
         $inputs = $request->all();
         $response = array();
         $response['flag'] = 0;
-        $user_id = (Auth::user()->user_type_id == User::DEVELOPER_USER_TYPE) ? null : Auth::user()->user_id;
+        $user_id = (Auth::user()->user_type_id == User::DEVELOPER) ? null : Auth::user()->user_id;
 
         //Filter by classlevel if its selected else only by classroom
         if($inputs['classlevel_id'] > 0){

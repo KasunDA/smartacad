@@ -16,7 +16,7 @@
     </style>
 @endsection
 
-@section('title', 'Manage Classrooms Students / Form Teacher')
+@section('title', 'Form Master / Manage Students Classroom')
 
 @section('breadcrumb')
     <li>
@@ -25,14 +25,14 @@
     </li>
     <li><i class="fa fa-chevron-right"></i></li>
     <li>
-        <a href="{{ url('/class-rooms/assign-students') }}">Manage Students / Form Teacher</a>
+        <a href="{{ url('/class-rooms/assign-students') }}">Form Master / Manage Students</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page-academic_year">Manage Classrooms Students / Form Teacher</h3>
+    <h3 class="page">Assign Form Master / Manage Students in a Class Room</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -41,19 +41,69 @@
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
                             <li class="active">
-                                <a href="#assign2student" data-toggle="tab"><i class="fa fa-plus-square"></i> Add / <i class="fa fa-minus-square"></i> Remove Student in CLass Room </a>
+                                <a href="#assign_formMaster" data-toggle="tab"><i class="fa fa-ticket"></i>  Assign Class Form Master</a>
                             </li>
                             <li>
-                                <a href="#search4student" data-toggle="tab"><i class="fa fa-search"></i> Find /  <i class="fa fa-eye"></i> View Student By Class Room </a>
+                                <a href="#search4student" data-toggle="tab"><i class="fa fa-search"></i> Find /  <i class="fa fa-eye"></i> View Student in Class Room </a>
                             </li>
                             <li>
-                                <a href="#assign_formMaster" data-toggle="tab"><i class="fa fa-ticket"></i>  Assign Class / Form Master</a>
+                                <a href="#assign2student" data-toggle="tab"><i class="fa fa-plus-square"></i> Add / <i class="fa fa-minus-square"></i> Remove Student in Class Room </a>
                             </li>
                         </ul>
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
-                            <div class="tab-pane active" id="assign2student">
+                            <div class="tab-pane active" id="assign_formMaster">
+                                <div class="row">
+                                    <div class="col-md-10 col-md-offset-1">
+                                        <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Level</strong></div>
+                                        <div id="msg_box2"></div>
+                                        {!! Form::open([
+                                                'method'=>'POST',
+                                                'class'=>'form-horizontal',
+                                                'id' => 'search_class_master_form'
+                                            ])
+                                        !!}
+                                        <div class="form-body">
+                                            <div class="form-group">
+                                                <div class="col-md-6 col-md-offset-3">
+                                                    <div class="form-group">
+                                                        <label class="control-label">Academic Year <span class="text-danger">*</span></label>
+                                                        <div>
+                                                            {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required']) !!}
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="control-label">Class Level <span class="text-danger">*</span></label>
+                                                        <div>
+                                                            {!! Form::select('classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'required'=>'required']) !!}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-actions noborder">
+                                            <input type="hidden" value="" name="hidden_master_year_id" id="hidden_master_year_id">
+                                            <button type="submit" class="btn blue pull-right">
+                                                <i class="fa fa-search"></i> Search
+                                            </button>
+                                        </div>
+                                        {!! Form::close() !!}
+                                        <div class="row">
+                                            <div class="col-md-10 col-md-offset-1">
+                                                <div class="portlet-body">
+                                                    <div class="row">
+                                                        <table class="table table-striped table-bordered table-hover" id="class_master_datatable">
+
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="assign2student">
                                 <div class="alert alert-info"> Search by <strong>Academic Year</strong> and <strong>Class Room</strong></div>
                                 <div id="msg_box"></div>
                                 {!! Form::open([
@@ -169,56 +219,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane" id="assign_formMaster">
-                                <div class="row">
-                                    <div class="col-md-10 col-md-offset-1">
-                                        <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Level</strong></div>
-                                        <div id="msg_box2"></div>
-                                        {!! Form::open([
-                                                'method'=>'POST',
-                                                'class'=>'form-horizontal',
-                                                'id' => 'search_class_master_form'
-                                            ])
-                                        !!}
-                                        <div class="form-body">
-                                            <div class="form-group">
-                                                <div class="col-md-6 col-md-offset-3">
-                                                    <div class="form-group">
-                                                        <label class="control-label">Academic Year <span class="text-danger">*</span></label>
-                                                        <div>
-                                                            {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required']) !!}
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label class="control-label">Class Level <span class="text-danger">*</span></label>
-                                                        <div>
-                                                            {!! Form::select('classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'required'=>'required']) !!}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-actions noborder">
-                                            <input type="hidden" value="" name="hidden_master_year_id" id="hidden_master_year_id">
-                                            <button type="submit" class="btn blue pull-right">
-                                                <i class="fa fa-search"></i> Search
-                                            </button>
-                                        </div>
-                                        {!! Form::close() !!}
-                                        <div class="row">
-                                            <div class="col-md-10 col-md-offset-1">
-                                                <div class="portlet-body">
-                                                    <div class="row">
-                                                        <table class="table table-striped table-bordered table-hover" id="class_master_datatable">
-
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -259,7 +259,7 @@
     <script src="{{ asset('assets/custom/js/master-records/classes/student-class-master.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/subject-classrooms/assign-students"]');
+            setTabActive('[href="/class-rooms/assign-students"]');
 
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
         });

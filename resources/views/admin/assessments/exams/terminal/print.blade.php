@@ -162,29 +162,37 @@
                         </tfoot>
                     </table>
                     <?php $remark = $student->remarks()->where('academic_term_id', $term->academic_term_id);?>
-                    @if($remark->count() > 0)
-                        <table class="table table-bordered">
-                            <tr >
-                                <td width="370">
-                                    <div >
-                                        <div>
-                                            <b>Class Teacher's Remark: </b> {{ $remark->first()->class_teacher }}
-                                        </div><br/>
-                                        <div ><strong>Name: </strong> </div>
-                                    </div>
-                                </td>
-                                <td>
+                    <?php $gender1 = ($student->gender == 'Male') ? 'Boy' : 'Girl' ?>
+                    <?php $gender2 = ($student->gender == 'Male') ? 'His' : 'She' ?>
+                    <table class="table table-bordered">
+                        <tr >
+                            <td width="370">
+                                <div >
                                     <div>
-                                        <div>
-                                            <b>Principal's Remark:</b> {{ $remark->first()->principal }}
-                                        </div><br />
-                                        <div><b>Name: </b></div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    @endif
-                    <h6 align="center" style="text-align: center">Powered by Smart School ™</h6>
+                                        <b>Class Teacher's Remark: </b>
+                                        {!! ($remark->count() > 0 and (isset($remark->first()->class_teacher) or $remark->first()->class_teacher != ''))
+                                            ? $remark->first()->class_teacher
+                                            : $student->simpleName().' is  a responsible, determined and friendly '.$gender1.'. '.$gender2.' should keep it up.'
+                                        !!}
+                                    </div><br/>
+                                    <div ><strong>Name: </strong> </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <div>
+                                        <b>Principal's Remark:</b>
+                                        {!! ($remark->count() > 0 and (isset($remark->first()->principal) or $remark->first()->principal != ''))
+                                            ? $remark->first()->principal
+                                            : $student->simpleName().' is an easy-going '.$gender1.' and '.$gender2.' has improved a great deal '.$gender2.' should keep it up.'
+                                        !!}
+                                    </div><br />
+                                    <div><b>Name: </b></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <h6 align="center" style="text-align: center">Powered by {!! (env('APP_NAME')) ? env('APP_NAME') : 'Smart School' !!} ™</h6>
                 </div>
                 <div id="apDiv2">
                     @if($term->nextAcademicTerm())
