@@ -86,6 +86,36 @@
             </div>
             <!-- END SAMPLE TABLE PORTLET-->
         </div>
+
+        <?php $domain = $student->domainAssessment()->where('academic_term_id', $term->academic_term_id);?>
+        @if($domain->count() > 0)
+            <div class="col-md-4 margin-bottom-10">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr style="font-weight:bold; background-color:#CCCCCC; !important;">
+                        <th width="50%">Affective Domains</th>
+                        <th width="10%">5</th>
+                        <th width="10%">4</th>
+                        <th width="10%">3</th>
+                        <th width="10%">2</th>
+                        <th width="10%">1</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($domain->first()->domainDetails()->get() as $detail)
+                        <tr>
+                            <td width="50%" style="background-color: #F2F0F0 !important; font-size: 11px;">{{ $detail->domain()->first()->domain }}:</td>
+                            {!! ($detail->option == 5) ? '<td width="10%" style="background-color:#F2F0F0 !important;"></td>' : '<td></td>'  !!}
+                            {!! ($detail->option == 4) ? '<td width="10%" style="background-color:#F2F0F0 !important;"></td>' : '<td></td>' !!}
+                            {!! ($detail->option == 3) ? '<td width="10%" style="background-color:#F2F0F0 !important;"></td>' : '<td></td>' !!}
+                            {!! ($detail->option == 2) ? '<td width="10%" style="background-color:#F2F0F0 !important;"></td>' : '<td></td>' !!}
+                            {!! ($detail->option == 1) ? '<td width="10%" style="background-color:#F2F0F0 !important;"></td>' : '<td></td>' !!}
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
         <div class="col-md-10 margin-bottom-10">
             <!-- BEGIN SAMPLE TABLE PORTLET-->
             <div class="portlet light bordered">

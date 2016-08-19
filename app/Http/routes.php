@@ -99,6 +99,7 @@ Route::group(['middleware' => ['web']], function () {
         //Assessment Setup
         'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
         'assessments' => 'Admin\Assessments\AssessmentsController',
+        'domains' => 'Admin\Assessments\DomainsController',
         'exams' => 'Admin\Assessments\ExamsController',
 
 

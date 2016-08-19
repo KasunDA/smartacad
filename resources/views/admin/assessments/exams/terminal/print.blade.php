@@ -27,7 +27,7 @@
                 position:absolute;
                 left:779px;
                 top:10px;
-                width:300px;
+                width:330px;
                 z-index:2;
             }
             #apDi1 {
@@ -75,16 +75,16 @@
                             <tr>
                                 <th width="120" style="background-color: #F2F0F0 !important;">Student No.: </th>
                                 <td width="280">{{ $student->student_no }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Gender: </th>
-                                <td width="100">{{ $student->gender }}</td>
+                                <th width="100" style="background-color: #F2F0F0 !important;">Out of: </th>
+                                <td width="100">{{ $position->class_size }}</td>
                                 <th width="100" style="background-color: #F2F0F0 !important;">Age: </th>
                                 <td width="100">{!! ($student->dob) ? $student->dob->age . ' Year(s)' : '' !!}</td>
                             </tr>
                             <tr>
                                 <th width="120" style="background-color: #F2F0F0 !important;">Classroom: </th>
                                 <td width="280">{{ $classroom->classroom }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Out of: </th>
-                                <td width="100">{{ $position->class_size }}</td>
+                                <th width="100" style="background-color: #F2F0F0 !important;">Gender: </th>
+                                <td width="100">{{ $student->gender }}</td>
                                 <th width="100" style="background-color: #F2F0F0 !important;">Average: </th>
                                 <td width="100">{{ $position->class_average }}</td>
                             </tr>
@@ -161,40 +161,29 @@
                             </tr>
                         </tfoot>
                     </table>
-                    <table class="table table-bordered">
-                        <tr >
-                            <td width="370">
-                                <div >
+                    <?php $remark = $student->remarks()->where('academic_term_id', $term->academic_term_id);?>
+                    @if($remark->count() > 0)
+                        <table class="table table-bordered">
+                            <tr >
+                                <td width="370">
+                                    <div >
+                                        <div>
+                                            <b>Class Teacher's Remark: </b> {{ $remark->first()->class_teacher }}
+                                        </div><br/>
+                                        <div ><strong>Name: </strong> </div>
+                                    </div>
+                                </td>
+                                <td>
                                     <div>
-                                        <b>Class teacher's remarks: </b>
-                                        <?php //echo ($Remark['Remark']['class_teacher_remark']) ? $Remark['Remark']['class_teacher_remark'] : 'None' ?>
+                                        <div>
+                                            <b>Principal's Remark:</b> {{ $remark->first()->principal }}
+                                        </div><br />
+                                        <div><b>Name: </b></div>
                                     </div>
-                                    <div ><strong>Name: <?php //echo ($Remark) ? h($Remark['Employee']['full_name']) : '';?> </strong> </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div >
-                                    <div >
-                                        <b>House master/house mistress remarks: </b>
-                                        <?php //echo ($Remark['Remark']['house_master_remark']) ? $Remark['Remark']['house_master_remark'] : 'None' ?>
-                                    </div>
-                                    <div ><strong>By House Master/Mistress </strong></div>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php //$principal = $EmployeeModel->find('first', array('conditions' => array('Employee.' . $EmployeeModel->primaryKey => $SchoolInfo['principal_id']))); ?>
-                        <tr >
-                            <td colspan="2">
-                                <div >
-                                    <div >
-                                        <b>Principal's remarks:</b>
-                                        <?php //echo ($Remark['Remark']['principal_remark']) ? $Remark['Remark']['principal_remark'] : 'None' ?>
-                                    </div><br />
-                                    <div><b>Name:  <?php //echo $principal['Employee']['full_name'];?></b></div>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    @endif
                     <h6 align="center" style="text-align: center">Powered by Smart School ™</h6>
                 </div>
                 <div id="apDiv2">
@@ -208,6 +197,49 @@
                                 <th style="background-color: #F2F0F0 !important;"  width="150">Next Term Ends: </th>
                                 <td>{{ $term->nextAcademicTerm()->term_ends->format('D, jS M, Y') }}</td>
                             </tr>
+                        </table>
+                    @endif
+                    <?php $domain = $student->domainAssessment()->where('academic_term_id', $term->academic_term_id);?>
+                    @if($domain->count() > 0)
+                        <table class="table table-bordered" style="margin-top: 34px;">
+                            <thead>
+                                <tr style="font-weight:bold; background-color:#CCCCCC; !important;">
+                                    <th width="50%">Affective Domains</th>
+                                    <th width="10%">5</th>
+                                    <th width="10%">4</th>
+                                    <th width="10%">3</th>
+                                    <th width="10%">2</th>
+                                    <th width="10%">1</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($domain->first()->domainDetails()->get() as $detail)
+                                <tr>
+                                    <td width="50%" style="background-color: #F2F0F0 !important; font-size: 11px;">{{ $detail->domain()->first()->domain }}:</td>
+                                    {!! ($detail->option == 5) ? '<td width="10%" style="background-color:#F2F0F0 !important;"><input type="checkbox" checked disabled/> </td>' : '<td></td>'  !!}
+                                    {!! ($detail->option == 4) ? '<td width="10%" style="background-color:#F2F0F0 !important;"><input type="checkbox" checked disabled/> </td>' : '<td></td>' !!}
+                                    {!! ($detail->option == 3) ? '<td width="10%" style="background-color:#F2F0F0 !important;"><input type="checkbox" checked disabled/> </td>' : '<td></td>' !!}
+                                    {!! ($detail->option == 2) ? '<td width="10%" style="background-color:#F2F0F0 !important;"><input type="checkbox" checked disabled/> </td>' : '<td></td>' !!}
+                                    {!! ($detail->option == 1) ? '<td width="10%" style="background-color:#F2F0F0 !important;"><input type="checkbox" checked disabled/> </td>' : '<td></td>' !!}
+                                </tr>
+                            @endforeach
+                            <tr>
+                                <td colspan="6"><br />
+                                    <div style="font-weight:bold; !important;">
+                                        <strong>Keys to Ratings</strong>
+                                    </div>
+                                    <div style="font-size: 9px;">
+                                        <ol>
+                                            <li>Has No Regard For Observable Traits</li>
+                                            <li>Shows Minimal Regard For Observable Traits</li>
+                                            <li>Acceptable Level of Observable Traits</li>
+                                            <li>Maintains Hgh Level of Observable Traits</li>
+                                            <li>Maintains an Excellent of Observable Traits</li>
+                                        </ol>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
                         </table>
                     @endif
                     @if($classroom->classLevel()->first()->classGroup()->first()->grades()->count() > 0)

@@ -69,6 +69,14 @@ class AcademicTerm extends Model
     }
 
     /**
+     * An Academic Term Has Many Remarks
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function remarks(){
+        return $this->hasMany('App\Models\Admin\Assessments\Remark', 'academic_term_id');
+    }
+
+    /**
      * Get The Current Active Academic Term
      */
     public static function activeTerm(){

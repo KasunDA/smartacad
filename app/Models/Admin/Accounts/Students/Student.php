@@ -202,4 +202,20 @@ class Student extends Model
         return $this->hasMany('App\Models\Admin\Exams\ExamDetail', 'student_id');
     }
 
+    /**
+     * A Student Has Many Remarks
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function remarks(){
+        return $this->hasMany('App\Models\Admin\Assessments\Remark', 'student_id');
+    }
+
+    /**
+     * A Student Has Many Domain To Be Assessed
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function domainAssessment(){
+        return $this->hasMany('App\Models\Admin\Assessments\Domains\DomainAssessment', 'student_id');
+    }
+
 }
