@@ -173,6 +173,23 @@ function set_msg_box(div, text, type) {
         div.html('<div class="alert alert-info"> <i class="fa fa-info fa-1x"></i> ' + text + ' </div>');
 }
 
+function setAlert(div, text, type) {
+    App.alert({
+        type: type,
+        message: 'Error...Kindly Try Again',
+        container: '#sponsors',
+        place: 'prepend'
+    });
+    if(type === 1)
+        div.html('<div class="alert alert-success"> <i class="fa fa-thumbs-up fa-1x"></i> ' + text + ' </div>');
+    else if(type === 2)
+        div.html('<div class="alert alert-danger"> <i class="fa fa-thumbs-down fa-1x"></i> ' + text + ' </div>');
+    else if(type === 3)
+        div.html('<div class="alert alert-warning"> <i class="fa fa-warning fa-1x"></i> ' + text + ' </div>');
+    else
+        div.html('<div class="alert alert-info"> <i class="fa fa-info fa-1x"></i> ' + text + ' </div>');
+}
+
 //Custom TableData
 function setTableData(table) {
     var initTable1 = function () {

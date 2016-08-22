@@ -40,6 +40,30 @@
                 </div>
             </div>
         @endif
+        @if(Auth::user()->classMasters()->where('academic_year_id', AcademicYear::activeYear()->academic_year_id)->count() > 0)
+            <div class="row">
+                <div class="col-md-6">
+                    <!-- BEGIN CHART PORTLET-->
+                    <div class="portlet light bordered">
+                        <div class="portlet-title">
+                            <div class="caption">
+                                <i class="fa fa-book font-green-haze"></i>
+                                <span class="caption-subject bold uppercase font-green-haze"> Class Rooms Assigned</span>
+                                <span class="caption-helper"> in {{ AcademicYear::activeYear()->academic_year }} Academic Year: as Class Teacher</span>
+                            </div>
+                            <div class="tools">
+                                <a href="javascript:;" class="collapse"> </a>
+                                <a href="javascript:;" class="fullscreen"> </a>
+                            </div>
+                        </div>
+                        <div class="portlet-body">
+                            <div id="class_teacher" class="chart" style="height: 450px;"> </div>
+                        </div>
+                    </div>
+                    <!-- END CHART PORTLET-->
+                </div>
+            </div>
+        @endif
         <?php $j = 1; ?>
         @if(count($assessments) > 0)
             <div class="row">

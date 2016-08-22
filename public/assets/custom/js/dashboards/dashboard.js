@@ -175,11 +175,79 @@ var ChartsAmcharts = function() {
             }
         });
     };
+
+    var initChartClassTeacher = function() {
+
+        $.ajax({
+            type: "GET",
+            url: '/dashboard/class-teacher',
+            success: function(data){
+                try{
+                    //console.log(data);
+                    if(typeof data !== 'string') {
+                        var chart = AmCharts.makeChart("class_teacher", {
+                            "theme": "light",
+                            "type": "serial",
+                            "startDuration": 2,
+
+                            "fontFamily": 'Open Sans',
+
+                            "color": '#888',
+
+                            "dataProvider": data,
+                            "valueAxes": [{
+                                "position": "left",
+                                "axisAlpha": 0,
+                                "gridAlpha": 0
+                            }],
+                            "graphs": [{
+                                "balloonText": "[[category]]: <b>[[value]] Students</b>",
+                                "colorField": "color",
+                                "fillAlphas": 0.85,
+                                "lineAlpha": 0.1,
+                                "type": "column",
+                                "descriptionField": "classroom",
+                                "topRadius": 1,
+                                "valueField": "students"
+                            }],
+                            "depth3D": 40,
+                            "angle": 30,
+                            "chartCursor": {
+                                "categoryBalloonEnabled": false,
+                                "cursorAlpha": 0,
+                                "zoomable": false
+                            },
+                            "categoryField": "classroom",
+                            "categoryAxis": {
+                                "gridPosition": "start",
+                                "axisAlpha": 0,
+                                "gridAlpha": 0,
+                                "labelRotation": 35
+
+                            }
+                        }, 0);
+                    }else {
+                        $('#class_teacher').html('<div class="info-box  bg-info-dark  text-white"><div class="info-details"><h4>'+data+'</h4></div></div>');
+                    }
+
+                    $('#class_teacher').closest('.portlet').find('.fullscreen').click(function() {
+                        chart.invalidateSize();
+                    });
+                } catch (exception) {
+                    $('#class_teacher').html('<div class="info-box  bg-info-dark  text-white"><div class="info-details"><h4>'+data+'</h4></div></div>');
+                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                $('#class_teacher').html(errorThrown);
+            }
+        });
+    };
     return {
         //main function to initiate the module
         init: function() {
             initChartClassLevel();
             initChartSubjectTutor();
+            initChartClassTeacher();
         }
 
     };

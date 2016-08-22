@@ -37,7 +37,7 @@
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
                             <li class="active">
-                                <a href="#domains" data-toggle="tab"><i class="fa fa-houzz"></i> Domains / <i class="fa fa-comments"></i> Remarks</a>
+                                <a href="#domains" data-toggle="tab"><i class="fa fa-houzz"></i> Affective Domains / <i class="fa fa-comments"></i> Remarks Assessments</a>
                             </li>
                             {{--<li>--}}
                                 {{--<a href="#view_subject" data-toggle="tab"> View Subjects / Assign Tutor</a>--}}

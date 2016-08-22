@@ -24,7 +24,7 @@
 
 
 @section('content')
-    <h3 class="page"><i class="fa fa-envelope fa-2x"></i>  Messaging</h3>
+    <h3 class="page"><i class="fa fa-envelope fa-2x"></i>  Messaging (S.M.S)</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -36,7 +36,13 @@
                                 <a href="#sponsors" data-toggle="tab"><i class="fa fa-user"></i> Individual / <i class="fa fa-users"></i>  Group Sponsors</a>
                             </li>
                             <li>
-                                <a href="#staffs" data-toggle="tab"><i class="fa fa-user"></i> Individual / <i class="fa fa-users"></i>  All Staffs</a>
+                                <a class="btn btn-outline sbold" data-toggle="modal" href="#sponsor" id="all_sposnors"><i class="fa fa-gears"></i> S.M.S All Sponsors</a>
+                            </li>
+                            <li>
+                                <a href="#staffs" data-toggle="tab"><i class="fa fa-user"></i> Individual / <i class="fa fa-users"></i>  Selected Staffs</a>
+                            </li>
+                            <li>
+                                <a class="btn btn-outline sbold" data-toggle="modal" href="#staff" id="all_staffs"><i class="fa fa-chrome"></i> S.M.S All Staffs</a>
                             </li>
                         </ul>
                     </div>
@@ -47,7 +53,7 @@
                                 {!! Form::open([
                                         'method'=>'POST',
                                         'class'=>'form-horizontal',
-                                        'id' => 'search_subject_staff'
+                                        'id' => 'search_student_form'
                                     ])
                                 !!}
                                     <div class="form-body">
@@ -89,24 +95,28 @@
                                 {!! Form::close() !!}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="portlet-body">
-                                            <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="subject_assigned_datatable">
+                                        <form action="#" role="form" method="post" class="form" id="message_sponsor_form">
+                                            {{ csrf_field() }}
+                                            <div class="portlet-body">
+                                                <div class="row">
+                                                    <table class="table table-striped table-bordered table-hover table-checkable" id="search_student_datatable">
 
-                                                </table>
+                                                    </table>
+                                                </div>
                                             </div>
-                                        </div>
+                                            <div class="form-actions noborder hide" id="search_student_button">
+                                                <button type="submit" class="btn btn-primary pull-right">
+                                                    <i class="fa fa-envelope"></i> Message Marked Sponsors
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
                             <div class="tab-pane" id="staffs">
                                 <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Subjects</div>
-                                {!! Form::open([
-                                        'method'=>'POST',
-                                        'class'=>'form-horizontal',
-                                        'id' => 'search_view_subject_form'
-                                    ])
-                                !!}
+                                <form action="#" role="form" method="post" class="form" id="message_staffs_form">
+                                    {{ csrf_field() }}
                                     <div class="form-body">
                                         <div class="portlet-body">
                                             <div class="table-container">
@@ -114,31 +124,31 @@
                                                     <span> </span>
                                                     Search: <input type="text" class="form-control input-inline input-small input-sm" id="search_param"/><br>
                                                 </div>
-                                                <table class="table table-striped table-bordered table-hover" id="staff_tabledata">
+                                                <table class="table table-striped table-bordered table-hover table-checkable" id="staff_tabledata">
                                                     <thead>
                                                     <tr role="row" class="heading">
+                                                        <th width="2%"><input type="checkbox" class="group-checkable"> </th>
                                                         <th width="2%">#</th>
-                                                        <th width="30%">Full Name</th>
+                                                        <th width="32%">Full Name</th>
                                                         <th width="12%">Phone No.</th>
-                                                        <th width="23%">Email</th>
-                                                        <th width="15%">Gender</th>
-                                                        <th width="8%">Status</th>
-                                                        <th width="5%">View</th>
-                                                        <th width="5%">Edit</th>
+                                                        <th width="25%">Email</th>
+                                                        <th width="13%">Gender</th>
+                                                        <th width="7%">View</th>
+                                                        <th width="7%">Send</th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
                                                     </tbody>
                                                     <tfoot>
                                                     <tr role="row" class="heading">
+                                                        <th width="2%"><input type="checkbox" class="group-checkable"> </th>
                                                         <th width="2%">#</th>
-                                                        <th width="30%">Full Name</th>
+                                                        <th width="32%">Full Name</th>
                                                         <th width="12%">Phone No.</th>
-                                                        <th width="23%">Email</th>
-                                                        <th width="15%">Gender</th>
-                                                        <th width="8%">Status</th>
-                                                        <th width="5%">View</th>
-                                                        <th width="5%">Edit</th>
+                                                        <th width="25%">Email</th>
+                                                        <th width="13%">Gender</th>
+                                                        <th width="7%">View</th>
+                                                        <th width="7%">Send</th>
                                                     </tr>
                                                     </tfoot>
 
@@ -148,21 +158,10 @@
                                     </div>
                                     <div class="form-actions noborder">
                                         <button type="submit" class="btn blue pull-right">
-                                            <i class="fa fa-search"></i> Search
+                                            <i class="fa fa-envelope"></i> Message Marked Staffs
                                         </button>
                                     </div>
-                                {!! Form::close() !!}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="portlet-body">
-                                            <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="view_subject_datatable">
-
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -171,6 +170,62 @@
         </div>
     </div>
     <!-- END CONTENT BODY -->
+
+    <div class="modal fade" id="message_selected_modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="/messages/send" role="form" method="post" class="form">
+                {{ csrf_field() }}
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                        <h4 class="modal-title" id="modal_title"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Message Content:</label>
+                            <textarea class="form-control input-lg" rows="4" required placeholder="Message Content" name="message" id="message_content"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        {!! Form::hidden('phone_no', '', ['id'=>'phone_nos']) !!}
+                        <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn blue"><i class="fa fa-send"></i> Send Message</button>
+                    </div>
+                </div>
+            </form>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+    <div class="modal fade" id="message_all_modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="/messages/send-all" role="form" method="post" class="form">
+                {{ csrf_field() }}
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                        <h4 class="modal-title" id="modal_title_all"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Message Content:</label>
+                            <textarea class="form-control input-lg" rows="4" required placeholder="Message Content" name="message" id="message_content_all"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        {!! Form::hidden('message_type', '', ['id'=>'message_type']) !!}
+                        <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn blue"><i class="fa fa-send"></i> Send Message To All</button>
+                    </div>
+                </div>
+            </form>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
     @endsection
 
 
@@ -182,7 +237,6 @@
     <script src="{{ asset('assets/global/plugins/bootstrap-tabdrop/js/bootstrap-tabdrop.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
-    <script src="{{ asset('assets/global/plugins/jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/scripts/app.min.js') }}" type="text/javascript"></script>
     <!-- END THEME GLOBAL SCRIPTS -->
     <!-- BEGIN THEME LAYOUT SCRIPTS -->
@@ -197,6 +251,7 @@
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
 
             TableDatatablesAjax.init();
+            UIBlockUI.init();
         });
     </script>
 @endsection

@@ -9,6 +9,7 @@ use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
+use App\Models\Admin\MasterRecords\Classes\ClassMaster;
 use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use Illuminate\Foundation\Auth\User;
@@ -17,6 +18,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Psy\Util\Json;
 
 class DashboardController extends Controller
 {
@@ -77,7 +79,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Gets The Number of Students Based on their gender
+     * Gets The Students Based on their class level
      * @return Response
      */
     public function getStudentsClasslevel()
@@ -100,7 +102,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Gets The Number of Students Based on their gender
+     * Gets The subjects assigned to a tutor for the current academic term
      * @return Response
      */
     public function getSubjectTutor()
@@ -119,6 +121,31 @@ class DashboardController extends Controller
             }
         }else{
             $response = 'No Subject Has Been Assigned to you for ' . AcademicTerm::activeTerm()->academic_term . ' Academic Year';
+        }
+        return response()->json($response);
+    }
+
+    /**
+     * Gets The class room assigned to a teacher for the current academic year
+     * @return Json
+     */
+    public function getClassTeacher()
+    {
+        $classes = ClassMaster::where('academic_year_id', AcademicYear::activeYear()->academic_year_id)->where('user_id', Auth::user()->user_id)->get();
+        $response = [];
+        $color = 0;
+        if($classes->count() > 0){
+            foreach($classes as $class){
+                $response[] = array(
+                    'classroom'=>$class->classRoom()->first()->classroom,
+                    'students'=>$class->classRoom()->first()->studentClasses()
+                        ->where('academic_year_id', AcademicYear::activeYear()->academic_year_id)
+                        ->where('classroom_id', $class->classRoom()->first()->classroom_id)->count(),
+                    'color'=>$this->colors[$color++]
+                );
+            }
+        }else{
+            $response = 'No Class Room Has Been Assigned to you as <strong>Class Teacher for ' . AcademicYear::activeYear()->academic_year . '</strong> Academic Year';
         }
         return response()->json($response);
     }

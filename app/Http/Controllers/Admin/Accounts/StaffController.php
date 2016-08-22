@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin\Accounts;
 
+use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Accounts\Staff;
 use App\Models\Admin\Users\User;
+use App\Models\Admin\Users\UserType;
 use App\Models\School\Setups\Lga;
 use App\Models\School\Setups\Salutation;
 use App\Models\School\Setups\State;
@@ -31,7 +33,8 @@ class StaffController extends Controller
      */
     public function postAllStaffs()
     {
-        $iTotalRecords = User::where('user_type_id', Staff::USER_TYPE)->orderBy('first_name')->count();;
+        $iTotalRecords = User::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())
+            ->where('user_type_id', '<>', Sponsor::USER_TYPE)->count();;
         $iDisplayLength = intval($_REQUEST['length']);
         $iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength;
         $iDisplayStart = intval($_REQUEST['start']);
@@ -40,7 +43,8 @@ class StaffController extends Controller
         $q = @$_REQUEST['sSearch'];
 
         //List of Sponsors
-        $staffs = User::where('user_type_id', Staff::USER_TYPE)->orderBy('first_name')->where(function ($query) use ($q) {
+        $staffs = User::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())
+            ->where('user_type_id', '<>', Sponsor::USER_TYPE)->orderBy('first_name')->where(function ($query) use ($q) {
             if (!empty($q))
                 $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%')
                     ->orWhere('email', 'like', '%'.$q.'%')->orWhere('phone_no', 'like', '%'.$q.'%');

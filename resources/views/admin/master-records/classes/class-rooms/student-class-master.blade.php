@@ -16,7 +16,7 @@
     </style>
 @endsection
 
-@section('title', 'Form Master / Manage Students Classroom')
+@section('title', 'Assign Class Teacher / Manage Students Classroom')
 
 @section('breadcrumb')
     <li>
@@ -25,14 +25,14 @@
     </li>
     <li><i class="fa fa-chevron-right"></i></li>
     <li>
-        <a href="{{ url('/class-rooms/assign-students') }}">Form Master / Manage Students</a>
+        <a href="{{ url('/class-rooms/assign-students') }}">Class Teacher / Manage Students</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page">Assign Form Master / Manage Students in a Class Room</h3>
+    <h3 class="page">Assign Class Teacher / Manage Students in a Class Room</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -41,7 +41,7 @@
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
                             <li class="active">
-                                <a href="#assign_formMaster" data-toggle="tab"><i class="fa fa-ticket"></i>  Assign Class Form Master</a>
+                                <a href="#assign_formMaster" data-toggle="tab"><i class="fa fa-ticket"></i>  Assign Class Class Teacher</a>
                             </li>
                             <li>
                                 <a href="#search4student" data-toggle="tab"><i class="fa fa-search"></i> Find /  <i class="fa fa-eye"></i> View Student in Class Room </a>
@@ -226,7 +226,7 @@
         </div>
     </div>
     <select id="tutors" class="form-control hide">
-        <option value="-1">Select Class Master</option>
+        <option value="-1">Select Class Teacher</option>
         @foreach($tutors as $tutor)
             <option value="{{ $tutor->user_id }}">{{ $tutor->fullNames() }}</option>
         @endforeach

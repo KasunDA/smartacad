@@ -59,12 +59,11 @@ class RolesController extends Controller
     public function getDelete($id)
     {
         $roles = Role::findOrFail($id);
-        //Delete The Warder Record
+        //Delete The Role Record
         $delete = ($roles !== null) ? $roles->delete() : null;
 
         if ($delete) {
-            //Delete its Equivalent Users Record
-            $this->setFlashMessage('  Deleted!!! ' . $roles->menu_header . ' role have been deleted.', 1);
+            $this->setFlashMessage('  Deleted!!! ' . $roles->role . ' role have been deleted.', 1);
         } else {
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
@@ -77,6 +76,7 @@ class RolesController extends Controller
      */
     public function getUsersRoles($encodeId = null)
     {
+        // TODO:: Add Ajax Data Table the to records
         $decodeId = ($encodeId === null) ? Role::DEFAULT_ROLE : $this->getHashIds()->decode($encodeId)[0];
         $role = Role::findorFail($decodeId);
         if (!Auth::user()->hasRole('developer')) {

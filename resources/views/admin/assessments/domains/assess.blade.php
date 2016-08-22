@@ -18,7 +18,7 @@
 
 
 @section('content')
-    <h3 class="page">Students Domain Assessments</h3>
+    <h3 class="page">Students Affective Domain Assessments</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-10 margin-bottom-10">

@@ -27,7 +27,7 @@
                 position:absolute;
                 left:779px;
                 top:10px;
-                width:330px;
+                width:315px;
                 z-index:2;
             }
             #apDi1 {

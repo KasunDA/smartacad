@@ -74,7 +74,7 @@
                                                     {!! Form::text('menu_header[]', $menu_header->menu_header, ['placeholder'=>'Menu Header', 'class'=>'form-control', 'required'=>'required']) !!}
                                                     {!! Form::hidden('menu_header_id[]', $menu_header->menu_header_id, ['class'=>'form-control']) !!}
                                                 </td>
-                                                <td> {!! Form::select('active[]', [''=>'Status', 1=>'Enable', 0=>'Disable'], $menu_header->active, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}</td>
+                                                <td> {!! Form::select('active[]', [''=>'Status', 1=>'Enable', 0=>'Disable'], $menu_header->active, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>
                                                     <select multiple class="form-control selectpicker"
                                                             name="role_id[{{$i}}][]">
@@ -105,7 +105,7 @@
                                                 {!! Form::text('menu_header[]', '', ['placeholder'=>'Menu Header', 'class'=>'form-control', 'required'=>'required']) !!}
                                                 {!! Form::hidden('menu_header_id[]', '-1', ['class'=>'form-control']) !!}
                                             </td>
-                                            <td>{!! Form::select('active[]', [''=>'Status', 1=>'Enable', 0=>'Disable'],'', ['class'=>'form-control selectpicker', 'required'=>'required']) !!}</td>
+                                            <td>{!! Form::select('active[]', [''=>'Status', 1=>'Enable', 0=>'Disable'],'', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                             <td>
                                                 <select multiple class="form-control selectpicker" name="role_id[1][]">
                                                     @foreach($roles as $role)

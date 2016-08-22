@@ -231,7 +231,7 @@ var UIBlockUI = function() {
             return false;
         });
 
-        //When the search button is clicked for Assigning Class Master
+        //When the search button is clicked for Assigning Class Teacher
         $(document.body).on('submit', '#search_class_master_form', function(){
             var values = $(this).serialize();
             $('#hidden_master_year_id').val($('#academic_year_id').val());
@@ -254,7 +254,7 @@ var UIBlockUI = function() {
                                         <th>#</th>\
                                         <th>Class Room</th>\
                                         <th>No. of Student</th>\
-                                        <th>Class Master</th>\
+                                        <th>Class Teacher</th>\
                                     </tr>\
                                 </thead>\
                                 <tbody>';

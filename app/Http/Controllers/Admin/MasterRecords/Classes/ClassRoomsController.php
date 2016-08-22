@@ -250,7 +250,7 @@ class ClassRoomsController extends Controller
                 $object = new stdClass();
                 $classMaster = $classroom->classMasters()->where('academic_year_id', $inputs['academic_year_id'])->first();
                 $object->user_id = ($classMaster and $classMaster->user()->first()) ? $classMaster->user()->first()->user_id : -1;
-                $object->name = ($classMaster and $classMaster->user()->first()) ? $classMaster->user()->first()->fullNames() : 'Select Class Master';
+                $object->name = ($classMaster and $classMaster->user()->first()) ? $classMaster->user()->first()->fullNames() : 'Select Class Teacher';
                 $object->class_master_id = ($classMaster) ? $classMaster->class_master_id : -1;
                 $object->classroom = $classroom->classroom;
                 $object->classroom_id = $classroom->classroom_id;

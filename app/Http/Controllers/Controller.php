@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin\Users\User;
 use App\Models\School\School;
+use GuzzleHttp\Client;
 use Hashids\Hashids;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
@@ -154,10 +155,15 @@ class Controller extends BaseController
         $username = "ZumaComm";
         $password = "zuma123456";
 
-        $url = "http://107.20.195.151/mcast_ws/?user=$username&password=$password&from=$msg_sender&to=$no&message=$message2";
-//        $url = "http://www.mcastmessaging.com/mcast_ws/?user=$username&password=$password&from=$msg_sender&to=$no&message=$message2";
-        $ret = file($url);
+        $client = new Client();
+        $res = $client->get("http://mcastmessaging.com/mcast_ws_v2/index.php?user=$username&password=$password&from=$msg_sender&to=$no&message=$message2&type=json");
 
-        return $ret;
+        return $res->getStatusCode(); //200
+
+//        $url = "http://mcastmessaging.com/mcast_ws_v2/index.php?user=$username&password=$password&from=$msg_sender&to=$no&message=$message2&type=json";
+//        $url = "http://107.20.195.151/mcast_ws/?user=$username&password=$password&from=$msg_sender&to=$no&message=$message2";
+//        $url = "http://mcastmessaging.com/mcast_ws_v2/index.php?user=ZumaComm&password=zuma123456&from=KayOh&to=2348022020075&message=THE+MESSAGE+IS+HERE&type=json";
+//        $ret = file($url);
+//        return $ret;
     }
 }
