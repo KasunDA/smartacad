@@ -24,7 +24,7 @@ class MenuHeader extends Model
      *
      * @var array
      */
-    protected $fillable = ['menu_header', 'active', 'type','sequence'];
+    protected $fillable = ['menu_header', 'active', 'icon', 'type','sequence'];
 
     /**
      * A Menu header has many Menus

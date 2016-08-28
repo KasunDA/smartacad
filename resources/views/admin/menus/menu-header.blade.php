@@ -56,11 +56,12 @@
                                     <thead>
                                     <tr>
                                         <th style="width: 2%;" class="text-center">#</th>
-                                        <th style="width: 30%;">Title</th>
+                                        <th style="width: 25%;">Title</th>
+                                        <th style="width: 10%;">Icon</th>
                                         <th style="width: 10%;">Status</th>
                                         <th style="width: 30%;">Role</th>
-                                        <th style="width: 10%;">Type</th>
-                                        <th style="width: 10%;">Order</th>
+                                        <th style="width: 8%;">Type</th>
+                                        <th style="width: 7%;">Order</th>
                                         <th style="width: 8%;">Actions</th>
                                     </tr>
                                     </thead>
@@ -73,6 +74,12 @@
                                                 <td>
                                                     {!! Form::text('menu_header[]', $menu_header->menu_header, ['placeholder'=>'Menu Header', 'class'=>'form-control', 'required'=>'required']) !!}
                                                     {!! Form::hidden('menu_header_id[]', $menu_header->menu_header_id, ['class'=>'form-control']) !!}
+                                                </td>
+                                                <td>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon"><i class="{{$menu_header->icon}}"></i></span>
+                                                        {!! Form::text('icon[]', $menu_header->icon, ['placeholder'=>'Icon', 'class'=>'form-control']) !!}
+                                                    </div>
                                                 </td>
                                                 <td> {!! Form::select('active[]', [''=>'Status', 1=>'Enable', 0=>'Disable'], $menu_header->active, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>
@@ -105,6 +112,12 @@
                                                 {!! Form::text('menu_header[]', '', ['placeholder'=>'Menu Header', 'class'=>'form-control', 'required'=>'required']) !!}
                                                 {!! Form::hidden('menu_header_id[]', '-1', ['class'=>'form-control']) !!}
                                             </td>
+                                            <td>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"><i class=""></i></span>
+                                                    {!! Form::text('icon[]', '', ['placeholder'=>'Icon', 'class'=>'form-control']) !!}
+                                                </div>
+                                            </td>
                                             <td>{!! Form::select('active[]', [''=>'Status', 1=>'Enable', 0=>'Disable'],'', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                             <td>
                                                 <select multiple class="form-control selectpicker" name="role_id[1][]">
@@ -126,11 +139,12 @@
                                     <tfoot>
                                     <tr>
                                         <th style="width: 2%;" class="text-center">#</th>
-                                        <th style="width: 30%;">Title</th>
+                                        <th style="width: 25%;">Title</th>
+                                        <th style="width: 10%;">Icon</th>
                                         <th style="width: 10%;">Status</th>
                                         <th style="width: 30%;">Role</th>
-                                        <th style="width: 10%;">Type</th>
-                                        <th style="width: 10%;">Order</th>
+                                        <th style="width: 8%;">Type</th>
+                                        <th style="width: 7%;">Order</th>
                                         <th style="width: 8%;">Actions</th>
                                     </tr>
                                     </tfoot>

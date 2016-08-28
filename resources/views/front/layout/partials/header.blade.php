@@ -5,9 +5,9 @@
         <div class="container">
             <!-- BEGIN LOGO -->
             <div class="page-logo">
-                <a href="index.html">
-                    <img src="../assets/layouts/layout3/img/logo-default.jpg" alt="logo" class="logo-default">
-                </a>
+                <a href="/">
+                    <img src="{{ asset('assets/layouts/layout/img/logo.png') }}" alt="logo" class="logo-default" /> </a>
+                <div class="menu-toggler sidebar-toggler"> </div>
             </div>
             <!-- END LOGO -->
             <!-- BEGIN RESPONSIVE MENU TOGGLER -->
@@ -19,23 +19,30 @@
                     <li class="dropdown dropdown-user dropdown-dark">
                         <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"
                            data-close-others="true">
-                            @if(Auth::check())
+                            @if(Auth::check() and Auth::user()->getAvatarPath())
                                 <img alt="" class="img-circle" src="{{ Auth::user()->getAvatarPath() }}"/>
                             @else
                                 <img alt="" class="img-circle" src="{{ asset('/uploads/no-image.jpg') }}"/>
                             @endif
                             <span class="username username-hide-mobile">@if(Auth::check()) {{ Auth::user()->fullNames() }} @endif</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-default">
-                            <li>
-                                <a href="page_user_profile_1.html">
-                                    <i class="icon-user"></i> My Profile </a>
-                            </li>
-                            <li>
-                                <a href="page_user_login_1.html">
-                                    <i class="icon-key"></i> Log Out </a>
-                            </li>
-                        </ul>
+                        @if(Auth::check())
+                            <ul class="dropdown-menu dropdown-menu-default">
+                                <li>
+                                    <a href="{{ url('/profiles') }}">
+                                        <i class="icon-user"></i> My Profile </a>
+                                </li>
+                                <li class="divider"> </li>
+                                <li>
+                                    <a href="{{ url('/users/change') }}">
+                                        <i class="icon-lock"></i> Change Password </a>
+                                </li>
+                                <li>
+                                    <a href="{{ url('/auth/logout') }}">
+                                        <i class="fa fa-power-off"></i> Log Out </a>
+                                </li>
+                            </ul>
+                        @endif
                     </li>
                     <!-- END USER LOGIN DROPDOWN -->
                 </ul>

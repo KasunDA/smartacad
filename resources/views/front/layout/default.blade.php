@@ -44,7 +44,7 @@ License: You must have a valid license purchased only from themeforest(the above
     <link href="{{ asset('assets/layouts/layout3/css/themes/default.css') }}" rel="stylesheet" type="text/css" id="style_color" />
     <link href="{{ asset('assets/layouts/layout3/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- END THEME LAYOUT STYLES -->
-    <link rel="shortcut icon" href="favicon.ico" /> </head>
+    <link rel="shortcut icon" href="{{ asset('assets/pages/img/favicon.png') }}" /> </head>
 <!-- END HEAD -->
 
 <body class="page-container-bg-solid page-boxed">
@@ -76,20 +76,11 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- END CONTAINER -->
 <!-- BEGIN FOOTER -->
 @include('front.layout.partials.footer')
-<!-- BEGIN INNER FOOTER -->
-<div class="page-footer">
-    <div class="container"> 2014 &copy; Metronic by keenthemes.
-        <a href="http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes" title="Purchase Metronic just for 27$ and get lifetime updates for free" target="_blank">Purchase Metronic!</a>
-    </div>
-</div>
-<div class="scroll-to-top">
-    <i class="icon-arrow-up"></i>
-</div>
-<!-- END INNER FOOTER -->
 <!-- END FOOTER -->
+
 <!--[if lt IE 9]>
-<script src="../assets/global/plugins/respond.min.js"></script>
-<script src="../assets/global/plugins/excanvas.min.js"></script>
+<script src="{{ asset('assets/global/plugins/respond.min.js')}}"></script>
+<script src="{{ asset('assets/global/plugins/excanvas.min.js')}}"></script>
 <![endif]-->
 <!-- BEGIN CORE PLUGINS -->
 <!-- BEGIN CORE PLUGINS -->

@@ -26,9 +26,10 @@ class AppServiceProvider extends ServiceProvider
                 if($active_header->menus()->count() !== 0){
                     if($active_header->type == 1){
                         $active_headers[] = $active_header;
-                    }else if($active_header->type == 2){
-                        $active_home_menu[] = $active_header;
                     }
+                }
+                if($active_header->type == 2){
+                    $active_home_menu[] = $active_header;
                 }
             }
             view()->share('school_name', 'Solid Step International School');

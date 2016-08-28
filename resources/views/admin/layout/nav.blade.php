@@ -4,7 +4,7 @@
         <!-- BEGIN NOTIFICATION DROPDOWN -->
         <li class="dropdown dropdown-user">
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                @if(Auth::check())
+                @if(Auth::check() and Auth::user()->getAvatarPath())
                     <img alt="" class="img-circle" src="{{ Auth::user()->getAvatarPath() }}" />
                 @else
                     <img alt="" class="img-circle" src="{{ asset('/uploads/no-image.jpg') }}" />

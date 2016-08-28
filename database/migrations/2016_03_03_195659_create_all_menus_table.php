@@ -16,6 +16,7 @@ class CreateAllMenusTable extends Migration
             $table->increments('menu_header_id');
             $table->string('menu_header', 150);
             $table->integer('active')->unsigned()->default(1);
+            $table->string('icon')->nullable();
             $table->integer('sequence')->unsigned();
             $table->integer('type')->unsigned()->default(1);
             $table->timestamps();
@@ -28,7 +29,7 @@ class CreateAllMenusTable extends Migration
             $table->integer('active')->unsigned()->default(1);
             $table->integer('sequence')->unsigned();
             $table->integer('type')->unsigned()->default(1);
-            $table->string('icon');
+            $table->string('icon')->nullable();
             $table->integer('menu_header_id')->unsigned()->index();
             $table->timestamps();
         });

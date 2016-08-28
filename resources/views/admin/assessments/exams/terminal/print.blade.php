@@ -101,16 +101,16 @@
                         <thead>
                             <tr style="font-weight:bold; background-color:#CCCCCC;">
                                 <th width="260" colspan="2"></th>
-                                <th width="300" colspan="2" style="text-align: center">Assessment Scores</th>
-                                <th width="200" style="text-align: center">Total</th>
+                                <th width="330" colspan="2" style="text-align: center">Assessment Scores</th>
+                                <th width="170" style="text-align: center">Total</th>
                                 <th width="200" colspan="2" style="text-align: center">Grade / Remark</th>
                             </tr>
                             <tr style="font-weight:bold; background-color:#CCCCCC;">
                                 <th width="8">#</th>
                                 <th width="252">Subject Name</th>
                                 <th width="90">C. A ({{$classroom->classLevel()->first()->classGroup()->first()->ca_weight_point}})</th>
-                                <th width="90">Exam ({{$classroom->classLevel()->first()->classGroup()->first()->exam_weight_point}})</th>
-                                <th width="120">
+                                <th width="100">Exam ({{$classroom->classLevel()->first()->classGroup()->first()->exam_weight_point}})</th>
+                                <th width="110">
                                     Total ({{$classroom->classLevel()->first()->classGroup()->first()->ca_weight_point +
                                         $classroom->classLevel()->first()->classGroup()->first()->exam_weight_point}})
                                 </th>
@@ -151,8 +151,8 @@
                                 <th width="8">#</th>
                                 <th width="252">Subject Name</th>
                                 <th width="90">C. A ({{$classroom->classLevel()->first()->classGroup()->first()->ca_weight_point}})</th>
-                                <th width="90">Exam ({{$classroom->classLevel()->first()->classGroup()->first()->exam_weight_point}})</th>
-                                <th width="120">
+                                <th width="100">Exam ({{$classroom->classLevel()->first()->classGroup()->first()->exam_weight_point}})</th>
+                                <th width="110">
                                     Total ({{$classroom->classLevel()->first()->classGroup()->first()->ca_weight_point +
                                         $classroom->classLevel()->first()->classGroup()->first()->exam_weight_point}})
                                 </th>
@@ -192,7 +192,7 @@
                             </td>
                         </tr>
                     </table>
-                    <h6 align="center" style="text-align: center">Powered by {!! (env('APP_NAME')) ? env('APP_NAME') : 'Smart School' !!} ™</h6>
+                    <h6 align="center" style="text-align: center">Powered by {!! (env('DEVELOPER_SITE_NAME')) ? env('DEVELOPER_SITE_NAME') : 'Smart School' !!} ™</h6>
                 </div>
                 <div id="apDiv2">
                     @if($term->nextAcademicTerm())
