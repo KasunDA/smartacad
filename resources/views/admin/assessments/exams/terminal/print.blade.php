@@ -27,7 +27,7 @@
                 position:absolute;
                 left:779px;
                 top:10px;
-                width:315px;
+                width:310px;
                 z-index:2;
             }
             #apDi1 {
@@ -192,7 +192,12 @@
                             </td>
                         </tr>
                     </table>
-                    <h6 align="center" style="text-align: center">Powered by {!! (env('DEVELOPER_SITE_NAME')) ? env('DEVELOPER_SITE_NAME') : 'Smart School' !!} ™</h6>
+                    <h6 align="center" style="text-align: center">
+                        Powered by
+                        <a href="{{ env('DEVELOPER_SITE_ADDRESS') }}" title="{{ env('DEVELOPER_SITE_NAME') }}" target="_blank">
+                            {!! (env('DEVELOPER_SITE_NAME')) ? env('DEVELOPER_SITE_NAME') : 'Smart School' !!} ™
+                        </a>
+                    </h6>
                 </div>
                 <div id="apDiv2">
                     @if($term->nextAcademicTerm())

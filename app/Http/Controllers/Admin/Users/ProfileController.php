@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Users;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Accounts\Sponsor;
 use App\Models\School\Setups\Lga;
 use App\Models\School\Setups\Salutation;
 use App\Models\School\Setups\State;
@@ -50,6 +51,10 @@ class ProfileController extends Controller
     public function getIndex()
     {
         $user = Auth::user();
+
+        if(Auth::user()->user_type_id === Sponsor::USER_TYPE)
+            // render PARENT / STUDENT page
+            return view('front.profile.view', compact('user'));
         return view('admin.profile.view', compact('user'));
     }
 

@@ -29,11 +29,7 @@ Route::group(['middleware' => ['web']], function () {
     Route::get('/', function () {
         return redirect('/dashboard');
     });
-
-    Route::get('/home', function () {
-        return view('front.index');
-    });
-
+    
     //Dependent List Box
 //    Route::group(array('prefix'=>'list-box'), function(){
 //        // Ajax Get Local Governments Based on the state

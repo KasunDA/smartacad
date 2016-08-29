@@ -172,12 +172,13 @@ class MessageController extends Controller
         if (isset($inputs['message']) and $inputs['message'] != '') {
             for ($i = 0; $i < count($nos); $i++) {
                 $res = $this->sendSMS($inputs['message'], $nos[$i]);
-                if ($res == 200) $count++;
+//                if ($res == 200)
+                $count++;
             }
-
-            if ($count > 0) $this->setFlashMessage($count . ' individual message has been sent', 1);
+            $this->setFlashMessage($count . ' individual message has been sent', 1);
+//            if ($count > 0)
         }else{
-            $this->setFlashMessage('The message Content was omitted...kindly fill it in before sending the message', 2);
+            $this->setFlashMessage('The message Content was omitted...kindly fill it in, before sending the message', 2);
         }
 
         return redirect('/messages');
@@ -196,9 +197,10 @@ class MessageController extends Controller
         $count = 0;
 
         if($type == '#sponsor'){
-            $nos = User::where('user_type_id', Sponsor::USER_TYPE)->where('status', 1)->distinct()->lists('phone_no')->toArray();;
+            $nos = User::where('user_type_id', Sponsor::USER_TYPE)->where('status', 1)->distinct()->lists('phone_no')->toArray();
         }elseif($type == '#staff'){
-            $nos = User::where('user_type_id', Staff::USER_TYPE)->where('status', 1)->distinct()->lists('phone_no')->toArray();;
+            $nos = User::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())
+                ->where('user_type_id', '<>', Sponsor::USER_TYPE)->where('status', 1)->distinct()->lists('phone_no')->toArray();
         }
 
         //TODO :: uncomment

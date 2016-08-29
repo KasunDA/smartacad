@@ -14,13 +14,14 @@ $(function () {
         clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
         clone_row.children(':nth-child(2)').children('input').val('');
         clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
-        clone_row.children(':nth-child(3)').children('select').val('');
+        clone_row.children(':nth-child(3)').children('input').val('');
+        clone_row.children(':nth-child(4)').children('select').val('');
 
         new_role.children('select').attr('name', 'role_id['+count+'][]');
-        clone_row.children(':nth-child(4)').html(new_role.html());
+        clone_row.children(':nth-child(5)').html(new_role.html());
 
-        clone_row.children(':nth-child(5)').children('input').val('');
         clone_row.children(':nth-child(6)').children('input').val('');
+        clone_row.children(':nth-child(7)').children('input').val('');
         clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-sm remove_menu_header"><span class="fa fa-times"></span> Remove</button>');
     });
 
