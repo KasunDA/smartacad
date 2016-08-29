@@ -10,6 +10,6 @@ use App\Http\Controllers\Controller;
 class HomeController extends Controller
 {
     public function getIndex(){
-        return view('front.dashboard.home');
+        return view('front.dashboards.home');
     }
 }

@@ -34,7 +34,7 @@
                                 </li>
                                 <li class="divider"> </li>
                                 <li>
-                                    <a href="{{ url('/users/change') }}">
+                                    <a href="{{ url('/profiles/edit#password') }}">
                                         <i class="icon-lock"></i> Change Password </a>
                                 </li>
                                 <li>

@@ -47,8 +47,9 @@ License: You must have a valid license purchased only from themeforest(the above
     <link rel="shortcut icon" href="{{ asset('assets/pages/img/favicon.png') }}" /> </head>
 <!-- END HEAD -->
 
-<body class="page-container-bg-solid page-boxed">
+<body class="page-container-bg-solid page-header-menu-fixed page-boxed" onload="javascript:showTime();">
 @include('front.layout.partials.header')
+
 <!-- BEGIN CONTAINER -->
 <div class="page-container">
     <!-- BEGIN CONTENT -->
@@ -56,24 +57,48 @@ License: You must have a valid license purchased only from themeforest(the above
         <!-- BEGIN CONTENT BODY -->
         <!-- BEGIN PAGE HEAD-->
         <div class="page-head">
+
             <div class="container">
-                @yield('page-title')
+                <!-- BEGIN PAGE TITLE -->
+                <div class="page-title">
+                    @yield('page-title')
+                </div>
+                <!-- END PAGE TITLE -->
             </div>
         </div>
         <!-- END PAGE HEAD-->
         <!-- BEGIN PAGE CONTENT BODY -->
         <div class="page-content">
             <div class="container">
-                @yield('breadcrumb')
-                @yield('content')
+
+                <!-- BEGIN PAGE BREADCRUMBS -->
+                <ul class="page-breadcrumb breadcrumb">
+                    @yield('breadcrumb')
+                    <li><i class="fa fa-calendar"></i> <?php echo '  ' . date("D, jS M, Y");  ?></li>
+                    <li><i class="glyphicon glyphicon-time"></i> <span id="timer"></span></li>
+                </ul>
+                <!-- END PAGE BREADCRUMBS -->
+
+                <!-- BEGIN PAGE CONTENT INNER -->
+                <div class="page-content-inner">
+                    <div class="row">
+                        <!-- start: FLASH MESSAGE -->
+                        @if(Session::has('flash_message'))
+                        {!! Session::get('flash_message') !!}
+                        @endif
+                                <!-- end: FLASH MESSAGE -->
+                        @yield('content')
+                    </div>
+                </div>
+                <!-- END PAGE CONTENT INNER -->
             </div>
         </div>
         <!-- END PAGE CONTENT BODY -->
         <!-- END CONTENT BODY -->
     </div>
     <!-- END CONTENT -->
-</div>
-<!-- END CONTAINER -->
+<!-- BEGIN CONTAINER -->
+
 <!-- BEGIN FOOTER -->
 @include('front.layout.partials.footer')
 <!-- END FOOTER -->

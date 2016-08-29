@@ -42,8 +42,8 @@
             {{ env('DEVELOPER_SITE_NAME') }}
         </a>
     </div>
-</div>
-<div class="scroll-to-top">
-    <i class="icon-arrow-up"></i>
+    <div class="scroll-to-top">
+        <i class="icon-arrow-up"></i>
+    </div>
 </div>
 <!-- END INNER FOOTER -->

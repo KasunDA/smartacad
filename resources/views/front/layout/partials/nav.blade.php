@@ -44,9 +44,9 @@
             {{--</ul>--}}
         {{--</div>--}}
 
-        <div class="hor-menu  ">
-            <ul class="nav navbar-nav">
-                <li class="menu-dropdown classic-menu-dropdown ">
+        <div class="hor-menu">
+            <ul class="nav navbar-nav page-sidebar-menu">
+                <li class="menu-dropdown classic-menu-dropdown active">
                     <a href="{{ url('/') }}"><i class="fa fa-dashboard"></i>  Dashboard</a>
                 </li>
 
