@@ -150,7 +150,7 @@ class User extends Authenticatable
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function students(){
-        return $this->hasMany('App\Models\Admin\Accounts\Students\Student');
+        return $this->hasMany('App\Models\Admin\Accounts\Students\Student', 'sponsor_id');
     }
 
     /**

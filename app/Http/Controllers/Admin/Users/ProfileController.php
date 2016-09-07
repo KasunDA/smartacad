@@ -52,10 +52,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        if(Auth::user()->user_type_id === Sponsor::USER_TYPE)
-            // render PARENT / STUDENT page
-            return view('front.profile.view', compact('user'));
-        return view('admin.profile.view', compact('user'));
+        return view($this->view . 'profile.view', compact('user'));
     }
 
     /**
@@ -75,7 +72,7 @@ class ProfileController extends Controller
             session()->put('active', 'avatar');
         }
 
-        return view('admin.profile.edit', compact('user', 'salutations', 'states', 'lga', 'lgas'));
+        return view($this->view . 'profile.edit', compact('user', 'salutations', 'states', 'lga', 'lgas'));
     }
 
     /**

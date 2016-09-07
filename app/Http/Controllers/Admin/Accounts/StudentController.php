@@ -246,12 +246,12 @@ class StudentController extends Controller
         if ($this->validator($inputs)->fails())
         {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/students/edit')->withErrors($this->validator($inputs))->withInput();
+            return redirect('/students/edit/'.$this->getHashIds()->encode($inputs['student_id']))->withErrors($this->validator($inputs))->withInput();
         }
 
         if($inputs['sponsor_id'] < 1){
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/students/edit')->withErrors(['Choose Student Sponsor From The List of Suggested Sponsors!'])->withInput();;
+            return redirect('/students/edit/'.$this->getHashIds()->encode($inputs['student_id']))->withErrors(['Choose Student Sponsor From The List of Suggested Sponsors!'])->withInput();;
         }
 
         $student->update($inputs);

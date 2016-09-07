@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Users\User;
 use App\Models\School\School;
 use GuzzleHttp\Client;
@@ -22,6 +23,8 @@ class Controller extends BaseController
 
 
     public $school_profile;
+    
+    public $view;
 
     /**
      *
@@ -32,6 +35,11 @@ class Controller extends BaseController
         $this->middleware('auth');
         if( Schema::connection('admin_mysql')->hasTable('schools') ){
             $this->school_profile = School::findOrFail(env('SCHOOL_ID'));
+        }
+        
+        if(Auth::check()){
+            // render PARENT / STUDENT page
+            $this->view = (Auth::user()->user_type_id === Sponsor::USER_TYPE) ? 'front.' : 'admin.';
         }
 
         //Check if the user has permission to perform such action

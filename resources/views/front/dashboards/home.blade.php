@@ -1,8 +1,8 @@
 @extends('front.layout.default')
 
 @section('page-level-css')
-<!-- BEGIN PAGE LEVEL STYLES -->
-    <link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css"/>
+        <!-- BEGIN PAGE LEVEL STYLES -->
+<link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css"/>
 <!-- END PAGE LEVEL STYLES -->
 @endsection
 

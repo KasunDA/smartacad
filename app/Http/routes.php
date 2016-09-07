@@ -38,8 +38,10 @@ Route::group(['middleware' => ['web']], function () {
 //        Route::get('/classroom/{id}', 'Admin\ListBoxController@classroom');
 //    });
 
+    //Front End
     Route::controllers([
-        'home' => 'Front\HomeController'
+        'home' => 'Front\HomeController',
+        'my-wards' => 'Front\Students\StudentController'
     ]);
 
     Route::auth();

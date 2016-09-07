@@ -53,6 +53,11 @@ class DashboardController extends Controller
                 ->where(function ($query) { $query->whereNull('assessment_id')->orWhere('marked', 2); })->get();
 
             return view('admin.dashboards.staff', compact('assessments'));
+        }else if(Auth::user()->user_type_id == Sponsor::USER_TYPE){
+            $assessments = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->where('tutor_id', Auth::user()->user_id)
+                ->where(function ($query) { $query->whereNull('assessment_id')->orWhere('marked', 2); })->get();
+
+            return view('front.dashboards.dashboard', compact('assessments'));
         }else{
             $unmarked = DB::table('subjects_assessmentsviews')
                 ->select('tutor', 'tutor_id', DB::raw('COUNT(subject_classroom_id) AS subjects'))
