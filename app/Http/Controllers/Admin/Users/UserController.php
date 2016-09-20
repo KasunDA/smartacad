@@ -37,8 +37,8 @@ class UserController extends Controller
         $messages = [
             'first_name.required' => 'First Name is Required!',
             'last_name.required' => 'Last Name is Required!',
-            'email.unique' => 'This E-Mail Address Has Already Been Assigned!',
-            'phone_no.unique' => 'The Mobile Number Has Already Been Assigned!',
+            'email.unique' => 'This E-Mail Address Has Already Been Assigned Kindly Verify That the User Does Exist!',
+            'phone_no.unique' => 'The Mobile Number Has Already Been Assigned Kindly Verify That the User Does Exist!',
             'gender.required' => 'Gender is Required!',
             'user_type_id.required' => 'User Type is Required!',
         ];

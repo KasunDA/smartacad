@@ -192,23 +192,32 @@ class StudentController extends Controller
             return redirect('/students/create')->withErrors(['Choose Student Sponsor From The List of Suggested Sponsors!'])->withInput();;
         }
 
-        // Store the Record...
-        $input['created_by'] = Auth::user()->user_id;
-        $input['admitted_term_id'] = AcademicTerm::activeTerm()->academic_term_id;
-        $student = Student::create($input);
-        if($student->save()){
-            $class = new StudentClass();
-            $class->student_id = $student->student_id;
-            $class->classroom_id = $input['classroom_id'];
-            $class->academic_year_id = AcademicYear::activeYear()->academic_year_id;
-            $class->save();
-            $student->student_no = trim('STD'. str_pad($student->student_id, 5, '0', STR_PAD_LEFT));
-            $student->save();
-            // Set the flash message
-            $this->setFlashMessage('Saved!!! '.$student->fullNames().' have successfully been saved', 1);
+        //Validate if the student already exist in the system
+        $check = Student::where('sponsor_id', $input['sponsor_id'])->where('first_name', trim($input['first_name']))
+            ->where('last_name', trim($input['last_name']))->count();
+        if($check > 0){
+            $this->setFlashMessage('Warning!!! You have error(s) while filling the form.', 2);
+            return redirect('/students/create')->withErrors(['message'=>'The Student '.$input['first_name'].' ' .$input['last_name'].' Already Exist.'])->withInput();
+        }else {
+
+            // Store the Record...
+            $input['created_by'] = Auth::user()->user_id;
+            $input['admitted_term_id'] = AcademicTerm::activeTerm()->academic_term_id;
+            $student = Student::create($input);
+            if ($student->save()) {
+                $class = new StudentClass();
+                $class->student_id = $student->student_id;
+                $class->classroom_id = $input['classroom_id'];
+                $class->academic_year_id = AcademicYear::activeYear()->academic_year_id;
+                $class->save();
+                $student->student_no = trim('STD' . str_pad($student->student_id, 5, '0', STR_PAD_LEFT));
+                $student->save();
+                // Set the flash message
+                $this->setFlashMessage('Saved!!! ' . $student->fullNames() . ' have successfully been saved', 1);
+            }
+            // redirect to the create new warder page
+            return redirect('/students');
         }
-        // redirect to the create new warder page
-        return redirect('/students');
     }
 
     /**
