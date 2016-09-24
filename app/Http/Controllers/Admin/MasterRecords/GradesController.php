@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\MasterRecords;
 
 use App\Models\Admin\MasterRecords\Classes\ClassGroup;
 use App\Models\Admin\MasterRecords\Grade;
+use App\Models\School\School;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -11,6 +12,20 @@ use App\Http\Controllers\Controller;
 
 class GradesController extends Controller
 {
+    protected $school;
+    /**
+     *
+     * Make sure the user is logged in and The Record has been setup
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->school = School::mySchool();
+        if ($this->school->setup == School::GRADE)
+            $this->setFlashMessage('Warning!!! Kindly Setup the Grades records Before Proceeding.', 3);
+        else
+            $this->middleware('setup');
+    }
     /**
      * Display a listing of the Menus for Master Records.
      * @param String $encodeId
@@ -45,6 +60,13 @@ class GradesController extends Controller
                 $count = $count+1;
             }
         }
+        //Update The Setup Process
+        if ($this->school->setup == School::GRADE){
+            $this->school->setup = School::COMPLETED;
+            $this->school->save();
+            return redirect('/dashboard');
+        }
+
         // Set the flash message
         if($count > 0) $this->setFlashMessage($count . ' Grades has been successfully updated.', 1);
         // redirect to the create a new inmate page

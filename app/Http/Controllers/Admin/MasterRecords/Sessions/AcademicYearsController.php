@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\MasterRecords\Sessions;
 
 use App\Models\Admin\MasterRecords\AcademicYear;
+use App\Models\School\School;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -10,6 +11,18 @@ use App\Http\Controllers\Controller;
 
 class AcademicYearsController extends Controller
 {
+    protected $school;
+    /**
+     * Make sure the user is logged in and The Record has been setup
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->school = School::mySchool();
+        if ($this->school->setup == School::ACADEMIC_YEAR)
+            $this->setFlashMessage('Warning!!! Kindly Setup the Academic Years records Before Proceeding.', 3);
+    }
+    
     /**
      * Display a listing of the Menus for Master Records.
      *
@@ -48,9 +61,15 @@ class AcademicYearsController extends Controller
                     $count = $count+1;
                 }
             }
+            //Update The Setup Process
+            if ($this->school->setup == School::ACADEMIC_YEAR){
+                $this->school->setup = School::ACADEMIC_TERM;
+                $this->school->save();
+                return redirect('/academic-terms');
+            }
+            
             // Set the flash message
-            if($count > 0)
-                $this->setFlashMessage($count . ' Academic Year has been successfully updated.', 1);
+            if($count > 0) $this->setFlashMessage($count . ' Academic Year has been successfully updated.', 1);
         }
         // redirect to the create a new inmate page
         return redirect('/academic-years');

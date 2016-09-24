@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\MasterRecords\Classes;
 
 use App\Models\Admin\MasterRecords\Classes\ClassGroup;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
+use App\Models\School\School;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -11,6 +12,21 @@ use App\Http\Controllers\Controller;
 
 class ClassLevelsController extends Controller
 {
+    protected $school;
+    /**
+     *
+     * Make sure the user is logged in and The Record has been setup
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->school = School::mySchool();
+        if ($this->school->setup == School::CLASS_LEVEL)
+            $this->setFlashMessage('Warning!!! Kindly Setup the Class Levels records Before Proceeding.', 3);
+        else
+            $this->middleware('setup');
+    }
+
     /**
      * Display a listing of the Menus for Master Records.
      *
@@ -22,7 +38,6 @@ class ClassLevelsController extends Controller
         $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('Select Class Group', '');
         return view('admin.master-records.classes.class-levels', compact('classlevels', 'classgroups'));
     }
-
 
     /**
      * Insert or Update the class level records
@@ -42,9 +57,16 @@ class ClassLevelsController extends Controller
                 $count = $count+1;
             }
         }
+        //Update The Setup Process
+        if ($this->school->setup == School::CLASS_LEVEL){
+            $this->school->setup = School::CLASS_ROOM;
+            $this->school->save();
+            return redirect('/class-rooms');
+        }
+
         // Set the flash message
-        if($count > 0)
-            $this->setFlashMessage($count . ' Academic Year has been successfully updated.', 1);
+        if($count > 0) $this->setFlashMessage($count . ' Academic Year has been successfully updated.', 1);
+
         // redirect to the create a new inmate page
         return redirect('/class-levels');
     }

@@ -33,10 +33,11 @@ class Controller extends BaseController
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('setup');
         if( Schema::connection('admin_mysql')->hasTable('schools') ){
             $this->school_profile = School::findOrFail(env('SCHOOL_ID'));
         }
-        
+
         if(Auth::check()){
             // render PARENT / STUDENT page
             $this->view = (Auth::user()->user_type_id === Sponsor::USER_TYPE) ? 'front.' : 'admin.';

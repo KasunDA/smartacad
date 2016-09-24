@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\MasterRecords\Sessions;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
+use App\Models\School\School;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -12,6 +13,20 @@ use App\Http\Controllers\Controller;
 
 class AcademicTermsController extends Controller
 {
+    protected $school;
+    /**
+     *
+     * Make sure the user is logged in and The Record has been setup
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->school = School::mySchool();
+        if ($this->school->setup == School::ACADEMIC_TERM)
+            $this->setFlashMessage('Warning!!! Kindly Setup the Academic Terms records Before Proceeding.', 3);
+        else
+            $this->middleware('setup');
+    }
     /**
      * Display a listing of the Menus for Master Records.
      *
@@ -53,6 +68,13 @@ class AcademicTermsController extends Controller
                     $count = $count+1;
                 }
             }
+            //Update The Setup Process
+            if ($this->school->setup == School::ACADEMIC_TERM){
+                $this->school->setup = School::CLASS_GROUP;
+                $this->school->save();
+                return redirect('/class-groups');
+            }
+
             // Set the flash message
             if($count > 0) $this->setFlashMessage($count . ' Academic Term has been successfully updated.', 1);
         }

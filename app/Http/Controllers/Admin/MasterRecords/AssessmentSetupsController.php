@@ -7,6 +7,7 @@ use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup;
 use App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetupDetail;
 use App\Models\Admin\MasterRecords\Classes\ClassGroup;
+use App\Models\School\School;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -14,6 +15,23 @@ use App\Http\Controllers\Controller;
 
 class AssessmentSetupsController extends Controller
 {
+    protected $school;
+    /**
+     *
+     * Make sure the user is logged in and The Record has been setup
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->school = School::mySchool();
+        if ($this->school->setup == School::ASSESSMENT)
+            $this->setFlashMessage('Warning!!! Kindly Setup the Assessments records Before Proceeding.', 3);
+        elseif ($this->school->setup == School::ASSESSMENT_DETAIL)
+            $this->setFlashMessage('Warning!!! Kindly Setup the Assessment Details records Before Proceeding.', 3);
+        else
+            $this->middleware('setup');
+    }
+    
     /**
      * Display a listing of the Menus for Master Records.
      *
@@ -47,6 +65,13 @@ class AssessmentSetupsController extends Controller
                 $count = $count+1;
             }
         }
+        //Update The Setup Process
+        if ($this->school->setup == School::ASSESSMENT){
+            $this->school->setup = School::ASSESSMENT_DETAIL;
+            $this->school->save();
+            return redirect('/assessment-setups/details');
+        }
+        
         // Set the flash message
         if($count > 0) $this->setFlashMessage($count . ' Assessment Setups has been successfully updated.', 1);
         // redirect to the create a new inmate page
@@ -119,6 +144,13 @@ class AssessmentSetupsController extends Controller
                 $count = $count+1;
             }
         }
+        //Update The Setup Process
+        if ($this->school->setup == School::ASSESSMENT_DETAIL){
+            $this->school->setup = School::GRADE;
+            $this->school->save();
+            return redirect('/grades');
+        }
+        
         // Set the flash message
         if($count > 0) $this->setFlashMessage($count . ' Assessment Setups Details has been successfully updated.', 1);
         // redirect to the create a new inmate page

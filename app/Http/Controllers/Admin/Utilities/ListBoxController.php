@@ -11,6 +11,14 @@ use App\Models\School\Setups\Lga;
 class ListBoxController extends Controller
 {
     /**
+     *
+     * Make sure the user is logged in
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    /**
      * Get the local government areas based on the state id
      * @param int $id
      * @return Response

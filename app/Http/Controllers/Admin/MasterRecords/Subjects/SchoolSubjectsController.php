@@ -12,6 +12,21 @@ use App\Http\Controllers\Controller;
 
 class SchoolSubjectsController extends Controller
 {
+    protected $school;
+    /**
+     *
+     * Make sure the user is logged in and The Record has been setup
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->school = School::mySchool();
+        if ($this->school->setup == School::SUBJECT)
+            $this->setFlashMessage('Warning!!! Kindly Setup the Subjects records Before Proceeding.', 3);
+        else
+            $this->middleware('setup');
+    }
+    
     /**
      * Display a listing of the Subjects for Master Records.
      *
@@ -37,6 +52,14 @@ class SchoolSubjectsController extends Controller
         if(isset($inputs['subject_id'])){
             $school = School::mySchool();
             (isset($inputs['subject_id'])) ? $school->subjects()->sync($inputs['subject_id']) : $school->subjects()->sync([]);
+
+            //Update The Setup Process
+            if ($this->school->setup == School::SUBJECT){
+                $this->school->setup = School::SUBJECT_CLASS;
+                $this->school->save();
+                return redirect('/subject-classrooms');
+            }
+            
             // Set the flash message
             $this->setFlashMessage(count($inputs['subject_id']) . ' Subjects has been successfully registered.', 1);
         }else{

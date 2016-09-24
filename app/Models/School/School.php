@@ -42,9 +42,22 @@ class School extends Model
         'website',
         'address',
         'logo',
+        'setup',
         'admin_id',
         'status_id',
     ];
+
+    const ACADEMIC_YEAR = 1;
+    const ACADEMIC_TERM = 2;
+    const CLASS_GROUP = 3;
+    const CLASS_LEVEL = 4;
+    const CLASS_ROOM = 5;
+    const SUBJECT = 6;
+    const SUBJECT_CLASS = 7;
+    const ASSESSMENT = 8;
+    const ASSESSMENT_DETAIL = 9;
+    const GRADE = 10;
+    const COMPLETED = 11;
 
     /**
      * get the school information
