@@ -44,6 +44,12 @@ class DashboardController extends Controller
      */
     public function getIndex()
     {
+        $term = AcademicTerm::activeTerm();
+        if(empty($term)){
+            $this->setFlashMessage('Warning!!! Kindly Setup the Academic Years and Academic Terms Before Proceeding.', 3);
+            return redirect('/academic-terms');
+        }
+
         $sponsors_count = User::where('user_type_id', Sponsor::USER_TYPE)->count();
         $staff_count = User::where('user_type_id', Staff::USER_TYPE)->count();
         $students_count = Student::count();
