@@ -25,7 +25,7 @@ class SetupMiddleware
             case School::CLASS_LEVEL: return redirect('/class-levels');
             case School::CLASS_ROOM: return redirect('/class-rooms');
             case School::SUBJECT: return redirect('/school-subjects');
-            case School::SUBJECT_CLASS: return redirect('/subject-classrooms');
+//            case School::SUBJECT_CLASS: return redirect('/subject-classrooms');
             case School::ASSESSMENT: return redirect('/assessment-setups');
             case School::ASSESSMENT_DETAIL: return redirect('/assessment-setups/details');
             case School::GRADE: return redirect('/grades');

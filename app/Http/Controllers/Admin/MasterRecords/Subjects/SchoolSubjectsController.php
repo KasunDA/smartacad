@@ -55,9 +55,9 @@ class SchoolSubjectsController extends Controller
 
             //Update The Setup Process
             if ($this->school->setup == School::SUBJECT){
-                $this->school->setup = School::SUBJECT_CLASS;
+                $this->school->setup = School::ASSESSMENT;
                 $this->school->save();
-                return redirect('/subject-classrooms');
+                return redirect('/assessment-setups');
             }
             
             // Set the flash message

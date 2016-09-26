@@ -18,20 +18,6 @@ use stdClass;
 
 class SubjectClassRoomsController extends Controller
 {
-    protected $school;
-    /**
-     *
-     * Make sure the user is logged in and The Record has been setup
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->school = School::mySchool();
-        if ($this->school->setup == School::SUBJECT_CLASS)
-            $this->setFlashMessage('Warning!!! Kindly Setup the Subjects Assigned To Class records Before Proceeding.', 3);
-        else
-            $this->middleware('setup');
-    }
     /**
      * Display a listing of the Subjects for Master Records.
      *
@@ -106,12 +92,6 @@ class SubjectClassRoomsController extends Controller
             (isset($result))
                 ? $this->setFlashMessage(count($inputs['subject_id']) . ' Subjects has been successfully assigned to ' . $temp, 1)
                 : $this->setFlashMessage(' Error...Kindly Try Again', 2);
-            //Update The Setup Process
-            if ($this->school->setup == School::SUBJECT_CLASS){
-                $this->school->setup = School::ASSESSMENT;
-                $this->school->save();
-                return redirect('/assessment-setups');
-            }
             
         } else {
             $this->setFlashMessage(' Warning... No Subject was selected to be assign for' . $temp, 2);
