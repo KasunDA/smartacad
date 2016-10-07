@@ -117,6 +117,18 @@
                                             <label class="control-label">User's Type: <span class="font-red">*</span></label>
                                             {!! Form::select('user_type_id', $user_types, $user->user_type_id, ['class'=>'form-control selectpicker input-lg', 'required'=>'required']) !!}
                                         </div>
+                                        <div class="form-group">
+                                            <label class="control-label">User Role(s): <span class="font-red">*</span></label>
+                                            <select multiple class="form-control selectpicker" name="role_id[]">
+                                                @foreach($roles as $role)
+                                                    @if($user->roles() && in_array($role->role_id, $user->roles()->get()->pluck('role_id')->toArray()))
+                                                        <option selected value="{{$role->role_id}}">{{$role->display_name}}</option>
+                                                    @else
+                                                        <option value="{{$role->role_id}}">{{$role->display_name}}</option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     @endif
                                     <div class="margiv-top-10">
                                         <button class="btn green"> Update Info</button>

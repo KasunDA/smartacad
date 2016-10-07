@@ -170,20 +170,20 @@ class UserController extends Controller
         // TODO Sending of SMS
         // TODO:: Grab uploaded file sample of attaching files to mail
         //$attach = $request->file('file');
-        if($user){
+//        if($user){
             //Verification Mail Sending
-            $content = 'Welcome to Smart School, kindly click on the link below to complete your registration. Thank You';
-            $content .= "Here are your credentials <br> Username: <strong>" . $user->email . "</strong>  or <stron>". $user->phone_no." </stron><br>";
-            $content .= "Password: <strong>" . $password . "</strong> ";
-            $result = Mail::send('emails.new-account', ['user'=>$user, 'content'=>$content], function($message) use($user) {
-                $message->from(env('APP_MAIL'), env('APP_NAME'));
-                $message->subject("Account Creation");
-                $message->to($user->email);
+//            $content = 'Welcome to Smart School, kindly click on the link below to complete your registration. Thank You';
+//            $content .= "Here are your credentials <br> Username: <strong>" . $user->email . "</strong>  or <stron>". $user->phone_no." </stron><br>";
+//            $content .= "Password: <strong>" . $password . "</strong> ";
+//            $result = Mail::send('emails.new-account', ['user'=>$user, 'content'=>$content], function($message) use($user) {
+//                $message->from(env('APP_MAIL'), env('APP_NAME'));
+//                $message->subject("Account Creation");
+//                $message->to($user->email);
                 //Attach file
                 //$message->attach($attach);
-            });
-            if($result) $temp = ' and a mail has been sent to '.$user->email;
-        }
+//            });
+//            if($result) $temp = ' and a mail has been sent to '.$user->email;
+//        }
         // Set the flash message
         $this->setFlashMessage('Saved!!! '.$user->fullNames().' have successfully been saved'.$temp, 1);
         return redirect('users/create');
@@ -269,9 +269,14 @@ class UserController extends Controller
     {
         $decodeId = $this->getHashIds()->decode($encodeId);
         $user = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
-        $user_types = UserType::where('type', 2)->lists('user_type', 'user_type_id')->prepend('Select User Type', '');
+        $user_types = (Auth::user()->hasRole('developer'))
+            ? UserType::orderBy('user_type')->pluck('user_type', 'user_type_id')->prepend('Select User Type', '')
+            : UserType::where('type', 2)->orderBy('user_type')->pluck('user_type', 'user_type_id')->prepend('Select User Type', '');
+        $roles = (Auth::user()->hasRole('developer'))
+            ? Role::orderBy('name')->get()//->pluck('display_name', 'role_id')->prepend('Select User Role(s)', '')
+            : Role::orderBy('name')->whereIn('user_type_id', UserType::where('type', 2)->orderBy('user_type')->pluck('user_type_id')->toArray())->get();;
 
-        return view('admin.users.edit', compact('user','user_types'));
+        return view('admin.users.edit', compact('user','user_types', 'roles'));
     }
 
     /**
@@ -311,6 +316,7 @@ class UserController extends Controller
         $user->update($inputs);
 
         if ($user) {
+            if (isset($inputs['role_id'])) $user->roles()->sync($inputs['role_id']);
             // Set the flash message
             $this->setFlashMessage('  Updated!!! ' . $user->fullNames() . ' have successfully been updated.', 1);
             // redirect to the create Committee page and enable the take roll call link
