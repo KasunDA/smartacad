@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.4.14
+-- version 4.5.2
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Aug 22, 2016 at 10:58 PM
--- Server version: 5.6.26
--- PHP Version: 5.6.12
+-- Generation Time: Sep 30, 2016 at 01:41 PM
+-- Server version: 10.1.13-MariaDB
+-- PHP Version: 5.6.23
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `schools`
+-- Database: `smartschools`
 --
 
 -- --------------------------------------------------------
@@ -26,11 +26,11 @@ SET time_zone = "+00:00";
 -- Table structure for table `lgas`
 --
 
-CREATE TABLE IF NOT EXISTS `lgas` (
-  `lga_id` int(3) unsigned NOT NULL,
+CREATE TABLE `lgas` (
+  `lga_id` int(3) UNSIGNED NOT NULL,
   `lga` varchar(50) DEFAULT NULL,
   `state_id` int(3) DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=781 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `lgas`
@@ -824,13 +824,13 @@ INSERT INTO `lgas` (`lga_id`, `lga`, `state_id`) VALUES
 -- Table structure for table `marital_statuses`
 --
 
-CREATE TABLE IF NOT EXISTS `marital_statuses` (
-  `marital_status_id` int(10) unsigned NOT NULL,
+CREATE TABLE `marital_statuses` (
+  `marital_status_id` int(10) UNSIGNED NOT NULL,
   `marital_status` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `marital_status_abbr` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `marital_statuses`
@@ -846,11 +846,11 @@ INSERT INTO `marital_statuses` (`marital_status_id`, `marital_status`, `marital_
 -- Table structure for table `salutations`
 --
 
-CREATE TABLE IF NOT EXISTS `salutations` (
-  `salutation_id` int(10) unsigned NOT NULL,
+CREATE TABLE `salutations` (
+  `salutation_id` int(10) UNSIGNED NOT NULL,
   `salutation` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `salutation_abbr` varchar(15) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `salutations`
@@ -868,29 +868,30 @@ INSERT INTO `salutations` (`salutation_id`, `salutation`, `salutation_abbr`) VAL
 -- Table structure for table `schools`
 --
 
-CREATE TABLE IF NOT EXISTS `schools` (
-  `school_id` int(10) unsigned NOT NULL,
+CREATE TABLE `schools` (
+  `school_id` int(10) UNSIGNED NOT NULL,
   `name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `full_name` varchar(225) COLLATE utf8_unicode_ci NOT NULL,
   `phone_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `phone_no2` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
   `email` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `setup` int(5) NOT NULL DEFAULT '1',
   `motto` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
   `website` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
   `address` text COLLATE utf8_unicode_ci,
   `logo` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `admin_id` int(11) unsigned DEFAULT NULL,
-  `status_id` int(10) unsigned NOT NULL DEFAULT '1',
+  `admin_id` int(11) UNSIGNED DEFAULT NULL,
+  `status_id` int(10) UNSIGNED NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `schools`
 --
 
-INSERT INTO `schools` (`school_id`, `name`, `full_name`, `phone_no`, `phone_no2`, `email`, `motto`, `website`, `address`, `logo`, `admin_id`, `status_id`, `created_at`, `updated_at`) VALUES
-(1, 'Solid Steps', 'Solid Steps International School', '08028834187', '0703774', 'solidstepsch@yahoo.com', 'Taking A Solid Step into Academic Success', 'www.solidsteps.org', '7/9 Williams Bademosi Street, Emmanuel Bus Stop, Off Governor Road, Ikotun, Lagos.', '1_logo.png', 2, 1, '2016-04-17 15:18:14', '2016-05-30 12:58:52');
+INSERT INTO `schools` (`school_id`, `name`, `full_name`, `phone_no`, `phone_no2`, `email`, `setup`, `motto`, `website`, `address`, `logo`, `admin_id`, `status_id`, `created_at`, `updated_at`) VALUES
+(1, 'Solid Steps', 'Solid Steps International School', '08028834187', '0703774', 'solidstepsch@yahoo.com', 10, 'Taking A Solid Step into Academic Success', 'www.solidsteps.org', '7/9 Williams Bademosi Street, Emmanuel Bus Stop, Off Governor Road, Ikotun, Lagos.', '1_logo.png', 2, 1, '2016-04-17 15:18:14', '2016-09-24 19:10:24');
 
 -- --------------------------------------------------------
 
@@ -898,9 +899,9 @@ INSERT INTO `schools` (`school_id`, `name`, `full_name`, `phone_no`, `phone_no2`
 -- Table structure for table `schools_subjects`
 --
 
-CREATE TABLE IF NOT EXISTS `schools_subjects` (
-  `school_id` int(10) unsigned NOT NULL,
-  `subject_id` int(10) unsigned NOT NULL,
+CREATE TABLE `schools_subjects` (
+  `school_id` int(10) UNSIGNED NOT NULL,
+  `subject_id` int(10) UNSIGNED NOT NULL,
   `subject_alias` varchar(225) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -942,13 +943,13 @@ INSERT INTO `schools_subjects` (`school_id`, `subject_id`, `subject_alias`) VALU
 -- Table structure for table `school_databases`
 --
 
-CREATE TABLE IF NOT EXISTS `school_databases` (
-  `school_database_id` int(10) unsigned NOT NULL,
+CREATE TABLE `school_databases` (
+  `school_database_id` int(10) UNSIGNED NOT NULL,
   `host` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `database` varchar(225) COLLATE utf8_unicode_ci NOT NULL,
   `username` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `password` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `school_id` int(10) unsigned NOT NULL,
+  `school_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -959,11 +960,11 @@ CREATE TABLE IF NOT EXISTS `school_databases` (
 -- Table structure for table `states`
 --
 
-CREATE TABLE IF NOT EXISTS `states` (
-  `state_id` int(3) unsigned NOT NULL,
+CREATE TABLE `states` (
+  `state_id` int(3) UNSIGNED NOT NULL,
   `state` varchar(30) DEFAULT NULL,
   `state_code` varchar(5) DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `states`
@@ -1014,11 +1015,11 @@ INSERT INTO `states` (`state_id`, `state`, `state_code`) VALUES
 -- Table structure for table `status`
 --
 
-CREATE TABLE IF NOT EXISTS `status` (
-  `status_id` int(10) unsigned NOT NULL,
+CREATE TABLE `status` (
+  `status_id` int(10) UNSIGNED NOT NULL,
   `status` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `label` varchar(255) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `status`
@@ -1038,14 +1039,14 @@ INSERT INTO `status` (`status_id`, `status`, `label`) VALUES
 -- Table structure for table `subjects`
 --
 
-CREATE TABLE IF NOT EXISTS `subjects` (
-  `subject_id` int(10) unsigned NOT NULL,
+CREATE TABLE `subjects` (
+  `subject_id` int(10) UNSIGNED NOT NULL,
   `subject` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `subject_abbr` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `subject_group_id` int(10) unsigned NOT NULL,
+  `subject_group_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `subjects`
@@ -1107,10 +1108,10 @@ INSERT INTO `subjects` (`subject_id`, `subject`, `subject_abbr`, `subject_group_
 -- Table structure for table `subject_groups`
 --
 
-CREATE TABLE IF NOT EXISTS `subject_groups` (
-  `subject_group_id` int(10) unsigned NOT NULL,
+CREATE TABLE `subject_groups` (
+  `subject_group_id` int(10) UNSIGNED NOT NULL,
   `subject_group` varchar(255) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `subject_groups`
@@ -1204,47 +1205,47 @@ ALTER TABLE `subject_groups`
 -- AUTO_INCREMENT for table `lgas`
 --
 ALTER TABLE `lgas`
-  MODIFY `lga_id` int(3) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=781;
+  MODIFY `lga_id` int(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=781;
 --
 -- AUTO_INCREMENT for table `marital_statuses`
 --
 ALTER TABLE `marital_statuses`
-  MODIFY `marital_status_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
+  MODIFY `marital_status_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT for table `salutations`
 --
 ALTER TABLE `salutations`
-  MODIFY `salutation_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `salutation_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `schools`
 --
 ALTER TABLE `schools`
-  MODIFY `school_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+  MODIFY `school_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `school_databases`
 --
 ALTER TABLE `school_databases`
-  MODIFY `school_database_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `school_database_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `states`
 --
 ALTER TABLE `states`
-  MODIFY `state_id` int(3) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=38;
+  MODIFY `state_id` int(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 --
 -- AUTO_INCREMENT for table `status`
 --
 ALTER TABLE `status`
-  MODIFY `status_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=7;
+  MODIFY `status_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 --
 -- AUTO_INCREMENT for table `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `subject_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=49;
+  MODIFY `subject_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 --
 -- AUTO_INCREMENT for table `subject_groups`
 --
 ALTER TABLE `subject_groups`
-  MODIFY `subject_group_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=8;
+  MODIFY `subject_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 --
 -- Constraints for dumped tables
 --

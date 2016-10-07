@@ -112,6 +112,12 @@
                                         <label class="control-label">Status</label>
                                         {!! Form::select('status', [''=>'Nothing Selected', '1'=>'Activate', '2'=>'Deactivate'], $user->status, ['class'=>'form-control selectpicker input-lg', 'required'=>'required']) !!}
                                     </div>
+                                    @if(Auth::user()->hasRole('developer') or Auth::user()->hasRole('super_admin'))
+                                        <div class="form-group">
+                                            <label class="control-label">User's Type: <span class="font-red">*</span></label>
+                                            {!! Form::select('user_type_id', $user_types, $user->user_type_id, ['class'=>'form-control selectpicker input-lg', 'required'=>'required']) !!}
+                                        </div>
+                                    @endif
                                     <div class="margiv-top-10">
                                         <button class="btn green"> Update Info</button>
                                     </div>

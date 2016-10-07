@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.4.14
+-- version 4.5.2
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Aug 22, 2016 at 10:58 PM
--- Server version: 5.6.26
--- PHP Version: 5.6.12
+-- Generation Time: Sep 30, 2016 at 01:31 PM
+-- Server version: 10.1.13-MariaDB
+-- PHP Version: 5.6.23
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -24,10 +24,8 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_cloneSubjectsAssigned`(IN `TermFromID` INT, IN `TermToID` INT)
-BEGIN
-	#Check to see if records already exist in subject classroom table for the TermToID academic term
-	SET @Exist = (SELECT COUNT(*) FROM subject_classrooms WHERE academic_term_id=TermToID);
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `sp_cloneSubjectsAssigned` (IN `TermFromID` INT, IN `TermToID` INT)  BEGIN
+		SET @Exist = (SELECT COUNT(*) FROM subject_classrooms WHERE academic_term_id=TermToID);
 
 	IF @Exist = 0 THEN
 		Block1: BEGIN
@@ -38,25 +36,20 @@ BEGIN
 				WHERE academic_term_id=TermFromID ORDER BY subject_classroom_id;
 			DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
 
-			#Open The Cursor For Iterating Through The Recordset cur1
-			OPEN cur1;
+						OPEN cur1;
 				REPEAT
 					FETCH cur1 INTO SubClassRoomID, SubjectID, ClassRoomID, TutorID;
 					IF NOT done1 THEN
 						BEGIN
-							#Test to see if the record does not exist before inserting
-							SET @chk = (SELECT COUNT(*) FROM subject_classrooms WHERE subject_id=SubjectID AND classroom_id=ClassRoomID AND academic_term_id=TermToID);
+														SET @chk = (SELECT COUNT(*) FROM subject_classrooms WHERE subject_id=SubjectID AND classroom_id=ClassRoomID AND academic_term_id=TermToID);
 							IF @chk = 0 THEN
 								BEGIN
-									#Insert into subject classroom those newly cloned subjects
-									INSERT INTO subject_classrooms(subject_id, classroom_id, academic_term_id, tutor_id)
+																		INSERT INTO subject_classrooms(subject_id, classroom_id, academic_term_id, tutor_id)
 									VALUES(SubjectID, ClassRoomID, TermToID, TutorID);
 
-									#Get the newly inserted subject classroom id
-									SET @New_ID = LAST_INSERT_ID();
+																		SET @New_ID = LAST_INSERT_ID();
 
-									#Procedure Call -- To register the subjects to the students in that classroom
-									CALL sp_subject2Students(@New_ID);
+																		CALL sp_subject2Students(@New_ID);
 								END;
 							END IF;
 						END;
@@ -67,38 +60,28 @@ BEGIN
 	END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_deleteSubjectClassRoom`(IN `subjectClassroomID` INT)
-BEGIN
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `sp_deleteSubjectClassRoom` (IN `subjectClassroomID` INT)  BEGIN
 
-	-- Delete Exam Details Corresponding to the subject_classroom_id in exmas
-    DELETE FROM exam_details WHERE exam_id IN 
+	    DELETE FROM exam_details WHERE exam_id IN 
     (SELECT exam_id FROM exams WHERE subject_classroom_id = subjectClassroomID);
     
-    -- Delete Exams Corresponding to the subject_classroom_id
-    DELETE FROM exams WHERE subject_classroom_id = subjectClassroomID;
+        DELETE FROM exams WHERE subject_classroom_id = subjectClassroomID;
     
-	-- Delete Assessment Details Corresponding to the subject_classroom_id in assessments
-    DELETE FROM assessment_details WHERE assessment_id IN 
+	    DELETE FROM assessment_details WHERE assessment_id IN 
     (SELECT assessment_id FROM assessments WHERE subject_classroom_id = subjectClassroomID);
     
-    -- Delete Assessments Corresponding to the subject_classroom_id
-    DELETE FROM assessments WHERE subject_classroom_id = subjectClassroomID;
+        DELETE FROM assessments WHERE subject_classroom_id = subjectClassroomID;
     
-    -- Delete the subject the students registered Corresponding to the subject_classroom_id
-    DELETE FROM student_subjects WHERE subject_classroom_id = subjectClassroomID;
+        DELETE FROM student_subjects WHERE subject_classroom_id = subjectClassroomID;
     
-    -- Delete the subject in the classroom Corresponding to the subject_classroom_id
-    DELETE FROM subject_classrooms WHERE subject_classroom_id = subjectClassroomID;
+        DELETE FROM subject_classrooms WHERE subject_classroom_id = subjectClassroomID;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_modifyStudentsSubject`(IN `SubjectClassRoomID` INT, `StudentIDs` VARCHAR(225))
-BEGIN
-	#Create a Temporary Table to Hold The Values
-	DROP TEMPORARY TABLE IF EXISTS StudentTemp;
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `sp_modifyStudentsSubject` (IN `SubjectClassRoomID` INT, `StudentIDs` VARCHAR(225))  BEGIN
+		DROP TEMPORARY TABLE IF EXISTS StudentTemp;
 	CREATE TEMPORARY TABLE IF NOT EXISTS StudentTemp
 	(
-		-- Add the column definitions for the TABLE variable here
-		row_id int AUTO_INCREMENT,
+				row_id int AUTO_INCREMENT,
 		student_id INT, PRIMARY KEY (row_id)
 	);
 
@@ -112,62 +95,47 @@ BEGIN
 				IF student_id = '' THEN
 					LEAVE simple_loop;
 				END IF;
-				# Insert into the attend details table those present
-				INSERT INTO StudentTemp(student_id) SELECT student_id;
+								INSERT INTO StudentTemp(student_id) SELECT student_id;
 			END LOOP simple_loop;
 		END;
 	END IF;
     
     Block1: BEGIN
-		#SUBJECT REGISTERED: Delete All the students that have been removed from the subjects
-        DELETE FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID
+		        DELETE FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID
         AND student_id NOT IN (SELECT student_id FROM StudentTemp);
         
-        #ASSESSMENTS DETAILS: remove the students that was just removed from the list of students to offer the subject
-        DELETE FROM assessment_details WHERE assessment_id IN 
+                DELETE FROM assessment_details WHERE assessment_id IN 
 		(SELECT assessment_id FROM assessments WHERE subject_classroom_id = SubjectClassRoomID)
         AND student_id NOT IN (SELECT student_id FROM StudentTemp);
         
-        #EXAM DETAILS: remove the students that was just removed from the list of students to offer the subject
-		DELETE FROM exam_details WHERE exam_id IN
+        		DELETE FROM exam_details WHERE exam_id IN
 		(SELECT exam_id FROM exams WHERE subject_classroom_id = SubjectClassRoomID)
 		AND student_id NOT IN (SELECT student_id FROM StudentTemp);
 
         
-        #SUBJECT REGISTERED: Insert the newly added students that are not in the list of students
-        INSERT INTO student_subjects(subject_classroom_id, student_id)
+                INSERT INTO student_subjects(subject_classroom_id, student_id)
         SELECT SubjectClassRoomID, student_id FROM StudentTemp 
         WHERE student_id NOT IN (SELECT student_id FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID);
     END Block1;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_populateAssessmentDetail`(IN `AssessmentID` INT)
-BEGIN
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `sp_populateAssessmentDetail` (IN `AssessmentID` INT)  BEGIN
 	SELECT subject_classroom_id, marked INTO @SCR_ID, @MarkStatus
 	FROM assessments WHERE assessment_id=AssessmentID;
 
-	# Check if the continuous assessment has not been marked
-	-- IF @MarkStatus = 2 THEN
-	BEGIN
-		# Insert into the assessment details table the students students that registered the subjects
-		INSERT INTO assessment_details(assessment_id, student_id)
+			BEGIN
+				INSERT INTO assessment_details(assessment_id, student_id)
 			SELECT AssessmentID, student_id FROM student_subjects WHERE subject_classroom_id=@SCR_ID
 			AND student_id NOT IN (SELECT student_id FROM assessment_details WHERE assessment_id=AssessmentID);
 
-		# remove the students that was just removed from the list of students to offer the subject
-		DELETE FROM assessment_details WHERE assessment_id=AssessmentID AND student_id NOT IN
+				DELETE FROM assessment_details WHERE assessment_id=AssessmentID AND student_id NOT IN
 		(SELECT student_id FROM student_subjects WHERE subject_classroom_id=@SCR_ID);
 	END;
-	-- END IF;
-END$$
+	END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_processAssessmentCA`(IN `TermID` INT, IN `TutorID` INT)
-Block0: BEGIN
-	#(tutor_id = TutorID OR ISNULL(TutorID) = 1) 
-	#Check if no tutor was supplied, then its for the academic term else the exam set up it for only the tutor
-	Block1: BEGIN
-		#Declare Variable to be used in looping through the record set or cursor
-		DECLARE done1 BOOLEAN DEFAULT FALSE;
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `sp_processAssessmentCA` (IN `TermID` INT, IN `TutorID` INT)  Block0: BEGIN
+			Block1: BEGIN
+				DECLARE done1 BOOLEAN DEFAULT FALSE;
 		DECLARE StudentID, ClassID, CA_WP INT;
 		DECLARE StudentName VARCHAR(100);
 
@@ -177,16 +145,13 @@ Block0: BEGIN
         GROUP BY student_id, classroom_id, ca_weight_point;
 
 		  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-		  #Open The Cursor For Iterating Through The Recordset cur1
-		  OPEN cur1;
+		  		  OPEN cur1;
 		  REPEAT
 			FETCH cur1 INTO StudentID, ClassID, CA_WP, StudentName;
 			IF NOT done1 THEN
 
-			  -- Second Iteration get the subjects a student offered during the assessment for the academic term
-				Block2: BEGIN
-				-- Declare Variable to be used in looping through the record set or cursor
-				DECLARE done2 BOOLEAN DEFAULT FALSE;
+			  				Block2: BEGIN
+								DECLARE done2 BOOLEAN DEFAULT FALSE;
 				DECLARE SubjectID, SubClassroom int;
 
 				DECLARE cur2 CURSOR FOR
@@ -196,17 +161,14 @@ Block0: BEGIN
 				  GROUP BY subject_id, subject_classroom_id;
 
 					DECLARE CONTINUE HANDLER FOR NOT FOUND SET done2 = TRUE;
-					#Open The Cursor For Iterating Through The Record set cur1
-					OPEN cur2;
+										OPEN cur2;
 					REPEAT
 					  FETCH cur2 INTO SubjectID, SubClassroom;
 					  IF NOT done2 THEN
 
 						SET @TEMP_SUM = 0.0;
-						-- Third Iteration computes each subjects score student offered during the assessment for the academic term
-						  Block3: BEGIN
-						  -- Declare Variable to be used in looping through the record set or cursor
-						  DECLARE done3 BOOLEAN DEFAULT FALSE;
+												  Block3: BEGIN
+						  						  DECLARE done3 BOOLEAN DEFAULT FALSE;
 						  DECLARE W_CA, WW_Point, WW_Percent FLOAT;
 
 						  DECLARE cur3 CURSOR FOR
@@ -215,25 +177,18 @@ Block0: BEGIN
 							AND subject_id=SubjectID AND subject_classroom_id=SubClassroom;
 
 						  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done3 = TRUE;
-						  #Open The Cursor For Iterating Through The Record set cur1
-						  OPEN cur3;
+						  						  OPEN cur3;
 						  REPEAT
 							FETCH cur3 INTO W_CA, WW_Point, WW_Percent;
 							IF NOT done3 THEN
 							  BEGIN
-								-- Get the sum of the weight point percent (100)
-								SET @PercentSUM = (SELECT SUM(percentage) FROM assessment_detailsviews
+																SET @PercentSUM = (SELECT SUM(percentage) FROM assessment_detailsviews
 								WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID AND marked=1
 								AND subject_id=SubjectID AND subject_classroom_id=SubClassroom);
 
-								-- Get the new weight point assigned to the assessment ((25/100) * 30)
-								-- i.e the (assessment weight point percentage (/) divides the sum of the percentages) (*) multiply by the original C.A weight point
-								SET @Temp_WP = ROUND(((WW_Percent / @PercentSUM) * CA_WP), 2);
-								-- Get the new calculated C.A of the assessment ((11/15) * (((25/100) * 30)))
-								-- i.e the (assessment C.A score (/) divides the assessment weight point) (*) multiply by the calculated weight point above
-								SET @Temp_CA = ROUND(((W_CA / WW_Point) * @Temp_WP), 2);
-								-- Sum up all the calculated C.A weekly reports for the subjects
-								SET @TEMP_SUM = @TEMP_SUM + @TEMP_CA;
+																								SET @Temp_WP = ROUND(((WW_Percent / @PercentSUM) * CA_WP), 2);
+																								SET @Temp_CA = ROUND(((W_CA / WW_Point) * @Temp_WP), 2);
+																SET @TEMP_SUM = @TEMP_SUM + @TEMP_CA;
 
 							  END;
 
@@ -243,13 +198,11 @@ Block0: BEGIN
 						END Block3;
 					  
 						  Block3_1: BEGIN
-						  -- Get the exam details id for that subject
-						  SET @ExamDetailID = (SELECT exam_detail_id FROM exams_detailsviews
+						  						  SET @ExamDetailID = (SELECT exam_detail_id FROM exams_detailsviews
 						  WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID
 								AND subject_id=SubjectID AND subject_classroom_id=SubClassroom);
 
-						  -- Update the exam details table and set the students C.A for that subject with the calculated C.A score
-						  UPDATE exam_details SET ca=@TEMP_SUM WHERE exam_detail_id=@ExamDetailID;
+						  						  UPDATE exam_details SET ca=@TEMP_SUM WHERE exam_detail_id=@ExamDetailID;
 
 						END Block3_1;
 					  END IF;
@@ -263,26 +216,19 @@ Block0: BEGIN
     END Block1;
   END Block0$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_processExams`(IN `TermID` INT, IN `TutorID` INT)
-BEGIN
-	#(tutor_id = TutorID OR ISNULL(TutorID) = 1) 
-    #Check if no tutor was supplied, then its for the academic term else the exam set up it for only the tutor
-	Block0: BEGIN
-		#Delete the exams details record for that term for the tutor assigned, if its has not been marked already
-		DELETE FROM exam_details WHERE exam_id IN
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `sp_processExams` (IN `TermID` INT, IN `TutorID` INT)  BEGIN
+	    	Block0: BEGIN
+				DELETE FROM exam_details WHERE exam_id IN
         (SELECT exam_id FROM exams_subjectviews WHERE academic_term_id=TermID
         AND (tutor_id = TutorID OR ISNULL(TutorID) = 1) AND marked <> 1);
 
-		#Delete the exams record for that term for the tutor assigned, if its has not been marked already
-		DELETE FROM exams WHERE marked <> 1 AND subject_classroom_id IN
+				DELETE FROM exams WHERE marked <> 1 AND subject_classroom_id IN
 		(SELECT subject_classroom_id FROM subject_classrooms WHERE academic_term_id=TermID 
         AND (tutor_id = TutorID OR ISNULL(TutorID) = 1) );
     END Block0;
 
 	Block1: BEGIN
-		#Insert into exams table with all the subjects that has assigned to a class room with students offering them
-		#also skip those records that exist already to avoid duplicates in terms of subject_classroom_id
-		INSERT IGNORE INTO exams(subject_classroom_id)
+						INSERT IGNORE INTO exams(subject_classroom_id)
         SELECT a.subject_classroom_id FROM student_subjects a JOIN subject_classrooms b
 		ON a.subject_classroom_id = b.subject_classroom_id
 		WHERE b.academic_term_id=TermID AND (b.tutor_id = TutorID OR ISNULL(TutorID) = 1)
@@ -290,70 +236,58 @@ BEGIN
         GROUP BY a.subject_classroom_id ORDER BY a.subject_classroom_id;
     END Block1;
 
-	#insert into exams details the students offering such subjects in the class room using the exams assigned
-	#cursor block for inserting exam details from exams and subject_students_registers
-	Block2: BEGIN
+			Block2: BEGIN
 		DECLARE done1 BOOLEAN DEFAULT FALSE;
 		DECLARE ExamID, SubjectClassRoomID, ExamMarkStatusID INT;
-		#DECLARE cur1 CURSOR FOR SELECT a.exam_id, a.class_id, a.subject_classroom_id, a.exammarked_status_id
-		  DECLARE cur1 CURSOR FOR SELECT a.exam_id, a.subject_classroom_id, a.marked
+				  DECLARE cur1 CURSOR FOR SELECT a.exam_id, a.subject_classroom_id, a.marked
 		  FROM exams a INNER JOIN subject_classrooms b ON a.subject_classroom_id=b.subject_classroom_id
 		  WHERE b.academic_term_id=TermID AND (tutor_id = TutorID OR ISNULL(TutorID) = 1);
 		  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
 
-		  #Open The Cursor For Iterating Through The Recordset cur1
-		  OPEN cur1;
+		  		  OPEN cur1;
 		  REPEAT
 			FETCH cur1 INTO ExamID, SubjectClassRoomID, ExamMarkStatusID;
 			IF NOT done1 THEN
 			  BEGIN
 				IF ExamMarkStatusID <> 1 THEN
 					BEGIN
-						# Insert into the details table all the students that registered the subject
-						INSERT IGNORE INTO exam_details(exam_id, student_id)
+												INSERT IGNORE INTO exam_details(exam_id, student_id)
 						SELECT ExamID, student_id FROM	student_subjects WHERE subject_classroom_id=SubjectClassRoomID;
 					END;
 				ELSE
 					BEGIN
-						# Insert into the details table the students that was just added to offer the subject
-						INSERT IGNORE INTO exam_details(exam_id, student_id)
+												INSERT IGNORE INTO exam_details(exam_id, student_id)
 						SELECT ExamID, student_id FROM 	student_subjects
 						WHERE subject_classroom_id=SubjectClassRoomID AND student_id NOT IN
 						(SELECT student_id FROM exam_details WHERE exam_id=ExamID);
 
-						# remove the students that was just removed from the list of students to offer the subject
-						DELETE FROM exam_details WHERE exam_id=ExamID AND student_id NOT IN
+												DELETE FROM exam_details WHERE exam_id=ExamID AND student_id NOT IN
 						(SELECT student_id FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID);
 					END;
 				END IF;
 				
-					#Update the exam setup status_id = 1
-					UPDATE subject_classrooms set exam_status_id=1 WHERE subject_classroom_id = SubjectClassRoomID;
+										UPDATE subject_classrooms set exam_status_id=1 WHERE subject_classroom_id = SubjectClassRoomID;
 			  END;
 			END IF;
 		  UNTIL done1 END REPEAT;
 		  CLOSE cur1;
     END Block2;
 
-    -- Update the C.A with the calculated values from the assessments
-	call sp_processAssessmentCA(TermID, TutorID);
+    	call sp_processAssessmentCA(TermID, TutorID);
 
   END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_subject2Classlevels`(IN `LevelID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
-BEGIN
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `sp_subject2Classlevels` (IN `LevelID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))  BEGIN
 		DECLARE done1 BOOLEAN DEFAULT FALSE;
 		DECLARE ClassID INT;
 		DECLARE cur1 CURSOR FOR SELECT classroom_id FROM classrooms WHERE classlevel_id=LevelID;
 		DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
 
-#Open The Cursor For Iterating Through The Recordset cur1
 		OPEN cur1;
 		REPEAT
 			FETCH cur1 INTO ClassID;
 			IF NOT done1 THEN
 				BEGIN
--- Procedure Call -- To register the subjects to the students in that classroom
 					CALL `sp_subject2Classrooms`(ClassID, TermID, SubjectIDs);
 				END;
 			END IF;
@@ -361,13 +295,10 @@ BEGIN
 		CLOSE cur1;
 	END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_subject2Classrooms`(IN `ClassID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))
-BEGIN
-#Create a Temporary Table to Hold The Values
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `sp_subject2Classrooms` (IN `ClassID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))  BEGIN
 		DROP TEMPORARY TABLE IF EXISTS SubjectTemp;
 		CREATE TEMPORARY TABLE IF NOT EXISTS SubjectTemp
 		(
--- Add the column definitions for the TABLE variable here
 			row_id int AUTO_INCREMENT,
 			subject_id INT, PRIMARY KEY (row_id)
 		);
@@ -382,7 +313,6 @@ BEGIN
 					IF subject_id = '' THEN
 						LEAVE simple_loop;
 					END IF;
-# Insert into the attend details table those present
 					INSERT INTO SubjectTemp(subject_id)
 						SELECT subject_id;
 				END LOOP simple_loop;
@@ -401,8 +331,7 @@ BEGIN
 				DECLARE cur1 CURSOR FOR SELECT subject_id FROM SubjectTemp;
 				DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
 
-				#Open The Cursor For Iterating Through The Recordset cur1
-				OPEN cur1;
+								OPEN cur1;
 				REPEAT
 					FETCH cur1 INTO SubjectID;
 					IF NOT done1 THEN
@@ -411,12 +340,10 @@ BEGIN
                             AND classroom_id=ClassID AND academic_term_id=TermID);
 							IF @Exist = 0 THEN
 								BEGIN
-									# Insert into subject classlevel those newly assigned subjects
-									INSERT INTO subject_classrooms(subject_id, classroom_id, academic_term_id)
+																		INSERT INTO subject_classrooms(subject_id, classroom_id, academic_term_id)
 									VALUES(SubjectID, ClassID, TermID);
 
-									-- Procedure Call -- To register the subjects to the students in that classroom
-									CALL sp_subject2Students(LAST_INSERT_ID());
+																		CALL sp_subject2Students(LAST_INSERT_ID());
 								END;
 							END IF;
 						END;
@@ -428,14 +355,12 @@ BEGIN
 		END Block1;
 	END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_subject2Students`(IN `subjectClassroomID` INT)
-BEGIN
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `sp_subject2Students` (IN `subjectClassroomID` INT)  BEGIN
 		SELECT classroom_id, academic_term_id INTO @ClassID, @AcademicTermID
 		FROM subject_classrooms WHERE subject_classroom_id=subjectClassroomID LIMIT 1;
 		SET @SubjectClassroomID = subjectClassroomID;
 		
-        -- Check if the record exist in subjects students register
-		SELECT COUNT(*) INTO @Exist FROM student_subjects WHERE subject_classroom_id = subjectClassroomID LIMIT 1;
+        		SELECT COUNT(*) INTO @Exist FROM student_subjects WHERE subject_classroom_id = subjectClassroomID LIMIT 1;
 		IF @Exist > 0 THEN
 			BEGIN
 				DELETE FROM student_subjects WHERE subject_classroom_id = subjectClassroomID;
@@ -444,8 +369,7 @@ BEGIN
 
 
 		BEGIN
-			-- Register the subjects to all the active students in the class room
-			INSERT INTO student_subjects(student_id, subject_classroom_id)
+						INSERT INTO student_subjects(student_id, subject_classroom_id)
 			SELECT	b.student_id, @SubjectClassroomID
 			FROM	students a INNER JOIN student_classes b ON a.student_id=b.student_id 
             INNER JOIN classrooms c ON c.classroom_id = b.classroom_id
@@ -454,19 +378,16 @@ BEGIN
 		END;
 	END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_terminalClassPosition`(IN `AcademicTermID` INT, IN `ClassroomID` INT, IN `StudentID` INT)
-BEGIN
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `sp_terminalClassPosition` (IN `AcademicTermID` INT, IN `ClassroomID` INT, IN `StudentID` INT)  BEGIN
 	Block0: BEGIN
 		SET @Output = 0;
 		SET @Average = 0;
 		SET @Count = 0;
 
-		#Create a Temporary Table to Hold The Values
-		DROP TEMPORARY TABLE IF EXISTS TerminalClassPositionResultTable;
+				DROP TEMPORARY TABLE IF EXISTS TerminalClassPositionResultTable;
 		CREATE TEMPORARY TABLE IF NOT EXISTS TerminalClassPositionResultTable
 		(
-			-- Add the column definitions for the TABLE variable here
-			student_id int,
+						student_id int,
 			full_name varchar(80),
             gender varchar(10),
             student_no varchar(10),
@@ -483,8 +404,7 @@ BEGIN
 		);
 		Block1: BEGIN
                            
-			-- Get the number of students in the class
-			SET @ClassSize = (SELECT COUNT(*) FROM students_classroomviews
+						SET @ClassSize = (SELECT COUNT(*) FROM students_classroomviews
 			WHERE classroom_id = ClassroomID AND academic_year_id = (
 				SELECT academic_year_id FROM academic_terms WHERE academic_term_id=AcademicTermID)
 			);
@@ -493,14 +413,12 @@ BEGIN
 			SET @Position = 0;
 
 				Block2: BEGIN
-				-- Declare Variable to be used in looping through the recordset or cursor
-				DECLARE done1 BOOLEAN DEFAULT FALSE;
+								DECLARE done1 BOOLEAN DEFAULT FALSE;
 				DECLARE StudentID, ClassID, TermID INT;
                 DECLARE Gender, StudentNo VARCHAR(10);
 				DECLARE StudentName, ClassName, TermName VARCHAR(60);
 				DECLARE StudentSumTotal, ExamPerfectScore FLOAT;
-				-- Populate the cursor with the values in a record i want to iterate through
-
+				
 				DECLARE cur1 CURSOR FOR
 					SELECT student_id, fullname, student_gender, student_no, classroom_id, classroom, academic_term_id, academic_term, SUM(student_total), SUM(weight_point_total)
 					FROM exams_detailsviews WHERE academic_term_id = AcademicTermID and classroom_id = ClassroomID AND marked = 1
@@ -508,45 +426,34 @@ BEGIN
 					ORDER BY SUM(student_total) DESC;
 
 				DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-				#Open The Cursor For Iterating Through The Recordset cur1
-				OPEN cur1;
+								OPEN cur1;
 				REPEAT
 					FETCH cur1 INTO StudentID, StudentName, Gender, StudentNo, ClassID, ClassName, TermID, TermName, StudentSumTotal, ExamPerfectScore;
 					IF NOT done1 THEN
 						BEGIN
-							-- IF the current student total is equal to the next student's total
-							IF @TempStudentScore = StudentSumTotal THEN
-								-- Add one to the temp variable position
-								SET @TempPosition = @TempPosition + 1;
-							-- Else if they are not equal
-							ELSE
+														IF @TempStudentScore = StudentSumTotal THEN
+																SET @TempPosition = @TempPosition + 1;
+														ELSE
 								BEGIN
-									-- Set the current student's position to be that of the temp variable
-									SET @Position = @TempPosition;
-									-- Add one to the temp variable position
-									SET @TempPosition = @TempPosition + 1;
+																		SET @Position = @TempPosition;
+																		SET @TempPosition = @TempPosition + 1;
 								END;
 							END IF;
 							BEGIN
-								-- Insert into the resultant table that will display the computed results
-								INSERT INTO TerminalClassPositionResultTable
+																INSERT INTO TerminalClassPositionResultTable
 								VALUES(StudentID, StudentName, Gender, StudentNo, ClassID, ClassName, TermID, TermName, StudentSumTotal, ExamPerfectScore, @Position, @ClassSize, @Average);
 							END;
-							-- Get the current student total score and set it the variable for the next comparism
-							SET @TempStudentScore = StudentSumTotal;
+														SET @TempStudentScore = StudentSumTotal;
 
-							-- Get the average of the students scores
-							SET @Average = @Average + StudentSumTotal;
-							-- Update Count
-							SET @Count = @Count + 1;
+														SET @Average = @Average + StudentSumTotal;
+														SET @Count = @Count + 1;
 						END;
 					END IF;
 				UNTIL done1 END REPEAT;
 				CLOSE cur1;
 			END Block2;
 		END Block1;
-        -- Update the average scores of the students
-        UPDATE TerminalClassPositionResultTable SET class_average = (@Average / @Count);
+                UPDATE TerminalClassPositionResultTable SET class_average = (@Average / @Count);
 	END Block0;	
     
     IF StudentID > 0 THEN
@@ -556,8 +463,7 @@ BEGIN
     END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `temp_student_subjects`()
-BEGIN
+CREATE DEFINER=`ekaruztech_user`@`%` PROCEDURE `temp_student_subjects` ()  BEGIN
 	
 Block2: BEGIN
 	DECLARE done1 BOOLEAN DEFAULT FALSE;
@@ -565,7 +471,6 @@ Block2: BEGIN
 	DECLARE cur1 CURSOR FOR SELECT subject_classroom_id FROM subject_classrooms;
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
 
-#Open The Cursor For Iterating Through The Recordset cur1
 	OPEN cur1;
 	REPEAT
 		FETCH cur1 INTO ID;
@@ -584,12 +489,7 @@ END$$
 --
 -- Functions
 --
-CREATE DEFINER=`root`@`localhost` FUNCTION `SPLIT_STR`(
-	x VARCHAR(255),
-	delim VARCHAR(12),
-	pos INT
-) RETURNS varchar(255) CHARSET latin1
-RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(x, delim, pos),
+CREATE DEFINER=`ekaruztech_user`@`%` FUNCTION `SPLIT_STR` (`x` VARCHAR(255), `delim` VARCHAR(12), `pos` INT) RETURNS VARCHAR(255) CHARSET latin1 RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(x, delim, pos),
 													 LENGTH(SUBSTRING_INDEX(x, delim, pos -1)) + 1),
 								 delim, '')$$
 
@@ -601,17 +501,17 @@ DELIMITER ;
 -- Table structure for table `academic_terms`
 --
 
-CREATE TABLE IF NOT EXISTS `academic_terms` (
-  `academic_term_id` int(10) unsigned NOT NULL,
+CREATE TABLE `academic_terms` (
+  `academic_term_id` int(10) UNSIGNED NOT NULL,
   `academic_term` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `status` int(10) unsigned NOT NULL DEFAULT '2',
-  `academic_year_id` int(10) unsigned NOT NULL,
-  `term_type_id` int(10) unsigned NOT NULL,
+  `status` int(10) UNSIGNED NOT NULL DEFAULT '2',
+  `academic_year_id` int(10) UNSIGNED NOT NULL,
+  `term_type_id` int(10) UNSIGNED NOT NULL,
   `term_begins` date DEFAULT NULL,
   `term_ends` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `academic_terms`
@@ -628,13 +528,13 @@ INSERT INTO `academic_terms` (`academic_term_id`, `academic_term`, `status`, `ac
 -- Table structure for table `academic_years`
 --
 
-CREATE TABLE IF NOT EXISTS `academic_years` (
-  `academic_year_id` int(10) unsigned NOT NULL,
+CREATE TABLE `academic_years` (
+  `academic_year_id` int(10) UNSIGNED NOT NULL,
   `academic_year` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `status` int(10) unsigned NOT NULL DEFAULT '2',
+  `status` int(10) UNSIGNED NOT NULL DEFAULT '2',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `academic_years`
@@ -650,12 +550,12 @@ INSERT INTO `academic_years` (`academic_year_id`, `academic_year`, `status`, `cr
 -- Table structure for table `assessments`
 --
 
-CREATE TABLE IF NOT EXISTS `assessments` (
-  `assessment_id` int(10) unsigned NOT NULL,
-  `subject_classroom_id` int(10) unsigned NOT NULL,
-  `assessment_setup_detail_id` int(10) unsigned NOT NULL,
-  `marked` int(10) unsigned NOT NULL DEFAULT '2'
-) ENGINE=InnoDB AUTO_INCREMENT=177 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `assessments` (
+  `assessment_id` int(10) UNSIGNED NOT NULL,
+  `subject_classroom_id` int(10) UNSIGNED NOT NULL,
+  `assessment_setup_detail_id` int(10) UNSIGNED NOT NULL,
+  `marked` int(10) UNSIGNED NOT NULL DEFAULT '2'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `assessments`
@@ -845,12 +745,12 @@ INSERT INTO `assessments` (`assessment_id`, `subject_classroom_id`, `assessment_
 -- Table structure for table `assessment_details`
 --
 
-CREATE TABLE IF NOT EXISTS `assessment_details` (
-  `assessment_detail_id` int(10) unsigned NOT NULL,
-  `student_id` int(10) unsigned NOT NULL,
-  `score` double(8,2) unsigned NOT NULL DEFAULT '0.00',
-  `assessment_id` int(10) unsigned NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2424 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `assessment_details` (
+  `assessment_detail_id` int(10) UNSIGNED NOT NULL,
+  `student_id` int(10) UNSIGNED NOT NULL,
+  `score` double(8,2) UNSIGNED NOT NULL DEFAULT '0.00',
+  `assessment_id` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `assessment_details`
@@ -2335,7 +2235,7 @@ INSERT INTO `assessment_details` (`assessment_detail_id`, `student_id`, `score`,
 --
 -- Stand-in structure for view `assessment_detailsviews`
 --
-CREATE TABLE IF NOT EXISTS `assessment_detailsviews` (
+CREATE TABLE `assessment_detailsviews` (
 `assessment_id` int(10) unsigned
 ,`subject_classroom_id` int(10) unsigned
 ,`assessment_setup_detail_id` int(10) unsigned
@@ -2377,12 +2277,12 @@ CREATE TABLE IF NOT EXISTS `assessment_detailsviews` (
 -- Table structure for table `assessment_setups`
 --
 
-CREATE TABLE IF NOT EXISTS `assessment_setups` (
-  `assessment_setup_id` int(10) unsigned NOT NULL,
+CREATE TABLE `assessment_setups` (
+  `assessment_setup_id` int(10) UNSIGNED NOT NULL,
   `assessment_no` tinyint(4) NOT NULL,
-  `classgroup_id` int(10) unsigned NOT NULL,
-  `academic_term_id` int(10) unsigned NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `classgroup_id` int(10) UNSIGNED NOT NULL,
+  `academic_term_id` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `assessment_setups`
@@ -2402,15 +2302,15 @@ INSERT INTO `assessment_setups` (`assessment_setup_id`, `assessment_no`, `classg
 -- Table structure for table `assessment_setup_details`
 --
 
-CREATE TABLE IF NOT EXISTS `assessment_setup_details` (
-  `assessment_setup_detail_id` int(10) unsigned NOT NULL,
+CREATE TABLE `assessment_setup_details` (
+  `assessment_setup_detail_id` int(10) UNSIGNED NOT NULL,
   `number` tinyint(4) NOT NULL,
-  `weight_point` double(8,2) unsigned NOT NULL,
-  `percentage` int(10) unsigned NOT NULL,
-  `assessment_setup_id` int(10) unsigned NOT NULL,
+  `weight_point` double(8,2) UNSIGNED NOT NULL,
+  `percentage` int(10) UNSIGNED NOT NULL,
+  `assessment_setup_id` int(10) UNSIGNED NOT NULL,
   `submission_date` date DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `assessment_setup_details`
@@ -2434,14 +2334,14 @@ INSERT INTO `assessment_setup_details` (`assessment_setup_detail_id`, `number`, 
 -- Table structure for table `classgroups`
 --
 
-CREATE TABLE IF NOT EXISTS `classgroups` (
-  `classgroup_id` int(10) unsigned NOT NULL,
+CREATE TABLE `classgroups` (
+  `classgroup_id` int(10) UNSIGNED NOT NULL,
   `classgroup` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `ca_weight_point` int(10) unsigned DEFAULT '0',
-  `exam_weight_point` int(10) unsigned DEFAULT '0',
+  `ca_weight_point` int(10) UNSIGNED DEFAULT '0',
+  `exam_weight_point` int(10) UNSIGNED DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `classgroups`
@@ -2457,13 +2357,13 @@ INSERT INTO `classgroups` (`classgroup_id`, `classgroup`, `ca_weight_point`, `ex
 -- Table structure for table `classlevels`
 --
 
-CREATE TABLE IF NOT EXISTS `classlevels` (
-  `classlevel_id` int(10) unsigned NOT NULL,
+CREATE TABLE `classlevels` (
+  `classlevel_id` int(10) UNSIGNED NOT NULL,
   `classlevel` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `classgroup_id` int(10) unsigned NOT NULL,
+  `classgroup_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `classlevels`
@@ -2481,15 +2381,15 @@ INSERT INTO `classlevels` (`classlevel_id`, `classlevel`, `classgroup_id`, `crea
 -- Table structure for table `classrooms`
 --
 
-CREATE TABLE IF NOT EXISTS `classrooms` (
-  `classroom_id` int(10) unsigned NOT NULL,
+CREATE TABLE `classrooms` (
+  `classroom_id` int(10) UNSIGNED NOT NULL,
   `classroom` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `class_size` int(11) DEFAULT NULL,
-  `class_status` int(10) unsigned NOT NULL DEFAULT '1',
-  `classlevel_id` int(10) unsigned NOT NULL,
+  `class_status` int(10) UNSIGNED NOT NULL DEFAULT '1',
+  `classlevel_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `classrooms`
@@ -2508,14 +2408,14 @@ INSERT INTO `classrooms` (`classroom_id`, `classroom`, `class_size`, `class_stat
 -- Table structure for table `class_masters`
 --
 
-CREATE TABLE IF NOT EXISTS `class_masters` (
-  `class_master_id` int(10) unsigned NOT NULL,
-  `user_id` int(10) unsigned DEFAULT NULL,
-  `classroom_id` int(10) unsigned NOT NULL,
-  `academic_year_id` int(10) unsigned NOT NULL,
+CREATE TABLE `class_masters` (
+  `class_master_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `classroom_id` int(10) UNSIGNED NOT NULL,
+  `academic_year_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `class_masters`
@@ -2533,10 +2433,10 @@ INSERT INTO `class_masters` (`class_master_id`, `user_id`, `classroom_id`, `acad
 -- Table structure for table `domains`
 --
 
-CREATE TABLE IF NOT EXISTS `domains` (
-  `domain_id` int(10) unsigned NOT NULL,
+CREATE TABLE `domains` (
+  `domain_id` int(10) UNSIGNED NOT NULL,
   `domain` varchar(100) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `domains`
@@ -2554,11 +2454,11 @@ INSERT INTO `domains` (`domain_id`, `domain`) VALUES
 -- Table structure for table `domain_assessments`
 --
 
-CREATE TABLE IF NOT EXISTS `domain_assessments` (
-  `domain_assessment_id` int(10) unsigned NOT NULL,
-  `student_id` int(10) unsigned NOT NULL,
-  `academic_term_id` int(10) unsigned NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `domain_assessments` (
+  `domain_assessment_id` int(10) UNSIGNED NOT NULL,
+  `student_id` int(10) UNSIGNED NOT NULL,
+  `academic_term_id` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `domain_assessments`
@@ -2577,12 +2477,12 @@ INSERT INTO `domain_assessments` (`domain_assessment_id`, `student_id`, `academi
 -- Table structure for table `domain_details`
 --
 
-CREATE TABLE IF NOT EXISTS `domain_details` (
-  `domain_detail_id` int(10) unsigned NOT NULL,
-  `domain_id` int(10) unsigned NOT NULL,
-  `domain_assessment_id` int(10) unsigned NOT NULL,
-  `option` int(10) unsigned NOT NULL DEFAULT '0'
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `domain_details` (
+  `domain_detail_id` int(10) UNSIGNED NOT NULL,
+  `domain_id` int(10) UNSIGNED NOT NULL,
+  `domain_assessment_id` int(10) UNSIGNED NOT NULL,
+  `option` int(10) UNSIGNED NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `domain_details`
@@ -2616,11 +2516,11 @@ INSERT INTO `domain_details` (`domain_detail_id`, `domain_id`, `domain_assessmen
 -- Table structure for table `exams`
 --
 
-CREATE TABLE IF NOT EXISTS `exams` (
-  `exam_id` int(10) unsigned NOT NULL,
-  `subject_classroom_id` int(10) unsigned NOT NULL,
-  `marked` int(10) unsigned NOT NULL DEFAULT '2'
-) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `exams` (
+  `exam_id` int(10) UNSIGNED NOT NULL,
+  `subject_classroom_id` int(10) UNSIGNED NOT NULL,
+  `marked` int(10) UNSIGNED NOT NULL DEFAULT '2'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `exams`
@@ -2711,7 +2611,7 @@ INSERT INTO `exams` (`exam_id`, `subject_classroom_id`, `marked`) VALUES
 --
 -- Stand-in structure for view `exams_detailsviews`
 --
-CREATE TABLE IF NOT EXISTS `exams_detailsviews` (
+CREATE TABLE `exams_detailsviews` (
 `exam_detail_id` int(10) unsigned
 ,`exam_id` int(10) unsigned
 ,`subject_classroom_id` int(10) unsigned
@@ -2744,7 +2644,7 @@ CREATE TABLE IF NOT EXISTS `exams_detailsviews` (
 --
 -- Stand-in structure for view `exams_subjectviews`
 --
-CREATE TABLE IF NOT EXISTS `exams_subjectviews` (
+CREATE TABLE `exams_subjectviews` (
 `exam_id` int(10) unsigned
 ,`classroom_id` int(10) unsigned
 ,`classroom` varchar(255)
@@ -2769,13 +2669,13 @@ CREATE TABLE IF NOT EXISTS `exams_subjectviews` (
 -- Table structure for table `exam_details`
 --
 
-CREATE TABLE IF NOT EXISTS `exam_details` (
-  `exam_detail_id` int(10) unsigned NOT NULL,
-  `exam_id` int(10) unsigned NOT NULL,
-  `student_id` int(10) unsigned NOT NULL,
-  `ca` double(5,2) unsigned NOT NULL DEFAULT '0.00',
-  `exam` double(5,2) unsigned NOT NULL DEFAULT '0.00'
-) ENGINE=InnoDB AUTO_INCREMENT=1105 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `exam_details` (
+  `exam_detail_id` int(10) UNSIGNED NOT NULL,
+  `exam_id` int(10) UNSIGNED NOT NULL,
+  `student_id` int(10) UNSIGNED NOT NULL,
+  `ca` double(5,2) UNSIGNED NOT NULL DEFAULT '0.00',
+  `exam` double(5,2) UNSIGNED NOT NULL DEFAULT '0.00'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `exam_details`
@@ -3425,16 +3325,16 @@ INSERT INTO `exam_details` (`exam_detail_id`, `exam_id`, `student_id`, `ca`, `ex
 -- Table structure for table `grades`
 --
 
-CREATE TABLE IF NOT EXISTS `grades` (
-  `grade_id` int(10) unsigned NOT NULL,
+CREATE TABLE `grades` (
+  `grade_id` int(10) UNSIGNED NOT NULL,
   `grade` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `grade_abbr` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
-  `upper_bound` double(8,2) unsigned NOT NULL,
-  `lower_bound` double(8,2) unsigned NOT NULL,
-  `classgroup_id` int(10) unsigned NOT NULL,
+  `upper_bound` double(8,2) UNSIGNED NOT NULL,
+  `lower_bound` double(8,2) UNSIGNED NOT NULL,
+  `classgroup_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `grades`
@@ -3463,18 +3363,18 @@ INSERT INTO `grades` (`grade_id`, `grade`, `grade_abbr`, `upper_bound`, `lower_b
 -- Table structure for table `menus`
 --
 
-CREATE TABLE IF NOT EXISTS `menus` (
-  `menu_id` int(10) unsigned NOT NULL,
+CREATE TABLE `menus` (
+  `menu_id` int(10) UNSIGNED NOT NULL,
   `menu` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `menu_url` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `active` int(10) unsigned NOT NULL DEFAULT '1',
-  `sequence` int(10) unsigned NOT NULL,
-  `type` int(10) unsigned NOT NULL DEFAULT '1',
+  `active` int(10) UNSIGNED NOT NULL DEFAULT '1',
+  `sequence` int(10) UNSIGNED NOT NULL,
+  `type` int(10) UNSIGNED NOT NULL DEFAULT '1',
   `icon` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `menu_header_id` int(10) unsigned NOT NULL,
+  `menu_header_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menus`
@@ -3489,8 +3389,11 @@ INSERT INTO `menus` (`menu_id`, `menu`, `menu_url`, `active`, `sequence`, `type`
 (8, 'STUDENTS', '#', 1, 1, 1, 'fa fa-users', 2, '2016-05-23 14:16:17', '2016-05-23 14:16:17'),
 (9, 'ASSESSMENTS', '#', 1, 2, 1, 'fa fa-book', 5, '2016-06-03 08:17:10', '2016-07-10 15:23:25'),
 (10, 'MANAGE STUDENT', '/subject-tutors', 1, 1, 1, 'fa fa-group', 5, '2016-06-03 08:17:10', '2016-07-10 15:19:59'),
-(11, 'EXAMS SETUP', '/exams/setup', 1, 3, 1, 'fa fa-hourglass-2', 1, '2016-06-15 07:47:20', '2016-06-15 07:47:39'),
-(13, 'CLASS TEACHER', '#', 1, 3, 1, 'fa fa-creative-commons', 5, '2016-08-20 09:40:06', '2016-08-20 09:40:06');
+(11, 'EXAMS SETUP', '/exams/setup', 1, 4, 1, 'fa fa-hourglass-2', 1, '2016-06-15 07:47:20', '2016-08-29 10:02:50'),
+(13, 'CLASS TEACHER', '#', 1, 3, 1, 'fa fa-creative-commons', 5, '2016-08-20 09:40:06', '2016-08-20 09:40:06'),
+(14, 'EDIT', '/profiles/edit', 1, 3, 2, 'fa fa-edit', 6, '2016-08-27 12:29:03', '2016-08-29 17:17:40'),
+(15, 'VIEW', '/profiles', 1, 2, 2, 'fa fa-user', 6, '2016-08-27 12:44:46', '2016-08-29 17:17:40'),
+(17, 'MESSAGING', '#', 1, 1, 1, 'fa fa-envelope', 9, '2016-08-29 10:02:29', '2016-08-29 10:18:51');
 
 -- --------------------------------------------------------
 
@@ -3498,25 +3401,29 @@ INSERT INTO `menus` (`menu_id`, `menu`, `menu_url`, `active`, `sequence`, `type`
 -- Table structure for table `menu_headers`
 --
 
-CREATE TABLE IF NOT EXISTS `menu_headers` (
-  `menu_header_id` int(10) unsigned NOT NULL,
+CREATE TABLE `menu_headers` (
+  `menu_header_id` int(10) UNSIGNED NOT NULL,
   `menu_header` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `active` int(10) unsigned NOT NULL DEFAULT '1',
-  `sequence` int(10) unsigned NOT NULL,
-  `type` int(10) unsigned NOT NULL DEFAULT '1',
+  `active` int(10) UNSIGNED NOT NULL DEFAULT '1',
+  `icon` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `sequence` int(10) UNSIGNED NOT NULL,
+  `type` int(10) UNSIGNED NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menu_headers`
 --
 
-INSERT INTO `menu_headers` (`menu_header_id`, `menu_header`, `active`, `sequence`, `type`, `created_at`, `updated_at`) VALUES
-(1, 'SETUPS', 1, 10, 1, '2016-03-29 22:30:39', '2016-03-30 19:33:06'),
-(2, 'ACCOUNTS', 1, 3, 1, '2016-03-30 19:33:06', '2016-06-03 08:07:54'),
-(4, 'PORTAL', 1, 1, 2, '2016-04-15 09:41:26', '2016-04-15 09:55:41'),
-(5, 'MY CLASS', 1, 6, 1, '2016-06-03 08:13:52', '2016-08-20 09:18:26');
+INSERT INTO `menu_headers` (`menu_header_id`, `menu_header`, `active`, `icon`, `sequence`, `type`, `created_at`, `updated_at`) VALUES
+(1, 'SETUPS', 1, '', 10, 1, '2016-03-29 22:30:39', '2016-08-27 13:18:04'),
+(2, 'ACCOUNTS', 1, '', 3, 1, '2016-03-30 19:33:06', '2016-08-27 13:18:04'),
+(4, 'WARDS', 1, 'fa fa-users', 2, 2, '2016-04-15 09:41:26', '2016-08-29 17:21:30'),
+(5, 'MY CLASS', 1, '', 6, 1, '2016-06-03 08:13:52', '2016-08-27 13:18:04'),
+(6, 'PROFILE', 1, 'fa fa-user', 1, 2, '2016-08-27 12:26:59', '2016-08-29 17:21:30'),
+(7, 'ASSESSMENTS', 1, 'fa fa-book', 4, 2, '2016-08-27 13:09:09', '2016-08-27 13:18:04'),
+(9, 'UTILITIES', 1, 'fa fa-object-group', 8, 1, '2016-08-29 10:18:00', '2016-08-29 10:18:00');
 
 -- --------------------------------------------------------
 
@@ -3524,18 +3431,18 @@ INSERT INTO `menu_headers` (`menu_header_id`, `menu_header`, `active`, `sequence
 -- Table structure for table `menu_items`
 --
 
-CREATE TABLE IF NOT EXISTS `menu_items` (
-  `menu_item_id` int(10) unsigned NOT NULL,
+CREATE TABLE `menu_items` (
+  `menu_item_id` int(10) UNSIGNED NOT NULL,
   `menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `active` int(10) unsigned NOT NULL DEFAULT '1',
+  `active` int(10) UNSIGNED NOT NULL DEFAULT '1',
   `sequence` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `type` int(10) unsigned NOT NULL DEFAULT '1',
-  `menu_id` int(10) unsigned NOT NULL,
+  `type` int(10) UNSIGNED NOT NULL DEFAULT '1',
+  `menu_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `menu_items`
@@ -3561,7 +3468,9 @@ INSERT INTO `menu_items` (`menu_item_id`, `menu_item`, `menu_item_url`, `menu_it
 (25, 'EXAMS', '/exams', 'fa fa-folder-open-o', 1, '2', 1, 9, '2016-07-10 15:20:36', '2016-07-10 15:22:24'),
 (26, 'CLONE RECORDS', '/academic-terms/clones', 'fa fa-clone', 1, '8', 1, 7, '2016-07-15 18:47:37', '2016-08-19 14:34:38'),
 (28, 'CLASS TEACHER', '/class-rooms/assign-students', 'fa fa-map-signs', 1, '6', 1, 7, '2016-08-19 14:33:10', '2016-08-20 09:26:23'),
-(29, 'ASSESS / REMARKS', '/domains', 'fa fa-comments', 1, '1', 1, 13, '2016-08-20 09:42:21', '2016-08-20 09:42:21');
+(29, 'ASSESS / REMARKS', '/domains', 'fa fa-comments', 1, '1', 1, 13, '2016-08-20 09:42:21', '2016-08-20 09:42:21'),
+(30, 'EXAMS', '/exams', 'fa fa-folder-open-o', 1, '1', 2, 15, '2016-08-27 13:25:33', '2016-08-27 13:25:33'),
+(31, 'SEND S.M.S', '/messages', 'fa fa-send', 1, '1', 1, 17, '2016-08-29 10:03:41', '2016-08-29 10:03:41');
 
 -- --------------------------------------------------------
 
@@ -3569,7 +3478,7 @@ INSERT INTO `menu_items` (`menu_item_id`, `menu_item`, `menu_item_url`, `menu_it
 -- Table structure for table `migrations`
 --
 
-CREATE TABLE IF NOT EXISTS `migrations` (
+CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `batch` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -3608,15 +3517,15 @@ INSERT INTO `migrations` (`migration`, `batch`) VALUES
 -- Table structure for table `permissions`
 --
 
-CREATE TABLE IF NOT EXISTS `permissions` (
-  `permission_id` int(10) unsigned NOT NULL,
+CREATE TABLE `permissions` (
+  `permission_id` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `display_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `uri` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `permissions`
@@ -3745,9 +3654,9 @@ INSERT INTO `permissions` (`permission_id`, `name`, `display_name`, `description
 -- Table structure for table `permission_role`
 --
 
-CREATE TABLE IF NOT EXISTS `permission_role` (
-  `permission_id` int(10) unsigned NOT NULL,
-  `role_id` int(10) unsigned NOT NULL
+CREATE TABLE `permission_role` (
+  `permission_id` int(10) UNSIGNED NOT NULL,
+  `role_id` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -3756,71 +3665,142 @@ CREATE TABLE IF NOT EXISTS `permission_role` (
 
 INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 (1, 1),
+(1, 2),
+(1, 3),
 (2, 1),
+(2, 2),
+(2, 3),
 (3, 1),
+(3, 2),
 (4, 1),
+(4, 2),
+(4, 3),
 (5, 1),
+(5, 2),
 (6, 1),
+(6, 2),
 (7, 1),
+(7, 2),
 (8, 1),
+(8, 2),
 (9, 1),
+(9, 2),
+(9, 3),
 (10, 1),
+(10, 2),
+(10, 3),
 (11, 1),
+(11, 2),
 (12, 1),
+(12, 2),
 (13, 1),
+(13, 2),
 (14, 1),
+(14, 2),
 (15, 1),
+(15, 2),
 (16, 1),
+(16, 2),
 (17, 1),
+(17, 2),
 (18, 1),
+(18, 2),
 (19, 1),
+(19, 2),
 (20, 1),
+(20, 2),
 (21, 1),
+(21, 2),
 (22, 1),
+(22, 2),
 (23, 1),
+(23, 2),
 (24, 1),
+(24, 2),
 (25, 1),
+(25, 2),
 (26, 1),
+(26, 2),
 (27, 1),
+(27, 2),
 (28, 1),
+(28, 2),
 (29, 1),
+(29, 2),
 (30, 1),
+(30, 2),
 (31, 1),
+(31, 2),
 (32, 1),
+(32, 2),
 (33, 1),
+(33, 2),
 (34, 1),
+(34, 2),
 (35, 1),
+(35, 2),
 (36, 1),
+(36, 2),
 (37, 1),
+(37, 2),
 (38, 1),
+(38, 2),
 (39, 1),
+(39, 2),
 (40, 1),
+(40, 2),
 (41, 1),
+(41, 2),
 (42, 1),
+(42, 2),
 (43, 1),
+(43, 2),
 (44, 1),
+(44, 2),
 (45, 1),
+(45, 2),
 (46, 1),
+(46, 2),
 (47, 1),
+(47, 2),
 (48, 1),
+(48, 2),
 (49, 1),
+(49, 2),
 (50, 1),
+(50, 2),
 (51, 1),
+(51, 2),
 (52, 1),
+(52, 2),
 (53, 1),
+(53, 2),
 (54, 1),
+(54, 2),
 (55, 1),
+(55, 2),
 (56, 1),
+(56, 2),
 (57, 1),
+(57, 2),
 (58, 1),
+(58, 2),
 (59, 1),
+(59, 2),
 (60, 1),
+(60, 2),
 (61, 1),
+(61, 2),
 (62, 1),
+(62, 2),
 (63, 1),
+(63, 2),
 (64, 1),
+(64, 2),
 (65, 1),
+(65, 2),
 (66, 1),
+(66, 2),
 (67, 1),
 (68, 1),
 (69, 1),
@@ -3830,21 +3810,35 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 (73, 1),
 (74, 1),
 (75, 1),
+(75, 2),
 (76, 1),
 (77, 1),
+(77, 2),
 (78, 1),
+(78, 2),
 (79, 1),
 (80, 1),
+(80, 2),
 (81, 1),
+(81, 2),
 (82, 1),
+(82, 2),
 (83, 1),
+(83, 2),
 (84, 1),
+(84, 2),
 (85, 1),
+(85, 2),
 (86, 1),
+(86, 2),
 (87, 1),
+(87, 2),
 (88, 1),
+(88, 2),
 (89, 1),
+(89, 2),
 (90, 1),
+(90, 2),
 (91, 1),
 (92, 1),
 (93, 1),
@@ -3852,121 +3846,36 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 (95, 1),
 (96, 1),
 (97, 1),
+(97, 2),
 (98, 1),
+(98, 2),
 (99, 1),
+(99, 2),
 (100, 1),
+(100, 2),
 (101, 1),
+(101, 2),
 (102, 1),
+(102, 2),
 (103, 1),
+(103, 2),
 (104, 1),
+(104, 2),
 (105, 1),
+(105, 2),
 (106, 1),
 (107, 1),
+(107, 2),
 (108, 1),
 (109, 1),
 (110, 1),
+(110, 2),
 (111, 1),
 (112, 1),
 (113, 1),
-(114, 1),
-(115, 1),
-(1, 2),
-(2, 2),
-(3, 2),
-(4, 2),
-(5, 2),
-(6, 2),
-(7, 2),
-(8, 2),
-(9, 2),
-(10, 2),
-(11, 2),
-(12, 2),
-(13, 2),
-(14, 2),
-(15, 2),
-(16, 2),
-(17, 2),
-(18, 2),
-(19, 2),
-(20, 2),
-(21, 2),
-(22, 2),
-(23, 2),
-(24, 2),
-(25, 2),
-(26, 2),
-(27, 2),
-(28, 2),
-(29, 2),
-(30, 2),
-(31, 2),
-(32, 2),
-(33, 2),
-(34, 2),
-(35, 2),
-(36, 2),
-(37, 2),
-(38, 2),
-(39, 2),
-(40, 2),
-(41, 2),
-(42, 2),
-(43, 2),
-(44, 2),
-(45, 2),
-(46, 2),
-(47, 2),
-(48, 2),
-(49, 2),
-(50, 2),
-(51, 2),
-(52, 2),
-(53, 2),
-(54, 2),
-(55, 2),
-(56, 2),
-(57, 2),
-(58, 2),
-(59, 2),
-(60, 2),
-(61, 2),
-(62, 2),
-(63, 2),
-(64, 2),
-(65, 2),
-(66, 2),
-(75, 2),
-(77, 2),
-(78, 2),
-(80, 2),
-(81, 2),
-(82, 2),
-(83, 2),
-(84, 2),
-(85, 2),
-(86, 2),
-(87, 2),
-(88, 2),
-(89, 2),
-(90, 2),
-(97, 2),
-(98, 2),
-(99, 2),
-(100, 2),
-(101, 2),
-(102, 2),
-(103, 2),
-(104, 2),
-(105, 2),
-(107, 2),
-(110, 2),
 (113, 2),
-(1, 3),
-(2, 3),
-(4, 3),
-(9, 3),
-(10, 3);
+(114, 1),
+(115, 1);
 
 -- --------------------------------------------------------
 
@@ -3974,16 +3883,16 @@ INSERT INTO `permission_role` (`permission_id`, `role_id`) VALUES
 -- Table structure for table `remarks`
 --
 
-CREATE TABLE IF NOT EXISTS `remarks` (
-  `remark_id` int(10) unsigned NOT NULL,
+CREATE TABLE `remarks` (
+  `remark_id` int(10) UNSIGNED NOT NULL,
   `class_teacher` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `principal` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `student_id` int(10) unsigned NOT NULL,
-  `academic_term_id` int(10) unsigned NOT NULL,
-  `user_id` int(10) unsigned DEFAULT NULL,
+  `student_id` int(10) UNSIGNED NOT NULL,
+  `academic_term_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `remarks`
@@ -4015,15 +3924,15 @@ INSERT INTO `remarks` (`remark_id`, `class_teacher`, `principal`, `student_id`, 
 -- Table structure for table `roles`
 --
 
-CREATE TABLE IF NOT EXISTS `roles` (
-  `role_id` int(10) unsigned NOT NULL,
+CREATE TABLE `roles` (
+  `role_id` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `display_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `user_type_id` int(10) unsigned NOT NULL,
+  `user_type_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `roles`
@@ -4042,9 +3951,9 @@ INSERT INTO `roles` (`role_id`, `name`, `display_name`, `description`, `user_typ
 -- Table structure for table `roles_menus`
 --
 
-CREATE TABLE IF NOT EXISTS `roles_menus` (
-  `role_id` int(10) unsigned NOT NULL,
-  `menu_id` int(10) unsigned DEFAULT NULL
+CREATE TABLE `roles_menus` (
+  `role_id` int(10) UNSIGNED NOT NULL,
+  `menu_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -4077,7 +3986,13 @@ INSERT INTO `roles_menus` (`role_id`, `menu_id`) VALUES
 (5, 10),
 (5, 13),
 (1, 13),
-(2, 13);
+(2, 13),
+(1, 14),
+(3, 14),
+(1, 15),
+(3, 15),
+(1, 17),
+(2, 17);
 
 -- --------------------------------------------------------
 
@@ -4085,9 +4000,9 @@ INSERT INTO `roles_menus` (`role_id`, `menu_id`) VALUES
 -- Table structure for table `roles_menu_headers`
 --
 
-CREATE TABLE IF NOT EXISTS `roles_menu_headers` (
-  `role_id` int(10) unsigned NOT NULL,
-  `menu_header_id` int(10) unsigned DEFAULT NULL
+CREATE TABLE `roles_menu_headers` (
+  `role_id` int(10) UNSIGNED NOT NULL,
+  `menu_header_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -4105,7 +4020,13 @@ INSERT INTO `roles_menu_headers` (`role_id`, `menu_header_id`) VALUES
 (4, 5),
 (2, 5),
 (5, 2),
-(5, 5);
+(5, 5),
+(1, 6),
+(3, 6),
+(3, 4),
+(3, 7),
+(1, 9),
+(2, 9);
 
 -- --------------------------------------------------------
 
@@ -4113,9 +4034,9 @@ INSERT INTO `roles_menu_headers` (`role_id`, `menu_header_id`) VALUES
 -- Table structure for table `roles_menu_items`
 --
 
-CREATE TABLE IF NOT EXISTS `roles_menu_items` (
-  `role_id` int(10) unsigned NOT NULL,
-  `menu_item_id` int(10) unsigned DEFAULT NULL
+CREATE TABLE `roles_menu_items` (
+  `role_id` int(10) UNSIGNED NOT NULL,
+  `menu_item_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -4167,7 +4088,10 @@ INSERT INTO `roles_menu_items` (`role_id`, `menu_item_id`) VALUES
 (2, 29),
 (5, 24),
 (5, 25),
-(5, 4);
+(5, 4),
+(3, 30),
+(1, 31),
+(2, 31);
 
 -- --------------------------------------------------------
 
@@ -4175,9 +4099,9 @@ INSERT INTO `roles_menu_items` (`role_id`, `menu_item_id`) VALUES
 -- Table structure for table `roles_sub_menu_items`
 --
 
-CREATE TABLE IF NOT EXISTS `roles_sub_menu_items` (
-  `role_id` int(10) unsigned NOT NULL,
-  `sub_menu_item_id` int(10) unsigned DEFAULT NULL
+CREATE TABLE `roles_sub_menu_items` (
+  `role_id` int(10) UNSIGNED NOT NULL,
+  `sub_menu_item_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -4241,9 +4165,9 @@ INSERT INTO `roles_sub_menu_items` (`role_id`, `sub_menu_item_id`) VALUES
 -- Table structure for table `roles_sub_most_menu_items`
 --
 
-CREATE TABLE IF NOT EXISTS `roles_sub_most_menu_items` (
-  `role_id` int(10) unsigned NOT NULL,
-  `sub_most_menu_item_id` int(10) unsigned DEFAULT NULL
+CREATE TABLE `roles_sub_most_menu_items` (
+  `role_id` int(10) UNSIGNED NOT NULL,
+  `sub_most_menu_item_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -4268,9 +4192,9 @@ INSERT INTO `roles_sub_most_menu_items` (`role_id`, `sub_most_menu_item_id`) VAL
 -- Table structure for table `role_user`
 --
 
-CREATE TABLE IF NOT EXISTS `role_user` (
-  `user_id` int(10) unsigned NOT NULL,
-  `role_id` int(10) unsigned NOT NULL
+CREATE TABLE `role_user` (
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `role_id` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -4280,6 +4204,21 @@ CREATE TABLE IF NOT EXISTS `role_user` (
 INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 (1, 1),
 (2, 2),
+(3, 4),
+(4, 5),
+(5, 4),
+(6, 4),
+(7, 4),
+(8, 4),
+(9, 4),
+(10, 4),
+(11, 4),
+(12, 4),
+(13, 4),
+(14, 4),
+(15, 4),
+(16, 4),
+(17, 4),
 (18, 3),
 (19, 3),
 (20, 3),
@@ -4384,28 +4323,36 @@ INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 (119, 3),
 (120, 3),
 (121, 3),
-(126, 3),
-(127, 3),
-(128, 3),
-(3, 4),
-(5, 4),
-(6, 4),
-(7, 4),
-(8, 4),
-(9, 4),
-(10, 4),
-(11, 4),
-(12, 4),
-(13, 4),
-(14, 4),
-(15, 4),
-(16, 4),
-(17, 4),
 (122, 4),
 (123, 4),
 (124, 4),
 (125, 4),
-(4, 5);
+(126, 3),
+(127, 3),
+(128, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sms`
+--
+
+CREATE TABLE `sms` (
+  `sms_id` int(11) NOT NULL,
+  `unit_bought` float NOT NULL,
+  `unit_used` float NOT NULL,
+  `status` int(2) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `sms`
+--
+
+INSERT INTO `sms` (`sms_id`, `unit_bought`, `unit_used`, `status`, `created_at`, `updated_at`) VALUES
+(1, 5500, 13191.6, 2, '2015-11-25 16:22:46', '2016-01-27 05:45:56'),
+(2, 5141.1, 1438.2, 1, '2016-03-03 07:17:46', '2016-09-20 17:44:18');
 
 -- --------------------------------------------------------
 
@@ -4413,8 +4360,8 @@ INSERT INTO `role_user` (`user_id`, `role_id`) VALUES
 -- Table structure for table `sponsors`
 --
 
-CREATE TABLE IF NOT EXISTS `sponsors` (
-  `sponsor_id` int(10) unsigned NOT NULL,
+CREATE TABLE `sponsors` (
+  `sponsor_id` int(10) UNSIGNED NOT NULL,
   `sponsor_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `first_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `other_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
@@ -4423,9 +4370,9 @@ CREATE TABLE IF NOT EXISTS `sponsors` (
   `phone_no` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `phone_no2` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `address` text COLLATE utf8_unicode_ci,
-  `lga_id` int(10) unsigned DEFAULT NULL,
-  `salutation_id` int(10) unsigned DEFAULT NULL,
-  `created_by` int(10) unsigned NOT NULL,
+  `lga_id` int(10) UNSIGNED DEFAULT NULL,
+  `salutation_id` int(10) UNSIGNED DEFAULT NULL,
+  `created_by` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -4436,8 +4383,8 @@ CREATE TABLE IF NOT EXISTS `sponsors` (
 -- Table structure for table `staffs`
 --
 
-CREATE TABLE IF NOT EXISTS `staffs` (
-  `staff_id` int(10) unsigned NOT NULL,
+CREATE TABLE `staffs` (
+  `staff_id` int(10) UNSIGNED NOT NULL,
   `staff_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `first_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `other_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
@@ -4447,10 +4394,10 @@ CREATE TABLE IF NOT EXISTS `staffs` (
   `phone_no` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `phone_no2` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `address` text COLLATE utf8_unicode_ci,
-  `lga_id` int(10) unsigned DEFAULT NULL,
-  `salutation_id` int(10) unsigned DEFAULT NULL,
+  `lga_id` int(10) UNSIGNED DEFAULT NULL,
+  `salutation_id` int(10) UNSIGNED DEFAULT NULL,
   `user_id` int(11) NOT NULL,
-  `created_by` int(10) unsigned NOT NULL,
+  `created_by` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -4461,8 +4408,8 @@ CREATE TABLE IF NOT EXISTS `staffs` (
 -- Table structure for table `students`
 --
 
-CREATE TABLE IF NOT EXISTS `students` (
-  `student_id` int(10) unsigned NOT NULL,
+CREATE TABLE `students` (
+  `student_id` int(10) UNSIGNED NOT NULL,
   `first_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `last_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `middle_name` varchar(70) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -4471,15 +4418,15 @@ CREATE TABLE IF NOT EXISTS `students` (
   `dob` date DEFAULT NULL,
   `avatar` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `address` text COLLATE utf8_unicode_ci,
-  `sponsor_id` int(10) unsigned NOT NULL,
-  `classroom_id` int(10) unsigned NOT NULL,
-  `status_id` int(10) unsigned NOT NULL DEFAULT '1',
-  `admitted_term_id` int(10) unsigned NOT NULL,
-  `lga_id` int(10) unsigned DEFAULT NULL,
-  `created_by` int(10) unsigned NOT NULL,
+  `sponsor_id` int(10) UNSIGNED NOT NULL,
+  `classroom_id` int(10) UNSIGNED NOT NULL,
+  `status_id` int(10) UNSIGNED NOT NULL DEFAULT '1',
+  `admitted_term_id` int(10) UNSIGNED NOT NULL,
+  `lga_id` int(10) UNSIGNED DEFAULT NULL,
+  `created_by` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `students`
@@ -4495,7 +4442,7 @@ INSERT INTO `students` (`student_id`, `first_name`, `last_name`, `middle_name`, 
 (8, 'Lauretta', 'Esther', NULL, 'STD00008', 'Female', NULL, NULL, NULL, 53, 1, 1, 1, NULL, 2, '2016-05-31 14:39:11', '2016-05-31 14:39:11'),
 (9, 'wisdom', 'Chuibueze', NULL, 'STD00009', 'Male', NULL, NULL, NULL, 45, 1, 1, 1, NULL, 2, '2016-05-31 14:40:11', '2016-05-31 14:40:11'),
 (10, 'Adebola', 'Favour', NULL, 'STD00010', 'Male', NULL, NULL, NULL, 21, 1, 1, 1, NULL, 2, '2016-05-31 14:41:15', '2016-05-31 14:41:15'),
-(11, 'Eniola', 'Omotolani', NULL, 'STD00011', 'Female', NULL, NULL, NULL, 31, 2, 1, 1, NULL, 2, '2016-05-31 14:51:36', '2016-05-31 14:51:36'),
+(11, 'Eniola', 'Omotolani', '', 'STD00011', 'Female', '1999-11-25', NULL, NULL, 31, 2, 1, 1, 113, 2, '2016-05-31 14:51:36', '2016-08-29 18:01:05'),
 (12, 'Chiamaka', 'Blessing', NULL, 'STD00012', 'Female', NULL, NULL, NULL, 118, 2, 1, 1, NULL, 2, '2016-05-31 14:52:41', '2016-05-31 14:52:41'),
 (13, 'Osamudiameh', 'Queen', NULL, 'STD00013', 'Female', NULL, NULL, NULL, 71, 2, 1, 1, NULL, 2, '2016-05-31 14:53:34', '2016-05-31 14:53:34'),
 (14, 'Benita', 'Omolola', NULL, 'STD00014', 'Female', NULL, NULL, NULL, 115, 2, 1, 1, NULL, 2, '2016-05-31 15:05:20', '2016-05-31 15:05:20'),
@@ -4513,7 +4460,7 @@ INSERT INTO `students` (`student_id`, `first_name`, `last_name`, `middle_name`, 
 (28, 'Donald', 'Isioma', NULL, 'STD00028', 'Male', NULL, NULL, NULL, 86, 3, 1, 1, NULL, 2, '2016-05-31 15:51:51', '2016-05-31 15:51:52'),
 (29, 'Edna', 'Favour', NULL, 'STD00029', 'Female', NULL, NULL, NULL, 54, 4, 1, 1, NULL, 2, '2016-05-31 16:11:40', '2016-05-31 16:11:40'),
 (30, 'Zainab', 'Adeola', NULL, 'STD00030', 'Female', NULL, NULL, NULL, 111, 4, 1, 1, NULL, 2, '2016-05-31 16:12:37', '2016-05-31 16:12:37'),
-(32, 'Abiola', 'Precious', NULL, 'STD00032', 'Female', NULL, NULL, NULL, 31, 4, 1, 1, NULL, 2, '2016-05-31 16:25:19', '2016-05-31 16:25:19'),
+(32, 'Abiola', 'Precious', '', 'STD00032', 'Female', '2010-06-09', NULL, NULL, 31, 4, 1, 1, 0, 2, '2016-05-31 16:25:19', '2016-08-29 18:43:22'),
 (33, 'Murede', 'Raheem', NULL, 'STD00033', 'Male', NULL, NULL, NULL, 79, 4, 1, 1, NULL, 2, '2016-05-31 16:26:32', '2016-05-31 16:26:32'),
 (34, 'Destiny', 'Isosa', NULL, 'STD00034', 'Male', NULL, NULL, NULL, 51, 4, 1, 1, NULL, 2, '2016-05-31 16:34:03', '2016-05-31 16:34:03'),
 (35, 'Precious', 'David', NULL, 'STD00035', 'Male', NULL, NULL, NULL, 96, 4, 1, 1, NULL, 2, '2016-05-31 16:34:54', '2016-05-31 16:34:54'),
@@ -4534,7 +4481,7 @@ INSERT INTO `students` (`student_id`, `first_name`, `last_name`, `middle_name`, 
 --
 -- Stand-in structure for view `students_classroomviews`
 --
-CREATE TABLE IF NOT EXISTS `students_classroomviews` (
+CREATE TABLE `students_classroomviews` (
 `fullname` varchar(101)
 ,`student_no` varchar(10)
 ,`classroom` varchar(255)
@@ -4555,14 +4502,14 @@ CREATE TABLE IF NOT EXISTS `students_classroomviews` (
 -- Table structure for table `student_classes`
 --
 
-CREATE TABLE IF NOT EXISTS `student_classes` (
-  `student_class_id` int(10) unsigned NOT NULL,
-  `student_id` int(10) unsigned NOT NULL,
-  `classroom_id` int(10) unsigned NOT NULL,
-  `academic_year_id` int(10) unsigned NOT NULL,
+CREATE TABLE `student_classes` (
+  `student_class_id` int(10) UNSIGNED NOT NULL,
+  `student_id` int(10) UNSIGNED NOT NULL,
+  `classroom_id` int(10) UNSIGNED NOT NULL,
+  `academic_year_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `student_classes`
@@ -4618,9 +4565,9 @@ INSERT INTO `student_classes` (`student_class_id`, `student_id`, `classroom_id`,
 -- Table structure for table `student_subjects`
 --
 
-CREATE TABLE IF NOT EXISTS `student_subjects` (
-  `student_id` int(10) unsigned NOT NULL,
-  `subject_classroom_id` int(10) unsigned NOT NULL
+CREATE TABLE `student_subjects` (
+  `student_id` int(10) UNSIGNED NOT NULL,
+  `subject_classroom_id` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -5959,7 +5906,7 @@ INSERT INTO `student_subjects` (`student_id`, `subject_classroom_id`) VALUES
 --
 -- Stand-in structure for view `subjects_assessmentsviews`
 --
-CREATE TABLE IF NOT EXISTS `subjects_assessmentsviews` (
+CREATE TABLE `subjects_assessmentsviews` (
 `tutor` varchar(91)
 ,`tutor_id` int(10) unsigned
 ,`classroom_id` int(10) unsigned
@@ -5989,7 +5936,7 @@ CREATE TABLE IF NOT EXISTS `subjects_assessmentsviews` (
 --
 -- Stand-in structure for view `subjects_classroomviews`
 --
-CREATE TABLE IF NOT EXISTS `subjects_classroomviews` (
+CREATE TABLE `subjects_classroomviews` (
 `tutor` varchar(91)
 ,`tutor_id` int(10) unsigned
 ,`classroom_id` int(10) unsigned
@@ -6011,16 +5958,16 @@ CREATE TABLE IF NOT EXISTS `subjects_classroomviews` (
 -- Table structure for table `subject_classrooms`
 --
 
-CREATE TABLE IF NOT EXISTS `subject_classrooms` (
-  `subject_classroom_id` int(10) unsigned NOT NULL,
-  `subject_id` int(10) unsigned NOT NULL,
-  `classroom_id` int(10) unsigned NOT NULL,
-  `academic_term_id` int(10) unsigned NOT NULL,
-  `exam_status_id` int(10) unsigned NOT NULL DEFAULT '2',
-  `tutor_id` int(10) unsigned DEFAULT NULL,
+CREATE TABLE `subject_classrooms` (
+  `subject_classroom_id` int(10) UNSIGNED NOT NULL,
+  `subject_id` int(10) UNSIGNED NOT NULL,
+  `classroom_id` int(10) UNSIGNED NOT NULL,
+  `academic_term_id` int(10) UNSIGNED NOT NULL,
+  `exam_status_id` int(10) UNSIGNED NOT NULL DEFAULT '2',
+  `tutor_id` int(10) UNSIGNED DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=173 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `subject_classrooms`
@@ -6196,18 +6143,18 @@ INSERT INTO `subject_classrooms` (`subject_classroom_id`, `subject_id`, `classro
 -- Table structure for table `sub_menu_items`
 --
 
-CREATE TABLE IF NOT EXISTS `sub_menu_items` (
-  `sub_menu_item_id` int(10) unsigned NOT NULL,
+CREATE TABLE `sub_menu_items` (
+  `sub_menu_item_id` int(10) UNSIGNED NOT NULL,
   `sub_menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `active` int(10) unsigned NOT NULL DEFAULT '1',
+  `active` int(10) UNSIGNED NOT NULL DEFAULT '1',
   `sequence` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `type` int(10) unsigned NOT NULL DEFAULT '1',
-  `menu_item_id` int(10) unsigned NOT NULL,
+  `type` int(10) UNSIGNED NOT NULL DEFAULT '1',
+  `menu_item_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `sub_menu_items`
@@ -6246,18 +6193,18 @@ INSERT INTO `sub_menu_items` (`sub_menu_item_id`, `sub_menu_item`, `sub_menu_ite
 -- Table structure for table `sub_most_menu_items`
 --
 
-CREATE TABLE IF NOT EXISTS `sub_most_menu_items` (
-  `sub_most_menu_item_id` int(10) unsigned NOT NULL,
+CREATE TABLE `sub_most_menu_items` (
+  `sub_most_menu_item_id` int(10) UNSIGNED NOT NULL,
   `sub_most_menu_item` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_most_menu_item_url` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `sub_most_menu_item_icon` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `active` int(10) unsigned NOT NULL DEFAULT '1',
+  `active` int(10) UNSIGNED NOT NULL DEFAULT '1',
   `sequence` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `type` int(10) unsigned NOT NULL DEFAULT '1',
-  `sub_menu_item_id` int(10) unsigned NOT NULL,
+  `type` int(10) UNSIGNED NOT NULL DEFAULT '1',
+  `sub_menu_item_id` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `sub_most_menu_items`
@@ -6280,8 +6227,8 @@ INSERT INTO `sub_most_menu_items` (`sub_most_menu_item_id`, `sub_most_menu_item`
 -- Table structure for table `users`
 --
 
-CREATE TABLE IF NOT EXISTS `users` (
-  `user_id` int(10) unsigned NOT NULL,
+CREATE TABLE `users` (
+  `user_id` int(10) UNSIGNED NOT NULL,
   `password` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `phone_no` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
   `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -6291,17 +6238,17 @@ CREATE TABLE IF NOT EXISTS `users` (
   `gender` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
   `dob` date DEFAULT NULL,
   `phone_no2` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `user_type_id` int(10) unsigned NOT NULL,
-  `lga_id` int(10) unsigned DEFAULT NULL,
-  `salutation_id` int(10) unsigned DEFAULT NULL,
-  `verified` int(10) unsigned NOT NULL DEFAULT '0',
-  `status` int(10) unsigned NOT NULL DEFAULT '1',
+  `user_type_id` int(10) UNSIGNED NOT NULL,
+  `lga_id` int(10) UNSIGNED DEFAULT NULL,
+  `salutation_id` int(10) UNSIGNED DEFAULT NULL,
+  `verified` int(10) UNSIGNED NOT NULL DEFAULT '0',
+  `status` int(10) UNSIGNED NOT NULL DEFAULT '1',
   `avatar` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `verification_code` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `remember_token` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `users`
@@ -6309,7 +6256,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `last_name`, `middle_name`, `gender`, `dob`, `phone_no2`, `user_type_id`, `lga_id`, `salutation_id`, `verified`, `status`, `avatar`, `verification_code`, `remember_token`, `created_at`, `updated_at`) VALUES
 (1, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '081617307881', 'admin@gmail.com', 'Emma', 'Okafor', '', 'Male', '2016-04-05', '', 1, 0, 1, 1, 1, '1_avatar.jpg', NULL, 'h198OPEXf49Lc8ZPVJ5xnLmvU4l7sYbleb5TewvCwuKqnxwsvDeRwKiPhgvN', NULL, '2016-08-19 15:14:21'),
-(2, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '08022020075', 'bamidelemike2003@yahoo.com', 'Bamidele', 'Micheal', '', 'Male', '1976-02-11', '08066303843', 2, 476, 1, 1, 1, '2_avatar.jpg', 'x9pxH08aB60ZKwe12DDKbiD3V5628TyGMd1v8Q5I', 'G5zaqTAEfs3kMuLTc1FXF7nWNN44As4rvWf9BCcZWAdfm8eYo80hA3xem3fx', '2016-04-28 21:21:05', '2016-08-15 09:19:39'),
+(2, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '08022020075', 'bamidelemike2003@yahoo.com', 'Bamidele', 'Micheal', '', 'Male', '1976-02-11', '08066303843', 2, 476, 1, 1, 1, '2_avatar.jpg', 'x9pxH08aB60ZKwe12DDKbiD3V5628TyGMd1v8Q5I', 'deA5BxN3cHFopMekF7A8LYatqlgV70UAHEQgZlKX8W4zY2rlv0BIo0nPL4tn', '2016-04-28 21:21:05', '2016-08-29 10:40:03'),
 (3, '$2y$10$Pc9CBBOKkpbTAlnoxc0iveGkS5xRKREBYlwyPRzxSUxsb.9nNJ9cS', '08186644996', 'onegirl2004@yahoo.com', 'Emina', 'Omotolani', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, '3_avatar.png', 'sJkNJULOX0XDBVHoG929c8zOuHvuQJ8taqOE4MK7', 'k8UmNk4kFLcPI7leXsYUVe0F7p33SMV6bcATiKe79UMg2doY9BmIC0s6G5ws', '2016-05-05 18:29:34', '2016-07-18 12:33:34'),
 (4, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '08032492560', 'agiebabe2003@yahoo.comk', 'Agetu', 'Agnes', '', 'Female', '2016-07-13', '', 4, 0, 2, 1, 1, NULL, 'mBFoXfYp7feFMhsnzYWkh616IV2wq2e5LdtOOYRl', 'tKO4xIGZdOIzqE6b9VO63Kwbv4cSPSWV1bRfsBiirtuIt9b0FbPcYxAeGrwF', '2016-05-05 18:30:48', '2016-08-20 09:53:54'),
 (5, '$2y$10$08ymddnGq3lEWheZSMe3Puc/fLtGo7pDZ5dm1Pmh9CupX3AV/KvO6', '08138281504', 'thesuccessor2020@yahoo.com', 'Akinremi', 'omobolaji', NULL, NULL, NULL, NULL, 4, NULL, NULL, 1, 1, NULL, 'kmmCEClYr018UobxCFrOHmDVVOaz1eaD60Nn2ow9', 'tnzLRSOXjdLubYWZnnJO9QSBzQc5QlFX07PncbLhlISjMc2K05t6TKvaDrDD', '2016-05-05 18:32:16', '2016-07-18 12:33:58'),
@@ -6331,7 +6278,7 @@ INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `
 (21, '$2y$10$VkOuEo.sWHGSuqKCU8iff.NJ2G2Bq3TuYUxXUY7sdSR984A9pSIhu', '08036000828', 'adelola@yahoo.com', 'adelola', 'adelola', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'KXnd6uuSsfXRLmRHeq9i3TkgVZYihrXScCXsxaMB', NULL, '2016-05-10 18:08:26', '2016-05-10 18:08:26'),
 (22, '$2y$10$QNj7V0BJg34D2CdIsd8A3.IgsQiB.NP31ICjv80C6.DsBFoYzPqB6', '08112000692', 'adesida@yahoo.com', 'adesida', 'adesida', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'LsSAlLsp9awyMemCbabGP255Ag1OAFelXPKYk4ZA', NULL, '2016-05-10 18:09:15', '2016-05-10 18:09:15'),
 (23, '$2y$10$o.I3jxl6b0fLlOq6j7i.ruFe8YWuvhbHU0k.SUG6K84he.BdF0W6a', '08023019212', 'adewumi@yahoo.com', 'adewumi', 'adewumi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'LMEFt232rTF9xZ73Krv6BBwXVMPpXCh3rb2TMTxw', NULL, '2016-05-10 18:10:17', '2016-05-10 18:10:17'),
-(24, '$2y$10$tCo6l397eJvSXNX2mHRw6.513v7dnIOFasAk2DwBXDlhaNxNTxGLK', '08067151353', 'adeyemi@yahoo.com', 'adeyemi', 'adeyemi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'IWRH6Ij4Mh7qzaA0HQ208NcLTbJehSFUvgUxp0b7', NULL, '2016-05-10 18:11:43', '2016-05-10 18:11:43'),
+(24, '$2y$10$tCo6l397eJvSXNX2mHRw6.513v7dnIOFasAk2DwBXDlhaNxNTxGLK', '08067151353', 'adeyemi@yahoo.com', 'adeyemi', 'adeyemi', '', 'Male', '1989-07-11', '', 3, 604, 1, 1, 1, '24_avatar.jpg', 'IWRH6Ij4Mh7qzaA0HQ208NcLTbJehSFUvgUxp0b7', '3Rw26x2F4ZK9x7bWTTGpaoSexDwJpxeoHiiJ3Y2YeK2Pn3vex3vWv2F404p3', '2016-05-10 18:11:43', '2016-08-29 17:42:45'),
 (25, '$2y$10$uag5F5RE9WauCOzbEr44g.dfTkxV.JBJwF2gWV1wqAw.qj5gavzFG', '08034730900', 'adeyemi1@yahoo.com', 'adeyemi', 'adeyemi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'qpZEX3b04G4EhTAixG5U21SOpdat5FbwQiKsvsYI', NULL, '2016-05-10 18:14:01', '2016-05-10 18:14:01'),
 (26, '$2y$10$zCmlJws2.7GNyeLTjLVKherZd2faZl9W8FoJcxwQP/TVai4pdlvna', '08038666239', 'adeyemi2@yahoo.com', 'adeyemi', 'adeyemi', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'uZEZIJvQioqHfboZwjYzozKNk3nSBdiPrNZtBwNj', NULL, '2016-05-10 18:15:18', '2016-05-10 18:15:18'),
 (27, '$2y$10$2hFNokJGmVd82yeHfmcIY.AjgcYMWNhTUDfiv6x72hHx27Zx/QmdS', '08034133636', 'adoye@yahoo.com', 'adoye', 'adoye', NULL, NULL, NULL, NULL, 3, NULL, NULL, 1, 1, NULL, 'cHaVWYEZAAGISfPs9s2qenYJPhnZIDrfzeQfTmVr', NULL, '2016-05-10 18:16:24', '2016-05-10 18:16:24'),
@@ -6443,13 +6390,13 @@ INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `
 -- Table structure for table `user_types`
 --
 
-CREATE TABLE IF NOT EXISTS `user_types` (
-  `user_type_id` int(10) unsigned NOT NULL,
+CREATE TABLE `user_types` (
+  `user_type_id` int(10) UNSIGNED NOT NULL,
   `user_type` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `type` int(11) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `user_types`
@@ -6468,7 +6415,7 @@ INSERT INTO `user_types` (`user_type_id`, `user_type`, `type`, `created_at`, `up
 --
 DROP TABLE IF EXISTS `assessment_detailsviews`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `assessment_detailsviews` AS select `f`.`assessment_id` AS `assessment_id`,`f`.`subject_classroom_id` AS `subject_classroom_id`,`f`.`assessment_setup_detail_id` AS `assessment_setup_detail_id`,`f`.`marked` AS `marked`,`g`.`assessment_detail_id` AS `assessment_detail_id`,`g`.`student_id` AS `student_id`,`j`.`student_no` AS `student_no`,concat(`j`.`first_name`,' ',`j`.`last_name`) AS `student_name`,`j`.`gender` AS `gender`,`g`.`score` AS `score`,`h`.`weight_point` AS `weight_point`,`h`.`number` AS `number`,`h`.`percentage` AS `percentage`,`h`.`description` AS `description`,`h`.`submission_date` AS `submission_date`,`i`.`assessment_setup_id` AS `assessment_setup_id`,`i`.`assessment_no` AS `assessment_no`,`m`.`ca_weight_point` AS `ca_weight_point`,`m`.`exam_weight_point` AS `exam_weight_point`,`j`.`sponsor_id` AS `sponsor_id`,`k`.`phone_no` AS `phone_no`,`k`.`email` AS `email`,concat(`k`.`first_name`,' ',`k`.`last_name`) AS `sponsor_name`,`a`.`subject_id` AS `subject_id`,`a`.`classroom_id` AS `classroom_id`,`a`.`tutor_id` AS `tutor_id`,concat(`n`.`first_name`,' ',`n`.`last_name`) AS `tutor`,`c`.`classroom` AS `classroom`,`c`.`classlevel_id` AS `classlevel_id`,`d`.`classlevel` AS `classlevel`,`d`.`classgroup_id` AS `classgroup_id`,`a`.`academic_term_id` AS `academic_term_id`,`e`.`academic_term` AS `academic_term` from (((((((((((`subject_classrooms` `a` join `classrooms` `c` on((`a`.`classroom_id` = `c`.`classroom_id`))) join `classlevels` `d` on((`c`.`classlevel_id` = `d`.`classlevel_id`))) join `academic_terms` `e` on((`a`.`academic_term_id` = `e`.`academic_term_id`))) join `assessments` `f` on((`a`.`subject_classroom_id` = `f`.`subject_classroom_id`))) join `assessment_details` `g` on((`f`.`assessment_id` = `g`.`assessment_id`))) join `assessment_setup_details` `h` on((`f`.`assessment_setup_detail_id` = `h`.`assessment_setup_detail_id`))) join `assessment_setups` `i` on((`h`.`assessment_setup_id` = `i`.`assessment_setup_id`))) join `students` `j` on((`g`.`student_id` = `j`.`student_id`))) left join `users` `k` on((`j`.`sponsor_id` = `k`.`user_id`))) join `classgroups` `m` on((`d`.`classgroup_id` = `m`.`classgroup_id`))) left join `users` `n` on((`a`.`tutor_id` = `n`.`user_id`)));
+CREATE DEFINER=`ekaruztech_user`@`%` SQL SECURITY DEFINER VIEW `assessment_detailsviews`  AS  select `f`.`assessment_id` AS `assessment_id`,`f`.`subject_classroom_id` AS `subject_classroom_id`,`f`.`assessment_setup_detail_id` AS `assessment_setup_detail_id`,`f`.`marked` AS `marked`,`g`.`assessment_detail_id` AS `assessment_detail_id`,`g`.`student_id` AS `student_id`,`j`.`student_no` AS `student_no`,concat(`j`.`first_name`,' ',`j`.`last_name`) AS `student_name`,`j`.`gender` AS `gender`,`g`.`score` AS `score`,`h`.`weight_point` AS `weight_point`,`h`.`number` AS `number`,`h`.`percentage` AS `percentage`,`h`.`description` AS `description`,`h`.`submission_date` AS `submission_date`,`i`.`assessment_setup_id` AS `assessment_setup_id`,`i`.`assessment_no` AS `assessment_no`,`m`.`ca_weight_point` AS `ca_weight_point`,`m`.`exam_weight_point` AS `exam_weight_point`,`j`.`sponsor_id` AS `sponsor_id`,`k`.`phone_no` AS `phone_no`,`k`.`email` AS `email`,concat(`k`.`first_name`,' ',`k`.`last_name`) AS `sponsor_name`,`a`.`subject_id` AS `subject_id`,`a`.`classroom_id` AS `classroom_id`,`a`.`tutor_id` AS `tutor_id`,concat(`n`.`first_name`,' ',`n`.`last_name`) AS `tutor`,`c`.`classroom` AS `classroom`,`c`.`classlevel_id` AS `classlevel_id`,`d`.`classlevel` AS `classlevel`,`d`.`classgroup_id` AS `classgroup_id`,`a`.`academic_term_id` AS `academic_term_id`,`e`.`academic_term` AS `academic_term` from (((((((((((`subject_classrooms` `a` join `classrooms` `c` on((`a`.`classroom_id` = `c`.`classroom_id`))) join `classlevels` `d` on((`c`.`classlevel_id` = `d`.`classlevel_id`))) join `academic_terms` `e` on((`a`.`academic_term_id` = `e`.`academic_term_id`))) join `assessments` `f` on((`a`.`subject_classroom_id` = `f`.`subject_classroom_id`))) join `assessment_details` `g` on((`f`.`assessment_id` = `g`.`assessment_id`))) join `assessment_setup_details` `h` on((`f`.`assessment_setup_detail_id` = `h`.`assessment_setup_detail_id`))) join `assessment_setups` `i` on((`h`.`assessment_setup_id` = `i`.`assessment_setup_id`))) join `students` `j` on((`g`.`student_id` = `j`.`student_id`))) left join `users` `k` on((`j`.`sponsor_id` = `k`.`user_id`))) join `classgroups` `m` on((`d`.`classgroup_id` = `m`.`classgroup_id`))) left join `users` `n` on((`a`.`tutor_id` = `n`.`user_id`))) ;
 
 -- --------------------------------------------------------
 
@@ -6477,7 +6424,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `exams_detailsviews`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `exams_detailsviews` AS select `exam_details`.`exam_detail_id` AS `exam_detail_id`,`exams`.`exam_id` AS `exam_id`,`subject_classrooms`.`subject_classroom_id` AS `subject_classroom_id`,`subject_classrooms`.`subject_id` AS `subject_id`,`subject_classrooms`.`tutor_id` AS `tutor_id`,`classrooms`.`classlevel_id` AS `classlevel_id`,`student_classes`.`classroom_id` AS `classroom_id`,`students`.`student_id` AS `student_id`,`classrooms`.`classroom` AS `classroom`,concat(ucase(`students`.`first_name`),' ',lcase(`students`.`last_name`)) AS `fullname`,`students`.`gender` AS `student_gender`,`students`.`student_no` AS `student_no`,`exam_details`.`ca` AS `ca`,`exam_details`.`exam` AS `exam`,(`exam_details`.`exam` + `exam_details`.`ca`) AS `student_total`,`classgroups`.`ca_weight_point` AS `ca_weight_point`,`classgroups`.`exam_weight_point` AS `exam_weight_point`,(`classgroups`.`exam_weight_point` + `classgroups`.`ca_weight_point`) AS `weight_point_total`,`academic_terms`.`academic_term_id` AS `academic_term_id`,`academic_terms`.`academic_term` AS `academic_term`,`exams`.`marked` AS `marked`,`academic_terms`.`academic_year_id` AS `academic_year_id`,`academic_years`.`academic_year` AS `academic_year`,`classlevels`.`classlevel` AS `classlevel`,`classlevels`.`classgroup_id` AS `classgroup_id` from (((((((((`exams` join `exam_details` on((`exams`.`exam_id` = `exam_details`.`exam_id`))) join `subject_classrooms` on((`exams`.`subject_classroom_id` = `subject_classrooms`.`subject_classroom_id`))) join `students` on((`exam_details`.`student_id` = `students`.`student_id`))) join `academic_terms` on((`subject_classrooms`.`academic_term_id` = `academic_terms`.`academic_term_id`))) join `academic_years` on((`academic_years`.`academic_year_id` = `academic_terms`.`academic_year_id`))) join `student_classes` on((`students`.`student_id` = `student_classes`.`student_id`))) join `classrooms` on((`student_classes`.`classroom_id` = `classrooms`.`classroom_id`))) join `classlevels` on((`classrooms`.`classlevel_id` = `classlevels`.`classlevel_id`))) join `classgroups` on((`classgroups`.`classgroup_id` = `classlevels`.`classgroup_id`)));
+CREATE DEFINER=`ekaruztech_user`@`%` SQL SECURITY DEFINER VIEW `exams_detailsviews`  AS  select `exam_details`.`exam_detail_id` AS `exam_detail_id`,`exams`.`exam_id` AS `exam_id`,`subject_classrooms`.`subject_classroom_id` AS `subject_classroom_id`,`subject_classrooms`.`subject_id` AS `subject_id`,`subject_classrooms`.`tutor_id` AS `tutor_id`,`classrooms`.`classlevel_id` AS `classlevel_id`,`student_classes`.`classroom_id` AS `classroom_id`,`students`.`student_id` AS `student_id`,`classrooms`.`classroom` AS `classroom`,concat(ucase(`students`.`first_name`),' ',lcase(`students`.`last_name`)) AS `fullname`,`students`.`gender` AS `student_gender`,`students`.`student_no` AS `student_no`,`exam_details`.`ca` AS `ca`,`exam_details`.`exam` AS `exam`,(`exam_details`.`exam` + `exam_details`.`ca`) AS `student_total`,`classgroups`.`ca_weight_point` AS `ca_weight_point`,`classgroups`.`exam_weight_point` AS `exam_weight_point`,(`classgroups`.`exam_weight_point` + `classgroups`.`ca_weight_point`) AS `weight_point_total`,`academic_terms`.`academic_term_id` AS `academic_term_id`,`academic_terms`.`academic_term` AS `academic_term`,`exams`.`marked` AS `marked`,`academic_terms`.`academic_year_id` AS `academic_year_id`,`academic_years`.`academic_year` AS `academic_year`,`classlevels`.`classlevel` AS `classlevel`,`classlevels`.`classgroup_id` AS `classgroup_id` from (((((((((`exams` join `exam_details` on((`exams`.`exam_id` = `exam_details`.`exam_id`))) join `subject_classrooms` on((`exams`.`subject_classroom_id` = `subject_classrooms`.`subject_classroom_id`))) join `students` on((`exam_details`.`student_id` = `students`.`student_id`))) join `academic_terms` on((`subject_classrooms`.`academic_term_id` = `academic_terms`.`academic_term_id`))) join `academic_years` on((`academic_years`.`academic_year_id` = `academic_terms`.`academic_year_id`))) join `student_classes` on((`students`.`student_id` = `student_classes`.`student_id`))) join `classrooms` on((`student_classes`.`classroom_id` = `classrooms`.`classroom_id`))) join `classlevels` on((`classrooms`.`classlevel_id` = `classlevels`.`classlevel_id`))) join `classgroups` on((`classgroups`.`classgroup_id` = `classlevels`.`classgroup_id`))) ;
 
 -- --------------------------------------------------------
 
@@ -6486,7 +6433,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `exams_subjectviews`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `exams_subjectviews` AS select `a`.`exam_id` AS `exam_id`,`f`.`classroom_id` AS `classroom_id`,`f`.`classroom` AS `classroom`,`b`.`subject_id` AS `subject_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`b`.`tutor_id` AS `tutor_id`,concat(ucase(`j`.`first_name`),' ',`j`.`last_name`) AS `tutor`,`h`.`ca_weight_point` AS `ca_weight_point`,`h`.`exam_weight_point` AS `exam_weight_point`,`a`.`marked` AS `marked`,`f`.`classlevel_id` AS `classlevel_id`,`g`.`classlevel` AS `classlevel`,`b`.`academic_term_id` AS `academic_term_id`,`d`.`academic_term` AS `academic_term`,`d`.`academic_year_id` AS `academic_year_id`,`e`.`academic_year` AS `academic_year` from ((((((`exams` `a` join `subject_classrooms` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) left join (`classlevels` `g` join `classrooms` `f` on((`f`.`classlevel_id` = `g`.`classlevel_id`))) on((`b`.`classroom_id` = `f`.`classroom_id`))) join `academic_terms` `d` on((`b`.`academic_term_id` = `d`.`academic_term_id`))) join `academic_years` `e` on((`d`.`academic_year_id` = `e`.`academic_year_id`))) join `classgroups` `h` on((`g`.`classgroup_id` = `h`.`classgroup_id`))) left join `users` `j` on((`b`.`tutor_id` = `j`.`user_id`)));
+CREATE DEFINER=`ekaruztech_user`@`%` SQL SECURITY DEFINER VIEW `exams_subjectviews`  AS  select `a`.`exam_id` AS `exam_id`,`f`.`classroom_id` AS `classroom_id`,`f`.`classroom` AS `classroom`,`b`.`subject_id` AS `subject_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`b`.`tutor_id` AS `tutor_id`,concat(ucase(`j`.`first_name`),' ',`j`.`last_name`) AS `tutor`,`h`.`ca_weight_point` AS `ca_weight_point`,`h`.`exam_weight_point` AS `exam_weight_point`,`a`.`marked` AS `marked`,`f`.`classlevel_id` AS `classlevel_id`,`g`.`classlevel` AS `classlevel`,`b`.`academic_term_id` AS `academic_term_id`,`d`.`academic_term` AS `academic_term`,`d`.`academic_year_id` AS `academic_year_id`,`e`.`academic_year` AS `academic_year` from ((((((`exams` `a` join `subject_classrooms` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) left join (`classlevels` `g` join `classrooms` `f` on((`f`.`classlevel_id` = `g`.`classlevel_id`))) on((`b`.`classroom_id` = `f`.`classroom_id`))) join `academic_terms` `d` on((`b`.`academic_term_id` = `d`.`academic_term_id`))) join `academic_years` `e` on((`d`.`academic_year_id` = `e`.`academic_year_id`))) join `classgroups` `h` on((`g`.`classgroup_id` = `h`.`classgroup_id`))) left join `users` `j` on((`b`.`tutor_id` = `j`.`user_id`))) ;
 
 -- --------------------------------------------------------
 
@@ -6495,7 +6442,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `students_classroomviews`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `students_classroomviews` AS select concat(ucase(`students`.`first_name`),' ',`students`.`last_name`) AS `fullname`,`students`.`student_no` AS `student_no`,`classrooms`.`classroom` AS `classroom`,`classrooms`.`classroom_id` AS `classroom_id`,`students`.`student_id` AS `student_id`,`classlevels`.`classlevel` AS `classlevel`,`classrooms`.`classlevel_id` AS `classlevel_id`,`students`.`sponsor_id` AS `sponsor_id`,concat(ucase(`users`.`first_name`),' ',`users`.`last_name`) AS `sponsor_name`,`student_classes`.`academic_year_id` AS `academic_year_id`,`academic_years`.`academic_year` AS `academic_year`,`students`.`status_id` AS `status_id` from (((((`students` join `student_classes` on((`student_classes`.`student_id` = `students`.`student_id`))) join `classrooms` on((`student_classes`.`classroom_id` = `classrooms`.`classroom_id`))) join `classlevels` on((`classlevels`.`classlevel_id` = `classrooms`.`classlevel_id`))) join `academic_years` on((`student_classes`.`academic_year_id` = `academic_years`.`academic_year_id`))) join `users` on((`students`.`sponsor_id` = `users`.`user_id`)));
+CREATE DEFINER=`ekaruztech_user`@`%` SQL SECURITY DEFINER VIEW `students_classroomviews`  AS  select concat(ucase(`students`.`first_name`),' ',`students`.`last_name`) AS `fullname`,`students`.`student_no` AS `student_no`,`classrooms`.`classroom` AS `classroom`,`classrooms`.`classroom_id` AS `classroom_id`,`students`.`student_id` AS `student_id`,`classlevels`.`classlevel` AS `classlevel`,`classrooms`.`classlevel_id` AS `classlevel_id`,`students`.`sponsor_id` AS `sponsor_id`,concat(ucase(`users`.`first_name`),' ',`users`.`last_name`) AS `sponsor_name`,`student_classes`.`academic_year_id` AS `academic_year_id`,`academic_years`.`academic_year` AS `academic_year`,`students`.`status_id` AS `status_id` from (((((`students` join `student_classes` on((`student_classes`.`student_id` = `students`.`student_id`))) join `classrooms` on((`student_classes`.`classroom_id` = `classrooms`.`classroom_id`))) join `classlevels` on((`classlevels`.`classlevel_id` = `classrooms`.`classlevel_id`))) join `academic_years` on((`student_classes`.`academic_year_id` = `academic_years`.`academic_year_id`))) join `users` on((`students`.`sponsor_id` = `users`.`user_id`))) ;
 
 -- --------------------------------------------------------
 
@@ -6504,7 +6451,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `subjects_assessmentsviews`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `subjects_assessmentsviews` AS select `a`.`tutor` AS `tutor`,`a`.`tutor_id` AS `tutor_id`,`a`.`classroom_id` AS `classroom_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`a`.`subject_id` AS `subject_id`,`a`.`subject` AS `subject`,`a`.`subject_group_id` AS `subject_group_id`,`a`.`academic_term_id` AS `academic_term_id`,`a`.`academic_term` AS `academic_term`,`a`.`exam_status_id` AS `exam_status_id`,`a`.`exam_status` AS `exam_status`,`a`.`classlevel_id` AS `classlevel_id`,`a`.`classroom` AS `classroom`,`b`.`assessment_id` AS `assessment_id`,`b`.`marked` AS `marked`,`c`.`assessment_setup_detail_id` AS `assessment_setup_detail_id`,`c`.`number` AS `number`,`c`.`weight_point` AS `weight_point`,`c`.`percentage` AS `percentage`,`c`.`assessment_setup_id` AS `assessment_setup_id`,`c`.`submission_date` AS `submission_date`,`c`.`description` AS `description` from ((`subjects_classroomviews` `a` left join `assessments` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) left join `assessment_setup_details` `c` on((`b`.`assessment_setup_detail_id` = `c`.`assessment_setup_detail_id`)));
+CREATE DEFINER=`ekaruztech_user`@`%` SQL SECURITY DEFINER VIEW `subjects_assessmentsviews`  AS  select `a`.`tutor` AS `tutor`,`a`.`tutor_id` AS `tutor_id`,`a`.`classroom_id` AS `classroom_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`a`.`subject_id` AS `subject_id`,`a`.`subject` AS `subject`,`a`.`subject_group_id` AS `subject_group_id`,`a`.`academic_term_id` AS `academic_term_id`,`a`.`academic_term` AS `academic_term`,`a`.`exam_status_id` AS `exam_status_id`,`a`.`exam_status` AS `exam_status`,`a`.`classlevel_id` AS `classlevel_id`,`a`.`classroom` AS `classroom`,`b`.`assessment_id` AS `assessment_id`,`b`.`marked` AS `marked`,`c`.`assessment_setup_detail_id` AS `assessment_setup_detail_id`,`c`.`number` AS `number`,`c`.`weight_point` AS `weight_point`,`c`.`percentage` AS `percentage`,`c`.`assessment_setup_id` AS `assessment_setup_id`,`c`.`submission_date` AS `submission_date`,`c`.`description` AS `description` from ((`subjects_classroomviews` `a` left join `assessments` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) left join `assessment_setup_details` `c` on((`b`.`assessment_setup_detail_id` = `c`.`assessment_setup_detail_id`))) ;
 
 -- --------------------------------------------------------
 
@@ -6513,7 +6460,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `subjects_classroomviews`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `subjects_classroomviews` AS select concat(ucase(`e`.`first_name`),' ',`e`.`last_name`) AS `tutor`,`e`.`user_id` AS `tutor_id`,`a`.`classroom_id` AS `classroom_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`a`.`subject_id` AS `subject_id`,`d`.`subject` AS `subject`,`d`.`subject_group_id` AS `subject_group_id`,`a`.`academic_term_id` AS `academic_term_id`,`b`.`academic_term` AS `academic_term`,`a`.`exam_status_id` AS `exam_status_id`,(case `a`.`exam_status_id` when 1 then 'Marked' when 2 then 'Not Marked' end) AS `exam_status`,`c`.`classlevel_id` AS `classlevel_id`,`c`.`classroom` AS `classroom` from ((((`subject_classrooms` `a` join `academic_terms` `b` on((`a`.`academic_term_id` = `b`.`academic_term_id`))) join `classrooms` `c` on((`a`.`classroom_id` = `c`.`classroom_id`))) join `schools`.`subjects` `d` on((`d`.`subject_id` = `a`.`subject_id`))) left join `users` `e` on((`a`.`tutor_id` = `e`.`user_id`)));
+CREATE DEFINER=`ekaruztech_user`@`%` SQL SECURITY DEFINER VIEW `subjects_classroomviews`  AS  select concat(ucase(`e`.`first_name`),' ',`e`.`last_name`) AS `tutor`,`e`.`user_id` AS `tutor_id`,`a`.`classroom_id` AS `classroom_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`a`.`subject_id` AS `subject_id`,`d`.`subject` AS `subject`,`d`.`subject_group_id` AS `subject_group_id`,`a`.`academic_term_id` AS `academic_term_id`,`b`.`academic_term` AS `academic_term`,`a`.`exam_status_id` AS `exam_status_id`,(case `a`.`exam_status_id` when 1 then 'Marked' when 2 then 'Not Marked' end) AS `exam_status`,`c`.`classlevel_id` AS `classlevel_id`,`c`.`classroom` AS `classroom` from ((((`subject_classrooms` `a` join `academic_terms` `b` on((`a`.`academic_term_id` = `b`.`academic_term_id`))) join `classrooms` `c` on((`a`.`classroom_id` = `c`.`classroom_id`))) join `smartschools`.`subjects` `d` on((`d`.`subject_id` = `a`.`subject_id`))) left join `users` `e` on((`a`.`tutor_id` = `e`.`user_id`))) ;
 
 --
 -- Indexes for dumped tables
@@ -6736,6 +6683,12 @@ ALTER TABLE `role_user`
   ADD KEY `role_user_role_id_foreign` (`role_id`);
 
 --
+-- Indexes for table `sms`
+--
+ALTER TABLE `sms`
+  ADD PRIMARY KEY (`sms_id`);
+
+--
 -- Indexes for table `sponsors`
 --
 ALTER TABLE `sponsors`
@@ -6832,157 +6785,162 @@ ALTER TABLE `user_types`
 -- AUTO_INCREMENT for table `academic_terms`
 --
 ALTER TABLE `academic_terms`
-  MODIFY `academic_term_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
+  MODIFY `academic_term_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT for table `academic_years`
 --
 ALTER TABLE `academic_years`
-  MODIFY `academic_year_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+  MODIFY `academic_year_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `assessments`
 --
 ALTER TABLE `assessments`
-  MODIFY `assessment_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=177;
+  MODIFY `assessment_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=177;
 --
 -- AUTO_INCREMENT for table `assessment_details`
 --
 ALTER TABLE `assessment_details`
-  MODIFY `assessment_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2424;
+  MODIFY `assessment_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2424;
 --
 -- AUTO_INCREMENT for table `assessment_setups`
 --
 ALTER TABLE `assessment_setups`
-  MODIFY `assessment_setup_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=9;
+  MODIFY `assessment_setup_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 --
 -- AUTO_INCREMENT for table `assessment_setup_details`
 --
 ALTER TABLE `assessment_setup_details`
-  MODIFY `assessment_setup_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=12;
+  MODIFY `assessment_setup_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT for table `classgroups`
 --
 ALTER TABLE `classgroups`
-  MODIFY `classgroup_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+  MODIFY `classgroup_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `classlevels`
 --
 ALTER TABLE `classlevels`
-  MODIFY `classlevel_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `classlevel_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `classrooms`
 --
 ALTER TABLE `classrooms`
-  MODIFY `classroom_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
+  MODIFY `classroom_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `class_masters`
 --
 ALTER TABLE `class_masters`
-  MODIFY `class_master_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `class_master_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `domains`
 --
 ALTER TABLE `domains`
-  MODIFY `domain_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `domain_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `domain_assessments`
 --
 ALTER TABLE `domain_assessments`
-  MODIFY `domain_assessment_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
+  MODIFY `domain_assessment_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `domain_details`
 --
 ALTER TABLE `domain_details`
-  MODIFY `domain_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=21;
+  MODIFY `domain_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 --
 -- AUTO_INCREMENT for table `exams`
 --
 ALTER TABLE `exams`
-  MODIFY `exam_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=83;
+  MODIFY `exam_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 --
 -- AUTO_INCREMENT for table `exam_details`
 --
 ALTER TABLE `exam_details`
-  MODIFY `exam_detail_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1105;
+  MODIFY `exam_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1105;
 --
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
-  MODIFY `grade_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=16;
+  MODIFY `grade_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 --
 -- AUTO_INCREMENT for table `menus`
 --
 ALTER TABLE `menus`
-  MODIFY `menu_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=14;
+  MODIFY `menu_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 --
 -- AUTO_INCREMENT for table `menu_headers`
 --
 ALTER TABLE `menu_headers`
-  MODIFY `menu_header_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=7;
+  MODIFY `menu_header_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 --
 -- AUTO_INCREMENT for table `menu_items`
 --
 ALTER TABLE `menu_items`
-  MODIFY `menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=30;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 --
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `permission_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=116;
+  MODIFY `permission_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
 --
 -- AUTO_INCREMENT for table `remarks`
 --
 ALTER TABLE `remarks`
-  MODIFY `remark_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=19;
+  MODIFY `remark_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 --
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `role_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
+  MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+--
+-- AUTO_INCREMENT for table `sms`
+--
+ALTER TABLE `sms`
+  MODIFY `sms_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `sponsors`
 --
 ALTER TABLE `sponsors`
-  MODIFY `sponsor_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `sponsor_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `staffs`
 --
 ALTER TABLE `staffs`
-  MODIFY `staff_id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `staff_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `student_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=48;
+  MODIFY `student_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 --
 -- AUTO_INCREMENT for table `student_classes`
 --
 ALTER TABLE `student_classes`
-  MODIFY `student_class_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=48;
+  MODIFY `student_class_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 --
 -- AUTO_INCREMENT for table `subject_classrooms`
 --
 ALTER TABLE `subject_classrooms`
-  MODIFY `subject_classroom_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=173;
+  MODIFY `subject_classroom_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=173;
 --
 -- AUTO_INCREMENT for table `sub_menu_items`
 --
 ALTER TABLE `sub_menu_items`
-  MODIFY `sub_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=26;
+  MODIFY `sub_menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 --
 -- AUTO_INCREMENT for table `sub_most_menu_items`
 --
 ALTER TABLE `sub_most_menu_items`
-  MODIFY `sub_most_menu_item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10;
+  MODIFY `sub_most_menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=129;
+  MODIFY `user_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
 --
 -- AUTO_INCREMENT for table `user_types`
 --
 ALTER TABLE `user_types`
-  MODIFY `user_type_id` int(10) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `user_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- Constraints for dumped tables
 --
@@ -7101,7 +7059,7 @@ ALTER TABLE `student_subjects`
 --
 ALTER TABLE `subject_classrooms`
   ADD CONSTRAINT `subject_classrooms_classroom_id_foreign` FOREIGN KEY (`classroom_id`) REFERENCES `classrooms` (`classroom_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `subject_classrooms_subject_id_foreign` FOREIGN KEY (`subject_id`) REFERENCES `schools`.`subjects` (`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `subject_classrooms_subject_id_foreign` FOREIGN KEY (`subject_id`) REFERENCES `smartschools`.`subjects` (`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `subject_classrooms_tutor_id_foreign` FOREIGN KEY (`tutor_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

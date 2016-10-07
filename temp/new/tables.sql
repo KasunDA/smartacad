@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 24, 2016 at 11:46 AM
+-- Generation Time: Sep 30, 2016 at 01:31 PM
 -- Server version: 10.1.13-MariaDB
 -- PHP Version: 5.6.23
 
@@ -17,485 +17,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `solid_steps_empty`
+-- Database: `school_empty`
 --
-
-DELIMITER $$
---
--- Procedures
---
-CREATE PROCEDURE `sp_cloneSubjectsAssigned` (IN `TermFromID` INT, IN `TermToID` INT)  BEGIN
-		SET @Exist = (SELECT COUNT(*) FROM subject_classrooms WHERE academic_term_id=TermToID);
-
-	IF @Exist = 0 THEN
-		Block1: BEGIN
-			DECLARE done1 BOOLEAN DEFAULT FALSE;
-			DECLARE SubClassRoomID, SubjectID, ClassRoomID, TutorID INT;
-			DECLARE cur1 CURSOR FOR
-				SELECT subject_classroom_id, subject_id, classroom_id, tutor_id FROM subject_classrooms
-				WHERE academic_term_id=TermFromID ORDER BY subject_classroom_id;
-			DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-
-						OPEN cur1;
-				REPEAT
-					FETCH cur1 INTO SubClassRoomID, SubjectID, ClassRoomID, TutorID;
-					IF NOT done1 THEN
-						BEGIN
-														SET @chk = (SELECT COUNT(*) FROM subject_classrooms WHERE subject_id=SubjectID AND classroom_id=ClassRoomID AND academic_term_id=TermToID);
-							IF @chk = 0 THEN
-								BEGIN
-																		INSERT INTO subject_classrooms(subject_id, classroom_id, academic_term_id, tutor_id)
-									VALUES(SubjectID, ClassRoomID, TermToID, TutorID);
-
-																		SET @New_ID = LAST_INSERT_ID();
-
-																		CALL sp_subject2Students(@New_ID);
-								END;
-							END IF;
-						END;
-					END IF;
-				UNTIL done1 END REPEAT;
-			CLOSE cur1;
-		END Block1;
-	END IF;
-END$$
-
-CREATE PROCEDURE `sp_deleteSubjectClassRoom` (IN `subjectClassroomID` INT)  BEGIN
-
-	    DELETE FROM exam_details WHERE exam_id IN 
-    (SELECT exam_id FROM exams WHERE subject_classroom_id = subjectClassroomID);
-    
-        DELETE FROM exams WHERE subject_classroom_id = subjectClassroomID;
-    
-	    DELETE FROM assessment_details WHERE assessment_id IN 
-    (SELECT assessment_id FROM assessments WHERE subject_classroom_id = subjectClassroomID);
-    
-        DELETE FROM assessments WHERE subject_classroom_id = subjectClassroomID;
-    
-        DELETE FROM student_subjects WHERE subject_classroom_id = subjectClassroomID;
-    
-        DELETE FROM subject_classrooms WHERE subject_classroom_id = subjectClassroomID;
-END$$
-
-CREATE PROCEDURE `sp_modifyStudentsSubject` (IN `SubjectClassRoomID` INT, `StudentIDs` VARCHAR(225))  BEGIN
-		DROP TEMPORARY TABLE IF EXISTS StudentTemp;
-	CREATE TEMPORARY TABLE IF NOT EXISTS StudentTemp
-	(
-				row_id int AUTO_INCREMENT,
-		student_id INT, PRIMARY KEY (row_id)
-	);
-
-	IF StudentIDs IS NOT NULL THEN
-		BEGIN
-			DECLARE count INT Default 0 ;
-			DECLARE student_id VARCHAR(255);
-			simple_loop: LOOP
-				SET count = count + 1;
-				SET student_id = SPLIT_STR(StudentIDs, ',', count);
-				IF student_id = '' THEN
-					LEAVE simple_loop;
-				END IF;
-								INSERT INTO StudentTemp(student_id) SELECT student_id;
-			END LOOP simple_loop;
-		END;
-	END IF;
-    
-    Block1: BEGIN
-		        DELETE FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID
-        AND student_id NOT IN (SELECT student_id FROM StudentTemp);
-        
-                DELETE FROM assessment_details WHERE assessment_id IN 
-		(SELECT assessment_id FROM assessments WHERE subject_classroom_id = SubjectClassRoomID)
-        AND student_id NOT IN (SELECT student_id FROM StudentTemp);
-        
-        		DELETE FROM exam_details WHERE exam_id IN
-		(SELECT exam_id FROM exams WHERE subject_classroom_id = SubjectClassRoomID)
-		AND student_id NOT IN (SELECT student_id FROM StudentTemp);
-
-        
-                INSERT INTO student_subjects(subject_classroom_id, student_id)
-        SELECT SubjectClassRoomID, student_id FROM StudentTemp 
-        WHERE student_id NOT IN (SELECT student_id FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID);
-    END Block1;
-END$$
-
-CREATE PROCEDURE `sp_populateAssessmentDetail` (IN `AssessmentID` INT)  BEGIN
-	SELECT subject_classroom_id, marked INTO @SCR_ID, @MarkStatus
-	FROM assessments WHERE assessment_id=AssessmentID;
-
-			BEGIN
-				INSERT INTO assessment_details(assessment_id, student_id)
-			SELECT AssessmentID, student_id FROM student_subjects WHERE subject_classroom_id=@SCR_ID
-			AND student_id NOT IN (SELECT student_id FROM assessment_details WHERE assessment_id=AssessmentID);
-
-				DELETE FROM assessment_details WHERE assessment_id=AssessmentID AND student_id NOT IN
-		(SELECT student_id FROM student_subjects WHERE subject_classroom_id=@SCR_ID);
-	END;
-	END$$
-
-CREATE PROCEDURE `sp_processAssessmentCA` (IN `TermID` INT, IN `TutorID` INT)  Block0: BEGIN
-			Block1: BEGIN
-				DECLARE done1 BOOLEAN DEFAULT FALSE;
-		DECLARE StudentID, ClassID, CA_WP INT;
-		DECLARE StudentName VARCHAR(100);
-
-		DECLARE cur1 CURSOR FOR
-		SELECT student_id, classroom_id, ca_weight_point, student_name FROM assessment_detailsviews
-        WHERE academic_term_id=TermID AND (tutor_id = TutorID OR ISNULL(TutorID) = 1) 
-        GROUP BY student_id, classroom_id, ca_weight_point;
-
-		  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-		  		  OPEN cur1;
-		  REPEAT
-			FETCH cur1 INTO StudentID, ClassID, CA_WP, StudentName;
-			IF NOT done1 THEN
-
-			  				Block2: BEGIN
-								DECLARE done2 BOOLEAN DEFAULT FALSE;
-				DECLARE SubjectID, SubClassroom int;
-
-				DECLARE cur2 CURSOR FOR
-				  SELECT subject_id, subject_classroom_id FROM assessment_detailsviews
-				  WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID
-                  AND (tutor_id = TutorID OR ISNULL(TutorID) = 1) AND marked=1
-				  GROUP BY subject_id, subject_classroom_id;
-
-					DECLARE CONTINUE HANDLER FOR NOT FOUND SET done2 = TRUE;
-										OPEN cur2;
-					REPEAT
-					  FETCH cur2 INTO SubjectID, SubClassroom;
-					  IF NOT done2 THEN
-
-						SET @TEMP_SUM = 0.0;
-												  Block3: BEGIN
-						  						  DECLARE done3 BOOLEAN DEFAULT FALSE;
-						  DECLARE W_CA, WW_Point, WW_Percent FLOAT;
-
-						  DECLARE cur3 CURSOR FOR
-							SELECT  score, weight_point, percentage FROM assessment_detailsviews
-							WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID AND marked=1
-							AND subject_id=SubjectID AND subject_classroom_id=SubClassroom;
-
-						  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done3 = TRUE;
-						  						  OPEN cur3;
-						  REPEAT
-							FETCH cur3 INTO W_CA, WW_Point, WW_Percent;
-							IF NOT done3 THEN
-							  BEGIN
-																SET @PercentSUM = (SELECT SUM(percentage) FROM assessment_detailsviews
-								WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID AND marked=1
-								AND subject_id=SubjectID AND subject_classroom_id=SubClassroom);
-
-																								SET @Temp_WP = ROUND(((WW_Percent / @PercentSUM) * CA_WP), 2);
-																								SET @Temp_CA = ROUND(((W_CA / WW_Point) * @Temp_WP), 2);
-																SET @TEMP_SUM = @TEMP_SUM + @TEMP_CA;
-
-							  END;
-
-							END IF;
-						  UNTIL done3 END REPEAT;
-						  CLOSE cur3;
-						END Block3;
-					  
-						  Block3_1: BEGIN
-						  						  SET @ExamDetailID = (SELECT exam_detail_id FROM exams_detailsviews
-						  WHERE student_id=StudentID AND classroom_id=ClassID AND academic_term_id=TermID
-								AND subject_id=SubjectID AND subject_classroom_id=SubClassroom);
-
-						  						  UPDATE exam_details SET ca=@TEMP_SUM WHERE exam_detail_id=@ExamDetailID;
-
-						END Block3_1;
-					  END IF;
-					UNTIL done2 END REPEAT;
-					CLOSE cur2;
-			  END Block2;
-
-			END IF;
-		  UNTIL done1 END REPEAT;
-      CLOSE cur1;
-    END Block1;
-  END Block0$$
-
-CREATE PROCEDURE `sp_processExams` (IN `TermID` INT, IN `TutorID` INT)  BEGIN
-	    	Block0: BEGIN
-				DELETE FROM exam_details WHERE exam_id IN
-        (SELECT exam_id FROM exams_subjectviews WHERE academic_term_id=TermID
-        AND (tutor_id = TutorID OR ISNULL(TutorID) = 1) AND marked <> 1);
-
-				DELETE FROM exams WHERE marked <> 1 AND subject_classroom_id IN
-		(SELECT subject_classroom_id FROM subject_classrooms WHERE academic_term_id=TermID 
-        AND (tutor_id = TutorID OR ISNULL(TutorID) = 1) );
-    END Block0;
-
-	Block1: BEGIN
-						INSERT IGNORE INTO exams(subject_classroom_id)
-        SELECT a.subject_classroom_id FROM student_subjects a JOIN subject_classrooms b
-		ON a.subject_classroom_id = b.subject_classroom_id
-		WHERE b.academic_term_id=TermID AND (b.tutor_id = TutorID OR ISNULL(TutorID) = 1)
-        AND a.subject_classroom_id NOT IN (SELECT subject_classroom_id FROM exams)
-        GROUP BY a.subject_classroom_id ORDER BY a.subject_classroom_id;
-    END Block1;
-
-			Block2: BEGIN
-		DECLARE done1 BOOLEAN DEFAULT FALSE;
-		DECLARE ExamID, SubjectClassRoomID, ExamMarkStatusID INT;
-				  DECLARE cur1 CURSOR FOR SELECT a.exam_id, a.subject_classroom_id, a.marked
-		  FROM exams a INNER JOIN subject_classrooms b ON a.subject_classroom_id=b.subject_classroom_id
-		  WHERE b.academic_term_id=TermID AND (tutor_id = TutorID OR ISNULL(TutorID) = 1);
-		  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-
-		  		  OPEN cur1;
-		  REPEAT
-			FETCH cur1 INTO ExamID, SubjectClassRoomID, ExamMarkStatusID;
-			IF NOT done1 THEN
-			  BEGIN
-				IF ExamMarkStatusID <> 1 THEN
-					BEGIN
-												INSERT IGNORE INTO exam_details(exam_id, student_id)
-						SELECT ExamID, student_id FROM	student_subjects WHERE subject_classroom_id=SubjectClassRoomID;
-					END;
-				ELSE
-					BEGIN
-												INSERT IGNORE INTO exam_details(exam_id, student_id)
-						SELECT ExamID, student_id FROM 	student_subjects
-						WHERE subject_classroom_id=SubjectClassRoomID AND student_id NOT IN
-						(SELECT student_id FROM exam_details WHERE exam_id=ExamID);
-
-												DELETE FROM exam_details WHERE exam_id=ExamID AND student_id NOT IN
-						(SELECT student_id FROM student_subjects WHERE subject_classroom_id=SubjectClassRoomID);
-					END;
-				END IF;
-				
-										UPDATE subject_classrooms set exam_status_id=1 WHERE subject_classroom_id = SubjectClassRoomID;
-			  END;
-			END IF;
-		  UNTIL done1 END REPEAT;
-		  CLOSE cur1;
-    END Block2;
-
-    	call sp_processAssessmentCA(TermID, TutorID);
-
-  END$$
-
-CREATE PROCEDURE `sp_subject2Classlevels` (IN `LevelID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))  BEGIN
-		DECLARE done1 BOOLEAN DEFAULT FALSE;
-		DECLARE ClassID INT;
-		DECLARE cur1 CURSOR FOR SELECT classroom_id FROM classrooms WHERE classlevel_id=LevelID;
-		DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-
-		OPEN cur1;
-		REPEAT
-			FETCH cur1 INTO ClassID;
-			IF NOT done1 THEN
-				BEGIN
-					CALL `sp_subject2Classrooms`(ClassID, TermID, SubjectIDs);
-				END;
-			END IF;
-		UNTIL done1 END REPEAT;
-		CLOSE cur1;
-	END$$
-
-CREATE PROCEDURE `sp_subject2Classrooms` (IN `ClassID` INT, `TermID` INT, `SubjectIDs` VARCHAR(225))  BEGIN
-		DROP TEMPORARY TABLE IF EXISTS SubjectTemp;
-		CREATE TEMPORARY TABLE IF NOT EXISTS SubjectTemp
-		(
-			row_id int AUTO_INCREMENT,
-			subject_id INT, PRIMARY KEY (row_id)
-		);
-
-		IF SubjectIDs IS NOT NULL THEN
-			BEGIN
-				DECLARE count INT Default 0 ;
-				DECLARE subject_id VARCHAR(255);
-				simple_loop: LOOP
-					SET count = count + 1;
-					SET subject_id = SPLIT_STR(SubjectIDs, ',', count);
-					IF subject_id = '' THEN
-						LEAVE simple_loop;
-					END IF;
-					INSERT INTO SubjectTemp(subject_id)
-						SELECT subject_id;
-				END LOOP simple_loop;
-			END;
-		END IF;
-
-			Block1: BEGIN
-
-				DELETE FROM subject_classrooms WHERE classroom_id=ClassID 
-				AND academic_term_id=TermID AND exam_status_id=2 AND subject_id
-				NOT IN (SELECT subject_id FROM SubjectTemp);
-
-				Block2: BEGIN
-				DECLARE done1 BOOLEAN DEFAULT FALSE;
-				DECLARE SubjectID INT;
-				DECLARE cur1 CURSOR FOR SELECT subject_id FROM SubjectTemp;
-				DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-
-								OPEN cur1;
-				REPEAT
-					FETCH cur1 INTO SubjectID;
-					IF NOT done1 THEN
-						BEGIN
-							SET @Exist = (SELECT COUNT(*) FROM subject_classrooms WHERE subject_id=SubjectID
-                            AND classroom_id=ClassID AND academic_term_id=TermID);
-							IF @Exist = 0 THEN
-								BEGIN
-																		INSERT INTO subject_classrooms(subject_id, classroom_id, academic_term_id)
-									VALUES(SubjectID, ClassID, TermID);
-
-																		CALL sp_subject2Students(LAST_INSERT_ID());
-								END;
-							END IF;
-						END;
-					END IF;
-				UNTIL done1 END REPEAT;
-				CLOSE cur1;
-			END Block2;
-            
-		END Block1;
-	END$$
-
-CREATE PROCEDURE `sp_subject2Students` (IN `subjectClassroomID` INT)  BEGIN
-		SELECT classroom_id, academic_term_id INTO @ClassID, @AcademicTermID
-		FROM subject_classrooms WHERE subject_classroom_id=subjectClassroomID LIMIT 1;
-		SET @SubjectClassroomID = subjectClassroomID;
-		
-        		SELECT COUNT(*) INTO @Exist FROM student_subjects WHERE subject_classroom_id = subjectClassroomID LIMIT 1;
-		IF @Exist > 0 THEN
-			BEGIN
-				DELETE FROM student_subjects WHERE subject_classroom_id = subjectClassroomID;
-			END;
-		END IF;
-
-
-		BEGIN
-						INSERT INTO student_subjects(student_id, subject_classroom_id)
-			SELECT	b.student_id, @SubjectClassroomID
-			FROM	students a INNER JOIN student_classes b ON a.student_id=b.student_id 
-            INNER JOIN classrooms c ON c.classroom_id = b.classroom_id
-			WHERE	b.classroom_id = @ClassID AND a.status_id = 1
-			AND b.academic_year_id = (SELECT academic_year_id FROM academic_terms WHERE academic_term_id = @AcademicTermID LIMIT 1);
-		END;
-	END$$
-
-CREATE PROCEDURE `sp_terminalClassPosition` (IN `AcademicTermID` INT, IN `ClassroomID` INT, IN `StudentID` INT)  BEGIN
-	Block0: BEGIN
-		SET @Output = 0;
-		SET @Average = 0;
-		SET @Count = 0;
-
-				DROP TEMPORARY TABLE IF EXISTS TerminalClassPositionResultTable;
-		CREATE TEMPORARY TABLE IF NOT EXISTS TerminalClassPositionResultTable
-		(
-						student_id int,
-			full_name varchar(80),
-            gender varchar(10),
-            student_no varchar(10),
-			class_id int,
-			class_name varchar(50),
-			academic_term_id int,
-			academic_term varchar(50),
-			student_sum_total float,
-			exam_perfect_score int,
-			class_position int,
-			class_size int,
-			class_average float
-
-		);
-		Block1: BEGIN
-                           
-						SET @ClassSize = (SELECT COUNT(*) FROM students_classroomviews
-			WHERE classroom_id = ClassroomID AND academic_year_id = (
-				SELECT academic_year_id FROM academic_terms WHERE academic_term_id=AcademicTermID)
-			);
-			SET @TempPosition = 1;
-			SET @TempStudentScore = 0;
-			SET @Position = 0;
-
-				Block2: BEGIN
-								DECLARE done1 BOOLEAN DEFAULT FALSE;
-				DECLARE StudentID, ClassID, TermID INT;
-                DECLARE Gender, StudentNo VARCHAR(10);
-				DECLARE StudentName, ClassName, TermName VARCHAR(60);
-				DECLARE StudentSumTotal, ExamPerfectScore FLOAT;
-				
-				DECLARE cur1 CURSOR FOR
-					SELECT student_id, fullname, student_gender, student_no, classroom_id, classroom, academic_term_id, academic_term, SUM(student_total), SUM(weight_point_total)
-					FROM exams_detailsviews WHERE academic_term_id = AcademicTermID and classroom_id = ClassroomID AND marked = 1
-					GROUP BY student_id, fullname, classroom_id, classroom, academic_term_id, academic_term
-					ORDER BY SUM(student_total) DESC;
-
-				DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-								OPEN cur1;
-				REPEAT
-					FETCH cur1 INTO StudentID, StudentName, Gender, StudentNo, ClassID, ClassName, TermID, TermName, StudentSumTotal, ExamPerfectScore;
-					IF NOT done1 THEN
-						BEGIN
-														IF @TempStudentScore = StudentSumTotal THEN
-																SET @TempPosition = @TempPosition + 1;
-														ELSE
-								BEGIN
-																		SET @Position = @TempPosition;
-																		SET @TempPosition = @TempPosition + 1;
-								END;
-							END IF;
-							BEGIN
-																INSERT INTO TerminalClassPositionResultTable
-								VALUES(StudentID, StudentName, Gender, StudentNo, ClassID, ClassName, TermID, TermName, StudentSumTotal, ExamPerfectScore, @Position, @ClassSize, @Average);
-							END;
-														SET @TempStudentScore = StudentSumTotal;
-
-														SET @Average = @Average + StudentSumTotal;
-														SET @Count = @Count + 1;
-						END;
-					END IF;
-				UNTIL done1 END REPEAT;
-				CLOSE cur1;
-			END Block2;
-		END Block1;
-                UPDATE TerminalClassPositionResultTable SET class_average = (@Average / @Count);
-	END Block0;	
-    
-    IF StudentID > 0 THEN
-		SELECT * FROM TerminalClassPositionResultTable WHERE student_id = StudentID;
-	ELSE
-		SELECT * FROM TerminalClassPositionResultTable;
-    END IF;
-END$$
-
-CREATE PROCEDURE `temp_student_subjects` ()  BEGIN
-	
-Block2: BEGIN
-	DECLARE done1 BOOLEAN DEFAULT FALSE;
-	DECLARE ID INT;
-	DECLARE cur1 CURSOR FOR SELECT subject_classroom_id FROM subject_classrooms;
-	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done1 = TRUE;
-
-	OPEN cur1;
-	REPEAT
-		FETCH cur1 INTO ID;
-		IF NOT done1 THEN
-			BEGIN
-				CALL sp_subject2Students(ID);
-				
-			END;
-		END IF;
-	UNTIL done1 END REPEAT;
-	CLOSE cur1;
-END Block2;
-
-END$$
-
---
--- Functions
---
-CREATE FUNCTION `SPLIT_STR` (`x` VARCHAR(255), `delim` VARCHAR(12), `pos` INT) RETURNS VARCHAR(255) CHARSET latin1 RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(x, delim, pos),
-													 LENGTH(SUBSTRING_INDEX(x, delim, pos -1)) + 1),
-								 delim, '')$$
-
-DELIMITER ;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `academic_terms`
@@ -513,8 +36,6 @@ CREATE TABLE `academic_terms` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `academic_years`
 --
@@ -527,8 +48,6 @@ CREATE TABLE `academic_years` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `assessments`
 --
@@ -539,8 +58,6 @@ CREATE TABLE `assessments` (
   `assessment_setup_detail_id` int(10) UNSIGNED NOT NULL,
   `marked` int(10) UNSIGNED NOT NULL DEFAULT '2'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `assessment_details`
@@ -553,49 +70,6 @@ CREATE TABLE `assessment_details` (
   `assessment_id` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `assessment_detailsviews`
---
-CREATE TABLE `assessment_detailsviews` (
-`assessment_id` int(10) unsigned
-,`subject_classroom_id` int(10) unsigned
-,`assessment_setup_detail_id` int(10) unsigned
-,`marked` int(10) unsigned
-,`assessment_detail_id` int(10) unsigned
-,`student_id` int(10) unsigned
-,`student_no` varchar(10)
-,`student_name` varchar(101)
-,`gender` varchar(10)
-,`score` double(8,2) unsigned
-,`weight_point` double(8,2) unsigned
-,`number` tinyint(4)
-,`percentage` int(10) unsigned
-,`description` varchar(255)
-,`submission_date` date
-,`assessment_setup_id` int(10) unsigned
-,`assessment_no` tinyint(4)
-,`ca_weight_point` int(10) unsigned
-,`exam_weight_point` int(10) unsigned
-,`sponsor_id` int(10) unsigned
-,`phone_no` varchar(20)
-,`email` varchar(255)
-,`sponsor_name` varchar(91)
-,`subject_id` int(10) unsigned
-,`classroom_id` int(10) unsigned
-,`tutor_id` int(10) unsigned
-,`tutor` varchar(91)
-,`classroom` varchar(255)
-,`classlevel_id` int(10) unsigned
-,`classlevel` varchar(255)
-,`classgroup_id` int(10) unsigned
-,`academic_term_id` int(10) unsigned
-,`academic_term` varchar(100)
-);
-
--- --------------------------------------------------------
-
 --
 -- Table structure for table `assessment_setups`
 --
@@ -606,8 +80,6 @@ CREATE TABLE `assessment_setups` (
   `classgroup_id` int(10) UNSIGNED NOT NULL,
   `academic_term_id` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `assessment_setup_details`
@@ -623,8 +95,6 @@ CREATE TABLE `assessment_setup_details` (
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `classgroups`
 --
@@ -638,8 +108,6 @@ CREATE TABLE `classgroups` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `classlevels`
 --
@@ -651,8 +119,6 @@ CREATE TABLE `classlevels` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `classrooms`
@@ -668,8 +134,6 @@ CREATE TABLE `classrooms` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `class_masters`
 --
@@ -682,8 +146,6 @@ CREATE TABLE `class_masters` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `domains`
@@ -716,8 +178,6 @@ CREATE TABLE `domain_assessments` (
   `academic_term_id` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `domain_details`
 --
@@ -729,8 +189,6 @@ CREATE TABLE `domain_details` (
   `option` int(10) UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `exams`
 --
@@ -740,65 +198,6 @@ CREATE TABLE `exams` (
   `subject_classroom_id` int(10) UNSIGNED NOT NULL,
   `marked` int(10) UNSIGNED NOT NULL DEFAULT '2'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `exams_detailsviews`
---
-CREATE TABLE `exams_detailsviews` (
-`exam_detail_id` int(10) unsigned
-,`exam_id` int(10) unsigned
-,`subject_classroom_id` int(10) unsigned
-,`subject_id` int(10) unsigned
-,`tutor_id` int(10) unsigned
-,`classlevel_id` int(10) unsigned
-,`classroom_id` int(10) unsigned
-,`student_id` int(10) unsigned
-,`classroom` varchar(255)
-,`fullname` varchar(101)
-,`student_gender` varchar(10)
-,`student_no` varchar(10)
-,`ca` double(5,2) unsigned
-,`exam` double(5,2) unsigned
-,`student_total` double(19,2)
-,`ca_weight_point` int(10) unsigned
-,`exam_weight_point` int(10) unsigned
-,`weight_point_total` bigint(11) unsigned
-,`academic_term_id` int(10) unsigned
-,`academic_term` varchar(100)
-,`marked` int(10) unsigned
-,`academic_year_id` int(10) unsigned
-,`academic_year` varchar(100)
-,`classlevel` varchar(255)
-,`classgroup_id` int(10) unsigned
-);
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `exams_subjectviews`
---
-CREATE TABLE `exams_subjectviews` (
-`exam_id` int(10) unsigned
-,`classroom_id` int(10) unsigned
-,`classroom` varchar(255)
-,`subject_id` int(10) unsigned
-,`subject_classroom_id` int(10) unsigned
-,`tutor_id` int(10) unsigned
-,`tutor` varchar(91)
-,`ca_weight_point` int(10) unsigned
-,`exam_weight_point` int(10) unsigned
-,`marked` int(10) unsigned
-,`classlevel_id` int(10) unsigned
-,`classlevel` varchar(255)
-,`academic_term_id` int(10) unsigned
-,`academic_term` varchar(100)
-,`academic_year_id` int(10) unsigned
-,`academic_year` varchar(100)
-);
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `exam_details`
@@ -811,8 +210,6 @@ CREATE TABLE `exam_details` (
   `ca` double(5,2) UNSIGNED NOT NULL DEFAULT '0.00',
   `exam` double(5,2) UNSIGNED NOT NULL DEFAULT '0.00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `grades`
@@ -828,8 +225,6 @@ CREATE TABLE `grades` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `menus`
@@ -1366,8 +761,6 @@ CREATE TABLE `remarks` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `roles`
 --
@@ -1752,26 +1145,6 @@ CREATE TABLE `students` (
 -- --------------------------------------------------------
 
 --
--- Stand-in structure for view `students_classroomviews`
---
-CREATE TABLE `students_classroomviews` (
-`fullname` varchar(101)
-,`student_no` varchar(10)
-,`classroom` varchar(255)
-,`classroom_id` int(10) unsigned
-,`student_id` int(10) unsigned
-,`classlevel` varchar(255)
-,`classlevel_id` int(10) unsigned
-,`sponsor_id` int(10) unsigned
-,`sponsor_name` varchar(91)
-,`academic_year_id` int(10) unsigned
-,`academic_year` varchar(100)
-,`status_id` int(10) unsigned
-);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `student_classes`
 --
 
@@ -1784,8 +1157,6 @@ CREATE TABLE `student_classes` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- --------------------------------------------------------
-
 --
 -- Table structure for table `student_subjects`
 --
@@ -1794,59 +1165,6 @@ CREATE TABLE `student_subjects` (
   `student_id` int(10) UNSIGNED NOT NULL,
   `subject_classroom_id` int(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `subjects_assessmentsviews`
---
-CREATE TABLE `subjects_assessmentsviews` (
-`tutor` varchar(91)
-,`tutor_id` int(10) unsigned
-,`classroom_id` int(10) unsigned
-,`subject_classroom_id` int(10) unsigned
-,`subject_id` int(10) unsigned
-,`subject` varchar(255)
-,`subject_group_id` int(10) unsigned
-,`academic_term_id` int(10) unsigned
-,`academic_term` varchar(100)
-,`exam_status_id` int(10) unsigned
-,`exam_status` varchar(10)
-,`classlevel_id` int(10) unsigned
-,`classroom` varchar(255)
-,`assessment_id` int(10) unsigned
-,`marked` int(10) unsigned
-,`assessment_setup_detail_id` int(10) unsigned
-,`number` tinyint(4)
-,`weight_point` double(8,2) unsigned
-,`percentage` int(10) unsigned
-,`assessment_setup_id` int(10) unsigned
-,`submission_date` date
-,`description` varchar(255)
-);
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `subjects_classroomviews`
---
-CREATE TABLE `subjects_classroomviews` (
-`tutor` varchar(91)
-,`tutor_id` int(10) unsigned
-,`classroom_id` int(10) unsigned
-,`subject_classroom_id` int(10) unsigned
-,`subject_id` int(10) unsigned
-,`subject` varchar(255)
-,`subject_group_id` int(10) unsigned
-,`academic_term_id` int(10) unsigned
-,`academic_term` varchar(100)
-,`exam_status_id` int(10) unsigned
-,`exam_status` varchar(10)
-,`classlevel_id` int(10) unsigned
-,`classroom` varchar(255)
-);
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `subject_classrooms`
@@ -1862,9 +1180,6 @@ CREATE TABLE `subject_classrooms` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
 --
 -- Table structure for table `sub_menu_items`
 --
@@ -1981,7 +1296,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `password`, `phone_no`, `email`, `first_name`, `last_name`, `middle_name`, `gender`, `dob`, `phone_no2`, `user_type_id`, `lga_id`, `salutation_id`, `verified`, `status`, `avatar`, `verification_code`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '081617307881', 'admin@gmail.com', 'Emma', 'Okafor', '', 'Male', '2016-04-05', '', 1, 0, 1, 1, 1, '1_avatar.jpg', NULL, 'h198OPEXf49Lc8ZPVJ5xnLmvU4l7sYbleb5TewvCwuKqnxwsvDeRwKiPhgvN', NULL, '2016-08-19 15:14:21');
+(1, '$2y$10$r7i.xoOrQP6n0B5JQLtmCuaY.MvCuNoEsinb6ALaNjov4Ck2Nfnx.', '081617307881', 'admin@gmail.com', 'Ekaruz', 'Tech', '', 'Male', '2016-04-05', '', 1, 0, 1, 1, 1, '1_avatar.jpg', NULL, 'h198OPEXf49Lc8ZPVJ5xnLmvU4l7sYbleb5TewvCwuKqnxwsvDeRwKiPhgvN', NULL, '2016-08-19 15:14:21');
 
 -- --------------------------------------------------------
 
@@ -2006,64 +1321,6 @@ INSERT INTO `user_types` (`user_type_id`, `user_type`, `type`, `created_at`, `up
 (2, 'Super Admin', 2, NULL, NULL),
 (3, 'Sponsor', 2, '2016-04-28 21:35:55', '2016-04-28 21:35:55'),
 (4, 'Staff', 2, '2016-04-28 21:35:15', '2016-04-28 21:35:15');
-
--- --------------------------------------------------------
-
---
--- Structure for view `assessment_detailsviews`
---
-DROP TABLE IF EXISTS `assessment_detailsviews`;
-
-CREATE VIEW `assessment_detailsviews`  AS  select `f`.`assessment_id` AS `assessment_id`,`f`.`subject_classroom_id` AS `subject_classroom_id`,`f`.`assessment_setup_detail_id` AS `assessment_setup_detail_id`,`f`.`marked` AS `marked`,`g`.`assessment_detail_id` AS `assessment_detail_id`,`g`.`student_id` AS `student_id`,`j`.`student_no` AS `student_no`,concat(`j`.`first_name`,' ',`j`.`last_name`) AS `student_name`,`j`.`gender` AS `gender`,`g`.`score` AS `score`,`h`.`weight_point` AS `weight_point`,`h`.`number` AS `number`,`h`.`percentage` AS `percentage`,`h`.`description` AS `description`,`h`.`submission_date` AS `submission_date`,`i`.`assessment_setup_id` AS `assessment_setup_id`,`i`.`assessment_no` AS `assessment_no`,`m`.`ca_weight_point` AS `ca_weight_point`,`m`.`exam_weight_point` AS `exam_weight_point`,`j`.`sponsor_id` AS `sponsor_id`,`k`.`phone_no` AS `phone_no`,`k`.`email` AS `email`,concat(`k`.`first_name`,' ',`k`.`last_name`) AS `sponsor_name`,`a`.`subject_id` AS `subject_id`,`a`.`classroom_id` AS `classroom_id`,`a`.`tutor_id` AS `tutor_id`,concat(`n`.`first_name`,' ',`n`.`last_name`) AS `tutor`,`c`.`classroom` AS `classroom`,`c`.`classlevel_id` AS `classlevel_id`,`d`.`classlevel` AS `classlevel`,`d`.`classgroup_id` AS `classgroup_id`,`a`.`academic_term_id` AS `academic_term_id`,`e`.`academic_term` AS `academic_term` from (((((((((((`solid_steps`.`subject_classrooms` `a` join `solid_steps`.`classrooms` `c` on((`a`.`classroom_id` = `c`.`classroom_id`))) join `solid_steps`.`classlevels` `d` on((`c`.`classlevel_id` = `d`.`classlevel_id`))) join `solid_steps`.`academic_terms` `e` on((`a`.`academic_term_id` = `e`.`academic_term_id`))) join `solid_steps`.`assessments` `f` on((`a`.`subject_classroom_id` = `f`.`subject_classroom_id`))) join `solid_steps`.`assessment_details` `g` on((`f`.`assessment_id` = `g`.`assessment_id`))) join `solid_steps`.`assessment_setup_details` `h` on((`f`.`assessment_setup_detail_id` = `h`.`assessment_setup_detail_id`))) join `solid_steps`.`assessment_setups` `i` on((`h`.`assessment_setup_id` = `i`.`assessment_setup_id`))) join `solid_steps`.`students` `j` on((`g`.`student_id` = `j`.`student_id`))) left join `solid_steps`.`users` `k` on((`j`.`sponsor_id` = `k`.`user_id`))) join `solid_steps`.`classgroups` `m` on((`d`.`classgroup_id` = `m`.`classgroup_id`))) left join `solid_steps`.`users` `n` on((`a`.`tutor_id` = `n`.`user_id`))) ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `exams_detailsviews`
---
-DROP TABLE IF EXISTS `exams_detailsviews`;
-
-CREATE VIEW `exams_detailsviews`  AS  select `solid_steps`.`exam_details`.`exam_detail_id` AS `exam_detail_id`,`solid_steps`.`exams`.`exam_id` AS `exam_id`,`solid_steps`.`subject_classrooms`.`subject_classroom_id` AS `subject_classroom_id`,`solid_steps`.`subject_classrooms`.`subject_id` AS `subject_id`,`solid_steps`.`subject_classrooms`.`tutor_id` AS `tutor_id`,`solid_steps`.`classrooms`.`classlevel_id` AS `classlevel_id`,`solid_steps`.`student_classes`.`classroom_id` AS `classroom_id`,`solid_steps`.`students`.`student_id` AS `student_id`,`solid_steps`.`classrooms`.`classroom` AS `classroom`,concat(ucase(`solid_steps`.`students`.`first_name`),' ',lcase(`solid_steps`.`students`.`last_name`)) AS `fullname`,`solid_steps`.`students`.`gender` AS `student_gender`,`solid_steps`.`students`.`student_no` AS `student_no`,`solid_steps`.`exam_details`.`ca` AS `ca`,`solid_steps`.`exam_details`.`exam` AS `exam`,(`solid_steps`.`exam_details`.`exam` + `solid_steps`.`exam_details`.`ca`) AS `student_total`,`solid_steps`.`classgroups`.`ca_weight_point` AS `ca_weight_point`,`solid_steps`.`classgroups`.`exam_weight_point` AS `exam_weight_point`,(`solid_steps`.`classgroups`.`exam_weight_point` + `solid_steps`.`classgroups`.`ca_weight_point`) AS `weight_point_total`,`solid_steps`.`academic_terms`.`academic_term_id` AS `academic_term_id`,`solid_steps`.`academic_terms`.`academic_term` AS `academic_term`,`solid_steps`.`exams`.`marked` AS `marked`,`solid_steps`.`academic_terms`.`academic_year_id` AS `academic_year_id`,`solid_steps`.`academic_years`.`academic_year` AS `academic_year`,`solid_steps`.`classlevels`.`classlevel` AS `classlevel`,`solid_steps`.`classlevels`.`classgroup_id` AS `classgroup_id` from (((((((((`solid_steps`.`exams` join `solid_steps`.`exam_details` on((`solid_steps`.`exams`.`exam_id` = `solid_steps`.`exam_details`.`exam_id`))) join `solid_steps`.`subject_classrooms` on((`solid_steps`.`exams`.`subject_classroom_id` = `solid_steps`.`subject_classrooms`.`subject_classroom_id`))) join `solid_steps`.`students` on((`solid_steps`.`exam_details`.`student_id` = `solid_steps`.`students`.`student_id`))) join `solid_steps`.`academic_terms` on((`solid_steps`.`subject_classrooms`.`academic_term_id` = `solid_steps`.`academic_terms`.`academic_term_id`))) join `solid_steps`.`academic_years` on((`solid_steps`.`academic_years`.`academic_year_id` = `solid_steps`.`academic_terms`.`academic_year_id`))) join `solid_steps`.`student_classes` on((`solid_steps`.`students`.`student_id` = `solid_steps`.`student_classes`.`student_id`))) join `solid_steps`.`classrooms` on((`solid_steps`.`student_classes`.`classroom_id` = `solid_steps`.`classrooms`.`classroom_id`))) join `solid_steps`.`classlevels` on((`solid_steps`.`classrooms`.`classlevel_id` = `solid_steps`.`classlevels`.`classlevel_id`))) join `solid_steps`.`classgroups` on((`solid_steps`.`classgroups`.`classgroup_id` = `solid_steps`.`classlevels`.`classgroup_id`))) ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `exams_subjectviews`
---
-DROP TABLE IF EXISTS `exams_subjectviews`;
-
-CREATE VIEW `exams_subjectviews`  AS  select `a`.`exam_id` AS `exam_id`,`f`.`classroom_id` AS `classroom_id`,`f`.`classroom` AS `classroom`,`b`.`subject_id` AS `subject_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`b`.`tutor_id` AS `tutor_id`,concat(ucase(`j`.`first_name`),' ',`j`.`last_name`) AS `tutor`,`h`.`ca_weight_point` AS `ca_weight_point`,`h`.`exam_weight_point` AS `exam_weight_point`,`a`.`marked` AS `marked`,`f`.`classlevel_id` AS `classlevel_id`,`g`.`classlevel` AS `classlevel`,`b`.`academic_term_id` AS `academic_term_id`,`d`.`academic_term` AS `academic_term`,`d`.`academic_year_id` AS `academic_year_id`,`e`.`academic_year` AS `academic_year` from ((((((`solid_steps`.`exams` `a` join `solid_steps`.`subject_classrooms` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) left join (`solid_steps`.`classlevels` `g` join `solid_steps`.`classrooms` `f` on((`f`.`classlevel_id` = `g`.`classlevel_id`))) on((`b`.`classroom_id` = `f`.`classroom_id`))) join `solid_steps`.`academic_terms` `d` on((`b`.`academic_term_id` = `d`.`academic_term_id`))) join `solid_steps`.`academic_years` `e` on((`d`.`academic_year_id` = `e`.`academic_year_id`))) join `solid_steps`.`classgroups` `h` on((`g`.`classgroup_id` = `h`.`classgroup_id`))) left join `solid_steps`.`users` `j` on((`b`.`tutor_id` = `j`.`user_id`))) ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `students_classroomviews`
---
-DROP TABLE IF EXISTS `students_classroomviews`;
-
-CREATE VIEW `students_classroomviews`  AS  select concat(ucase(`solid_steps`.`students`.`first_name`),' ',`solid_steps`.`students`.`last_name`) AS `fullname`,`solid_steps`.`students`.`student_no` AS `student_no`,`solid_steps`.`classrooms`.`classroom` AS `classroom`,`solid_steps`.`classrooms`.`classroom_id` AS `classroom_id`,`solid_steps`.`students`.`student_id` AS `student_id`,`solid_steps`.`classlevels`.`classlevel` AS `classlevel`,`solid_steps`.`classrooms`.`classlevel_id` AS `classlevel_id`,`solid_steps`.`students`.`sponsor_id` AS `sponsor_id`,concat(ucase(`solid_steps`.`users`.`first_name`),' ',`solid_steps`.`users`.`last_name`) AS `sponsor_name`,`solid_steps`.`student_classes`.`academic_year_id` AS `academic_year_id`,`solid_steps`.`academic_years`.`academic_year` AS `academic_year`,`solid_steps`.`students`.`status_id` AS `status_id` from (((((`solid_steps`.`students` join `solid_steps`.`student_classes` on((`solid_steps`.`student_classes`.`student_id` = `solid_steps`.`students`.`student_id`))) join `solid_steps`.`classrooms` on((`solid_steps`.`student_classes`.`classroom_id` = `solid_steps`.`classrooms`.`classroom_id`))) join `solid_steps`.`classlevels` on((`solid_steps`.`classlevels`.`classlevel_id` = `solid_steps`.`classrooms`.`classlevel_id`))) join `solid_steps`.`academic_years` on((`solid_steps`.`student_classes`.`academic_year_id` = `solid_steps`.`academic_years`.`academic_year_id`))) join `solid_steps`.`users` on((`solid_steps`.`students`.`sponsor_id` = `solid_steps`.`users`.`user_id`))) ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `subjects_assessmentsviews`
---
-DROP TABLE IF EXISTS `subjects_assessmentsviews`;
-
-CREATE VIEW `subjects_assessmentsviews`  AS  select `a`.`tutor` AS `tutor`,`a`.`tutor_id` AS `tutor_id`,`a`.`classroom_id` AS `classroom_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`a`.`subject_id` AS `subject_id`,`a`.`subject` AS `subject`,`a`.`subject_group_id` AS `subject_group_id`,`a`.`academic_term_id` AS `academic_term_id`,`a`.`academic_term` AS `academic_term`,`a`.`exam_status_id` AS `exam_status_id`,`a`.`exam_status` AS `exam_status`,`a`.`classlevel_id` AS `classlevel_id`,`a`.`classroom` AS `classroom`,`b`.`assessment_id` AS `assessment_id`,`b`.`marked` AS `marked`,`c`.`assessment_setup_detail_id` AS `assessment_setup_detail_id`,`c`.`number` AS `number`,`c`.`weight_point` AS `weight_point`,`c`.`percentage` AS `percentage`,`c`.`assessment_setup_id` AS `assessment_setup_id`,`c`.`submission_date` AS `submission_date`,`c`.`description` AS `description` from ((`solid_steps`.`subjects_classroomviews` `a` left join `solid_steps`.`assessments` `b` on((`a`.`subject_classroom_id` = `b`.`subject_classroom_id`))) left join `solid_steps`.`assessment_setup_details` `c` on((`b`.`assessment_setup_detail_id` = `c`.`assessment_setup_detail_id`))) ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `subjects_classroomviews`
---
-DROP TABLE IF EXISTS `subjects_classroomviews`;
-
-CREATE VIEW `subjects_classroomviews`  AS  select concat(ucase(`e`.`first_name`),' ',`e`.`last_name`) AS `tutor`,`e`.`user_id` AS `tutor_id`,`a`.`classroom_id` AS `classroom_id`,`a`.`subject_classroom_id` AS `subject_classroom_id`,`a`.`subject_id` AS `subject_id`,`d`.`subject` AS `subject`,`d`.`subject_group_id` AS `subject_group_id`,`a`.`academic_term_id` AS `academic_term_id`,`b`.`academic_term` AS `academic_term`,`a`.`exam_status_id` AS `exam_status_id`,(case `a`.`exam_status_id` when 1 then 'Marked' when 2 then 'Not Marked' end) AS `exam_status`,`c`.`classlevel_id` AS `classlevel_id`,`c`.`classroom` AS `classroom` from ((((`solid_steps`.`subject_classrooms` `a` join `solid_steps`.`academic_terms` `b` on((`a`.`academic_term_id` = `b`.`academic_term_id`))) join `solid_steps`.`classrooms` `c` on((`a`.`classroom_id` = `c`.`classroom_id`))) join `smartschools`.`subjects` `d` on((`d`.`subject_id` = `a`.`subject_id`))) left join `solid_steps`.`users` `e` on((`a`.`tutor_id` = `e`.`user_id`))) ;
-
---
--- Indexes for dumped tables
---
 
 --
 -- Indexes for table `academic_terms`
@@ -2384,52 +1641,52 @@ ALTER TABLE `user_types`
 -- AUTO_INCREMENT for table `academic_terms`
 --
 ALTER TABLE `academic_terms`
-  MODIFY `academic_term_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `academic_term_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `academic_years`
 --
 ALTER TABLE `academic_years`
-  MODIFY `academic_year_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `academic_year_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `assessments`
 --
 ALTER TABLE `assessments`
-  MODIFY `assessment_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `assessment_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `assessment_details`
 --
 ALTER TABLE `assessment_details`
-  MODIFY `assessment_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `assessment_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `assessment_setups`
 --
 ALTER TABLE `assessment_setups`
-  MODIFY `assessment_setup_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `assessment_setup_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `assessment_setup_details`
 --
 ALTER TABLE `assessment_setup_details`
-  MODIFY `assessment_setup_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `assessment_setup_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `classgroups`
 --
 ALTER TABLE `classgroups`
-  MODIFY `classgroup_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `classgroup_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `classlevels`
 --
 ALTER TABLE `classlevels`
-  MODIFY `classlevel_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `classlevel_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `classrooms`
 --
 ALTER TABLE `classrooms`
-  MODIFY `classroom_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `classroom_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `class_masters`
 --
 ALTER TABLE `class_masters`
-  MODIFY `class_master_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `class_master_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `domains`
 --
@@ -2439,27 +1696,27 @@ ALTER TABLE `domains`
 -- AUTO_INCREMENT for table `domain_assessments`
 --
 ALTER TABLE `domain_assessments`
-  MODIFY `domain_assessment_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `domain_assessment_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `domain_details`
 --
 ALTER TABLE `domain_details`
-  MODIFY `domain_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `domain_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `exams`
 --
 ALTER TABLE `exams`
-  MODIFY `exam_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `exam_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `exam_details`
 --
 ALTER TABLE `exam_details`
-  MODIFY `exam_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `exam_detail_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
-  MODIFY `grade_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `grade_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `menus`
 --
@@ -2484,7 +1741,7 @@ ALTER TABLE `permissions`
 -- AUTO_INCREMENT for table `remarks`
 --
 ALTER TABLE `remarks`
-  MODIFY `remark_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `remark_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `roles`
 --
@@ -2509,17 +1766,17 @@ ALTER TABLE `staffs`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `student_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `student_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `student_classes`
 --
 ALTER TABLE `student_classes`
-  MODIFY `student_class_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `student_class_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `subject_classrooms`
 --
 ALTER TABLE `subject_classrooms`
-  MODIFY `subject_classroom_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `subject_classroom_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `sub_menu_items`
 --
@@ -2658,7 +1915,7 @@ ALTER TABLE `student_subjects`
 --
 ALTER TABLE `subject_classrooms`
   ADD CONSTRAINT `subject_classrooms_classroom_id_foreign` FOREIGN KEY (`classroom_id`) REFERENCES `classrooms` (`classroom_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `subject_classrooms_subject_id_foreign` FOREIGN KEY (`subject_id`) REFERENCES `solidsteps_schools`.`subjects` (`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `subject_classrooms_subject_id_foreign` FOREIGN KEY (`subject_id`) REFERENCES `smartschools`.`subjects` (`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `subject_classrooms_tutor_id_foreign` FOREIGN KEY (`tutor_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

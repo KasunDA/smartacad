@@ -107,8 +107,8 @@ class RolesController extends Controller
         for ($i = 0; $i < count($inputs['user_id']); $i++) {
             $user = ($inputs['user_id'][$i] > 0) ? User::find($inputs['user_id'][$i]) : null;
 
-            (isset($inputs['role_id']['role' . $inputs['user_id'][$i]]))
-                ? $user->roles()->sync($inputs['role_id']['role' . $inputs['user_id'][$i]]) : $user->roles()->sync([]);
+            if(isset($inputs['role_id']['role' . $inputs['user_id'][$i]]))
+                $user->roles()->sync($inputs['role_id']['role' . $inputs['user_id'][$i]]);// : $user->roles()->sync([]);
         }
 
         // Set the flash message
