@@ -303,4 +303,69 @@ class ClassRoomsController extends Controller
             echo json_encode($classMaster->class_master_id);
         }
     }
+
+    /**
+     * Validate if the subject assigned has been clone
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postValidateClone(Request $request)
+    {
+        $inputs = $request->all();
+        $from_year = AcademicYear::findOrFail($inputs['from_academic_year_id']);
+        $to_year = AcademicYear::findOrFail($inputs['to_academic_year_id']);
+        $from = StudentClass::where('academic_year_id', $from_year->academic_year_id)->where('classroom_id', $inputs['from_classroom_id'])->count();
+        $to = StudentClass::where('academic_year_id', $to_year->academic_year_id)->where('classroom_id', $inputs['to_classroom_id'])->count();
+        $response = [];
+
+        if ($from > 0 and $to == 0) {
+            //Clone
+            $response['flag'] = 1;
+            $response['from'] = $from_year;
+            $response['to'] = $to_year;
+            $response['from_class'] = $inputs['from_classroom_id'];
+            $response['to_class'] = $inputs['to_classroom_id'];
+        }else if($from == 0 and $to == 0) {
+            $output = ' <h4>Whoops!!! You cannot clone from <strong>'.$from_year->academic_year.
+                ' Academic Year</strong> to <strong> '.$to_year->academic_year.'</strong><br> Because it has no record to clone from</h4>';
+            $response['flag'] = 2;
+        }else{
+            $output = ' <h4>Students Has Been Assigned To Class The Room Already for '.$to_year->academic_year.
+                '. <br>Kindly Navigate To <strong> Setups > Master Records > Class Teacher</strong> For Modifications</h4>';
+            $response['flag'] = 3;
+        }
+
+        $response['output'] = isset($output) ? $output : [];
+        return response()->json($response);
+    }
+
+    /**
+     * Clone the subject assigned from an academic term to an academic term
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postCloning(Request $request)
+    {
+        $inputs = $request->all();
+        $from_year = AcademicYear::findOrFail($inputs['from_year']);
+        $to_year = AcademicYear::findOrFail($inputs['to_year']);
+        $from = StudentClass::where('academic_year_id', $inputs['from_year'])->where('classroom_id', $inputs['from_class'])->get();
+
+        if ($from->count() > 0) {
+            //Cloning
+            foreach ($from as $new){
+                $class = new StudentClass();
+                $class->student_id = $new->student_id;
+                $class->classroom_id = $inputs['to_class'];
+                $class->academic_year_id = $inputs['to_year'];
+
+                if($class->save()){
+                    $student = Student::find($new->student_id);
+                    $student->classroom_id = $class->classroom_id;
+                    $student->save();
+                }
+            }
+            $this->setFlashMessage(' Cloned!!! ' . $from->count() . ' Students Class Rooms have been cloned from '.$from_year->academic_year.' to ' . $to_year->academic_year, 1);
+        }
+    }
 }

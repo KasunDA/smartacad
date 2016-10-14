@@ -9,6 +9,8 @@ jQuery(document).ready(function() {
     // Ajax Get Class Rooms Based on the Class Level
     getDependentListBox($('#student_classlevel_id'), $('#student_classroom_id'), '/list-box/classroom/');
     getDependentListBox($('#view_classlevel_id'), $('#view_classroom_id'), '/list-box/classroom/');
+    getDependentListBox($('#from_classlevel_id'), $('#from_classroom_id'), '/list-box/classroom/');
+    getDependentListBox($('#to_classlevel_id'), $('#to_classroom_id'), '/list-box/classroom/');
 
     //When The Checkbox is Checked To Assign A Student to Class
     $(document.body).on('click', '.assign_student', function(){
@@ -92,6 +94,60 @@ jQuery(document).ready(function() {
             }
         });
     });
+
+    //Validate if the academic term has been cloned
+    $(document.body).on('submit', '#clone_students_assigned', function(e){
+        var values = $('#clone_students_assigned').serialize();
+        $.ajax({
+            type: "POST",
+            data: values,
+            url: '/class-rooms/validate-clone',
+            success: function(data,textStatus){
+                if(data.flag === 1){
+                    bootbox.dialog({
+                        message: '<h4>Are You Sure You Want To Clone Students Class Records From <strong>'+data.from.academic_year+'</strong> to <strong>'+data.to.academic_year+'</strong>? ' +
+                        '<span class="text-danger">Note: its not reversible</span></h4>',
+                        title: '<span class="text-primary">Clone Record Confirmation</span>',
+                        buttons: {
+                            danger: {
+                                label: "NO",
+                                className: "btn-default",
+                                callback: function() {
+                                    $(this).hide();
+                                }
+                            },
+                            success: {
+                                label: "YES",
+                                className: "btn-success",
+                                callback: function() {
+                                    $.ajax({
+                                        type: 'POST',
+                                        data:{from_year:data.from.academic_year_id, to_year:data.to.academic_year_id, from_class:data.from_class, to_class:data.to_class},
+                                        url: '/class-rooms/cloning',
+                                        success: function(data,textStatus){
+                                            window.location.replace('/class-rooms/assign-students');
+                                        },
+                                        error: function(xhr,textStatus,error){
+                                            bootbox.alert("Error encountered pls try again later..", function() {
+                                                $(this).hide();
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }else{
+                    set_msg_box($('#error-box'), data.output, 2);
+                }
+                // $('#confirm-btn').val(data.term);
+            },
+            error: function(xhr,textStatus,error){
+                set_msg_box($('#error-box'), 'Error...Kindly Try Again', 2);
+            }
+        });
+        return false;
+    });
 });
 
 var UIBlockUI = function() {
@@ -134,7 +190,7 @@ var UIBlockUI = function() {
                             ';
                         });
                         $('#available_students').html(available);
-                    }else if(obj.Flag2 === 0){
+                    }else if(obj.flag2 == 0){
                         available += '<tr><th colspan="3">No Student Available</th></tr>';
                         $('#available_students').html(available);
                     }
@@ -147,7 +203,7 @@ var UIBlockUI = function() {
                             ';
                         });
                         $('#assigned_students').html(assign);
-                    }else if(obj.Flag === 0){
+                    }else if(obj.flag1 == 0){
                         assign += '<tr><th colspan="3">No Student Has Been Assigned</th></tr>';
                         $('#assigned_students').html(assign);
                     }
