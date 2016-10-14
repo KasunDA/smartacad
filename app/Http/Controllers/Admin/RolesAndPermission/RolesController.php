@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\RolesAndPermission;
 
 use App\Models\Admin\RolesAndPermissions\Role;
+use App\Models\Admin\RolesAndPermissions\RoleUser;
 use App\Models\Admin\Users\User;
 use App\Models\Admin\Users\UserType;
 use Illuminate\Http\Request;
@@ -70,30 +71,101 @@ class RolesController extends Controller
     }
 
     /**
-     * Display a listing of the Users and Roles for Master Records.
-     * @param $encodeId
+     * Display a listing of the Users using Ajax Datatable.
      * @return Response
      */
-    public function getUsersRoles($encodeId = null)
+    public function postAllUsers()
     {
-        // TODO:: Add Ajax Data Table the to records
-        $decodeId = ($encodeId === null) ? Role::DEFAULT_ROLE : $this->getHashIds()->decode($encodeId)[0];
-        $role = Role::findorFail($decodeId);
-        if (!Auth::user()->hasRole('developer')) {
-            $user_types = UserType::where('type', 2)->get();
-            $arr = [];
-            foreach ($user_types as $user_type) {
-                $user_type = $user_type->roles()->first();
-                $the_role[$user_type->role_id] = $user_type->display_name;
-                $arr = $the_role;
+
+        $iTotalRecords = User::orderBy('first_name')->whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())->count();
+        $iDisplayLength = intval($_REQUEST['length']);
+        $iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength;
+        $iDisplayStart = intval($_REQUEST['start']);
+        $sEcho = intval($_REQUEST['draw']);
+
+        $q = @$_REQUEST['sSearch'];
+        $role_id = @$_REQUEST['search']['role_id'];
+        $user_type_id = @$_REQUEST['search']['user_type_id'];
+
+        $users = User::orderBy('first_name')->where(function ($query) use ($q, $role_id, $user_type_id) {
+            if (!Auth::user()->hasRole('developer')) {
+                $query->whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray());
             }
-            $roles = collect($arr);
-            $users = User::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())->get();
-        } else {
-            $roles = Role::orderBy('display_name')->lists('display_name', 'role_id');
-            $users = ($encodeId === null) ? User::orderBy('email')->get() : $users = $role->users()->orderBy('email')->get();;
+            //Filter by either email, name or phone number
+            if (!empty($q))
+                $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%')
+                ->orWhere('email', 'like', '%'.$q.'%')->orWhere('phone_no', 'like', '%'.$q.'%');
+            //Filter by Role
+            if (!empty($role_id))
+                $query->whereIn('user_id', RoleUser::where('role_id', $role_id)->get(['user_id'])->toArray());
+            //Filter by User Type
+            if (!empty($user_type_id))
+                $query->where('user_type_id', $user_type_id);
+        });
+        // iTotalDisplayRecords = filtered result count
+        $iTotalDisplayRecords = $users->count();
+
+        $records = array();
+        $records["data"] = array();
+
+        $end = $iDisplayStart + $iDisplayLength;
+        $end = $end > $iTotalRecords ? $iTotalRecords : $end;
+
+        if(Auth::user()->hasRole('developer')){
+            $roles = Role::orderBy('display_name')->get();
+        }else{
+            $roles = Role::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())->get();
         }
-        return view('admin.roles-permissions.users', compact('users', 'roles', 'role', 'encodeId'));
+        $i = $iDisplayStart;
+        $allUsers = $users->skip($iDisplayStart)->take($iDisplayLength)->get();
+        foreach ($allUsers as $user){
+            $select = '';
+            foreach ($roles as $ro){
+                $selected = ($user->roles() && in_array($ro->role_id, $user->roles()->get()->pluck('role_id')->toArray())) ? 'selected' : '';
+                $select .= '<option ' . $selected . ' value="' . $ro->role_id . '">' . $ro->display_name . '</option>';
+            }
+            $role = '<select class="form-control selectpicker" multiple name="role_id[role'.$user->user_id.'][]">
+                        '.$select.'
+                    </select>
+                    <input name="user_id[]" type="hidden" value="'.$user->user_id.'">';
+
+            $records["data"][] = array(
+                ($i++ + 1),
+                $user->fullNames(),
+                $user->email,
+                ($user->gender) ? $user->gender : '<span class="label label-danger">nil</span>',
+                $user->userType()->first()->user_type,
+                $role,
+                '<a target="_blank" href="/users/view/'.$this->getHashIds()->encode($user->user_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-eye-slash"></span>
+                 </a>',
+                '<a target="_blank" href="/users/edit/'.$this->getHashIds()->encode($user->user_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-edit"></span>
+                 </a>',
+            );
+        }
+
+        $records["draw"] = $sEcho;
+        $records["recordsTotal"] = $iTotalRecords;
+        $records["recordsFiltered"] = isset($iTotalDisplayRecords) ? $iTotalDisplayRecords :$iTotalRecords;
+
+        echo json_encode($records);
+    }
+
+    /**
+     * Display a listing of the Users and Roles for Master Records.
+     * @return Response
+     */
+    public function getUsersRoles()
+    {
+        if(Auth::user()->hasRole('developer')){
+            $roles = Role::orderBy('display_name')->pluck('display_name', 'role_id')->prepend('Select Role', '');
+            $user_types = UserType::orderBy('user_type')->pluck('user_type', 'user_type_id')->prepend('User Type', '');
+        }else{
+            $roles = Role::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())->pluck('display_name', 'role_id')->prepend('Select Role', '');
+            $user_types = UserType::orderBy('user_type')->where('type', 2)->pluck('user_type', 'user_type_id')->prepend('User Type', '');
+        }
+        return view('admin.roles-permissions.users', compact('roles', 'user_types'));
     }
 
     /**
@@ -108,23 +180,12 @@ class RolesController extends Controller
             $user = ($inputs['user_id'][$i] > 0) ? User::find($inputs['user_id'][$i]) : null;
 
             if(isset($inputs['role_id']['role' . $inputs['user_id'][$i]]))
-                $user->roles()->sync($inputs['role_id']['role' . $inputs['user_id'][$i]]);// : $user->roles()->sync([]);
+                $user->roles()->sync($inputs['role_id']['role' . $inputs['user_id'][$i]]);
         }
 
         // Set the flash message
         $this->setFlashMessage(' User Roles has been successfully added Modified.', 1);
 
         return redirect($request->fullUrl());
-    }
-
-    /**
-     * Get The Users Given a role id
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function postRoles(Request $request)
-    {
-        $inputs = $request->all();
-        return redirect('/roles/users-roles/' . $this->getHashIds()->encode($inputs['role_id']));
     }
 }

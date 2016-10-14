@@ -57,8 +57,8 @@ class StudentController extends Controller
     public function getIndex()
     {
 //        $students = Student::orderBy('first_name')->get();
-        $classrooms = ClassRoom::orderBy('classroom')->lists('classroom', 'classroom_id')->prepend('Class Room', '');;
-        $status = Status::orderBy('status')->lists('status', 'status_id')->prepend('Status', '');;
+        $classrooms = ClassRoom::orderBy('classroom')->lists('classroom', 'classroom_id')->prepend('Class Room', '');
+        $status = Status::orderBy('status')->lists('status', 'status_id')->prepend('Status', '');
 
         return view('admin.accounts.students.index', compact('classrooms', 'status'));
     }
