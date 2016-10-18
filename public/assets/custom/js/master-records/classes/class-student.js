@@ -3,9 +3,6 @@
  */
 
 jQuery(document).ready(function() {
-    var tutors = $('#tutors').clone();
-    var old_btn;
-
     // Ajax Get Class Rooms Based on the Class Level
     getDependentListBox($('#student_classlevel_id'), $('#student_classroom_id'), '/list-box/classroom/');
     getDependentListBox($('#view_classlevel_id'), $('#view_classroom_id'), '/list-box/classroom/');
@@ -22,7 +19,7 @@ jQuery(document).ready(function() {
         //Assign A Students
         if($(this).prop('checked') === true){
             $(this).attr("checked", "checked");
-            $.post('/class-rooms/assign', {student_class_id:student_class_id, student_id:student_id, class_id:class_id, year_id:year_id}, function(data){
+            $.post('/class-students/assign', {student_class_id:student_class_id, student_id:student_id, class_id:class_id, year_id:year_id}, function(data){
                 if(data !== '0'){
                     var title = parent_tr.children().next().next();
                     title.children().attr("title", data);
@@ -36,7 +33,7 @@ jQuery(document).ready(function() {
             //Remove An Assigned Examiner
         } else if($(this).prop('checked') === false){
             $(this).removeAttr("checked");
-            $.post('/class-rooms/assign', {student_class_id:student_class_id, student_id:student_id}, function(data){
+            $.post('/class-students/assign', {student_class_id:student_class_id, student_id:student_id}, function(data){
                 if(data !== '0'){
                     var title = parent_tr.children().next().next();
                     title.children().attr("title", '-1');
@@ -51,57 +48,13 @@ jQuery(document).ready(function() {
         //return false;
     });
 
-    //When the edit button is clicked show Tutors Drop Down
-    $(document.body).on('click', '.edit-class-master', function(){
-        var buttonTD = $(this).parent();
-        tutors.removeClass('hide');
-        var employees = tutors.clone();
-        old_btn = $(this).clone();
-        buttonTD.html(employees);
-        employees.val($(this).attr('rel'));
-        employees.prop('id', '');
-        employees.attr('rel', $(this).val());
-        employees.attr('title', $(this).attr('title'));
-        employees.addClass('class-master-select');
-        buttonTD.children('select').focus();
-    });
-
-    //When No Changes is made to the Teachers Listbox //On Blur
-    $(document.body).on('blur', '.class-master-select', function(){
-        var td = $(this).parent();
-        td.html(old_btn);
-    });
-
-    //On Change of the employees name assign to the class
-    $(document.body).on('change', '.class-master-select', function(){
-        var class_master_id = $(this).attr('rel');
-        var classroom_id = $(this).attr('title');
-        var year_id = $('#hidden_master_year_id').val();
-        var buttonTD = $(this).parent();
-        var user_id = $(this).val();
-        var name = $(this).children('option:selected').text();
-
-        $.ajax({
-            type: "POST",
-            data: {class_master_id:class_master_id, classroom_id:classroom_id, year_id:year_id, user_id:user_id},
-            url: '/class-rooms/assign-class-masters',
-            success: function (data) {
-                buttonTD.html('<button value="'+data+'" title="'+classroom_id+'" rel="'+user_id+'" class="btn btn-link edit-class-master">\n\
-                <i class="fa fa-edit"></i> '+name+'</button></td>');
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                set_msg_box($('#msg_box2'), 'Error...Kindly Try Again', 2)
-            }
-        });
-    });
-
     //Validate if the academic term has been cloned
     $(document.body).on('submit', '#clone_students_assigned', function(e){
         var values = $('#clone_students_assigned').serialize();
         $.ajax({
             type: "POST",
             data: values,
-            url: '/class-rooms/validate-clone',
+            url: '/class-students/validate-clone',
             success: function(data,textStatus){
                 if(data.flag === 1){
                     bootbox.dialog({
@@ -123,9 +76,9 @@ jQuery(document).ready(function() {
                                     $.ajax({
                                         type: 'POST',
                                         data:{from_year:data.from.academic_year_id, to_year:data.to.academic_year_id, from_class:data.from_class, to_class:data.to_class},
-                                        url: '/class-rooms/cloning',
+                                        url: '/class-students/cloning',
                                         success: function(data,textStatus){
-                                            window.location.replace('/class-rooms/assign-students');
+                                            window.location.replace('/class-students');
                                         },
                                         error: function(xhr,textStatus,error){
                                             bootbox.alert("Error encountered pls try again later..", function() {
@@ -165,7 +118,7 @@ var UIBlockUI = function() {
                 animate: true
             });
 
-            $.post('/class-rooms/search-students', values, function(data){
+            $.post('/class-students/search-students', values, function(data){
                 try{
                     var obj = $.parseJSON(data);
                     var available = '<caption><strong>List Of Available Students</strong></caption>\
@@ -235,7 +188,7 @@ var UIBlockUI = function() {
 
             $.ajax({
                 type: "POST",
-                url: '/class-rooms/view-students',
+                url: '/class-students/view-students',
                 data: values,
                 success: function (data) {
                     //console.log(data);
@@ -287,60 +240,6 @@ var UIBlockUI = function() {
             return false;
         });
 
-        //When the search button is clicked for Assigning Class Teacher
-        $(document.body).on('submit', '#search_class_master_form', function(){
-            var values = $(this).serialize();
-            $('#hidden_master_year_id').val($('#academic_year_id').val());
-
-            App.blockUI({
-                target: '#assign_classMaster',
-                animate: true
-            });
-
-            $.ajax({
-                type: "POST",
-                url: '/class-rooms/class-masters',
-                data: values,
-                success: function (data) {
-                    //console.log(data);
-
-                    var obj = $.parseJSON(data);
-                    var assign = '<thead>\
-                                    <tr>\
-                                        <th>#</th>\
-                                        <th>Class Room</th>\
-                                        <th>No. of Student</th>\
-                                        <th>Class Teacher</th>\
-                                    </tr>\
-                                </thead>\
-                                <tbody>';
-                    if(obj.flag === 1){
-                        $.each(obj.ClassRooms, function(key, value) {
-                            assign += '<tr>' +
-                                '<td>'+(key + 1)+'</td>' +
-                                '<td>'+value.classroom+'</td>' +
-                                '<td>'+value.students+'</td>' +
-                                '<td><button class="btn btn-link edit-class-master" value="'+value.class_master_id+'" rel="'+value.user_id+'" title="'+value.classroom_id+'"><i class="fa fa-edit"></i> '+value.name+'</button></td>' +
-                                '</tr>';
-                        });
-                    }
-                    assign += '</tbody>';
-
-                    $('#class_master_datatable').html(assign);
-
-                    window.setTimeout(function() {
-                        App.unblockUI('#assign_classMaster');
-                    }, 2000);
-                    //Scroll To Div
-                    scroll2Div($('#class_master_datatable'));
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    set_msg_box($('#msg_box2'), 'Error...Kindly Try Again', 2);
-                    App.unblockUI('#assign_classMaster');
-                }
-            });
-            return false;
-        });
     };
 
     return {
@@ -352,7 +251,28 @@ var UIBlockUI = function() {
     };
 }();
 
+var ComponentsDropdowns = function () {
+
+    var handleMultiSelect = function () {
+        $('#subject_multi_select').multiSelect({
+            selectableOptgroup: true,
+            selectableHeader: '<span class="label label-info"><strong>List of Available Subjects</strong></span>',
+            selectableFooter: '<span class="label label-info"><strong>List of Available Subjects</strong></span>',
+            selectionHeader: '<span class="label label-success"><strong>List of Selected Subjects Offered</strong></span>',
+            selectionFooter: '<span class="label label-success"><strong>List of Selected Subjects Offered</strong></span>',
+            cssClass: 'multi-select-subjects'
+        });
+    }
+
+    return {
+        //main function to initiate the module
+        init: function () {
+            handleMultiSelect();
+        }
+    };
+}();
+
 jQuery(document).ready(function() {
     UIBlockUI.init();
-
+    ComponentsDropdowns.init();
 });

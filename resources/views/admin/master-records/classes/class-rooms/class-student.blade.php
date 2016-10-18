@@ -8,6 +8,7 @@
     <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/css/bootstrap-editable.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/jquery-multi-select/css/multi-select.css') }}" rel="stylesheet" type="text/css" />
     <style type="text/css">
         .multi-select-subjects{
             width: 560px;
@@ -16,7 +17,7 @@
     </style>
 @endsection
 
-@section('title', 'Assign Class Teacher / Manage Students Classroom')
+@section('title', 'Manage Students Classroom')
 
 @section('breadcrumb')
     <li>
@@ -25,14 +26,14 @@
     </li>
     <li><i class="fa fa-chevron-right"></i></li>
     <li>
-        <a href="{{ url('/class-rooms/assign-students') }}">Class Teacher / Manage Students</a>
+        <a href="{{ url('/class-rooms/assign-students') }}">Manage Classroom Students</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page">Assign Class Teacher / Manage Students in a Class Room</h3>
+    <h3 class="page">Manage Students in a Class Room</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -40,67 +41,65 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
-                            <li class="active">
-                                <a href="#assign_formMaster" data-toggle="tab"><i class="fa fa-ticket"></i>  Assign Class Class Teacher</a>
-                            </li>
-                            <li>
+                            <li class="{{ (session('active') == 'search' || (!session()->has('active'))) ? 'active' : '' }}">
                                 <a href="#search4student" data-toggle="tab"><i class="fa fa-search"></i> Find /  <i class="fa fa-eye"></i> View Student in Class Room </a>
                             </li>
                             <li>
                                 <a href="#assign2student" data-toggle="tab"><i class="fa fa-plus-square"></i> Add / <i class="fa fa-minus-square"></i> Remove Student in Class Room </a>
                             </li>
-                            <li>
+                            <li class="{{ (session('active') == 'cloning') ? 'active' : '' }}">
                                 <a href="#cloneStudent" data-toggle="tab"><i class="fa fa-clone"></i> Clone Students </a>
                             </li>
                         </ul>
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
-                            <div class="tab-pane active" id="assign_formMaster">
-                                <div class="row">
-                                    <div class="col-md-10 col-md-offset-1">
-                                        <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Level</strong></div>
-                                        <div id="msg_box2"></div>
-                                        {!! Form::open([
-                                                'method'=>'POST',
-                                                'class'=>'form-horizontal',
-                                                'id' => 'search_class_master_form'
-                                            ])
-                                        !!}
-                                        <div class="form-body">
+                            <div class="tab-pane {{ (session('active') == 'search' || (!session()->has('active'))) ? 'active' : '' }}" id="search4student">
+                                <div class="alert alert-info"> Search by <strong>Academic Year</strong> and  <strong>Class Level</strong> To View Students</div>
+                                <div id="msg_box1"></div>
+                                {!! Form::open([
+                                        'method'=>'POST',
+                                        'class'=>'form-horizontal',
+                                        'id'=>'search_student_form'
+                                    ])
+                                !!}
+                                <div class="form-body">
+                                    <div class="form-group">
+                                        <div class="col-md-4 col-md-offset-1">
                                             <div class="form-group">
-                                                <div class="col-md-6 col-md-offset-3">
-                                                    <div class="form-group">
-                                                        <label class="control-label">Academic Year <span class="text-danger">*</span></label>
-                                                        <div>
-                                                            {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required']) !!}
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label class="control-label">Class Level <span class="text-danger">*</span></label>
-                                                        <div>
-                                                            {!! Form::select('classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'required'=>'required']) !!}
-                                                        </div>
-                                                    </div>
+                                                <label class="control-label">Class Level <span class="text-danger">*</span></label>
+                                                <div>
+                                                    {!! Form::select('view_classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'id'=>'view_classlevel_id', 'required'=>'required']) !!}
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Class Room </label>
+                                                {!! Form::select('view_classroom_id', [], '', ['class'=>'form-control', 'id'=>'view_classroom_id']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-md-offset-1">
+                                            <div class="form-group">
+                                                <label class="control-label">Academic Year <span class="text-danger">*</span></label>
+                                                <div>
+                                                    {!! Form::select('view_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'required'=>'required']) !!}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-actions noborder">
-                                            <input type="hidden" value="" name="hidden_master_year_id" id="hidden_master_year_id">
-                                            <button type="submit" class="btn blue pull-right">
-                                                <i class="fa fa-search"></i> Search
-                                            </button>
-                                        </div>
-                                        {!! Form::close() !!}
-                                        <div class="row">
-                                            <div class="col-md-10 col-md-offset-1">
-                                                <div class="portlet-body">
-                                                    <div class="row">
-                                                        <table class="table table-striped table-bordered table-hover" id="class_master_datatable">
+                                    </div>
+                                </div>
+                                <div class="form-actions noborder">
+                                    <button type="submit" class="btn blue pull-right">
+                                        <i class="fa fa-search"></i> Search
+                                    </button>
+                                </div>
+                                {!! Form::close() !!}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="portlet-body">
+                                            <div class="row">
+                                                <table class="table table-striped table-bordered table-hover" id="view_students_datatable">
 
-                                                        </table>
-                                                    </div>
-                                                </div>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
@@ -171,58 +170,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane" id="search4student">
-                                <div class="alert alert-info"> Search by <strong>Academic Year</strong> and  <strong>Class Level</strong> To View Students</div>
-                                <div id="msg_box1"></div>
-                                {!! Form::open([
-                                        'method'=>'POST',
-                                        'class'=>'form-horizontal',
-                                        'id'=>'search_student_form'
-                                    ])
-                                !!}
-                                <div class="form-body">
-                                    <div class="form-group">
-                                        <div class="col-md-4 col-md-offset-1">
-                                            <div class="form-group">
-                                                <label class="control-label">Class Level <span class="text-danger">*</span></label>
-                                                <div>
-                                                    {!! Form::select('view_classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'id'=>'view_classlevel_id', 'required'=>'required']) !!}
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="control-label">Class Room </label>
-                                                {!! Form::select('view_classroom_id', [], '', ['class'=>'form-control', 'id'=>'view_classroom_id']) !!}
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 col-md-offset-1">
-                                            <div class="form-group">
-                                                <label class="control-label">Academic Year <span class="text-danger">*</span></label>
-                                                <div>
-                                                    {!! Form::select('view_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'required'=>'required']) !!}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-actions noborder">
-                                    <button type="submit" class="btn blue pull-right">
-                                        <i class="fa fa-search"></i> Search
-                                    </button>
-                                </div>
-                                {!! Form::close() !!}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="portlet-body">
-                                            <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="view_students_datatable">
-
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="cloneStudent">
+                            <div class="tab-pane {{ (session('active') == 'cloning') ? 'active' : '' }}" id="cloneStudent">
                                 <h4 class="page">Cloning of Students Assigned To Class Room In An Academic Year</h4>
                                 <!-- END PAGE HEADER-->
                                 <div class="row">
@@ -342,12 +290,6 @@
             </div>
         </div>
     </div>
-    <select id="tutors" class="form-control hide">
-        <option value="-1">Select Class Teacher</option>
-        @foreach($tutors as $tutor)
-            <option value="{{ $tutor->user_id }}">{{ $tutor->fullNames() }}</option>
-        @endforeach
-    </select>
     <!-- END CONTENT BODY -->
     @endsection
 
@@ -364,6 +306,7 @@
     <script src="{{ asset('assets/global/plugins/jquery.mockjax.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/js/bootstrap-editable.js') }}" type="text/javascript" ></script>
     <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/jquery-multi-select/js/jquery.multi-select.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
     <script src="{{ asset('assets/global/plugins/jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>
@@ -373,10 +316,10 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/master-records/classes/student-class-master.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/master-records/classes/class-student.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/class-rooms/assign-students"]');
+            setTabActive('[href="/class-students"]');
 
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
         });

@@ -86,6 +86,7 @@ Route::group(['middleware' => ['web']], function () {
         'class-groups' => 'Admin\MasterRecords\Classes\ClassGroupsController',
         'class-levels' => 'Admin\MasterRecords\Classes\ClassLevelsController',
         'class-rooms' => 'Admin\MasterRecords\Classes\ClassRoomsController',
+        'class-students' => 'Admin\MasterRecords\Classes\ClassStudentsController',
 
         //Subjects
         'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
