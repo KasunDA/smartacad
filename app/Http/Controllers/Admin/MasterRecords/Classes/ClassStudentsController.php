@@ -189,7 +189,7 @@ class ClassStudentsController extends Controller
                 ' Academic Year</strong> to <strong> '.$to_year->academic_year.'</strong><br> Because it has no record to clone from</h4>';
             $response['flag'] = 2;
         }else{
-            $output = ' <h4>Students Has Been Assigned To Class The Room Already for '.$to_year->academic_year.
+            $output = ' <h4>Students Has Been Assigned To The Class Room Already for '.$to_year->academic_year.
                 '. <br>Kindly click on <strong> <i class="fa fa-plus-square"></i>'. 
                 'Add / <i class="fa fa-minus-square"></i> Remove Student in Class Room</strong> Tab For Modifications</h4>';
             $response['flag'] = 3;
