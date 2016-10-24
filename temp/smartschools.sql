@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.5.2
--- http://www.phpmyadmin.net
+-- version 4.6.4
+-- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Sep 30, 2016 at 01:41 PM
--- Server version: 10.1.13-MariaDB
--- PHP Version: 5.6.23
+-- Host: databases.ekaruztech.com
+-- Generation Time: Oct 24, 2016 at 11:51 AM
+-- Server version: 5.6.25-log
+-- PHP Version: 7.0.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -137,7 +137,7 @@ INSERT INTO `lgas` (`lga_id`, `lga`, `state_id`) VALUES
 (98, 'Ganjuwa', 5),
 (99, 'Giade', 5),
 (100, 'Itas/Gadau', 5),
-(101, 'Jama''Are', 5),
+(101, 'Jama\'Are', 5),
 (102, 'Katagum', 5),
 (103, 'Kirfi', 5),
 (104, 'Misau', 5),
@@ -383,7 +383,7 @@ INSERT INTO `lgas` (`lga_id`, `lga`, `state_id`) VALUES
 (344, 'Igabi', 15),
 (345, 'Ikara', 15),
 (346, 'Jaba', 15),
-(347, 'Jema''A', 15),
+(347, 'Jema\'A', 15),
 (348, 'Kachia', 15),
 (349, 'Kaduna North', 15),
 (350, 'Kaduna South', 15),
@@ -468,7 +468,7 @@ INSERT INTO `lgas` (`lga_id`, `lga`, `state_id`) VALUES
 (429, 'Katsina', 18),
 (430, 'Kurfi', 18),
 (431, 'Kusada', 18),
-(432, 'Mai''Adua', 18),
+(432, 'Mai\'Adua', 18),
 (433, 'Malumfashi', 18),
 (434, 'Mani', 18),
 (435, 'Mashi', 18),
@@ -708,7 +708,7 @@ INSERT INTO `lgas` (`lga_id`, `lga`, `state_id`) VALUES
 (669, 'Mangu', 26),
 (670, 'Mikang', 26),
 (671, 'Pankshin', 26),
-(672, 'Qua''An Pan', 26),
+(672, 'Qua\'An Pan', 26),
 (673, 'Riyom', 26),
 (674, 'Shendam', 26),
 (675, 'Wase', 26),
@@ -875,7 +875,7 @@ CREATE TABLE `schools` (
   `phone_no` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `phone_no2` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
   `email` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `setup` int(5) NOT NULL DEFAULT '1',
+  `setup` int(2) NOT NULL DEFAULT '1',
   `motto` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
   `website` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
   `address` text COLLATE utf8_unicode_ci,
@@ -891,7 +891,11 @@ CREATE TABLE `schools` (
 --
 
 INSERT INTO `schools` (`school_id`, `name`, `full_name`, `phone_no`, `phone_no2`, `email`, `setup`, `motto`, `website`, `address`, `logo`, `admin_id`, `status_id`, `created_at`, `updated_at`) VALUES
-(1, 'Solid Steps', 'Solid Steps International School', '08028834187', '0703774', 'solidstepsch@yahoo.com', 10, 'Taking A Solid Step into Academic Success', 'www.solidsteps.org', '7/9 Williams Bademosi Street, Emmanuel Bus Stop, Off Governor Road, Ikotun, Lagos.', '1_logo.png', 2, 1, '2016-04-17 15:18:14', '2016-09-24 19:10:24');
+(1, 'Solid Steps', 'Solid Steps International School', '08028834187', '07037746048', 'solidstepsch@yahoo.com', 10, 'Taking A Solid Step into Academic Success', 'www.solidstepsch.org', '7/9 Williams Bademosi Street, Emmanuel Bus Stop, Off Governor Road, Ikotun, Lagos.', '1_logo.jpg', 2, 1, '2016-04-17 15:18:14', '2016-08-15 17:33:20'),
+(2, 'Precious Treasure', 'Precious Treasure Field International School', '09011223344', NULL, 'precious@gmail.com', 10, '', 'www.precioustreasure.com', 'Lagos, Nigeria', NULL, 0, 1, '2016-09-24 16:24:09', '2016-10-05 21:51:53'),
+(3, 'Briggs Gate Int\'l', 'Briggs Gate International School', '09000112233', NULL, 'briggsgate@gmail.com', 1, '', '', 'Lagos, Nigeria', NULL, 0, 1, '2016-10-01 19:39:49', '2016-10-01 19:39:49'),
+(4, 'Ebinot Schools', 'Ebinot Schools', '09000112233', NULL, '', 10, '', '', 'Lagos, Nigeria', NULL, 0, 1, '2016-10-01 19:41:00', '2016-10-05 21:28:13'),
+(5, 'King Emmanuel College', 'King Emmanuel College', '09000112233', NULL, '', 1, '', '', 'Lagos, Nigeria', NULL, 0, 1, '2016-10-01 19:41:45', '2016-10-01 19:41:45');
 
 -- --------------------------------------------------------
 
@@ -913,29 +917,95 @@ INSERT INTO `schools_subjects` (`school_id`, `subject_id`, `subject_alias`) VALU
 (1, 1, ''),
 (1, 2, ''),
 (1, 3, ''),
-(1, 4, ''),
-(1, 5, ''),
-(1, 6, ''),
-(1, 7, NULL),
-(1, 8, 'PHE'),
+(1, 5, 'Basic Science and Technology'),
+(1, 6, 'Religion and National values'),
+(1, 7, ''),
 (1, 9, ''),
 (1, 13, ''),
 (1, 14, ''),
-(1, 15, ''),
+(1, 15, 'Pre-Vocational Studies'),
 (1, 16, ''),
+(1, 18, ''),
 (1, 19, ''),
 (1, 21, ''),
 (1, 22, ''),
 (1, 23, ''),
 (1, 24, ''),
+(1, 25, ''),
 (1, 26, ''),
+(1, 30, ''),
+(1, 31, ''),
 (1, 32, ''),
 (1, 33, ''),
 (1, 34, ''),
 (1, 38, ''),
-(1, 39, 'Cultural and Creative Arts'),
-(1, 47, NULL),
-(1, 48, NULL);
+(1, 39, 'Cultural and Creative Art'),
+(1, 47, ''),
+(2, 1, NULL),
+(2, 2, NULL),
+(2, 3, NULL),
+(2, 4, NULL),
+(2, 5, NULL),
+(2, 6, NULL),
+(2, 7, NULL),
+(2, 8, NULL),
+(2, 9, NULL),
+(2, 10, NULL),
+(2, 12, NULL),
+(2, 13, NULL),
+(2, 14, NULL),
+(2, 15, NULL),
+(2, 16, NULL),
+(2, 18, NULL),
+(2, 19, NULL),
+(2, 21, NULL),
+(2, 22, NULL),
+(2, 23, NULL),
+(2, 24, NULL),
+(2, 25, NULL),
+(2, 26, NULL),
+(2, 30, NULL),
+(2, 31, NULL),
+(2, 32, NULL),
+(2, 33, NULL),
+(2, 34, NULL),
+(2, 38, NULL),
+(2, 39, NULL),
+(2, 47, NULL),
+(2, 48, NULL),
+(4, 1, NULL),
+(4, 2, NULL),
+(4, 3, NULL),
+(4, 4, NULL),
+(4, 5, NULL),
+(4, 6, NULL),
+(4, 7, NULL),
+(4, 8, NULL),
+(4, 9, NULL),
+(4, 12, NULL),
+(4, 13, NULL),
+(4, 14, NULL),
+(4, 15, NULL),
+(4, 16, NULL),
+(4, 18, NULL),
+(4, 19, NULL),
+(4, 20, NULL),
+(4, 21, NULL),
+(4, 22, NULL),
+(4, 23, NULL),
+(4, 24, NULL),
+(4, 25, NULL),
+(4, 26, NULL),
+(4, 30, NULL),
+(4, 31, NULL),
+(4, 32, NULL),
+(4, 33, NULL),
+(4, 34, NULL),
+(4, 37, NULL),
+(4, 38, NULL),
+(4, 39, NULL),
+(4, 47, NULL),
+(4, 48, NULL);
 
 -- --------------------------------------------------------
 
@@ -1220,7 +1290,7 @@ ALTER TABLE `salutations`
 -- AUTO_INCREMENT for table `schools`
 --
 ALTER TABLE `schools`
-  MODIFY `school_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `school_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `school_databases`
 --
