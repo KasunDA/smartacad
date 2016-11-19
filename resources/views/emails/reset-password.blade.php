@@ -10,7 +10,7 @@
         @foreach($content as $line)
             <p>{!! $line !!}</p>
         @endforeach
-        <a href="{{ env('DOMAIN_URL') }}/auth/login">Login</a>
+        <a href="{{ env('DOMAIN_URL') }}auth/login">Login</a>
     </div>
 
 @endsection

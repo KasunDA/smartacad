@@ -172,7 +172,7 @@ class UserController extends Controller
         //$attach = $request->file('file');
         if($user){
             //Verification Mail Sending
-            $content = 'Welcome to Smart School, kindly click on the link below to complete your registration. Thank You';
+            $content = 'Welcome to Smart School, kindly click on the link below to complete your invitation. Thank You';
             $content .= "Here are your credentials <br> Username: <strong>" . $user->email . "</strong>  or <stron>". $user->phone_no." </stron><br>";
             $content .= "Password: <strong>" . $password . "</strong> ";
             Mail::send('emails.new-account', ['user'=>$user, 'content'=>$content], function($message) use($user) {

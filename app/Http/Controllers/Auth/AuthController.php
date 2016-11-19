@@ -178,6 +178,7 @@ class AuthController extends Controller
                 $user->save();
                 $this->setFlashMessage(' Reset Successful!!! Your Password has been reset' . ' kindly login to ' . $user->email . ' to view your new password', 1);
             });
+            
         } else {
             $this->setFlashMessage(' Failed!!! Reset was not successful with this email ' . $inputs['email'] . ' kindly enter your registered email or contact your admin', 2);
         }
