@@ -124,7 +124,7 @@
     <script src="{{ asset('assets/custom/js/accounts/students.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/my-wards"]');
+            setTabActive('[href="/wards"]');
         });
     </script>
 @endsection

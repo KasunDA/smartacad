@@ -100,11 +100,11 @@ class StudentController extends Controller
         if ($this->validator($inputs)->fails())
         {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/my-wards/edit/'.$this->getHashIds()->encode($inputs['student_id']))->withErrors($this->validator($inputs))->withInput();
+            return redirect('/wards/edit/'.$this->getHashIds()->encode($inputs['student_id']))->withErrors($this->validator($inputs))->withInput();
         }
         $student->update($inputs);
         $this->setFlashMessage('Student ' . $student->fullNames() . ', Information has been successfully updated.', 1);
 
-        return redirect('/my-wards');
+        return redirect('/wards');
     }
 }
