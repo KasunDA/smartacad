@@ -113,7 +113,7 @@
                 </div>
             </div>
         @endif
-        @if(Auth::user()->assessments()->where('marked', 1)->count() > 0)
+        @if(Auth::user()->assessments()->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->where('marked', 1)->count() > 0)
             <div class="row">
                 <div class="col-md-10">
                     <!-- BEGIN CHART PORTLET-->
@@ -140,7 +140,7 @@
                                     </thead>
                                     <tbody>
                                     <?php $i = 1; ?>
-                                    @foreach(Auth::user()->assessments()->where('marked', 1)->get() as $assessment)
+                                    @foreach(Auth::user()->assessments()->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->where('marked', 1)->get() as $assessment)
                                         <tr class="odd gradeX">
                                             <td class="center">{{$i++}}</td>
                                             <td>{{ $assessment->subjectClassroom->academicTerm->academic_term }}</td>
