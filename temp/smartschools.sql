@@ -2,8 +2,8 @@
 -- version 4.6.4
 -- https://www.phpmyadmin.net/
 --
--- Host: databases.ekaruztech.com
--- Generation Time: Oct 24, 2016 at 11:51 AM
+-- Host: databases.solidsteps.org
+-- Generation Time: Nov 19, 2016 at 10:53 AM
 -- Server version: 5.6.25-log
 -- PHP Version: 7.0.12
 
@@ -917,13 +917,14 @@ INSERT INTO `schools_subjects` (`school_id`, `subject_id`, `subject_alias`) VALU
 (1, 1, ''),
 (1, 2, ''),
 (1, 3, ''),
-(1, 5, 'Basic Science and Technology'),
-(1, 6, 'Religion and National values'),
+(1, 5, ''),
+(1, 6, ''),
 (1, 7, ''),
+(1, 8, NULL),
 (1, 9, ''),
 (1, 13, ''),
 (1, 14, ''),
-(1, 15, 'Pre-Vocational Studies'),
+(1, 15, ''),
 (1, 16, ''),
 (1, 18, ''),
 (1, 19, ''),

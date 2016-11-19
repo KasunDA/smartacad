@@ -87,8 +87,10 @@
                                                     <td>{!! ($student->middle_name) ? $student->middle_name : '<span class="label label-danger">nil</span>' !!}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Class Room</td>
-                                                    <td>{!! ($student->classroom_id) ? $student->classRoom()->first()->classroom : '<span class="label label-danger">nil</span>' !!}</td>
+                                                    <td>Current Class</td>
+                                                    <td>{!! ($student->currentClass(AcademicYear::activeYear()->academic_year_id))
+                                                    ? $student->currentClass(AcademicYear::activeYear()->academic_year_id)->classroom
+                                                    : '<span class="label label-danger">nil</span>' !!}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Gender</td>

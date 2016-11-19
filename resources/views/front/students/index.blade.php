@@ -77,7 +77,8 @@
                                         <tr>
                                             <td>{{$i++}} </td>
                                             <td>{{ $student->fullNames() }}</td>
-                                            <td>{!! ($student->classroom_id) ? $student->classRoom()->first()->classroom : '<span class="label label-danger">nil</span>' !!}</td>
+                                            <td>{!! ($student->currentClass(AcademicYear::activeYear()->academic_year_id))
+                                            ? $student->currentClass(AcademicYear::activeYear()->academic_year_id)->classroom : '<span class="label label-danger">nil</span>' !!}</td>
                                             <td>{!! ($student->gender) ? $student->gender : '<span class="label label-danger">nil</span>' !!}</td>
                                             <td>{!! ($student->dob) ? $student->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
                                             <td>{!! ($student->dob) ? $student->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>

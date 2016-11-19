@@ -128,7 +128,8 @@ class StudentController extends Controller
                 ($i++ + 1),
                 $student->fullNames(),
                 $sponsor,
-                ($student->classroom_id) ? $student->classRoom()->first()->classroom : '<span class="label label-danger">nil</span>',
+                ($student->currentClass(AcademicYear::activeYear()->academic_year_id))
+                    ? $student->currentClass(AcademicYear::activeYear()->academic_year_id)->classroom : '<span class="label label-danger">nil</span>',
                 ($student->gender) ? $student->gender : '<span class="label label-danger">nil</span>',
                 $status,
                 '<a target="_blank" href="/students/view/'.$this->getHashIds()->encode($student->student_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
