@@ -156,7 +156,7 @@ class UserController extends Controller
 
         //Set the verification code to any random 40 characters and password to random 8 characters
         $verification_code = str_random(40);
-        $password = str_random(8);
+        $password = strtoupper(str_random(8));
         $input['verification_code'] = $verification_code;
         $input['password'] = $password;
         $temp = '.';
@@ -170,20 +170,20 @@ class UserController extends Controller
         // TODO Sending of SMS
         // TODO:: Grab uploaded file sample of attaching files to mail
         //$attach = $request->file('file');
-//        if($user){
+        if($user){
             //Verification Mail Sending
-//            $content = 'Welcome to Smart School, kindly click on the link below to complete your registration. Thank You';
-//            $content .= "Here are your credentials <br> Username: <strong>" . $user->email . "</strong>  or <stron>". $user->phone_no." </stron><br>";
-//            $content .= "Password: <strong>" . $password . "</strong> ";
-//            $result = Mail::send('emails.new-account', ['user'=>$user, 'content'=>$content], function($message) use($user) {
-//                $message->from(env('APP_MAIL'), env('APP_NAME'));
-//                $message->subject("Account Creation");
-//                $message->to($user->email);
+            $content = 'Welcome to Smart School, kindly click on the link below to complete your registration. Thank You';
+            $content .= "Here are your credentials <br> Username: <strong>" . $user->email . "</strong>  or <stron>". $user->phone_no." </stron><br>";
+            $content .= "Password: <strong>" . $password . "</strong> ";
+            Mail::send('emails.new-account', ['user'=>$user, 'content'=>$content], function($message) use($user) {
+                $message->from(env('APP_MAIL'), env('APP_NAME'));
+                $message->subject("Account Creation");
+                $message->to($user->email);
                 //Attach file
                 //$message->attach($attach);
-//            });
-//            if($result) $temp = ' and a mail has been sent to '.$user->email;
-//        }
+            });
+            $temp = ' and a mail has been sent to '.$user->email;
+        }
         // Set the flash message
         $this->setFlashMessage('Saved!!! '.$user->fullNames().' have successfully been saved'.$temp, 1);
         return redirect('users/create');

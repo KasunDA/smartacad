@@ -121,7 +121,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Contact Address</label>
-                                <textarea class="form-control" rows="3" required placeholder="Contact Address" name="address">{{ $student->address }}</textarea>
+                                <textarea class="form-control" rows="3" placeholder="Contact Address" name="address">{{ $student->address }}</textarea>
                             </div>
                             <div class="margiv-top-10">
                                 <button class="btn green pull-right btn-lg"> Update Info </button>

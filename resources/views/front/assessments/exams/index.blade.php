@@ -1,4 +1,4 @@
-@extends('admin.layout.default')
+@extends('front.layout.default')
 
 @section('layout-style')
     <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet" type="text/css" />
@@ -10,7 +10,7 @@
     <link href="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/css/bootstrap-editable.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
-@section('title', 'Assessments')
+@section('title', 'Wards Exams')
 
 @section('breadcrumb')
     <li>
@@ -20,15 +20,14 @@
     <li>
         <i class="fa fa-chevron-right"></i>
     </li>
-    <li>
-        <a href="{{ url('/assessments') }}">Assessments</a>
-        <i class="fa fa-circle"></i>
-    </li>
 @stop
+
+@section('page-title')
+    <h1> My Wards Exams </h1>
+@endsection
 
 
 @section('content')
-    <h3 class="page-academic_year">Continuous Assignments</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -37,23 +36,23 @@
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
                             <li class="active">
-                                <a href="#assessment" data-toggle="tab"><i class="fa fa-pencil-square-o"></i> Continuous Assessments  </a>
-                            </li>
-                            <li>
-                                <a href="#assessment_report" data-toggle="tab"> <i class="fa fa-table"></i> Assessment Reports</a>
+                                <a href="#assessment" data-toggle="tab"><i class="fa fa-book"></i> Terminal Exams Result</a>
                             </li>
                         </ul>
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
+                            <div id="error-box"></div>
                             <div class="tab-pane active" id="assessment">
-                                <div class="alert alert-info"> Search for <strong>Subjects Assigned</strong> For The <strong> Academic Term</strong></div>
+                                <div class="alert alert-info"> Search by <strong>Academic Term</strong> To View Exams Details</div>
                                 {!! Form::open([
                                         'method'=>'POST',
                                         'class'=>'form-horizontal',
-                                        'id' => 'search_subject_staff'
+                                        'id' => 'view_student_form'
                                     ])
                                 !!}
+                                    <input type="hidden" value="/wards-exams/terminal-result/" id="display_url">
+                                    <input type="hidden" value="/wards-exams/print-terminal-result/" id="display_url2">
                                     <div class="form-body">
                                         <div class="form-group">
                                             <div class="col-md-4 col-md-offset-1">
@@ -63,6 +62,8 @@
                                                         {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required']) !!}
                                                     </div>
                                                 </div>
+                                            </div>
+                                            <div class="col-md-4 col-md-offset-1">
                                                 <div class="form-group">
                                                     <label class="control-label">Academic Term <span class="text-danger">*</span></label>
                                                     {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
@@ -70,14 +71,6 @@
                                                     AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required']) !!}
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 col-md-offset-1">
-                                                <div class="form-group">
-                                                    <label class="control-label">Class Level </label>
-                                                    <div>
-                                                        {!! Form::select('classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'id'=>'classlevel_id']) !!}
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                     <div class="form-actions noborder">
@@ -87,65 +80,10 @@
                                     </div>
                                 {!! Form::close() !!}
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-10 col-md-offset-1">
                                         <div class="portlet-body">
                                             <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="subject_assigned_datatable">
-
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="assessment_report">
-                                <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Reports</div>
-                                {!! Form::open([
-                                        'method'=>'POST',
-                                        'class'=>'form-horizontal',
-                                        'id' => 'assessment_report_form'
-                                    ])
-                                !!}
-                                    <div class="form-body">
-                                        <div class="form-group">
-                                            <div class="col-md-4 col-md-offset-1">
-                                                <div class="form-group">
-                                                    <label class="control-label">Academic Year <small class="font-red">*</small></label>
-                                                    <div>
-                                                        {!! Form::select('view_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'view_academic_year_id', 'required'=>'required']) !!}
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="control-label">Academic Term <small class="font-red">*</small></label>
-                                                    {!! Form::select('view_academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
-                                                    AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'view_academic_term_id', 'required'=>'required']) !!}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 col-md-offset-1">
-                                                <div class="form-group">
-                                                    <label class="control-label">Class Level <small class="font-red">*</small></label>
-                                                    <div>
-                                                        {!! Form::select('view_classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'id'=>'view_classlevel_id', 'required'=>'required']) !!}
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="control-label">Class Room <small class="font-red">*</small></label>
-                                                    {!! Form::select('view_classroom_id', [], '', ['class'=>'form-control', 'id'=>'view_classroom_id', 'required'=>'required']) !!}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-actions noborder">
-                                        <button type="submit" class="btn blue pull-right">
-                                            <i class="fa fa-search"></i> Search
-                                        </button>
-                                    </div>
-                                {!! Form::close() !!}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="portlet-body">
-                                            <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="view_report_datatable">
+                                                <table class="table table-striped table-bordered table-hover" id="view_student_datatable">
 
                                                 </table>
                                             </div>
@@ -176,17 +114,21 @@
     <script src="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/js/bootstrap-editable.js') }}" type="text/javascript" ></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
+    <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/scripts/app.min.js') }}" type="text/javascript"></script>
     <!-- END THEME GLOBAL SCRIPTS -->
     <!-- BEGIN THEME LAYOUT SCRIPTS -->
+    <script src="{{ asset('assets/pages/scripts/ui-bootbox.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/assessments/assessment.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/front/exam.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/assessments"]');
+            setTabActive('[href="/wards-exams"]');
+
+            $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
         });
     </script>
 @endsection

@@ -4,7 +4,8 @@
 
 $(function () {
 
-    $(document.body).on('change', '#checkAll', function () {
+    $(document.body).on('change', '#checkAll',function(e){
+        e.preventDefault();
         var check_boxes = $('.permissions_check_box');
         //console.log(check_boxes);
         if($(this).is(':checked')){

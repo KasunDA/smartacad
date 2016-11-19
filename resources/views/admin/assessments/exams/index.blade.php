@@ -42,7 +42,7 @@
                             <li class="{{ (session('active') == 'input-scores') ? 'active' : '' }}">
                                 <a href="#exams_input_score" data-toggle="tab"><i class="fa fa-pencil-square-o"></i> Input Scores </a>
                             </li>
-                            @if(Auth::user()->hasRole(['super_admin', 'developer']))
+                            @if(!Auth::user()->hasRole(['sponsor', 'staff']))
                                 <li>
                                     <a href="#terminal" data-toggle="tab"><i class="fa fa-book"></i> Terminal Result</a>
                                 </li>
@@ -137,7 +137,7 @@
                                     </div>
                                 </div>
                             </div>
-                            @if(Auth::user()->hasRole(['super_admin', 'developer']))
+                            @if(!Auth::user()->hasRole(['sponsor', 'staff']))
                                 <div class="tab-pane" id="terminal">
                                     <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Subjects</div>
                                     {!! Form::open([

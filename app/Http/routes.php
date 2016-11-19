@@ -41,7 +41,9 @@ Route::group(['middleware' => ['web']], function () {
     //Front End
     Route::controllers([
         'home' => 'Front\HomeController',
-        'my-wards' => 'Front\Students\StudentController'
+        'wards' => 'Front\Students\StudentController',
+        'wards-exams' => 'Front\Assessments\ExamsController',
+        'wards-assessments' => 'Front\Assessments\AssessmentsController',
     ]);
 
     Route::auth();
@@ -143,13 +145,13 @@ Route::group(array('prefix'=>'/api'),function(){
             $ret = file($url);
             $sms->unit_used += 1.7;
 
-            if($sms->unit_used + 50 > $sms->unit_bought){
+            if($sms->unit_used + 5 > $sms->unit_bought){
                 //Send to Agaba
                 $url2 = "http://mcastmessaging.com/mcast_ws_v2/index.php?user=$username&password=$password&from=BULK_SMS&to=2348066711147&message=$message1&type=json";
                 file($url2);
                 $sms->unit_used += 1.7;
             }
-        }elseif($sms->unit_used > $sms->unit_bought and $sms->unit_used < $sms->unit_bought + 10){
+        }elseif($sms->unit_used > $sms->unit_bought and $sms->unit_used < $sms->unit_bought + 3){
             //Send to KayOh
             $url1 = "http://mcastmessaging.com/mcast_ws_v2/index.php?user=$username&password=$password&from=BULK_SMS&to=2348022020075&message=$message1&type=json";
             $ret = file($url1);

@@ -58,6 +58,19 @@
                                         <th width="5%">Update</th>
                                     </tr>
                                 </thead>
+                                <tfoot>
+                                <tr role="row" class="heading">
+                                    <th width="2%">#</th>
+                                    <th width="28%">Full Name</th>
+                                    <th width="15%">Current Class</th>
+                                    <th width="10%">Gender</th>
+                                    <th width="10%">Age</th>
+                                    <th width="15%">Date Of Birth</th>
+                                    <th width="10%">Status</th>
+                                    <th width="5%">View</th>
+                                    <th width="5%">Update</th>
+                                </tr>
+                                </tfoot>
                                 <tbody>
                                     <?php $i = 1; ?>
                                     @foreach($students as $student)
@@ -76,32 +89,18 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a target="_blank" href="{{ url('/my-wards/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                                                <a target="_blank" href="{{ url('/wards/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-info btn-rounded btn-condensed btn-xs">
                                                     <span class="fa fa-eye-slash"></span>
                                                 </a>
                                             </td>
                                             <td>
-                                                <a target="_blank" href="{{ url('/my-wards/edit/'.$hashIds->encode($student->student_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                                                <a target="_blank" href="{{ url('/wards/edit/'.$hashIds->encode($student->student_id)) }}" class="btn btn-warning btn-rounded btn-condensed btn-xs">
                                                     <span class="fa fa-edit"></span>
                                                 </a>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
-                                <tfoot>
-                                    <tr role="row" class="heading">
-                                        <th width="2%">#</th>
-                                        <th width="28%">Full Name</th>
-                                        <th width="15%">Current Class</th>
-                                        <th width="10%">Gender</th>
-                                        <th width="10%">Age</th>
-                                        <th width="15%">Date Of Birth</th>
-                                        <th width="10%">Status</th>
-                                        <th width="5%">View</th>
-                                        <th width="5%">Update</th>
-                                    </tr>
-                                </tfoot>
-
                             </table>
                         </div>
                     </div>
@@ -129,7 +128,7 @@
     <script src="{{ asset('assets/custom/js/accounts/students.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/my-wards"]');
+            setTabActive('[href="/wards"]');
 
             setTableData($('#student_tabledata')).init();
 

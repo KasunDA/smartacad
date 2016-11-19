@@ -161,7 +161,7 @@ class AuthController extends Controller
         }
         //////////////////////////////////////////////////////////////////////// starts: KHEENGZ CUSTOM CODE////////////////////////////////////////////////////////
         //Set the verification code to any random 40 characters
-        $password = str_random(8);
+        $password = strtoupper(str_random(8));
         $result = User::where('email', $inputs['email']);
         $user = ($result !== null) ? $result->first() : null;
 

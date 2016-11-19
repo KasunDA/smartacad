@@ -47,7 +47,10 @@
         <div class="hor-menu">
             <ul class="nav navbar-nav page-sidebar-menu">
                 <li class="menu-dropdown classic-menu-dropdown active">
-                    <a href="{{ url('/') }}"><i class="fa fa-dashboard"></i>  Dashboard</a>
+                    <a href="{{ url('/') }}"><i class="fa fa-dashboard"></i>  DASHBOARD</a>
+                </li>
+                <li class="menu-dropdown classic-menu-dropdown">
+                    <a href="{{ url('/wards') }}"><i class="fa fa-users"></i>  WARD(S)</a>
                 </li>
 
                 @if(Auth::check())
@@ -66,11 +69,10 @@
                                         <li class="menu-dropdown classic-menu-dropdown ">
                                             <a href="javascript:;">
                                                 <i class="{{ $menu_header->icon }}"></i> {{ $menu_header->menu_header }}
-                                                <span class="arrow"></span>
                                             </a>
-                                            <ul class="dropdown-menu pull-left">
-                                                {{-- Check if the menu header has menus--}}
-                                                @if($menu_header->menus()->where('type', 2)->count() > 0)
+                                            {{-- Check if the menu header has menus--}}
+                                            @if($menu_header->menus()->where('type', 2)->count() > 0)
+                                                <ul class="dropdown-menu pull-left">
                                                     <?php $show_menu = []?>
                                                     {{--  Loop Through The Menus--}}
                                                     @foreach($menu_header->menus()->where('type', 2)->orderBy('sequence')->get() as $menu)
@@ -84,37 +86,36 @@
                                                                 <li class="dropdown-submenu classic-menu-dropdown">
                                                                     <a href="{{ $menu->menu_url }}" class="nav-link">
                                                                         <i class="{{ $menu->icon }}"></i> {{$menu->menu}}
-                                                                        <span class="arrow "></span>
                                                                     </a>
 
-                                                                    <ul class="dropdown-menu pull-left">
                                                                     {{-- Check if the menu has menu items--}}
-                                                                        @if($menu->menuItems()->where('type', 2)->count() > 0)
+                                                                    @if($menu->menuItems()->where('type', 2)->count() > 0)
+                                                                        <ul class="dropdown-menu pull-left">
                                                                             <?php $show_menu_item = []?>
-                                                                                {{--  Loop Through The Menu Items--}}
-                                                                                @foreach($menu->menuItems()->where('type', 2)->orderBy('sequence')->get() as $menu_item)
-                                                                                    {{--  Check if the menu item has been displayed and its enabled--}}
-                                                                                    @if(!in_array($menu_item->menu_item_id, $show_menu_item) and $menu_item->active == 1)
+                                                                            {{--  Loop Through The Menu Items--}}
+                                                                            @foreach($menu->menuItems()->where('type', 2)->orderBy('sequence')->get() as $menu_item)
+                                                                                {{--  Check if the menu item has been displayed and its enabled--}}
+                                                                                @if(!in_array($menu_item->menu_item_id, $show_menu_item) and $menu_item->active == 1)
 
-                                                                                        {{--Check if the logged in user have access to view the menu item --}}
-                                                                                        @if(in_array($menu_item->menu_item_id, $role->menuItems()->where('type', 2)->get()->lists('menu_item_id')->toArray()))
-                                                                                            <?php $show_menu_item[] = $menu_item->menu_item_id?>
-                                                                                            <li>
-                                                                                                <a href="{{ $menu_item->menu_item_url }}" class="nav-link">
-                                                                                                    <i class="{{ $menu_item->menu_item_icon }}"></i> {{$menu_item->menu_item}}
-                                                                                                </a>
-                                                                                            </li>
-                                                                                        @endif{{--Check if the logged in user have access to view the menu item --}}
-                                                                                    @endif{{--  Check if the menu item has been displayed and its enabled--}}
-                                                                                @endforeach{{--  Loop Through The Menu Items--}}
-                                                                        @endif {{-- Check if the menu has menu items--}}
-                                                                    </ul>
+                                                                                    {{--Check if the logged in user have access to view the menu item --}}
+                                                                                    @if(in_array($menu_item->menu_item_id, $role->menuItems()->where('type', 2)->get()->lists('menu_item_id')->toArray()))
+                                                                                        <?php $show_menu_item[] = $menu_item->menu_item_id?>
+                                                                                        <li>
+                                                                                            <a href="{{ $menu_item->menu_item_url }}" class="nav-link">
+                                                                                                <i class="{{ $menu_item->menu_item_icon }}"></i> {{$menu_item->menu_item}}
+                                                                                            </a>
+                                                                                        </li>
+                                                                                    @endif{{--Check if the logged in user have access to view the menu item --}}
+                                                                                @endif{{--  Check if the menu item has been displayed and its enabled--}}
+                                                                            @endforeach{{--  Loop Through The Menu Items--}}
+                                                                        </ul>
+                                                                    @endif {{-- Check if the menu has menu items--}}
                                                                 </li>
                                                             @endif{{--Check if the logged in user have access to view the menu --}}
                                                         @endif{{--  Check if the menu has been displayed and its enabled--}}
                                                     @endforeach{{--  Loop Through The Menus--}}
-                                                @endif{{-- Check if the menu header has menus--}}
-                                            </ul>
+                                                </ul>
+                                            @endif{{-- Check if the menu header has menus--}}
                                         </li>
                                     @endif{{--  Check if the logged in user have access to view the menu--}}
                                 @endif{{--  Check if the menu header has been displayed--}}

@@ -43,7 +43,7 @@
                                         @else
                                             <img src="{{ $student->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $student->fullNames() }}"/>
                                         @endif
-                                        <a href="{{ url('/my-wards/edit/'.$hashIds->encode($student->student_id)) }}" class="profile-edit"> edit </a>
+                                        <a href="{{ url('/wards/edit/'.$hashIds->encode($student->student_id)) }}" class="profile-edit"> edit </a>
                                     </li>
                                 </ul>
                             </div>
@@ -149,7 +149,7 @@
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/my-wards"]');
+            setTabActive('[href="/wards"]');
         });
     </script>
 @endsection

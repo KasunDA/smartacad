@@ -7,23 +7,23 @@
 
                 <p> A School Portal for the Smart School Management System..</p>
             </div>
-            <div class="col-md-3 col-sm-6 col-xs-12 footer-block">
-                <h2>Follow Us On</h2>
-                <ul class="social-icons">
-                    <li>
-                        <a href="javascript:;" data-original-title="facebook" class="facebook"></a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-original-title="twitter" class="twitter"></a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-original-title="instagram" class="instagram"></a>
-                    </li>
-                    <li>
-                        <a href="javascript:;" data-original-title="linkedin" class="linkedin"></a>
-                    </li>
-                </ul>
-            </div>
+            {{--<div class="col-md-3 col-sm-6 col-xs-12 footer-block">--}}
+                {{--<h2>Follow Us On</h2>--}}
+                {{--<ul class="social-icons">--}}
+                    {{--<li>--}}
+                        {{--<a href="javascript:;" data-original-title="facebook" class="facebook"></a>--}}
+                    {{--</li>--}}
+                    {{--<li>--}}
+                        {{--<a href="javascript:;" data-original-title="twitter" class="twitter"></a>--}}
+                    {{--</li>--}}
+                    {{--<li>--}}
+                        {{--<a href="javascript:;" data-original-title="instagram" class="instagram"></a>--}}
+                    {{--</li>--}}
+                    {{--<li>--}}
+                        {{--<a href="javascript:;" data-original-title="linkedin" class="linkedin"></a>--}}
+                    {{--</li>--}}
+                {{--</ul>--}}
+            {{--</div>--}}
             <div class="col-md-3 col-sm-6 col-xs-12 footer-block">
                 <h2>Contacts</h2>
                 <address class="margin-bottom-40"> Phone: {{ env('DEVELOPER_SITE_NUMBER') }}
