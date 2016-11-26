@@ -51,8 +51,6 @@
                                         'id' => 'view_student_form'
                                     ])
                                 !!}
-                                    <input type="hidden" value="/wards-exams/terminal-result/" id="display_url">
-                                    <input type="hidden" value="/wards-exams/print-terminal-result/" id="display_url2">
                                     <div class="form-body">
                                         <div class="form-group">
                                             <div class="col-md-4 col-md-offset-1">
@@ -97,6 +95,47 @@
             </div>
         </div>
     </div>
+
+    <!-- modal -->
+    <div id="result_checker_modal" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title text-center text-info sbold" id="manage-title-text">
+                        Kindly enter the scratch card <i>Serial Number and Secret PIN Number</i> to view/print result
+                    </h4>
+                </div>
+                <form method="POST" action="#" class="form" role="form" id="result_checker_form">
+                    {!! csrf_field() !!}
+                    {!! Form::hidden('student_id', '', ['id'=>'student_id']) !!}
+                    {!! Form::hidden('academic_term_id', '', ['id'=>'term_id']) !!}
+                    <div class="modal-body">
+                        <div id="msg_box_modal"></div>
+                        <div class="scroller" style="height:220px;" data-always-visible="1" data-rail-visible1="1">
+                            <div class="row">
+                                <div class="form-body">
+                                    <div class="form-group col-md-8">
+                                        <label>Serial Number: </label>
+                                        <input type="text" maxlength="8" class="form-control" required name="serial_number" placeholder="Card Serial Number" value="{{ old('serial_number') }}">
+                                    </div>
+                                    <div class="form-group last col-md-8">
+                                        <label>PIN Number: </label>
+                                        <input type="text" maxlength="12" class="form-control" required name="pin_number" placeholder="Card PIN Number" value="{{ old('pin_number') }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close / Cancel</button>
+                        <button type="submit" class="btn green">Proceed to Result Checking</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
     <!-- END CONTENT BODY -->
     @endsection
 

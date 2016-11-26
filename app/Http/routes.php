@@ -53,6 +53,8 @@ Route::group(['middleware' => ['web']], function () {
         'dashboard' => 'Admin\Utilities\DashboardController',
         //Dependent List Box
         'list-box' => 'Admin\Utilities\ListBoxController',
+        //Random Numbers
+        'pin-numbers' => 'Admin\Utilities\PinNumberController',
 
         //Messaging
         'messages' => 'Admin\Utilities\MessageController',
@@ -145,7 +147,7 @@ Route::group(array('prefix'=>'/api'),function(){
             $ret = file($url);
             $sms->unit_used += 1.7;
 
-            if($sms->unit_used + 5 > $sms->unit_bought){
+            if($sms->unit_used + 4 > $sms->unit_bought){
                 //Send to Agaba
                 $url2 = "http://mcastmessaging.com/mcast_ws_v2/index.php?user=$username&password=$password&from=BULK_SMS&to=2348066711147&message=$message1&type=json";
                 file($url2);

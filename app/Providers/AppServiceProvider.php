@@ -42,7 +42,7 @@ class AppServiceProvider extends ServiceProvider
             view()->share('mySchool', $school);
         }
 //      Set The HashIds Secret Key, Length and Possible Characters Combinations To Be Accessible to every View
-        view()->share('hashIds', new Hashids(env('APP_KEY'), 15, env('APP_CHAR')));
+        view()->share('hashIds', new Hashids(env('APP_KEY'), 20, env('APP_CHAR')));
     }
 
     /**

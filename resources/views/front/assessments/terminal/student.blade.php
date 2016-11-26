@@ -31,8 +31,8 @@
                         <i class="fa fa-book font-green"></i>
                         <span class="caption-subject font-green bold uppercase">
                             Student Details
-                            <a target="_blank" href="{{ url('/exams/print-student-terminal-result/'.$hashIds->encode($student->student_id).
-                                '/'.$hashIds->encode($term->academic_term_id)) }}" class="btn btn-link btn-xs">
+                            <a target="_blank" href="{{ url('/wards-exams/terminal-result/'.$hashIds->encode($student->student_id).
+                                '/'.$hashIds->encode($term->academic_term_id).'/print') }}" class="btn btn-link btn-xs">
                                 <span class="fa fa-print fa-3x"></span> Print
                             </a>
                     </div>
@@ -126,8 +126,8 @@
                         <i class="fa fa-gears font-green"></i>
                         <span class="caption-subject font-green bold uppercase">
                             Assessments Details By Subject.
-                            <a target="_blank" href="{{ url('/exams/print-student-terminal-result/'.$hashIds->encode($student->student_id).
-                                '/'.$hashIds->encode($term->academic_term_id)) }}" class="btn btn-link btn-xs">
+                            <a target="_blank" href="{{ url('/wards-exams/terminal-result/'.$hashIds->encode($student->student_id).
+                                '/'.$hashIds->encode($term->academic_term_id).'/print') }}" class="btn btn-link btn-xs">
                                 <span class="fa fa-print fa-3x"></span> Print
                             </a>
                         </span>

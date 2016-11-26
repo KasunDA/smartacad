@@ -51,8 +51,6 @@
                                         'id' => 'view_student_form'
                                     ])
                                 !!}
-                                    <input type="hidden" value="/wards-assessments/report-details/" id="display_url">
-                                    <input type="hidden" value="/wards-assessments/print-report/" id="display_url2">
                                     <div class="form-body">
                                         <div class="form-group">
                                             <div class="col-md-4 col-md-offset-1">
@@ -123,7 +121,7 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/front/exam.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/front/assessment.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/wards-assessments"]');

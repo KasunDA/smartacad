@@ -53,7 +53,7 @@ class Controller extends BaseController
      */
     public function getHashIds()
     {
-        return new Hashids(env('APP_KEY'), 15, env('APP_CHAR'));
+        return new Hashids(env('APP_KEY'), 20, env('APP_CHAR'));
     }
 
     /**

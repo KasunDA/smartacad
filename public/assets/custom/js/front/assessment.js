@@ -7,36 +7,17 @@ jQuery(document).ready(function() {
     // Ajax Get Academic Terms Based on the Academic Year
     getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
 
-    $(document.body).on('submit', '#result_checker_form', function(){
-        var values = $(this).serialize();
-
-        $.ajax({
-            type: "POST",
-            url: '/wards-exams/result-checker',
-            data: values,
-            success: function (data) {
-                if(data == true){
-                    set_msg_box($('#msg_box_modal'), 'Proceed', 1);
-                }else {
-                    set_msg_box($('#msg_box_modal'), 'Invalid Card Serial No. or Pin No.', 2);
-                }
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                set_msg_box($('#msg_box_modal'), 'Error...Kindly Try Again', 2);
-            }
-        });
-        return false;
-    });
-
 });
 
 var UIBlockUI = function() {
 
-    var handleSample1 = function() {
+    var handleSample2 = function() {
 
         //When the search button is clicked
         $(document.body).on('submit', '#view_student_form', function(){
             var values = $(this).serialize();
+            var url = $('#display_url').val();
+            var url2 = $('#display_url2').val();
 
             App.blockUI({
                 target: '#assessment',
@@ -56,21 +37,20 @@ var UIBlockUI = function() {
                                     <th>Student ID.</th>\
                                     <th>Student Name</th>\
                                     <th>Gender</th>\
-                                    <th>View Result</th>\
+                                    <th>View Scores</th>\
                                     <th>Action </th>\
                                 </tr>\
                             </thead>\
                             <tbody>';
                     if(obj.flag === 1){
                         $.each(obj.Students, function(key, value) {
-                            var hashed = value.hashed_stud+'/'+value.hashed_term;
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
                                 '<td>'+value.student_no+'</td>' +
                                 '<td>'+value.name+'</td>' +
                                 '<td>'+value.gender+'</td>' +
-                                '<td><button class="btn btn-link btn-sm check-result" rel="view" value="' + hashed + '"> <i class="fa fa-bookmark"></i> Proceed</button></td>' +
-                                '<td><button class="btn btn-link btn-sm check-result" rel="print" value="' + hashed + '"> <i class="fa fa-print"></i> Print</button></td>' +
+                                '<td><a href="/wards-assessments/report-details/' + value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-bookmark"></i> Proceed</a></td>' +
+                                '<td><a href="/wards-assessments/print-report/' + value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-print"></i> Print</a></td>' +
                                 '</tr>';
                         });
                     }else {
@@ -97,50 +77,11 @@ var UIBlockUI = function() {
             });
             return false;
         });
-    };
-
-    var handleSample2 = function() {
-
-        //When the search button is clicked
-        $(document.body).on('click', '.check-result', function(){
-            var hashed = $(this).val().split('/');
-            var type = $(this).attr('rel');
-            console.log(hashed + ': ' + type);
-
-            App.blockUI({
-                target: '#assessment',
-                animate: true
-            });
-
-            $.ajax({
-                type: "POST",
-                url: '/wards-exams/verify',
-                data: {student_id:hashed[0], term_id:hashed[1]},
-                success: function (data) {
-                    if(data == true){
-                        window.location.replace('/wards-exams/terminal-result/' + hashed[0] + '/' + hashed[1] + ((type == 'print') ? '/print' : '/'));
-                    }else {
-                        $('#student_id').val(hashed[0]);
-                        $('#term_id').val(hashed[1]);
-                        $('#result_checker_modal').modal('show');
-                    }
-                    window.setTimeout(function() {
-                        App.unblockUI('#assessment');
-                    }, 2000);
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
-                    App.unblockUI('#assessment');
-                }
-            });
-            return false;
-        });
-    };
+    }
 
     return {
         //main function to initiate the module
         init: function() {
-            handleSample1();
             handleSample2();
         }
     };

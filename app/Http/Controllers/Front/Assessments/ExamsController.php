@@ -8,6 +8,8 @@ use App\Models\Admin\Exams\Exam;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
+use App\Models\Admin\PinNumbers\PinNumber;
+use App\Models\Admin\PinNumbers\ResultChecker;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -71,9 +73,10 @@ class ExamsController extends Controller
      * Displays the details of the subjects students scores for a specific academic term
      * @param String $encodeStud
      * @param String $encodeTerm
+     * @param String $type
      * @return \Illuminate\View\View
      */
-    public function getTerminalResult($encodeStud, $encodeTerm)
+    public function getTerminalResult($encodeStud, $encodeTerm, $type=null)
     {
         $decodeStud = $this->getHashIds()->decode($encodeStud);
         $decodeTerm = $this->getHashIds()->decode($encodeTerm);
@@ -86,27 +89,52 @@ class ExamsController extends Controller
 //        $subjects = $student->subjectClassRooms()->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
         $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->get();
 
-        return view('front.assessments.terminal.student', compact('student', 'subjects', 'term', 'position', 'classroom'));
+        if($type) {
+            return view('front.assessments.terminal.print', compact('student', 'subjects', 'term', 'position', 'classroom'));
+        }else{
+            return view('front.assessments.terminal.student', compact('student', 'subjects', 'term', 'position', 'classroom'));
+        }
     }
 
     /**
-     * Displays a printable details of the subjects students scores for a specific academic term
-     * @param String $encodeStud
-     * @param String $encodeTerm
+     * Verify if a result has been checked before or not
+     * @param Request $request
      * @return \Illuminate\View\View
      */
-    public function getPrintTerminalResult($encodeStud, $encodeTerm)
+    public function postVerify(Request $request)
     {
-        $decodeStud = $this->getHashIds()->decode($encodeStud);
-        $decodeTerm = $this->getHashIds()->decode($encodeTerm);
+        $inputs = $request->all();
+
+        $decodeStud = $this->getHashIds()->decode($inputs['student_id']);
+        $decodeTerm = $this->getHashIds()->decode($inputs['term_id']);
         $student = (empty($decodeStud)) ? abort(305) : Student::findOrFail($decodeStud[0]);
         $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
         $classroom = $student->currentClass($term->academicYear->academic_year_id);
 
-        $position = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id, $student->student_id);
-        $position = (object) array_shift($position);
-        $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->get();
+        $check = ResultChecker::where('student_id', $student->student_id)->where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)->count();
 
-        return view('front.assessments.terminal.print', compact('student', 'subjects', 'term', 'position', 'classroom'));
+        return response()->json(($check > 0) ? true : false);
+    }
+
+    /**
+     * Verify if a result has been checked before or not
+     * @param Request $request
+     * @return \Illuminate\View\View
+     */
+    public function postResultChecker(Request $request)
+    {
+        $inputs = $request->all();
+
+        $decodeStud = $this->getHashIds()->decode($inputs['student_id']);
+        $decodeTerm = $this->getHashIds()->decode($inputs['academic_term_id']);
+        $student = (empty($decodeStud)) ? abort(305) : Student::findOrFail($decodeStud[0]);
+        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
+        $classroom = $student->currentClass($term->academicYear->academic_year_id);
+
+        //TODO check to validate the card PIN and Serial then insert
+        $check = PinNumber::where('serial_number', $inputs['serial_number'])->where('pin_number', $inputs['pin_number'])->count();
+
+        return response()->json(($check > 0) ? true : false);
     }
 }
