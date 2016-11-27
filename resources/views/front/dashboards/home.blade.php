@@ -122,9 +122,14 @@
                                                                 : '<span class="label label-danger">nil</span>' !!}
                                                             </td>
                                                             <td>
-                                                                {!! (ResultChecker::where('student_id', $stud->student_id)->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
-                                                                    ->where('classroom_id', $stud->currentClass(AcademicTerm::activeTerm()->academic_year_id)->classroom_id)->count() > 0)
-                                                                ? '<small class="label label-success">Activated</small>' : '<small class="label label-danger">Not Activated</small>' !!}
+                                                                <?php
+                                                                    $re = ResultChecker::where('student_id', $stud->student_id)->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
+                                                                        ->where(function ($query) use ($stud) {
+                                                                            if($stud->currentClass(AcademicTerm::activeTerm()->academic_year_id))
+                                                                                $query->where('classroom_id', $stud->currentClass(AcademicTerm::activeTerm()->academic_year_id)->classroom_id);
+                                                                        })->count();
+                                                                ?>
+                                                                {!! ($re > 0) ? '<small class="label label-success">Activated</small>' : '<small class="label label-danger">Not Activated</small>' !!}
                                                             </td>
                                                             <td><button class="btn btn-link check-result" rel="view" value="{{$hashed}}"> <i class="fa fa-bookmark"></i> Proceed</button></td>
                                                             <td><button class="btn btn-link check-result" rel="print" value="{{$hashed}}"> <i class="fa fa-print"></i> Print</button></td>
