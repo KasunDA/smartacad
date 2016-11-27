@@ -9,22 +9,29 @@ jQuery(document).ready(function() {
 
     $(document.body).on('submit', '#result_checker_form', function(){
         var values = $(this).serialize();
-
-        $.ajax({
-            type: "POST",
-            url: '/wards-exams/result-checker',
-            data: values,
-            success: function (data) {
-                if(data == true){
-                    set_msg_box($('#msg_box_modal'), 'Proceed', 1);
-                }else {
-                    set_msg_box($('#msg_box_modal'), 'Invalid Card Serial No. or Pin No.', 2);
+        if($('#serial_number').val() == '' || $('#pin_number').val() == ''){
+            set_msg_box($('#msg_box_modal'), 'Serial and Pin numbers are required', 2);
+        }else {
+            $.ajax({
+                type: "POST",
+                url: '/wards-exams/result-checker',
+                data: values,
+                success: function (data) {
+                    console.log(data);
+                    // var obj = $.parseJSON(data);
+                    if(data.flag == true){
+                        set_msg_box($('#msg_box_modal'), 'Proceed', 1);
+                        window.location.replace('/wards-exams/terminal-result/' + data.url);
+                    }else {
+                        set_msg_box($('#msg_box_modal'), 'Invalid Card Serial Number or Pin Number', 2);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    set_msg_box($('#msg_box_modal'), 'Error...Kindly Try Again', 2);
                 }
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                set_msg_box($('#msg_box_modal'), 'Error...Kindly Try Again', 2);
-            }
-        });
+            });
+        }
+
         return false;
     });
 
@@ -56,6 +63,7 @@ var UIBlockUI = function() {
                                     <th>Student ID.</th>\
                                     <th>Student Name</th>\
                                     <th>Gender</th>\
+                                    <th>Class Room</th>\
                                     <th>View Result</th>\
                                     <th>Action </th>\
                                 </tr>\
@@ -69,6 +77,7 @@ var UIBlockUI = function() {
                                 '<td>'+value.student_no+'</td>' +
                                 '<td>'+value.name+'</td>' +
                                 '<td>'+value.gender+'</td>' +
+                                '<td>'+value.classroom+'</td>' +
                                 '<td><button class="btn btn-link btn-sm check-result" rel="view" value="' + hashed + '"> <i class="fa fa-bookmark"></i> Proceed</button></td>' +
                                 '<td><button class="btn btn-link btn-sm check-result" rel="print" value="' + hashed + '"> <i class="fa fa-print"></i> Print</button></td>' +
                                 '</tr>';

@@ -11,7 +11,7 @@
 
 @section('breadcrumb')
     <li>
-        <a href="{{ url('/dashboard') }}"> <i class="fa fa-dashboard"></i> Dashboard</a>
+        <a href="{{ url('/home') }}">Home</a>
         <i class="fa fa-circle"></i>
     </li>
     <li>
@@ -21,7 +21,7 @@
 
 
 @section('page-title')
-    <h1> Manage My Wards (Students) </h1>
+    <h1> Manage My Students (Wards) </h1>
 @endsection
 
 @section('content')

@@ -47,10 +47,10 @@
         <div class="hor-menu">
             <ul class="nav navbar-nav page-sidebar-menu">
                 <li class="menu-dropdown classic-menu-dropdown active">
-                    <a href="{{ url('/') }}"><i class="fa fa-dashboard"></i>  DASHBOARD</a>
+                    <a href="{{ url('/home') }}"><i class="fa fa-dashboard"></i>  HOME</a>
                 </li>
                 <li class="menu-dropdown classic-menu-dropdown">
-                    <a href="{{ url('/wards') }}"><i class="fa fa-users"></i>  WARD(S)</a>
+                    <a href="{{ url('/wards') }}"><i class="fa fa-users"></i>  STUDENT(S)</a>
                 </li>
 
                 @if(Auth::check())

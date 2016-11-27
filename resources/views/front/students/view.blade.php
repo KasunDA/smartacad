@@ -10,7 +10,7 @@
 
 @section('breadcrumb')
     <li>
-        <a href="{{ url('/dashboard') }}">Dashboard</a>
+        <a href="{{ url('/home') }}">Home</a>
         <i class="fa fa-dashboard"></i>
     </li>
     <li>

@@ -66,7 +66,7 @@ class PinNumberController extends Controller
                 $serial = trim(str_pad($old + $j,  8, '0', STR_PAD_LEFT));
                 $serial1 = substr($serial, 0, 4) . ' ' . substr($serial, 4, 4);
                 $out .= 'Serial:'.$serial1.' Pin: '.trim($no) . '<br>';
-                Pin::create(['pin' => trim($no), 'serial' => $serial1]);
+                Pin::create(['pin' => trim($no), 'serial' => trim($serial1)]);
             }
             var_dump($out);
         }else{

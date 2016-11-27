@@ -5,7 +5,7 @@
 @section('breadcrumb')
     <li>
         <i class="fa fa-dashboard"></i>
-        <a href="{{ url('/dashboard') }}">Dashboard</a>
+        <a href="{{ url('/home') }}">Home</a>
     </li>
     <li>
         <i class="fa fa-chevron-right"></i>

@@ -18,7 +18,7 @@
 
 @section('breadcrumb')
     <li>
-        <a href="{{ url('/') }}">Home</a>
+        <a href="{{ url('/home') }}">Home</a>
         <i class="fa fa-home"></i>
     </li>
     <li>

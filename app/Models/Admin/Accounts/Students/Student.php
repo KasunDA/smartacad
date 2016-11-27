@@ -175,7 +175,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function studentSubjects(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\Accounts\Students\StudentSubject');
+        return $this->hasMany('App\Models\Admin\Accounts\Students\StudentSubject');
     }
 
     /**
