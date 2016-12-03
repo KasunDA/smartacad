@@ -118,22 +118,25 @@
                             @if($subjectClasses->count() > 0)
                                 <?php $j = 1; ?>
                                 @foreach($subjectClasses as $sub)
-                                    <?php $check = $total = 0; ?>
+                                    <?php $total = 0; ?>
                                     <tr class="odd gradeX">
                                         <td class="center">{{$j++}}</td>
                                         <td>{{ $sub->subjectClassroom->subject->subject }}</td>
                                         @foreach($assessments as $assessment)
-                                            @if($assessment->subject_classroom_id === $sub->subject_classroom_id and $check < $setup_details->count())
+                                            <?php $check = 1; ?>
+                                            @if($assessment->subject_classroom_id === $sub->subject_classroom_id)
                                                 @for($i=1; $i <= $setup_details->count(); $i++)
                                                     @if($i === $assessment->number)
                                                         <td>{{$assessment->score}}</td>
                                                         <?php $total += $assessment->score; ?>
                                                     @endif
+                                                    <?php $check++; ?>
                                                 @endfor
-                                                <?php $check++; ?>
+                                            {{--@elseif($check <= $setup_details->count())--}}
+                                                {{--<td><span class="label label-danger">nil</span></td>--}}
                                             @endif
                                         @endforeach
-                                        <td>{!! ($total) ? number_format($total, 0) : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>{!! number_format($total, 0) !!}</td>
                                     </tr>
                                 @endforeach
                             @else

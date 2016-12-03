@@ -71,7 +71,7 @@
         </div>
         @if(count($students) > 0)
             <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-11">
                     <!-- BEGIN ACCORDION PORTLET-->
                     <div class="portlet box green">
                         <div class="portlet-title">
@@ -102,8 +102,9 @@
                                                         <th>#</th>
                                                         <th>Student No.</th>
                                                         <th>Full Name</th>
+                                                        <th>Student Status</th>
                                                         <th>Class Room</th>
-                                                        <th>Status</th>
+                                                        <th>Result Status</th>
                                                         <th>Check Result</th>
                                                         <th>Print</th>
                                                     </tr>
@@ -116,6 +117,11 @@
                                                             <td class="center">{{$k++}}</td>
                                                             <td>{{ $stud->student_no }}</td>
                                                             <td>{{ $stud->fullNames() }}</td>
+                                                            <td>
+                                                                {!! (isset($stud->status_id))
+                                                                ? '<label class="label label-'.$stud->status()->first()->label.'">'.$stud->status()->first()->status.'</label>'
+                                                                : '<label class="label label-danger">nil</label>'  !!}
+                                                            </td>
                                                             <td>
                                                                 {!! ($stud->currentClass(AcademicTerm::activeTerm()->academic_year_id))
                                                                 ? $stud->currentClass(AcademicTerm::activeTerm()->academic_year_id)->classroom

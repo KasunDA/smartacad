@@ -138,7 +138,7 @@ class StudentController extends Controller
                 '<a target="_blank" href="/students/edit/'.$this->getHashIds()->encode($student->student_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
                      <span class="fa fa-edit"></span>
                  </a>',
-                '<button class="btn btn-danger btn-rounded btn-xs delete_student" value=".'.$student->student_id.'">
+                '<button class="btn btn-danger btn-rounded btn-xs delete_student" value="'.$student->student_id.'">
                     <span class="fa fa-trash-o"></span>
                  </button>'
             );
