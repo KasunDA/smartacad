@@ -31,7 +31,9 @@ class DashboardController extends Controller
     {
         $this->colors = [
             '#FF0F00', '#FF6600', '#FF9E01', '#FCD202', '#F8FF01', '#B0DE09', '#04D215', '#0D8ECF', '#0D52D1', '#2A0CD0', '#8A0CCF',
-            '#CD0D74', '#754DEB', '#DDDDDD', '#CCCCCC', '#999999', '#333333', '#000000'
+            '#CD0D74', '#754DEB', '#DDDDDD', '#CCCCCC', '#999999', '#333333', '#000000',
+            '#FF0F00', '#FF6600', '#FF9E01', '#FCD202', '#F8FF01', '#B0DE09', '#04D215', '#0D8ECF', '#0D52D1', '#2A0CD0', '#8A0CCF',
+            '#CD0D74', '#754DEB', '#DDDDDD', '#CCCCCC', '#999999', '#333333', '#000000',
         ];
 
         parent::__construct();
@@ -126,7 +128,7 @@ class DashboardController extends Controller
                     'subject'=>$subject->subject()->first()->subject,
                     'classroom'=>$subject->classRoom()->first()->classroom,
                     'students'=>$subject->studentSubjects()->count(),
-                    'color'=>$this->colors[$color++]
+                    'color'=> $this->colors[$color++]
                 );
             }
         }else{

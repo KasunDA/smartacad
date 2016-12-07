@@ -132,7 +132,8 @@
                                                     @endif
                                                     <?php $check++; ?>
                                                 @endfor
-                                            {{--@elseif($check <= $setup_details->count())--}}
+
+                                            {{--TODO:: logical error-- @elseif($check <= $setup_details->count())--}}
                                                 {{--<td><span class="label label-danger">nil</span></td>--}}
                                             @endif
                                         @endforeach
