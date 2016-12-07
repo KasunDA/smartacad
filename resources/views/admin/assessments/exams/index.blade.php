@@ -26,7 +26,6 @@
     </li>
 @stop
 
-
 @section('content')
     <h3 class="page-academic_year">Exams Score</h3>
     <!-- END PAGE HEADER-->
@@ -42,7 +41,7 @@
                             <li class="{{ (session('active') == 'input-scores') ? 'active' : '' }}">
                                 <a href="#exams_input_score" data-toggle="tab"><i class="fa fa-pencil-square-o"></i> Input Scores </a>
                             </li>
-                            @if(!Auth::user()->hasRole(['sponsor', 'staff']))
+                            @if(Auth::user()->hasRole(['admin', 'class_teacher', 'developer', 'super_admin']))
                                 <li>
                                     <a href="#terminal" data-toggle="tab"><i class="fa fa-book"></i> Terminal Result</a>
                                 </li>
@@ -52,7 +51,7 @@
                     <div class="portlet-body form">
                         <div class="tab-content">
                             <div id="error-box"></div>
-                            <div class="tab-pane {{ (session('active') == 'setup' || (!session()->has('active'))) ? 'active' : '' }}" id="my_exams_setup">
+                            <div class="tab-pane {{ (session('active') == 'setup-exam' || (!session()->has('active'))) ? 'active' : '' }}" id="my_exams_setup">
                                 <div class="alert alert-info"> Setup Exam For an <strong> Academic Term</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',

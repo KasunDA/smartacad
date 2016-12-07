@@ -21,7 +21,7 @@
     <h3 class="page-academic_year">Exam Detail Scores</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
-        <div class="col-md-7 margin-bottom-10">
+        <div class="col-md-8 margin-bottom-10">
             <!-- BEGIN SAMPLE TABLE PORTLET-->
             <div class="portlet light bordered">
                 <div class="portlet-title">

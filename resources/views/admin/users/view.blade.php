@@ -63,7 +63,7 @@
                                 <div class="col-md-8 profile-info">
                                     <h1 class="font-green sbold uppercase">{{ $userView->fullNames() }}</h1>
                                     <h4>
-                                        {{ $userView->userType()->first()->user_type }}
+                                        User Type: {{ $userView->userType()->first()->user_type }}
                                     </h4>
                                     <ul class="list-inline">
                                         <li>
@@ -72,6 +72,10 @@
                                         <li>
                                             <i class="fa fa-envelope"></i> {{ $userView->email }}
                                         </li>
+                                        <br>Role(s):
+                                        @foreach($userView->roles()->get() as $role)
+                                            <li><i class="fa fa-tag"></i> {{ $role->display_name }}</li>
+                                        @endforeach
                                     </ul>
                                         <div class="portlet sale-summary">
                                             <div class="portlet-title">
