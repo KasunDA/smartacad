@@ -34,7 +34,7 @@ var UIBlockUI = function() {
                                     <th>#</th>\
                                     <th>Academic Term</th>\
                                     <th>Class Room</th>\
-                                    <th>Class Master / Mistress</th>\
+                                    <th>Class Teacher</th>\
                                     <th>Assessment</th>\
                                     <th>Remark</th>\
                                 </tr>\

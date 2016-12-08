@@ -9,6 +9,7 @@ use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassMaster;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
+use App\Models\Admin\RolesAndPermissions\Role;
 use App\Models\Admin\Users\User;
 use App\Models\School\School;
 use Illuminate\Http\Request;
@@ -163,11 +164,31 @@ class ClassRoomsController extends Controller
     public function postAssignClassTeachers(Request $request)
     {
         $inputs = $request->all();
+        $user_id = ($inputs['user_id'] > 0)  ? $inputs['user_id'] : false;
         $classMaster = ($inputs['class_master_id'] > 0) ? ClassMaster::find($inputs['class_master_id']) : new ClassMaster();
+        $role = Role::where('name', Role::CLASS_TEACHER)->first();
+
+        if(isset($classMaster->user_id)) {
+            $userOld = $classMaster->user;
+            if ($user_id) {
+                $userNew = User::find($inputs['user_id']);
+            }
+        }elseif($user_id and !isset($classMaster->user_id)){
+            $userNew = User::find($inputs['user_id']);
+        }
+
         $classMaster->classroom_id = $inputs['classroom_id'];
         $classMaster->academic_year_id = $inputs['year_id'];
-        $classMaster->user_id = ($inputs['user_id'] > 0)  ? $inputs['user_id'] : null;
+        $classMaster->user_id = ($user_id) ? $user_id : null;
+
         if($classMaster->save()){
+            if(isset($userNew)){
+                if(!$userNew->hasRole([Role::CLASS_TEACHER])) $userNew->roles()->attach($role->role_id);
+            }
+            if(isset($userOld)){
+                if($userOld->hasRole([Role::CLASS_TEACHER]) and $userOld->classMasters()->count() == 0)
+                    $userOld->roles()->detach($role->role_id);
+            }
             echo json_encode($classMaster->class_master_id);
         }
     }

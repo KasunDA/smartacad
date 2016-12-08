@@ -59,7 +59,8 @@ class DomainsController extends Controller
                         "academic_term"=>$term->academic_term,
                         "hashed_class_id"=>$this->getHashIds()->encode($classroom->classroom_id),
                         "hashed_term_id"=>$this->getHashIds()->encode($term->academic_term_id),
-                        "class_master"=>($classroom->classMasters()->count() > 0)
+                        "class_master"=>($classroom->classMasters()->count() > 0
+                            and $classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->count() > 0)
                             ? $classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user->fullNames()
                             : '<span class="label label-danger">nil</span>'
                     );

@@ -16,6 +16,11 @@ class Role extends EntrustRole
      * Set the default role to 11 i.e OWNER
      */
     const DEFAULT_ROLE = 1;
+    const DEVELOPER = 'developer';
+    const SUPER_ADMIN = 'super_admin';
+    const SPONSOR = 'sponsor';
+    const STAFF = 'staff';
+    const CLASS_TEACHER = 'class_teacher';
 
     /**
      * A User belongs to a User Type
