@@ -111,7 +111,6 @@ class ProfileController extends Controller
         }
 
         $user->update($inputs);
-        // :: TODO //Update Address
         $this->setFlashMessage($user->fullNames() . ', Your Profile has been successfully updated.', 1);
 
         return redirect('/profiles');

@@ -151,6 +151,7 @@ return [
         Collective\Html\HtmlServiceProvider::class,
         Zizaco\Entrust\EntrustServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        Baum\Providers\BaumServiceProvider::class,
         /*
          * Application Service Providers...
          */

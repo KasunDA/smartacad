@@ -2,47 +2,31 @@
 
 namespace App\Models\Admin\Menus;
 
-use Illuminate\Database\Eloquent\Model;
+use Baum\Node;
 
-class Menu extends Model
-{
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'menus';
+/**
+* Menu
+*/
+class Menu extends Node {
 
-    /**
-     * The table Menus primary key
-     *
-     * @var int
-     */
-    protected $primaryKey = 'menu_id';
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = ['menu', 'menu_url','icon', 'active','type', 'sequence','menu_header_id'];
+  /**
+   * Table name.
+   *
+   * @var string
+   */
+  protected $table = 'menus';
 
-    /**
-     * A Menu Item belongs to a Menu
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function menuHeader(){
-        return $this->belongsTo('App\Models\Admin\Menus\MenuHeader');
-    }
+  /**
+   * The table users primary key
+   * @var string
+   */
+  protected $primaryKey = 'menu_id';
 
-    /**
-     * A Menu header has many Menus
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-
-    public function menuItems(){
-        return $this->hasMany('App\Models\Admin\Menus\MenuItem');
-    }
+  /**
+   * The attributes that are mass assignable.
+   * @var array
+   */
+  protected $fillable = ['name', 'url', 'active', 'icon', 'type','sequence'];
 
     /**
      * Get the roles associated with the given menu
@@ -50,6 +34,92 @@ class Menu extends Model
      */
     public function roles()
     {
-        return $this->belongsToMany('App\Models\Admin\RolesAndPermissions\Role', 'roles_menus', 'menu_id', 'role_id');
+        return $this->belongsToMany('App\Models\Admin\RolesAndPermissions\Role', 'menus_roles', 'menu_id', 'role_id');
     }
+  //////////////////////////////////////////////////////////////////////////////
+
+  //
+  // Below come the default values for Baum's own Nested Set implementation
+  // column names.
+  //
+  // You may uncomment and modify the following fields at your own will, provided
+  // they match *exactly* those provided in the migration.
+  //
+  // If you don't plan on modifying any of these you can safely remove them.
+  //
+
+  // /**
+  //  * Column name which stores reference to parent's node.
+  //  *
+  //  * @var string
+  //  */
+  // protected $parentColumn = 'parent_id';
+
+  // /**
+  //  * Column name for the left index.
+  //  *
+  //  * @var string
+  //  */
+  // protected $leftColumn = 'lft';
+
+  // /**
+  //  * Column name for the right index.
+  //  *
+  //  * @var string
+  //  */
+  // protected $rightColumn = 'rgt';
+
+  // /**
+  //  * Column name for the depth field.
+  //  *
+  //  * @var string
+  //  */
+  // protected $depthColumn = 'depth';
+
+   /**
+    * Column to perform the default sorting
+    *
+    * @var string
+    */
+   protected $orderColumn = 'sequence';
+
+  // /**
+  // * With Baum, all NestedSet-related fields are guarded from mass-assignment
+  // * by default.
+  // *
+  // * @var array
+  // */
+  // protected $guarded = array('id', 'parent_id', 'lft', 'rgt', 'depth');
+
+  //
+  // This is to support "scoping" which may allow to have multiple nested
+  // set trees in the same database table.
+  //
+  // You should provide here the column names which should restrict Nested
+  // Set queries. f.ex: company_id, etc.
+  //
+
+  // /**
+  //  * Columns which restrict what we consider our Nested Set list
+  //  *
+  //  * @var array
+  //  */
+  // protected $scoped = array();
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  //
+  // Baum makes available two model events to application developers:
+  //
+  // 1. `moving`: fired *before* the a node movement operation is performed.
+  //
+  // 2. `moved`: fired *after* a node movement operation has been performed.
+  //
+  // In the same way as Eloquent's model events, returning false from the
+  // `moving` event handler will halt the operation.
+  //
+  // Please refer the Laravel documentation for further instructions on how
+  // to hook your own callbacks/observers into this events:
+  // http://laravel.com/docs/5.0/eloquent#model-events
+
 }

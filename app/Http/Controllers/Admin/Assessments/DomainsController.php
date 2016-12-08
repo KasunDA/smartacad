@@ -47,28 +47,46 @@ class DomainsController extends Controller
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
         $response['flag'] = 0;
         $response['term'] = $term->academic_term;
-        
-        $classrooms = Auth::user()->classMasters()->where('academic_year_id', $term->academic_year_id)->get();
-        //Returns All the class rooms for the super admins only
-        if(Auth::user()->user_type_id == User::DEVELOPER or Auth::user()->user_type_id == User::SUPER_ADMIN)
-            $classrooms = ClassRoom::all();
 
-        //format the record sets as json readable
-        if(isset($classrooms) and $classrooms->count() > 0){
-            foreach($classrooms as $classroom){
-                $res[] = array(
-                    "classroom"=>$classroom->classroom,
-                    "academic_term"=>$term->academic_term,
-                    "hashed_class_id"=>$this->getHashIds()->encode($classroom->classroom_id),
-                    "hashed_term_id"=>$this->getHashIds()->encode($term->academic_term_id),
-                    "class_master"=>($classroom->classMasters()->count() > 0) 
-                        ? $classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->first()->fullNames() 
-                        : '<span class="label label-danger">nil</span>',
-                );
+        //Returns All the class rooms for the super admins only
+        if(Auth::user()->user_type_id == User::DEVELOPER or Auth::user()->user_type_id == User::SUPER_ADMIN){
+            $classrooms = ClassRoom::all();
+            //format the record sets as json readable
+            if($classrooms->count() > 0){
+                foreach($classrooms as $classroom){
+                    $res[] = array(
+                        "classroom"=>$classroom->classroom,
+                        "academic_term"=>$term->academic_term,
+                        "hashed_class_id"=>$this->getHashIds()->encode($classroom->classroom_id),
+                        "hashed_term_id"=>$this->getHashIds()->encode($term->academic_term_id),
+                        "class_master"=>($classroom->classMasters()->count() > 0)
+                            ? $classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user->fullNames()
+                            : '<span class="label label-danger">nil</span>'
+                    );
+                }
+                $response['flag'] = 1;
+                $response['Classrooms'] = isset($res) ? $res : [];
             }
-            $response['flag'] = 1;
-            $response['Classrooms'] = isset($res) ? $res : [];
+        }else{
+            $classMasters = Auth::user()->classMasters()->where('academic_year_id', $term->academic_year_id)->get();
+            //format the record sets as json readable
+            if($classMasters->count() > 0){
+                foreach($classMasters as $classMaster){
+                    $res[] = array(
+                        "classroom"=>$classMaster->classroom->classroom,
+                        "academic_term"=>$term->academic_term,
+                        "hashed_class_id"=>$this->getHashIds()->encode($classMaster->classroom_id),
+                        "hashed_term_id"=>$this->getHashIds()->encode($term->academic_term_id),
+                        "class_master"=>($classMaster->user()->count() > 0)
+                            ? $classMaster->user->fullNames() : '<span class="label label-danger">nil</span>'
+                    );
+                }
+                $response['flag'] = 1;
+                $response['Classrooms'] = isset($res) ? $res : [];
+            }
         }
+
+
         echo json_encode($response);
     }
 

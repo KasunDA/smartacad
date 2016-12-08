@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\Admin\Menus\MenuHeader;
+use App\Models\Admin\Menus\Menu;
 use App\Models\School\School;
 use Hashids\Hashids;
 use Illuminate\Support\Facades\Schema;
@@ -17,25 +17,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if(Schema::hasTable('menu_headers')){
-            $headers = MenuHeader::where('active', 1)
-                ->orderBy('sequence')->get();
-            $active_headers = array();
-            $active_home_menu = array();
-            foreach($headers as $active_header){
-                if($active_header->menus()->count() !== 0){
-                    if($active_header->type == 1){
-                        $active_headers[] = $active_header;
-                    }
-                }
-                if($active_header->type == 2){
-                    $active_home_menu[] = $active_header;
-                }
-            }
-            view()->share('school_name', 'Solid Step International School');
-            view()->share('active_headers', $active_headers);
-            view()->share('active_home_menu', $active_home_menu);
+        //Preload the Menu Level One
+        if(Schema::hasTable('menus')){
+            $menus = Menu::roots()->where('active', 1)->where('type', 1)->get();
+            view()->share('active_menus', $menus);
         }
+        view()->share('school_name', 'Solid Step International School');
+        
         //Set The School Info. into a variable school
         if(env('SCHOOL_ID') && Schema::connection('admin_mysql')->hasTable('schools') && School::count() > 0){
             $school = School::findOrFail(env('SCHOOL_ID'));

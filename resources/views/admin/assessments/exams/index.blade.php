@@ -136,7 +136,7 @@
                                     </div>
                                 </div>
                             </div>
-                            @if(!Auth::user()->hasRole(['sponsor', 'staff']))
+                            @if(Auth::user()->hasRole(['admin', 'class_teacher', 'developer', 'super_admin']))
                                 <div class="tab-pane" id="terminal">
                                     <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Subjects</div>
                                     {!! Form::open([

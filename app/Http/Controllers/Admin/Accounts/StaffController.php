@@ -152,7 +152,6 @@ class StaffController extends Controller
         }
 
         $user->update($inputs);
-        // :: TODO //Update Address
         $this->setFlashMessage('Staff ' . $user->fullNames() . ', Information has been successfully updated.', 1);
 
         return redirect('/staffs');

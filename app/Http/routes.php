@@ -53,6 +53,30 @@ Route::group(['middleware' => ['web']], function () {
 
     Route::auth();
 
+    //Menus Route
+    Route::group(['prefix'=>'menus', 'namespace' => 'Admin\MasterRecords'], function() {
+        Route::get('/', 'MenuController@index');
+        Route::get('/index', 'MenuController@index');
+
+        Route::get('/level-1', 'MenuController@getLevelOne');
+        Route::post('/level-1', 'MenuController@postLevelOne');
+
+        Route::get('/level-2/{id?}', 'MenuController@getLevelTwo');
+        Route::post('/level-2/{id?}', 'MenuController@postLevelTwo');
+
+        Route::get('/level-3/{id?}', 'MenuController@getLevelThree');
+        Route::post('/level-3/{id?}', 'MenuController@postLevelThree');
+
+        Route::get('/level-4/{id?}', 'MenuController@getLevelFour');
+        Route::post('/level-4/{id?}', 'MenuController@postLevelFour');
+
+        Route::get('/level-5/{id?}', 'MenuController@getLevelFive');
+        Route::post('/level-5/{id?}', 'MenuController@postLevelFive');
+
+        Route::get('/delete/{menu_id}', 'MenuController@delete');
+        Route::post('/filter', 'MenuController@menusFilter');
+    });
+    
     Route::controllers([
         'auth' => 'Auth\AuthController',
         'dashboard' => 'Admin\Utilities\DashboardController',
@@ -64,12 +88,6 @@ Route::group(['middleware' => ['web']], function () {
         //Messaging
         'messages' => 'Admin\Utilities\MessageController',
         
-        'menu-headers' => 'Admin\Menus\MenuHeaderController',
-        'menus' => 'Admin\Menus\MenuController',
-        'menu-items' => 'Admin\Menus\MenuItemController',
-        'sub-menu-items' => 'Admin\Menus\SubMenuItemController',
-        'sub-most-menu-items' => 'Admin\Menus\SubMostMenuItemController',
-
         'users' => 'Admin\Users\UserController',
         'user-types' => 'Admin\Users\UserTypeController',
 
