@@ -70,16 +70,15 @@
                                     <td> {{ $position->exam_perfect_score }} </td>
                                 </tr>
                                 <tr>
-                                    <th> Class Position </th>
-                                    <td>{{ Assessment::formatPosition($position->class_position) }}</td>
-                                    <th> Number of Students (Out of) </th>
-                                    <td>{{ $position->class_size }}</td>
-                                </tr>
-                                <tr>
                                     <th> Class Average </th>
                                     <td>{{ $position->class_average }}</td>
-                                    <th></th>
-                                    <td></td>
+                                    <th> Class Position </th>
+                                    <td>{{ Assessment::formatPosition($position->class_position) }}</td>
+                                </tr>
+                                <tr>
+                                    <th> No. of Students </th>
+                                    <td>{{ $position->class_size }}</td>
+                                    <th></th><td></td>
                                 </tr>
                             @endif
                         </table>

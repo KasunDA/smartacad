@@ -175,7 +175,12 @@
                                             : $student->simpleName().' is  a responsible child, determined and friendly '.$gender1.'. '.$gender2.' should keep it up.'
                                         !!}
                                     </div><br/>
-                                    <div ><strong>Name: </strong> </div>
+                                    {!!
+                                        ($classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->count() > 0)
+                                        ? (($classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->count() > 0)
+                                            ? '<div><strong>Name: </strong>'.$classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->first()->fullNames().'</div>'
+                                            : '' ) : ''
+                                    !!}
                                 </div>
                             </td>
                             <td>
@@ -187,7 +192,7 @@
                                             : $student->simpleName().' is an easy-going '.$gender1.' and '.$gender2.' has improved a great deal '.$gender2.' should keep it up.'
                                         !!}
                                     </div><br />
-                                    <div><b>Name: </b></div>
+                                    {{--<div><b>Name: </b></div>--}}
                                 </div>
                             </td>
                         </tr>

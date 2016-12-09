@@ -48,7 +48,7 @@
                                 <th> Student No. </th>
                                 <td>
                                     <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-link btn-xs">
-                                        {{ $student->student_no }}
+                                        <span style="font-size: 16px">{{ $student->student_no }}</span>
                                     </a>
                                 </td>
                                 <th> Gender </th>
@@ -64,22 +64,19 @@
                                 <tr>
                                     <th> Student Total Score </th>
                                     <td> {{ $position->student_sum_total }}</td>
-                                    <th> Assessment Perfect Score </th>
+                                    <th> Perfect Score </th>
                                     <td> {{ $position->exam_perfect_score }} </td>
                                 </tr>
                                 <tr>
                                     <th> Class Average </th>
                                     <td>{{ $position->class_average }}</td>
-                                    <th></th>
-                                    <td></td>
+                                    <th> Class Position </th>
+                                    <td>{{ Assessment::formatPosition($position->class_position) }}</td>
                                 </tr>
                                 <tr>
-                                    <th> Number of Students (Out of) </th>
+                                    <th> No. of Students </th>
                                     <td>{{ $position->class_size }}</td>
                                     <th></th><td></td>
-                                    <!-- TODO:: Wrong class position-->
-                                    {{--<th> Class Position </th>--}}
-                                    {{--<td>{{ Assessment::formatPosition($position->class_position) }}</td>--}}
                                 </tr>
                             @endif
                         </table>

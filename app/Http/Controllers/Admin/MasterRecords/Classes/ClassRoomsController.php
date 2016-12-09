@@ -186,7 +186,7 @@ class ClassRoomsController extends Controller
                 if(!$userNew->hasRole([Role::CLASS_TEACHER])) $userNew->roles()->attach($role->role_id);
             }
             if(isset($userOld)){
-                if($userOld->hasRole([Role::CLASS_TEACHER]) and $userOld->classMasters()->count() == 0)
+                if($userOld->hasRole([Role::CLASS_TEACHER]) and $userOld->classMasters()->where('academic_year_id', $inputs['year_id'])->count() == 0)
                     $userOld->roles()->detach($role->role_id);
             }
             echo json_encode($classMaster->class_master_id);

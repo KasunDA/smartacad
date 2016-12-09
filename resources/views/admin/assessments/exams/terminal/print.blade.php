@@ -68,9 +68,7 @@
                                 <th width="120" style="background-color: #F2F0F0 !important;">Full Name: </th>
                                 <td width="280">{{ $student->fullNames() }}</td>
                                 <th width="100" style="background-color: #F2F0F0 !important;">Position: </th>
-                                <!-- TODO:: Wrong class position-->
-                                {{--<td width="100">{{ Assessment::formatPosition($position->class_position) }}</td>--}}
-                                <td width="100"></td>
+                                <td width="100">{{ Assessment::formatPosition($position->class_position) }}</td>
                                 <th width="100" style="background-color: #F2F0F0 !important;">Total: </th>
                                 <td width="100">{{ $position->student_sum_total }}</td>
                             </tr>
@@ -177,7 +175,13 @@
                                             : $student->simpleName().' is  a responsible child, determined and friendly '.$gender1.'. '.$gender2.' should keep it up.'
                                         !!}
                                     </div><br/>
-                                    <div ><strong>Name: </strong> </div>
+                                        {!!
+                                            ($classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->count() > 0)
+                                            ? (($classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->count() > 0)
+                                                ? '<div><strong>Name: </strong>'.$classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->first()->fullNames().'</div>'
+                                                : '' ) : ''
+                                        !!}
+
                                 </div>
                             </td>
                             <td>
@@ -189,7 +193,7 @@
                                             : $student->simpleName().' is an easy-going '.$gender1.' and '.$gender2.' has improved a great deal '.$gender2.' should keep it up.'
                                         !!}
                                     </div><br />
-                                    <div><b>Name: </b></div>
+                                    {{--<div><b>Name: </b></div>--}}
                                 </div>
                             </td>
                         </tr>
