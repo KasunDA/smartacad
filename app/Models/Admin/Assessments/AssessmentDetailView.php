@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Admin\Views;
+namespace App\Models\Admin\Assessments;
 
 use Illuminate\Database\Eloquent\Model;
 

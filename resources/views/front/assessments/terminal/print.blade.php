@@ -67,26 +67,28 @@
                             <tr>
                                 <th width="120" style="background-color: #F2F0F0 !important;">Full Name: </th>
                                 <td width="280">{{ $student->fullNames() }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Position: </th>
-                                <td width="100">{{ Assessment::formatPosition($position->class_position) }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Total: </th>
-                                <td width="100">{{ $position->student_sum_total }}</td>
+                                <th width="100" style="background-color: #F2F0F0 !important;">Gender: </th>
+                                <td width="100">{{ $student->gender }}</td>
+                                {{--<th width="100" style="background-color: #F2F0F0 !important;">Position: </th>--}}
+                                {{--<td width="100">{{ Assessment::formatPosition($position->class_position) }}</td>--}}
+                                {{--<th width="100" style="background-color: #F2F0F0 !important;">Total: </th>--}}
+                                {{--<td width="100">{{ $position->student_sum_total }}</td>--}}
                             </tr>
                             <tr>
                                 <th width="120" style="background-color: #F2F0F0 !important;">Student No.: </th>
                                 <td width="280">{{ $student->student_no }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Out of: </th>
-                                <td width="100">{{ $position->class_size }}</td>
                                 <th width="100" style="background-color: #F2F0F0 !important;">Age: </th>
-                                <td width="100">{!! ($student->dob) ? $student->dob->age . ' Year(s)' : '' !!}</td>
+                                <td width="100">{!! ($student->dob) ? $student->dob->age . ' Year(s)' : '-' !!}</td>
+                                {{--<th width="100" style="background-color: #F2F0F0 !important;">Out of: </th>--}}
+                                {{--<td width="100">{{ $position->class_size }}</td>--}}
                             </tr>
                             <tr>
                                 <th width="120" style="background-color: #F2F0F0 !important;">Classroom: </th>
                                 <td width="280">{{ $classroom->classroom }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Gender: </th>
-                                <td width="100">{{ $student->gender }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Average: </th>
-                                <td width="100">{{ $position->class_average }}</td>
+                                <th width="100" style="background-color: #F2F0F0 !important;">Score(%): </th>
+                                <td width="100">{!! ($position->exam_perfect_score > 0)
+                                    ? number_format((($position->student_sum_total / $position->exam_perfect_score) * 100), 2) . '%' : '-' !!}
+                                </td>
                             </tr>
                         @else
                             <tr>
@@ -178,7 +180,7 @@
                                     {!!
                                         ($classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->count() > 0)
                                         ? (($classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->count() > 0)
-                                            ? '<div><strong>Name: </strong>'.$classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->first()->fullNames().'</div>'
+                                            ? '<div><strong>Name: </strong>'.$classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->first()->simpleNameNSalutation().'</div>'
                                             : '' ) : ''
                                     !!}
                                 </div>
@@ -270,7 +272,7 @@
                             @foreach($classroom->classLevel()->first()->classGroup()->first()->grades()->get() as $grade)
                                 <tr>
                                     <th>{{ $grade->grade_abbr }}</th>
-                                    <th>{{ $grade->lower_bound . ' - ' . $grade->upper_bound }}</th>
+                                    <th>{{ $grade->upper_bound . ' - ' . $grade->lower_bound }}</th>
                                     <th>{{ $grade->grade }}</th>
                                 </tr>
                             @endforeach

@@ -67,26 +67,28 @@
                             <tr>
                                 <th width="120" style="background-color: #F2F0F0 !important;">Full Name: </th>
                                 <td width="280">{{ $student->fullNames() }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Position: </th>
-                                <td width="100">{{ Assessment::formatPosition($position->class_position) }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Total: </th>
-                                <td width="100">{{ $position->student_sum_total }}</td>
+                                <th width="100" style="background-color: #F2F0F0 !important;">Gender: </th>
+                                <td width="100">{{ $student->gender }}</td>
+                                {{--<th width="100" style="background-color: #F2F0F0 !important;">Position: </th>--}}
+                                {{--<td width="100">{{ Assessment::formatPosition($position->class_position) }}</td>--}}
+                                {{--<th width="100" style="background-color: #F2F0F0 !important;">Total: </th>--}}
+                                {{--<td width="100">{{ $position->student_sum_total }}</td>--}}
                             </tr>
                             <tr>
                                 <th width="120" style="background-color: #F2F0F0 !important;">Student No.: </th>
                                 <td width="280">{{ $student->student_no }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Out of: </th>
-                                <td width="100">{{ $position->class_size }}</td>
                                 <th width="100" style="background-color: #F2F0F0 !important;">Age: </th>
-                                <td width="100">{!! ($student->dob) ? $student->dob->age . ' Year(s)' : '' !!}</td>
+                                <td width="100">{!! ($student->dob) ? $student->dob->age . ' Year(s)' : '-' !!}</td>
+                                {{--<th width="100" style="background-color: #F2F0F0 !important;">Out of: </th>--}}
+                                {{--<td width="100">{{ $position->class_size }}</td>--}}
                             </tr>
                             <tr>
                                 <th width="120" style="background-color: #F2F0F0 !important;">Classroom: </th>
                                 <td width="280">{{ $classroom->classroom }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Gender: </th>
-                                <td width="100">{{ $student->gender }}</td>
-                                <th width="100" style="background-color: #F2F0F0 !important;">Average: </th>
-                                <td width="100">{{ $position->class_average }}</td>
+                                <th width="100" style="background-color: #F2F0F0 !important;">Score(%): </th>
+                                <td width="100">{!! ($position->exam_perfect_score > 0)
+                                    ? number_format((($position->student_sum_total / $position->exam_perfect_score) * 100), 2) . '%' : '-' !!}
+                                </td>
                             </tr>
                         @else
                             <tr>
@@ -119,26 +121,57 @@
                             </tr>
                         </thead>
                         <tbody style="font-size: 11px;">
-                            @if($subjects->count() > 0)
-                                <?php $i = 1; ?>
-                                @foreach($subjects as $subjectClass)
+                            <?php $h = 1; $subIds = []; ?>
+                            @if($groups->count() > 0)
+                                @foreach($groups as $group)
+                                    <?php $cas = $examss = $total = $count = 0;?>
+                                    @foreach($group->getImmediateDescendants() as $subject)
+                                        @foreach($exams as $exam)
+                                            @if($subject->subject_id == $exam->subject_id)
+                                                <?php
+                                                $cas += $exam->ca;
+                                                $examss += $exam->exam;
+                                                $total += ($exam->ca + $exam->exam);
+                                                $count++;
+                                                $subIds[] = $exam->subject_id;
+                                                ?>
+                                            @endif
+                                        @endforeach
+                                    @endforeach
                                     <?php
-                                        $ca = ($subjectClass->examDetails()->where('student_id', $student->student_id))
-                                            ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()["ca"] : null;
-                                        $exam = ($subjectClass->examDetails()->where('student_id', $student->student_id))
-                                            ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()["exam"] : null;
-                                        $grade = $classroom->classLevel()->first()->classGroup()->first()
-                                            ->grades()->where('lower_bound', '<=', ($ca+$exam))->where('upper_bound', '>=', ($ca+$exam))->first();
+                                    $c = ($count > 0) ? ($cas / $count) : 0;
+                                    $e = ($count > 0) ? ($examss / $count) : 0;
+                                    $to = ($count > 0) ? ($c + $e) : 0;
+                                    $grade = $classroom->classLevel()->first()->classGroup()->first()
+                                            ->grades()->where('lower_bound', '<=', ($to))->where('upper_bound', '>=', ($to))->first();
                                     ?>
-                                    @if($exam && $subjectClass->examDetails()->where('student_id', $student->student_id)->first()->exam()->where('marked', 1)->count() > 0)
+                                    <tr style="background-color: #F2F0F0 !important; font-weight:bold">
+                                        <td class="text-center">{{$h++}} </td>
+                                        <td>{{ $group->name }}</td>
+                                        <td>{{ number_format($c, 1) }}</td>
+                                        <td>{{ number_format($e, 1) }}</td>
+                                        <td>{{ number_format($to, 1) }}</td>
+                                        <td>{!! ($grade) ? $grade->grade_abbr : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>{!! ($grade) ? ucwords($grade->grade) : '<span class="label label-danger">nil</span>' !!}</td>
+                                    </tr>
+                                @endforeach
+                            @endif
+                            @if(count($exams) > 0)
+                                @foreach($exams as $exam)
+                                    @if(!in_array($exam->subject_id, $subIds))
+                                        <?php
+                                        $total = $exam->ca + $exam->exam;
+                                        $grade = $classroom->classLevel()->first()->classGroup()->first()
+                                                ->grades()->where('lower_bound', '<=', ($total))->where('upper_bound', '>=', ($total))->first();
+                                        ?>
                                         <tr style="background-color: #F2F0F0 !important; font-weight:bold">
-                                            <td class="center">{{$i++}}</td>
-                                            <td>{{ $subjectClass->subject()->first()->subject }}</td>
-                                            <td>{!! ($ca) ? number_format($ca, 1) : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($exam) ? number_format($exam, 1) : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($ca || $exam) ? number_format(($ca + $exam), 1) : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{{ $grade->grade_abbr }}</td>
-                                            <td>{{ $grade->grade }}</td>
+                                            <td class="text-center">{{$h++}}</td>
+                                            <td>{{ $exam->subjectClassroom->subject->subject }}</td>
+                                            <td>{!! ($exam->ca) ? number_format($exam->ca, 1) : '<span class="label label-danger">nil</span>' !!}</td>
+                                            <td>{!! ($exam->exam) ? number_format($exam->exam, 1) : '<span class="label label-danger">nil</span>' !!}</td>
+                                            <td>{!! ($total) ? number_format($total, 1) : '<span class="label label-danger">nil</span>' !!}</td>
+                                            <td>{!! ($grade) ? $grade->grade_abbr : '<span class="label label-danger">nil</span>' !!}</td>
+                                            <td>{!! ($grade) ? ucwords($grade->grade) : '<span class="label label-danger">nil</span>' !!}</td>
                                         </tr>
                                     @endif
                                 @endforeach
@@ -178,7 +211,7 @@
                                         {!!
                                             ($classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->count() > 0)
                                             ? (($classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->count() > 0)
-                                                ? '<div><strong>Name: </strong>'.$classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->first()->fullNames().'</div>'
+                                                ? '<div><strong>Name: </strong>'.$classroom->classMasters()->where('academic_year_id', $term->academic_year_id)->first()->user()->first()->simpleNameNSalutation().'</div>'
                                                 : '' ) : ''
                                         !!}
 
@@ -271,7 +304,7 @@
                             @foreach($classroom->classLevel()->first()->classGroup()->first()->grades()->get() as $grade)
                                 <tr>
                                     <th>{{ $grade->grade_abbr }}</th>
-                                    <th>{{ $grade->lower_bound . ' - ' . $grade->upper_bound }}</th>
+                                    <th>{{ $grade->upper_bound . ' - ' . $grade->lower_bound }}</th>
                                     <th>{{ $grade->grade }}</th>
                                 </tr>
                             @endforeach

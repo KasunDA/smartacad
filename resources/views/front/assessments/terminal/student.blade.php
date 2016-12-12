@@ -64,22 +64,23 @@
                             </tr>
                             @if(isset($position->student_sum_total))
                                 <tr>
-                                    <th> Student Total Score </th>
-                                    <td> {{ $position->student_sum_total }}</td>
-                                    <th> Assessment Perfect Score </th>
-                                    <td> {{ $position->exam_perfect_score }} </td>
+                                    <th> Student Score (%) </th>
+                                    <td>{!! ($position->exam_perfect_score > 0)
+                                    ? number_format((($position->student_sum_total / $position->exam_perfect_score) * 100), 2) . '%' : '-' !!}
+                                    {{--<th> Perfect Score </th>--}}
+                                    {{--<td> {{ $position->exam_perfect_score }} </td>--}}
                                 </tr>
-                                <tr>
-                                    <th> Class Average </th>
-                                    <td>{{ $position->class_average }}</td>
-                                    <th> Class Position </th>
-                                    <td>{{ Assessment::formatPosition($position->class_position) }}</td>
-                                </tr>
-                                <tr>
-                                    <th> No. of Students </th>
-                                    <td>{{ $position->class_size }}</td>
-                                    <th></th><td></td>
-                                </tr>
+                                {{--<tr>--}}
+                                    {{--<th> Class Average </th>--}}
+                                    {{--<td>{{ $position->class_average }}</td>--}}
+                                    {{--<th> Class Position </th>--}}
+                                    {{--<td>{{ Assessment::formatPosition($position->class_position) }}</td>--}}
+                                {{--</tr>--}}
+                                {{--<tr>--}}
+                                    {{--<th> No. in Class </th>--}}
+                                    {{--<td>{{ $position->class_size }} Students</td>--}}
+                                    {{--<th></th><td></td>--}}
+                                {{--</tr>--}}
                             @endif
                         </table>
                     </div>

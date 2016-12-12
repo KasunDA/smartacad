@@ -6,10 +6,12 @@ use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\Exams\Exam;
 use App\Models\Admin\Exams\ExamDetail;
+use App\Models\Admin\Exams\ExamDetailView;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
+use App\Models\Admin\MasterRecords\Subjects\CustomSubject;
 use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use App\Models\Admin\Users\User;
@@ -280,10 +282,12 @@ class ExamsController extends Controller
 
         $position = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id, $student->student_id);
         $position = (object) array_shift($position);
-//        $subjects = $student->subjectClassRooms()->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
-        $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->get();
 
-        return view('admin.assessments.exams.terminal.student', compact('student', 'subjects', 'term', 'position', 'classroom'));
+        $exams = ExamDetailView::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)
+            ->where('student_id', $student->student_id)->where('marked', 1)->get();
+        $groups = CustomSubject::roots()->where('classgroup_id', $classroom->classlevel->classgroup_id)->get();
+
+        return view('admin.assessments.exams.terminal.student', compact('student', 'term', 'position', 'classroom', 'groups', 'exams'));
     }
 
     /**
@@ -334,6 +338,32 @@ class ExamsController extends Controller
     }
 
     /**
+     * Validate if my (Individual Staffs) exam has been setup then compute the C.A
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function getComputeCa()
+    {
+        $response = [];
+        $term = AcademicTerm::activeTerm();
+        $view = SubjectAssessmentView::where('academic_term_id', $term->academic_term_id)->where('tutor_id', Auth::user()->user_id)
+            ->where(function ($query) {
+                $query->whereNull('marked')->orWhere('marked', '<>', '1');
+            })->count();
+
+        if ($view > 0 ) {
+            $output = ' <strong> ' . $view  . ' Assessment(s) for ' . $term->academic_term .
+                ' are yet to be marked? </strong>Kindly input the C.A assessment before they can be computed for exams';
+            $this->setFlashMessage($output, 2);
+        }else{
+            //Compute C.A
+            Exam::processAssessmentCA($term->academic_term_id, Auth::user()->user_id);
+            $this->setFlashMessage('The C.A has been Computed and Updated accordingly...Proceed with Exams', 1);
+            $response['term'] = $term;
+        }
+        return response()->json($response);
+    }
+
+    /**
      * Process My (Individual Staffs) Exam Set Up
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
@@ -367,9 +397,10 @@ class ExamsController extends Controller
 
         $position = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id, $student->student_id);
         $position = (object) array_shift($position);
-//        $subjects = $student->subjectClassRooms()->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
-        $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->get();
+        $exams = ExamDetailView::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)
+            ->where('student_id', $student->student_id)->where('marked', 1)->get();
+        $groups = CustomSubject::roots()->where('classgroup_id', $classroom->classlevel->classgroup_id)->get();
 
-        return view('admin.assessments.exams.terminal.print', compact('student', 'subjects', 'term', 'position', 'classroom'));
+        return view('admin.assessments.exams.terminal.print', compact('student', 'groups', 'exams', 'term', 'position', 'classroom'));
     }
 }

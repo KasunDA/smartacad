@@ -90,7 +90,7 @@ class StudentController extends Controller
         $students = Student::orderBy('first_name')->where(function ($query) use ($q, $gender, $status_id, $classroom_id, $sponsors) {
             //Filter by name
             if (!empty($q)) {
-                $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%');
+                $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%')->orWhere('student_no', 'like', '%'.$q.'%');
                 if(count($sponsors) > 0)
                     $query->orWhereIn('sponsor_id', $sponsors);
             }
@@ -121,12 +121,13 @@ class StudentController extends Controller
                 : '<label class="label label-danger">nil</label>';
             $sponsor = ($student->sponsor_id)
                 ? '<a target="_blank" href="/sponsors/view/'.$this->getHashIds()->encode($student->sponsor()->first()->user_id).'" class="btn btn-info btn-link btn-sm">
-                    <span class="fa fa-eye-slash"></span> '.$student->sponsor()->first()->fullNames().'</a>'
+                    <span class="fa fa-eye-slash"></span> '.$student->sponsor()->first()->simpleName().'</a>'
                 : '<span class="label label-danger">nil</span>';
 
             $records["data"][] = array(
                 ($i++ + 1),
-                $student->fullNames(),
+                $student->student_no,
+                $student->simpleName(),
                 $sponsor,
                 ($student->currentClass(AcademicYear::activeYear()->academic_year_id))
                     ? $student->currentClass(AcademicYear::activeYear()->academic_year_id)->classroom : '<span class="label label-danger">nil</span>',

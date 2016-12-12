@@ -72,6 +72,15 @@ class Exam extends Model
     }
 
     /**
+     * Compute and Populate Assessment CA into Exams
+     * @param $term_id
+     * @param $tutor_id
+     */
+    public static function processAssessmentCA($term_id, $tutor_id){
+        return DB::statement('call sp_processAssessmentCA(' . $term_id . ', '.$tutor_id.')');
+    }
+
+    /**
      * Setup My Exams To Populate Assessment Details // Ready for inputting Scores
      * @param $term_id
      * @param $tutor_id

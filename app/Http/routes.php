@@ -121,6 +121,7 @@ Route::group(['middleware' => ['web']], function () {
         'subject-classrooms' => 'Admin\MasterRecords\Subjects\SubjectClassRoomsController',
         'subject-tutors' => 'Admin\MasterRecords\Subjects\SubjectTutorsController',
         'school-subjects' => 'Admin\MasterRecords\Subjects\SchoolSubjectsController',
+        'custom-subjects' => 'Admin\MasterRecords\Subjects\CustomSubjectsController',
 
         //Assessment Setup
         'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',

@@ -43,20 +43,19 @@
                         <table class="table table-striped table-bordered table-hover" id="student_tabledata">
                             <thead>
                                 <tr role="row" class="heading">
-                                    <th width="2%">#</th>
-                                    <th width="28%">Full Name</th>
-                                    <th width="20%">Sponsor</th>
-                                    <th width="15%">Current Class</th>
+                                    <th width="1%">#</th>
+                                    <th width="5%">I.D</th>
+                                    <th width="33%">Full Name</th>
+                                    <th width="16%">Sponsor</th>
+                                    <th width="12%">Current Class</th>
                                     <th width="10%">Gender</th>
-                                    <th width="10%">Status</th>
+                                    <th width="8%">Status</th>
                                     <th width="5%">View</th>
                                     <th width="5%">Edit</th>
                                     <th width="5%">Delete</th>
                                 </tr>
                                 <tr role="row" class="filter">
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
+                                    <td colspan="4"></td>
                                     <td>
                                         {!! Form::select('classroom_id', $classrooms, '', ['class'=>'form-control input-inline input-sm search-params', 'id'=>'classroom_id']) !!}
                                     </td>
@@ -74,18 +73,18 @@
                             </tbody>
                             <tfoot>
                                 <tr role="row" class="heading">
-                                    <th width="2%">#</th>
-                                    <th width="28%">Full Name</th>
-                                    <th width="20%">Sponsor</th>
-                                    <th width="15%">Current Class</th>
+                                    <th width="1%">#</th>
+                                    <th width="5%">I.D</th>
+                                    <th width="33%">Full Name</th>
+                                    <th width="16%">Sponsor</th>
+                                    <th width="12%">Current Class</th>
                                     <th width="10%">Gender</th>
-                                    <th width="10%">Status</th>
+                                    <th width="8%">Status</th>
                                     <th width="5%">View</th>
                                     <th width="5%">Edit</th>
                                     <th width="5%">Delete</th>
                                 </tr>
                             </tfoot>
-
                         </table>
                     </div>
                 </div>

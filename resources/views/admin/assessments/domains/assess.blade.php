@@ -49,9 +49,8 @@
                                             <div class="form-group form-md-line-input">
                                                 <label class="col-lg-5 col-md-9 control-label text-right bold">{{ $domain->domain }}</label>
                                                 <div class="col-lg-7 col-md-3">
-                                                    @if($assessment->domainDetails()->where('domain_assessment_id', $assessment->domain_assessment_id)->count() > 0)
-                                                        <?php $detail = $assessment->domainDetails()->where('domain_id', $domain->domain_id)
-                                                                ->where('domain_assessment_id', $assessment->domain_assessment_id)->first(); ?>
+                                                    @if($assessment->domainDetails()->count() > 0)
+                                                        <?php $detail = $assessment->domainDetails()->where('domain_id', $domain->domain_id)->first();?>
 
                                                         {!! Form::hidden('domain_detail_id[]', $detail->domain_detail_id) !!}
                                                         <div class="radio-list">

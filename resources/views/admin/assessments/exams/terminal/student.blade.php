@@ -62,8 +62,9 @@
                             </tr>
                             @if(isset($position->student_sum_total))
                                 <tr>
-                                    <th> Student Total Score </th>
-                                    <td> {{ $position->student_sum_total }}</td>
+                                    <th> Student Score (%) </th>
+                                    <td>{!! ($position->exam_perfect_score > 0)
+                                    ? number_format((($position->student_sum_total / $position->exam_perfect_score) * 100), 2) . '%' : '-' !!}
                                     <th> Perfect Score </th>
                                     <td> {{ $position->exam_perfect_score }} </td>
                                 </tr>
@@ -74,8 +75,8 @@
                                     <td>{{ Assessment::formatPosition($position->class_position) }}</td>
                                 </tr>
                                 <tr>
-                                    <th> No. of Students </th>
-                                    <td>{{ $position->class_size }}</td>
+                                    <th> No. in Class </th>
+                                    <td>{{ $position->class_size }} Students</td>
                                     <th></th><td></td>
                                 </tr>
                             @endif
@@ -154,27 +155,58 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @if($subjects->count() > 0)
-                                <?php $i = 1; ?>
-                                @foreach($subjects as $subjectClass)
+                            <?php $h = 1; $subIds = []; ?>
+                            @if($groups->count() > 0)
+                                @foreach($groups as $group)
+                                    <?php $cas = $examss = $total = $count = 0;?>
+                                    @foreach($group->getImmediateDescendants() as $subject)
+                                        @foreach($exams as $exam)
+                                            @if($subject->subject_id == $exam->subject_id)
+                                                <?php
+                                                    $cas += $exam->ca;
+                                                    $examss += $exam->exam;
+                                                    $total += ($exam->ca + $exam->exam);
+                                                    $count++;
+                                                    $subIds[] = $exam->subject_id;
+                                                ?>
+                                            @endif
+                                        @endforeach
+                                    @endforeach
                                     <?php
-                                        $ca = ($subjectClass->examDetails()->where('student_id', $student->student_id))
-                                            ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()["ca"] : null;
-                                        $exam = ($subjectClass->examDetails()->where('student_id', $student->student_id))
-                                            ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()["exam"] : null;
+                                        $c = ($count > 0) ? ($cas / $count) : 0;
+                                        $e = ($count > 0) ? ($examss / $count) : 0;
+                                        $to = ($count > 0) ? ($c + $e) : 0;
                                         $grade = $classroom->classLevel()->first()->classGroup()->first()
-                                                ->grades()->where('lower_bound', '<=', ($ca+$exam))->where('upper_bound', '>=', ($ca+$exam))->first();
+                                            ->grades()->where('lower_bound', '<=', ($to))->where('upper_bound', '>=', ($to))->first();
                                     ?>
-                                    @if($exam && $subjectClass->examDetails()->where('student_id', $student->student_id)->first()->exam()->where('marked', 1)->count() > 0)
-                                        <tr class="odd gradeX">
-                                            <td class="center">{{$i++}}</td>
-                                            <td>{{ $subjectClass->subject()->first()->subject }}</td>
-                                            <td>{!! ($ca) ? number_format($ca, 1) : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($exam) ? number_format($exam, 1) : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($ca || $exam) ? number_format(($ca + $exam), 1) : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($grade) ? $grade->grade : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($grade) ? $grade->grade_abbr : '<span class="label label-danger">nil</span>' !!}</td>
-                                        </tr>
+                                    <tr>
+                                        <td class="text-center">{{$h++}} </td>
+                                        <td>{{ $group->name }}</td>
+                                        <td>{{ number_format($c, 1) }}</td>
+                                        <td>{{ number_format($e, 1) }}</td>
+                                        <td>{{ number_format($to, 1) }}</td>
+                                        <td>{!! ($grade) ? $grade->grade : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>{!! ($grade) ? $grade->grade_abbr : '<span class="label label-danger">nil</span>' !!}</td>
+                                    </tr>
+                                @endforeach
+                            @endif
+                            @if(count($exams) > 0)
+                                @foreach($exams as $exam)
+                                    @if(!in_array($exam->subject_id, $subIds))
+                                        <?php
+                                            $total = $exam->ca + $exam->exam;
+                                            $grade = $classroom->classLevel()->first()->classGroup()->first()
+                                                    ->grades()->where('lower_bound', '<=', ($total))->where('upper_bound', '>=', ($total))->first();
+                                        ?>
+                                            <tr>
+                                                <td class="text-center">{{$h++}}</td>
+                                                <td>{{ $exam->subjectClassroom->subject->subject }}</td>
+                                                <td>{!! ($exam->ca) ? number_format($exam->ca, 1) : '<span class="label label-danger">nil</span>' !!}</td>
+                                                <td>{!! ($exam->exam) ? number_format($exam->exam, 1) : '<span class="label label-danger">nil</span>' !!}</td>
+                                                <td>{!! ($total) ? number_format($total, 1) : '<span class="label label-danger">nil</span>' !!}</td>
+                                                <td>{!! ($grade) ? $grade->grade : '<span class="label label-danger">nil</span>' !!}</td>
+                                                <td>{!! ($grade) ? $grade->grade_abbr : '<span class="label label-danger">nil</span>' !!}</td>
+                                            </tr>
                                     @endif
                                 @endforeach
                             @else

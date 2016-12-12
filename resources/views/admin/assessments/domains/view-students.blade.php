@@ -91,7 +91,7 @@
                                     <th>Student Name</th>
                                     <th>Gender</th>
                                     <th>Status</th>
-                                    <th>Action</th>
+                                    <th>Assess</th>
                                 </tr>
                             </tfoot>
                         </table>

@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Admin\Assessments;
 
-use App\Models\Admin\Accounts\Staff;
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\Assessments\Assessment;
 use App\Models\Admin\Assessments\AssessmentDetail;
-use App\Models\Admin\Exams\Exam;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup;
@@ -16,9 +14,8 @@ use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use App\Models\Admin\Users\User;
-use App\Models\Admin\Views\AssessmentDetailView;
+use App\Models\Admin\Assessments\AssessmentDetailView;
 use Illuminate\Http\Request;
-
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -216,6 +213,7 @@ class AssessmentsController extends Controller
             ->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->distinct()->get(['subject_classroom_id']);
         $setup = AssessmentSetup::where('academic_term_id', $term->academic_term_id)->where('classgroup_id', $classroom->classLevel()->first()->classgroup_id)->first();
         $setup_details = $setup->assessmentSetupDetails()->orderBy('number');
+
 //        $filtered = array_filter($assessments, function($key){
 //            return in_array($key, ['subject_classroom_id', 'number']);
 //        }, ARRAY_FILTER_USE_KEY);

@@ -50,7 +50,7 @@
                                 <th> Student No. </th>
                                 <td>
                                     <a target="_blank" href="{{ url('/wards/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-link btn-xs sbold">
-                                        {{ $student->student_no }}
+                                        <span style="font-size: 16px">{{ $student->student_no }}</span>
                                     </a>
                                 </td>
                                 <th> Gender </th>

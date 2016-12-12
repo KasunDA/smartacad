@@ -119,9 +119,9 @@ var TableDatatablesAjax = function () {
             } else if (search == "") {
                 // grid.clearAjaxParams();
                 App.alert({
-                    type: 'danger',
+                    type: 'info',
                     icon: 'warning',
-                    message: 'Enter A Search Parameter either name, gender, status or sponsor',
+                    message: 'Enter A Search Parameter either ID, name, gender, status or sponsor',
                     container: grid.getTableWrapper(),
                     place: 'prepend'
                 });
@@ -149,7 +149,7 @@ var TableDatatablesAjax = function () {
                 App.alert({
                     type: 'info',
                     icon: 'warning',
-                    message: 'Enter A Search Parameter either name, sponsor, class room, gender or status',
+                    message: 'Enter A Search Parameter either ID, name, sponsor, class room, gender or status',
                     container: grid.getTableWrapper(),
                     place: 'prepend'
                 });

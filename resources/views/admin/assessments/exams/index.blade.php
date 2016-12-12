@@ -41,6 +41,9 @@
                             <li class="{{ (session('active') == 'input-scores') ? 'active' : '' }}">
                                 <a href="#exams_input_score" data-toggle="tab"><i class="fa fa-pencil-square-o"></i> Input Scores </a>
                             </li>
+                            <li>
+                                <a href="#" id="compute_ca" class="btn btn-link"><i class="fa fa-barcode"></i> Auto Compute C. A.</a>
+                            </li>
                             @if(Auth::user()->hasRole(['admin', 'class_teacher', 'developer', 'super_admin']))
                                 <li>
                                     <a href="#terminal" data-toggle="tab"><i class="fa fa-book"></i> Terminal Result</a>

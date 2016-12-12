@@ -100,7 +100,7 @@
                                                                                         {{--  Displays the menus level four --}}
                                                                                         <li class="nav-item">
                                                                                             <a href="{{ $four->url  }}" class="nav-link {{ (count($four->getImmediateDescendants()->where('active', 1)) > 0) ? 'nav-toggle' : '' }}">
-                                                                                                <i class="{{ $four->icon  }}"></i> {{ $four->name  }}
+                                                                                                <i class="{{ $four->icon  }}"></i> {{ ucwords(strtolower($four->name))  }}
                                                                                                 @if(count($four->getImmediateDescendants()->where('active', 1)) > 0)
                                                                                                     <span class="arrow "></span>
                                                                                                 @endif
@@ -117,7 +117,7 @@
                                                                                                             {{--  Displays the menus level Five --}}
                                                                                                             <li class="nav-item">
                                                                                                                 <a href="{{ $five->url  }}" class="nav-link">
-                                                                                                                    <i class="{{ $five->icon  }}"></i> {{ $five->name  }}
+                                                                                                                    <i class="{{ $five->icon  }}"></i> {{ ucwords(strtolower($five->name))  }}
                                                                                                                 </a>
                                                                                                             </li>{{--  Displays the menus level Five --}}
                                                                                                         @endif {{--Check if the logged in user have access to view the menu and Check if the menu has been displayed--}}

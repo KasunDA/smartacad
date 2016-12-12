@@ -7,7 +7,7 @@ use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
-use App\Models\Admin\Views\AssessmentDetailView;
+use App\Models\Admin\Assessments\AssessmentDetailView;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;

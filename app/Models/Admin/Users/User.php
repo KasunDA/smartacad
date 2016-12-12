@@ -119,6 +119,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Concatenate the first, last and the other names to get full names and also include the salutation
+     * @return mixed|string
+     */
+    public function simpleNameNSalutation()
+    {
+        $salutation = ($this->salutation_id) ? $this->salutation()->first()->salutation_abbr : '';
+        return $salutation . ' ' .ucwords(strtolower($this->first_name . ' ' . $this->last_name));
+    }
+
+    /**
      * A Sponsor belongs to a Salutation
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

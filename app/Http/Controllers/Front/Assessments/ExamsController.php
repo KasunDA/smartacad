@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Front\Assessments;
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\Exams\Exam;
+use App\Models\Admin\Exams\ExamDetailView;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
+use App\Models\Admin\MasterRecords\Subjects\CustomSubject;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use App\Models\Admin\PinNumbers\PinNumber;
 use App\Models\Admin\PinNumbers\ResultChecker;
@@ -87,13 +89,15 @@ class ExamsController extends Controller
 
         $position = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id, $student->student_id);
         $position = (object) array_shift($position);
-//        $subjects = $student->subjectClassRooms()->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $class_id)->get();
-        $subjects = SubjectClassRoom::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->get();
+
+        $exams = ExamDetailView::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)
+            ->where('student_id', $student->student_id)->where('marked', 1)->get();
+        $groups = CustomSubject::roots()->where('classgroup_id', $classroom->classlevel->classgroup_id)->get();
 
         if($type) {
-            return view('front.assessments.terminal.print', compact('student', 'subjects', 'term', 'position', 'classroom'));
+            return view('front.assessments.terminal.print', compact('student', 'groups', 'exams', 'term', 'position', 'classroom'));
         }else{
-            return view('front.assessments.terminal.student', compact('student', 'subjects', 'term', 'position', 'classroom'));
+            return view('front.assessments.terminal.student', compact('student', 'groups', 'exams', 'term', 'position', 'classroom'));
         }
     }
 
