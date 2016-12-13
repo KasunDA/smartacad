@@ -113,7 +113,7 @@ class UserController extends Controller
                 '<a target="_blank" href="/users/edit/'.$this->getHashIds()->encode($user->user_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
                      <span class="fa fa-edit"></span>
                  </a>',
-                '<button class="btn btn-danger btn-rounded btn-xs delete_user" value=".'.$user->user_id.'">
+                '<button class="btn btn-danger btn-rounded btn-xs delete_user" value="'.$user->user_id.'">
                     <span class="fa fa-trash-o"></span>
                  </button>'
 //                '<span class="label label-sm label-'.(key($status)).'">'.(current($status)).'</span>',
