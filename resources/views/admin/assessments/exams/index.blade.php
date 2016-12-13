@@ -27,7 +27,7 @@
 @stop
 
 @section('content')
-    <h3 class="page-academic_year">Exams Score</h3>
+    <h3 class="page">Exams Score</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">

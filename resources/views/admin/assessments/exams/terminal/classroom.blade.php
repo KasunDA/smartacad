@@ -18,7 +18,7 @@
 
 
 @section('content')
-    <h3 class="page-academic_year">Terminal Class Room Assessments Details</h3>
+    <h3 class="page">Terminal Class Room Assessments Details</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-8 margin-bottom-10">

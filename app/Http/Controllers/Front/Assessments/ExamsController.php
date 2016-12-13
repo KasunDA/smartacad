@@ -137,12 +137,19 @@ class ExamsController extends Controller
         $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
         $classroom = $student->currentClass($term->academicYear()->first()->academic_year_id);
 
+        $inp = $inputs['serial_number'];
+        if (count($inp) != 20) {
+            $response['msg'] = 'Incomplete Serial Number Entered!!! Carefully check and retry again.';
+        }
+        $p = substr($inp, 0, 12);
+        $s = substr($inp, 12);
+
         $pin = '';
         $space = (PinNumber::SPACING > 0) ? (PinNumber::NUMBER_OF_DIGITS / PinNumber::SPACING) : 4;
         for($k=0; $k < $space; $k++){
-            $pin .= substr($inputs['pin_number'], ($k * $space), $space) . ' ';
+            $pin .= substr($p, ($k * $space), $space) . ' ';
         }
-        $serial = substr($inputs['serial_number'], 0, 4) . ' ' . substr($inputs['serial_number'], 4, 4);
+        $serial = substr($s, 0, 4) . ' ' . substr($s, 4, 4);
         $pinNo = PinNumber::where('serial_number', trim($serial))->where('pin_number', trim($pin))->where('status', 1)->first();
 
         if(count($pinNo) > 0){
@@ -155,6 +162,8 @@ class ExamsController extends Controller
             $response['flag'] = true;
             $response['url'] = $inputs['student_id'] . '/' . $inputs['academic_term_id'];
             $this->setFlashMessage($student->fullNames() . ' Exams Results has been activated for '.$term->academic_term.' Academic Year', 1);
+        }else{
+            $response['msg'] = 'Invalid Card Serial Number or Pin Number';
         }
         return response()->json($response);
     }

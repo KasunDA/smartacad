@@ -20,7 +20,9 @@ class AppServiceProvider extends ServiceProvider
         //Preload the Menu Level One
         if(Schema::hasTable('menus')){
             $menus = Menu::roots()->where('active', 1)->where('type', 1)->get();
+            $active_home_menu = Menu::roots()->where('active', 1)->where('type', 2)->get();
             view()->share('active_menus', $menus);
+            view()->share('active_home_menu', $active_home_menu);
         }
         view()->share('school_name', 'Solid Step International School');
         

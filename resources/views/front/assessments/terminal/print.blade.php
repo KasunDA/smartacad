@@ -121,32 +121,63 @@
                             </tr>
                         </thead>
                         <tbody style="font-size: 11px;">
-                            @if($subjects->count() > 0)
-                                <?php $i = 1; ?>
-                                @foreach($subjects as $subjectClass)
-                                    <?php
-                                        $ca = ($subjectClass->examDetails()->where('student_id', $student->student_id))
-                                            ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()["ca"] : null;
-                                        $exam = ($subjectClass->examDetails()->where('student_id', $student->student_id))
-                                            ? $subjectClass->examDetails()->where('student_id', $student->student_id)->first()["exam"] : null;
-                                        $grade = $classroom->classLevel()->first()->classGroup()->first()
-                                            ->grades()->where('lower_bound', '<=', ($ca+$exam))->where('upper_bound', '>=', ($ca+$exam))->first();
-                                    ?>
-                                    @if($exam && $subjectClass->examDetails()->where('student_id', $student->student_id)->first()->exam()->where('marked', 1)->count() > 0)
-                                        <tr style="background-color: #F2F0F0 !important; font-weight:bold">
-                                            <td class="center">{{$i++}}</td>
-                                            <td>{{ $subjectClass->subject()->first()->subject }}</td>
-                                            <td>{!! ($ca) ? number_format($ca, 1) : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($exam) ? number_format($exam, 1) : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($ca || $exam) ? number_format(($ca + $exam), 1) : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($grade) ? $grade->grade : '<span class="label label-danger">nil</span>' !!}</td>
-                                            <td>{!! ($grade) ? $grade->grade_abbr : '<span class="label label-danger">nil</span>' !!}</td>
-                                        </tr>
-                                    @endif
+                        <?php $h = 1; $subIds = []; ?>
+                        @if($groups->count() > 0)
+                            @foreach($groups as $group)
+                                <?php $cas = $examss = $total = $count = 0;?>
+                                @foreach($group->getImmediateDescendants() as $subject)
+                                    @foreach($exams as $exam)
+                                        @if($subject->subject_id == $exam->subject_id)
+                                            <?php
+                                            $cas += $exam->ca;
+                                            $examss += $exam->exam;
+                                            $total += ($exam->ca + $exam->exam);
+                                            $count++;
+                                            $subIds[] = $exam->subject_id;
+                                            ?>
+                                        @endif
+                                    @endforeach
                                 @endforeach
-                            @else
-                                <tr><th colspan="7">No Record Found</th></tr>
-                            @endif
+                                <?php
+                                $c = ($count > 0) ? ($cas / $count) : 0;
+                                $e = ($count > 0) ? ($examss / $count) : 0;
+                                $to = ($count > 0) ? ($c + $e) : 0;
+                                $grade = $classroom->classLevel()->first()->classGroup()->first()
+                                        ->grades()->where('lower_bound', '<=', ($to))->where('upper_bound', '>=', ($to))->first();
+                                ?>
+                                <tr style="background-color: #F2F0F0 !important; font-weight:bold">
+                                    <td class="text-center">{{$h++}} </td>
+                                    <td>{{ $group->name }}</td>
+                                    <td>{{ number_format($c, 1) }}</td>
+                                    <td>{{ number_format($e, 1) }}</td>
+                                    <td>{{ number_format($to, 1) }}</td>
+                                    <td>{!! ($grade) ? $grade->grade_abbr : '<span class="label label-danger">nil</span>' !!}</td>
+                                    <td>{!! ($grade) ? ucwords($grade->grade) : '<span class="label label-danger">nil</span>' !!}</td>
+                                </tr>
+                            @endforeach
+                        @endif
+                        @if(count($exams) > 0)
+                            @foreach($exams as $exam)
+                                @if(!in_array($exam->subject_id, $subIds))
+                                    <?php
+                                    $total = $exam->ca + $exam->exam;
+                                    $grade = $classroom->classLevel()->first()->classGroup()->first()
+                                            ->grades()->where('lower_bound', '<=', ($total))->where('upper_bound', '>=', ($total))->first();
+                                    ?>
+                                    <tr style="background-color: #F2F0F0 !important; font-weight:bold">
+                                        <td class="text-center">{{$h++}}</td>
+                                        <td>{{ $exam->subjectClassroom->subject->subject }}</td>
+                                        <td>{!! ($exam->ca) ? number_format($exam->ca, 1) : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>{!! ($exam->exam) ? number_format($exam->exam, 1) : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>{!! ($total) ? number_format($total, 1) : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>{!! ($grade) ? $grade->grade_abbr : '<span class="label label-danger">nil</span>' !!}</td>
+                                        <td>{!! ($grade) ? ucwords($grade->grade) : '<span class="label label-danger">nil</span>' !!}</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        @else
+                            <tr><th colspan="7">No Record Found</th></tr>
+                        @endif
                         </tbody>
                         <tfoot>
                             <tr style="font-weight:bold; background-color:#CCCCCC;">

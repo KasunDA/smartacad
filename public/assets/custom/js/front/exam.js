@@ -9,7 +9,7 @@ jQuery(document).ready(function() {
 
     $(document.body).on('submit', '#result_checker_form', function(){
         var values = $(this).serialize();
-        if($('#serial_number').val() == '' || $('#pin_number').val() == ''){
+        if($('#serial_number').val() == ''){// || $('#pin_number').val() == ''){
             set_msg_box($('#msg_box_modal'), 'Serial and Pin numbers are required', 2);
         }else {
             $.ajax({
@@ -23,7 +23,7 @@ jQuery(document).ready(function() {
                         set_msg_box($('#msg_box_modal'), 'Proceed', 1);
                         window.location.replace('/wards-exams/terminal-result/' + data.url);
                     }else {
-                        set_msg_box($('#msg_box_modal'), 'Invalid Card Serial Number or Pin Number', 2);
+                        set_msg_box($('#msg_box_modal'), data.msg, 2);
                     }
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
