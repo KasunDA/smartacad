@@ -58,7 +58,7 @@
         <div class="col-md-4">
             <!-- BEGIN WIDGET THUMB -->
             <div class="widget-thumb widget-bg-color-white text-uppercase margin-bottom-20 bordered">
-                <h4 class="widget-thumb-heading">Staffs</h4>
+                <h4 class="widget-thumb-heading">Students</h4>
                 <div class="widget-thumb-wrap">
                     <i class="widget-thumb-icon bg-red icon-users"></i>
                     <div class="widget-thumb-body">
