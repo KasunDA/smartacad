@@ -205,7 +205,7 @@ class MessageController extends Controller
 
         //TODO :: uncomment
         for ($i = 0; $i < count($nos); $i++) {
-//            $res = $this->sendSMS($inputs['message'], $nos[$i]);
+            $res = $this->sendSMS($inputs['message'], $nos[$i]);
 //            if ($res == 200) $count++;
         }
         return redirect('/messages');
