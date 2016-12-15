@@ -64,6 +64,7 @@ var UIBlockUI = function() {
                                     <th>Student Name</th>\
                                     <th>Gender</th>\
                                     <th>Class Room</th>\
+                                    <th>Result Status</th>\
                                     <th>View Result</th>\
                                     <th>Action </th>\
                                 </tr>\
@@ -78,6 +79,7 @@ var UIBlockUI = function() {
                                 '<td>'+value.name+'</td>' +
                                 '<td>'+value.gender+'</td>' +
                                 '<td>'+value.classroom+'</td>' +
+                                '<td>'+value.status+'</td>' +
                                 '<td><button class="btn btn-link btn-sm check-result" rel="view" value="' + hashed + '"> <i class="fa fa-bookmark"></i> Proceed</button></td>' +
                                 '<td><button class="btn btn-link btn-sm check-result" rel="print" value="' + hashed + '"> <i class="fa fa-print"></i> Print</button></td>' +
                                 '</tr>';
@@ -117,7 +119,7 @@ var UIBlockUI = function() {
             console.log(hashed + ': ' + type);
 
             App.blockUI({
-                target: '#assessment',
+                target: '#accordion1',
                 animate: true
             });
 
@@ -134,12 +136,12 @@ var UIBlockUI = function() {
                         $('#result_checker_modal').modal('show');
                     }
                     window.setTimeout(function() {
-                        App.unblockUI('#assessment');
+                        App.unblockUI('#accordion1');
                     }, 2000);
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
-                    App.unblockUI('#assessment');
+                    App.unblockUI('#accordion1');
                 }
             });
             return false;

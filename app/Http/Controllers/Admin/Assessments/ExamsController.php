@@ -15,10 +15,12 @@ use App\Models\Admin\MasterRecords\Subjects\CustomSubject;
 use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use App\Models\Admin\Users\User;
+use Barryvdh\DomPDF\PDF;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use stdClass;
 
@@ -401,6 +403,13 @@ class ExamsController extends Controller
             ->where('student_id', $student->student_id)->where('marked', 1)->get();
         $groups = CustomSubject::roots()->where('classgroup_id', $classroom->classlevel->classgroup_id)->get();
 
+//        $pdf = App::make('dompdf.wrapper');
+//        $pdf->loadHTML('<h1>Test Oh</h1>');
+//        $pdf->loadView('admin.assessments.exams.terminal.print2', $student, $term);
+//        $pdf->loadView('admin.assessments.exams.terminal.print2', compact('student', 'term'));
+//        $pdf->loadView('admin.assessments.exams.terminal.print', compact('student', 'groups', 'exams', 'term', 'position', 'classroom'));
+//        return $pdf->download('resultChecker.pdf');
+        
         return view('admin.assessments.exams.terminal.print', compact('student', 'groups', 'exams', 'term', 'position', 'classroom'));
     }
 }

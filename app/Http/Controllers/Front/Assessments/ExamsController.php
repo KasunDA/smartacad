@@ -50,6 +50,14 @@ class ExamsController extends Controller
 
         if(count($students) > 0){
             foreach ($students as $student){
+                $class = ($student->student()->first()->currentClass($inputs['academic_year_id']))
+                    ? $student->student()->first()->currentClass($inputs['academic_year_id']) : null;
+                $re = ResultChecker::where('student_id', $student->student_id)->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
+                    ->where(function ($query) use ($class) {
+                        if($class)
+                            $query->where('classroom_id', $class->classroom_id);
+                    })->count();
+
                 $object = new stdClass();
                 $object->student_id = $student->student_id;
                 $object->hashed_stud = $this->getHashIds()->encode($student->student_id);
@@ -57,7 +65,9 @@ class ExamsController extends Controller
                 $object->student_no = $student->student()->first()->student_no;
                 $object->name = $student->student()->first()->fullNames();
                 $object->gender = $student->student()->first()->gender;
-                $object->classroom = $student->classRoom()->first()->classroom;
+                $object->classroom = $class->classroom;
+                $object->status = ($re > 0) ? '<small class="label label-success">Activated</small>'
+                    : '<small class="label label-danger">Not Activated</small>';
                 $output[] = $object;
             }
             //Sort The Students by name

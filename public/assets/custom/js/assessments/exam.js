@@ -300,8 +300,8 @@ var UIBlockUI = function() {
                                 '<td>'+value.student_no+'</td>' +
                                 '<td>'+value.name+'</td>' +
                                 '<td>'+value.gender+'</td>' +
-                                '<td><a href="/exams/student-terminal-result/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-bookmark"></i> Proceed</a></td>' +
-                                '<td><a href="/exams/print-student-terminal-result/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-print"></i> Print</a></td>' +
+                                '<td><a target="_blank" href="/exams/student-terminal-result/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-bookmark"></i> Proceed</a></td>' +
+                                '<td><a target="_blank" href="/exams/print-student-terminal-result/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-print"></i> Print</a></td>' +
                                 //'<td><a href="/exams/print/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-primary btn-xs"> <i class="fa fa-eye"></i> Print</a></td>' +
                                 '</tr>';
                         });
@@ -323,7 +323,7 @@ var UIBlockUI = function() {
                                 '<td>'+value.academic_term+'</td>' +
                                 '<td>'+value.classroom+'</td>' +
                                 '<td>'+value.student_count+' Student(s)</td>' +
-                                '<td><a href="/exams/classroom-terminal-result/'+value.hashed_class+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-bookmark"></i> Proceed</a></td>' +
+                                '<td><a target="_blank" href="/exams/classroom-terminal-result/'+value.hashed_class+'/'+value.hashed_term+'" class="btn btn-link"> <i class="fa fa-bookmark"></i> Proceed</a></td>' +
                                 '<td></td>' +
                                 '</tr>';
                         });

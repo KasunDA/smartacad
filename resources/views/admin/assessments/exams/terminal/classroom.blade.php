@@ -11,6 +11,13 @@
         <i class="fa fa-chevron-right"></i>
     </li>
     <li>
+        <i class="fa fa-th"></i>
+        <a href="{{ url('/exams') }}">Exams</a>
+    </li>
+    <li>
+        <i class="fa fa-chevron-right"></i>
+    </li>
+    <li>
         <a href="#">Terminal Class Room Details</a>
         <i class="fa fa-circle"></i>
     </li>
