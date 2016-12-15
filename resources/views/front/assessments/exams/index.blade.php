@@ -36,14 +36,14 @@
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
                             <li class="active">
-                                <a href="#assessment" data-toggle="tab"><i class="fa fa-book"></i> Terminal Exams Result</a>
+                                <a href="#accordion1" data-toggle="tab"><i class="fa fa-book"></i> Terminal Exams Result</a>
                             </li>
                         </ul>
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
                             <div id="error-box"></div>
-                            <div class="tab-pane active" id="assessment">
+                            <div class="tab-pane active" id="accordion1">
                                 <div class="alert alert-info"> Search by <strong>Academic Term</strong> To View Exams Details</div>
                                 {!! Form::open([
                                         'method'=>'POST',

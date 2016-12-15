@@ -46,7 +46,7 @@ var UIBlockUI = function() {
             var values = $(this).serialize();
 
             App.blockUI({
-                target: '#assessment',
+                target: '#accordion1',
                 animate: true
             });
 
@@ -86,7 +86,7 @@ var UIBlockUI = function() {
                         });
                     }else {
                         set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
-                        App.unblockUI('#assessment');
+                        App.unblockUI('#accordion1');
                     }
                     assign += '</tbody>';
 
@@ -96,14 +96,14 @@ var UIBlockUI = function() {
                     setTableData($('#view_student_datatable')).init();
 
                     window.setTimeout(function() {
-                        App.unblockUI('#assessment');
+                        App.unblockUI('#accordion1');
                     }, 2000);
                     //Scroll To Div
                     scroll2Div($('#view_student_datatable'));
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
-                    App.unblockUI('#assessment');
+                    App.unblockUI('#accordion1');
                 }
             });
             return false;
