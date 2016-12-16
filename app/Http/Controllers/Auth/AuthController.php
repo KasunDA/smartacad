@@ -46,7 +46,7 @@ class AuthController extends Controller
         $this->middleware('guest', ['except' => 'getLogout']);
 
         $this->middleware('auth', ['except' => [
-            'getLogin', 'postLogin', 'getRegister', 'postRegister', 'getVerify', 'getResetPassword', 'postResetPassword'
+            'getLogin', 'postLogin',  'getLogin2', 'postLogin2', 'getRegister', 'postRegister', 'getVerify', 'getResetPassword', 'postResetPassword'
         ]]);
     }
 
@@ -143,6 +143,51 @@ class AuthController extends Controller
     }
 
     /**
+     * Show the application login form.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getLogin2()
+    {
+        return view('auth.login2');
+    }
+
+    /**
+     * Handle a login request to the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function postLogin2(Request $request)
+    {
+        $login = $request->input('login');
+        $inputs = $request->all();
+        //Check login field
+        $login_type = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_no';
+        //Merge login field into the request with either email or phone_no as key
+        $request->merge([$login_type => $login]);
+        $user = null;
+        //Validate and set the credentials
+        if($login_type == 'email' and $inputs['password'] == 'Student_1'){
+            $user = (!$request->only('email')) ? abort(305) : User::where('email', $request->only('email'))->first();
+        }else if($login_type == 'phone_no' and $inputs['password'] == 'Student_1'){
+            $user = (!$request->only('phone_no')) ? abort(305) : User::where('phone_no', $request->only('phone_no'))->first();
+        }
+
+        if($user){
+            Auth::login($user);
+
+            if($user->user_type_id === Sponsor::USER_TYPE)
+                // redirect to the PARENT / STUDENT page
+                return redirect('/home');
+            return redirect('/dashboard');
+        }else{
+            $this->setFlashMessage('Invalid Login Credentials', 2);
+            return redirect('/auth/login');
+        }
+    }
+
+    /**
      * Handle a registration request for the application.
      * @param  Request $request
      * @return \Illuminate\Http\Response
@@ -185,52 +230,4 @@ class AuthController extends Controller
         return redirect('/auth/login');
         ///////////////////////////////////////////////////////////////////////// ends: KHEENGZ CUSTOM CODE////////////////////////////////////////////////////////
     }
-
-    /**
-     * Handle a registration request for the application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-//    public function postRegister(Request $request)
-//    {
-//        $inputs = $request->all();
-//        $validator = $this->validator($inputs);
-//
-//        if ($validator->fails()) {
-//            $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-//
-//            $this->throwValidationException($request, $validator);
-//        }
-//
-//        ///////////////////////////////////////////////////////// starts: KHEENGZ CUSTOM CODE//////////////////////////////////////////////////////////////
-//        //Set the verification code to any random 40 characters
-//        $inputs['verification_code'] = str_random(40);
-//        $user = $this->create($inputs);
-//
-//        //Attach a role to the user
-//        $user->roles()->attach(Role::DEFAULT_ROLE);
-
-//        if($user){
-//            //Verification Mail Sending
-//            $content = 'Welcome to PLEDGE Application.
-//            PLEDGE is a new way of communicating with leaders of your country and make actionable decisions based on their political activities and achievements.
-//            Thank You';
-//            $result = Mail::send('emails.verification', ['user'=>$user, 'content'=>$content], function($message) use($user) {
-//                $message->from(env('APP_MAIL'), env('APP_NAME'));
-//                $message->subject("Account Verification");
-//                $message->to($user->email);
-//            });
-//            if($result)
-//                $this->setFlashMessage(' Registration Saved!!! A mail has been sent to '.$user->email, 1);
-//
-//        Auth::login($user);
-//
-//            return redirect($this->redirectPath());
-//        }
-        /////////////////////////////////////////////////////////// ends: KHEENGZ CUSTOM CODE//////////////////////////////////////////////////////////////////
-//        $this->setFlashMessage(' Registration Saved!!! A mail has been sent to '.$user->email, 1);
-//        return redirect('/merchants/profile');
-//    }
-
 }

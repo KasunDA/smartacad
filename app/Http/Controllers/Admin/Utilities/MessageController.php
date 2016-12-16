@@ -172,8 +172,7 @@ class MessageController extends Controller
         if (isset($inputs['message']) and $inputs['message'] != '') {
             for ($i = 0; $i < count($nos); $i++) {
                 $res = $this->sendSMS($inputs['message'], $nos[$i]);
-//                if ($res == 200)
-                $count++;
+                if ($res) $count++;
             }
             $this->setFlashMessage($count . ' individual message has been sent', 1);
 //            if ($count > 0)
@@ -197,16 +196,16 @@ class MessageController extends Controller
         $count = 0;
 
         if($type == '#sponsor'){
+            //TODO exclude not active students
             $nos = User::where('user_type_id', Sponsor::USER_TYPE)->where('status', 1)->distinct()->lists('phone_no')->toArray();
         }elseif($type == '#staff'){
             $nos = User::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())
                 ->where('user_type_id', '<>', Sponsor::USER_TYPE)->where('status', 1)->distinct()->lists('phone_no')->toArray();
         }
 
-        //TODO :: uncomment
         for ($i = 0; $i < count($nos); $i++) {
             $res = $this->sendSMS($inputs['message'], $nos[$i]);
-//            if ($res == 200) $count++;
+            if ($res) $count++;
         }
         return redirect('/messages');
     }
