@@ -162,6 +162,39 @@ class DashboardController extends Controller
         return response()->json($response);
     }
 
+//    public function calculate($input){
+//        $pattern = '/(?:\-?\d+(?:\.?\d+)?[\+\-\*\/])+\-?\d+(?:\.?\d+)?/';
+//        $depth = 10;
+//        $input = str_replace(' ', '', $input);
+//        if(strpos($input, '+') != null || strpos($input, '-') != null || strpos($input, '/') != null || strpos($input, '*') != null){
+//            //  Remove white spaces and invalid math chars
+//            $input = str_replace(',', '.', $input);
+//            $input = preg_replace('[^0-9\.\+\-\*\/\(\)]', '', $input);
+//
+//            //  Calculate each of the parenthesis from the top
+//            $i = 0;
+//            while(strpos($input, '(') || strpos($input, ')')){
+//                $input = preg_replace_callback('/\(([^\(\)]+)\)/', 'self::callback', $input);
+//
+//                $i++;
+//                if($i > $depth){
+//                    break;
+//                }
+//            }
+//
+//            //  Calculate the result
+//            if(preg_match($pattern, $input, $match)){
+//                $compute = create_function('', 'return '.$match[0].';');
+//
+//                return 0 + number_format($compute(), 5);
+//            }
+//
+//            return 0;
+//        }
+//
+//        return $input;
+//    }
+
 //    public function getStaff(){
 //        $count = 0;
 //        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();

@@ -153,6 +153,10 @@ Route::group(array('prefix'=>'/api'),function(){
         }else{
             $no = '234' . $mobile_no;
         }
+
+//        http://www.mcastmessaging.com/mcast_ws_v2/index.php?user=ZumaComm&password=zuma123456&from=EkaruzTech&to=2348066711147&message=Good+day+Mr.+Ameh+Agaba,+this+is+to+notifiy+you+that+you+have+exhausted+your+units+therefore+a+reminder+that+your+renewal+is+due,+as+we+look+forward+to+continue+serving+you+better.+CTO+EkaruzTech&type=json
+//        http://www.mcastmessaging.com/mcast_ws_v2/index.php?user=ZumaComm&password=zuma123456&from=EkaruzTech&to=2348022020075&message=Good+day+Mr.+Ameh+Agaba,+this+is+to+notifiy+you+that+you+have+exhausted+your+units+therefore+a+reminder+that+your+renewal+is+due,+as+we+look+forward+to+continue+serving+you+better.+CTO+EkaruzTech&type=json
+
         $msg = str_replace("+", ' ', $message);
         $message2 = urlencode($msg);
         $username = "ZumaComm";
