@@ -194,9 +194,11 @@ Route::group(array('prefix'=>'/api'),function(){
     Route::get('/balance', function () {
         $sms = \App\Models\Admin\MasterRecords\Sms::where('status', 1)->first();
         if($sms->unit_used < $sms->unit_bought){
-            $message1 = 'Dear Mr. Agaba You have ' . ($sms->unit_bought - $sms->unit_used) . ' Units left in your account!!!';
+            $message1 = 'Hello, Waziri Umaru Federal Polytechnic, Birinin Kebbi, Kebbi State, You have ' 
+                . ($sms->unit_bought - $sms->unit_used) . ' Units left in your account!!!';
         }else{
-            $message1 = 'Dear Mr. Agaba You have exhausted your (' . $sms->unit_bought . ') Units bought on ' . $sms->created_at->format('jS M, Y');
+            $message1 = 'Hello, Waziri Umaru Federal Polytechnic, Birinin Kebbi, Kebbi State, You have exhausted your (' 
+                . $sms->unit_bought . ') Units bought on ' . $sms->created_at->format('jS M, Y');
         }
         //http://smartschool.ekaruztech.com/api/balance
         
