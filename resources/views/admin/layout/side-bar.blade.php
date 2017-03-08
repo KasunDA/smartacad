@@ -43,73 +43,73 @@
                     @foreach($active_menus as $one)
                         {{--Check if the logged in user have access to view the menu and Check if the menu has been displayed--}}
                         @if(!in_array($one->menu_id, $displayed_menu) and in_array($one->menu_id, $roles_menu_ids))
-                            <?php $displayed_menu[] = $one->menu_id ?>
+                            <?php $displayed_menu[] = $one->menu_id; ?>
 
                             {{--  Displays the Menus Level One--}}
                             <li class="nav-item">
-                                <a href="{{ $one->url }}" class="nav-link {{ (count($one->getImmediateDescendants()->where('active', 1)) > 0) ? 'nav-toggle' : '' }}">
+                                <a href="{{ $one->url }}" class="nav-link {{ ($one->immediateDescendants()->where('active', 1)->count() > 0) ? 'nav-toggle' : '' }}">
                                     <i class="{{ $one->icon }}"></i> <span class="title">{{$one->name}}</span>
-                                    @if(count($one->getImmediateDescendants()->where('active', 1)) > 0)
+                                    @if($one->immediateDescendants()->where('active', 1)->count() > 0)
                                         <span class="arrow "></span>
                                     @endif
                                 </a>
 
                                 {{-- Check if the menu level one has level two --}}
-                                @if(count($one->getImmediateDescendants()->where('active', 1)) > 0)
+                                @if($one->immediateDescendants()->where('active', 1)->count() > 0)
                                     <ul class="sub-menu">
                                         {{--  Loop Through The Menu Level Two --}}
-                                        @foreach($one->getImmediateDescendants()->where('active', 1) as $two)
+                                        @foreach($one->immediateDescendants()->where('active', 1)->get() as $two)
                                             {{--Check if the logged in user have access to view the menu and Check if the menu has been displayed--}}
                                             @if(!in_array($two->menu_id, $displayed_menu) and in_array($two->menu_id, $roles_menu_ids))
                                                 <?php $displayed_menu[] = $two->menu_id?>
 
                                                 {{--  Displays the menus level two --}}
                                                 <li class="nav-item">
-                                                    <a href="{{ $two->url }}" class="nav-link {{ (count($two->getImmediateDescendants()->where('active', 1)) > 0) ? 'nav-toggle' : '' }}">
+                                                    <a href="{{ $two->url }}" class="nav-link {{ ($two->immediateDescendants()->where('active', 1)->count() > 0) ? 'nav-toggle' : '' }}">
                                                         <i class="{{ $two->icon }}"></i> {{$two->name}}
-                                                        @if(count($two->getImmediateDescendants()->where('active', 1)) > 0)
+                                                        @if($two->immediateDescendants()->where('active', 1)->count() > 0)
                                                             <span class="arrow "></span>
                                                         @endif
                                                     </a>
                                                     {{-- Check if the menu level two has level three --}}
-                                                    @if(count($two->getImmediateDescendants()->where('active', 1)) > 0)
+                                                    @if($two->immediateDescendants()->where('active', 1)->count() > 0)
                                                         <ul class="sub-menu">
                                                             {{--  Loop Through The Menu Level Three --}}
-                                                            @foreach($two->getImmediateDescendants()->where('active', 1) as $three)
+                                                            @foreach($two->immediateDescendants()->where('active', 1)->get() as $three)
                                                                 {{--Check if the logged in user have access to view the menu and Check if the menu has been displayed--}}
                                                                 @if(!in_array($three->menu_id, $displayed_menu) and in_array($three->menu_id, $roles_menu_ids))
                                                                     <?php $displayed_menu[] = $three->menu_id?>
 
                                                                     {{--  Displays the menus level three --}}
                                                                     <li class="nav-item">
-                                                                        <a href="{{ $three->url  }}" class="nav-link {{ (count($three->getImmediateDescendants()->where('active', 1)) > 0) ? 'nav-toggle' : '' }}">
+                                                                        <a href="{{ $three->url  }}" class="nav-link {{ ($three->immediateDescendants()->where('active', 1)->count() > 0) ? 'nav-toggle' : '' }}">
                                                                             <i class="{{ $three->icon  }}"></i> {{ $three->name  }}
-                                                                            @if(count($three->getImmediateDescendants()->where('active', 1)) > 0)
+                                                                            @if($three->immediateDescendants()->where('active', 1)->count() > 0)
                                                                                 <span class="arrow "></span>
                                                                             @endif
                                                                         </a>
                                                                         {{-- Check if the menu level three has level four --}}
-                                                                        @if(count($three->getImmediateDescendants()->where('active', 1)) > 0)
+                                                                        @if($three->immediateDescendants()->where('active', 1)->count() > 0)
                                                                             <ul class="sub-menu">
                                                                                 {{--  Loop Through The Menu Level Four --}}
-                                                                                @foreach($three->getImmediateDescendants()->where('active', 1) as $four)
+                                                                                @foreach($three->immediateDescendants()->where('active', 1)->get() as $four)
                                                                                     {{--Check if the logged in user have access to view the menu and Check if the menu has been displayed--}}
                                                                                     @if(!in_array($four->menu_id, $displayed_menu) and in_array($four->menu_id, $roles_menu_ids))
                                                                                         <?php $displayed_menu[] = $four->menu_id?>
 
                                                                                         {{--  Displays the menus level four --}}
                                                                                         <li class="nav-item">
-                                                                                            <a href="{{ $four->url  }}" class="nav-link {{ (count($four->getImmediateDescendants()->where('active', 1)) > 0) ? 'nav-toggle' : '' }}">
+                                                                                            <a href="{{ $four->url  }}" class="nav-link {{ ($four->immediateDescendants()->where('active', 1)->count() > 0) ? 'nav-toggle' : '' }}">
                                                                                                 <i class="{{ $four->icon  }}"></i> {{ ucwords(strtolower($four->name))  }}
-                                                                                                @if(count($four->getImmediateDescendants()->where('active', 1)) > 0)
+                                                                                                @if($four->immediateDescendants()->where('active', 1)->count() > 0)
                                                                                                     <span class="arrow "></span>
                                                                                                 @endif
                                                                                             </a>
                                                                                             {{-- Check if the menu level four has level five --}}
-                                                                                            @if(count($four->getImmediateDescendants()->where('active', 1)) > 0)
+                                                                                            @if($four->immediateDescendants()->where('active', 1)->count() > 0)
                                                                                                 <ul class="sub-menu">
                                                                                                     {{--  Loop Through The Menu Level Five --}}
-                                                                                                    @foreach($four->getImmediateDescendants()->where('active', 1) as $five)
+                                                                                                    @foreach($four->immediateDescendants()->where('active', 1)->get() as $five)
                                                                                                         {{--Check if the logged in user have access to view the menu and Check if the menu has been displayed--}}
                                                                                                         @if(!in_array($five->menu_id, $displayed_menu) and in_array($five->menu_id, $roles_menu_ids))
                                                                                                             <?php $displayed_menu[] = $five->menu_id?>
