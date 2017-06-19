@@ -36,6 +36,9 @@ class ExamsController extends Controller
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
 
+        //Keep track of selected tab
+        session()->put('active', 'setup-exam');
+
 //        $exam_details = ExamDetail::all();
 //        foreach($exam_details as $exam){
 //            $ca = mt_rand(5, 38);

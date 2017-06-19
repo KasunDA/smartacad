@@ -35,7 +35,7 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
-                            <li class="{{ (session('active') == 'setup-exam' || (!session()->has('active'))) ? 'active' : '' }}">
+                            <li class="{{ (session('active') == 'setup-exam') ? 'active' : ((!session()->has('active')) ? 'active' : '') }}">
                                 <a href="#my_exams_setup" data-toggle="tab"><i class="fa fa-gears"></i> Setup My Exams </a>
                             </li>
                             <li class="{{ (session('active') == 'input-scores') ? 'active' : '' }}">
@@ -54,7 +54,7 @@
                     <div class="portlet-body form">
                         <div class="tab-content">
                             <div id="error-box"></div>
-                            <div class="tab-pane {{ (session('active') == 'setup-exam' || (!session()->has('active'))) ? 'active' : '' }}" id="my_exams_setup">
+                            <div class="tab-pane {{ (session('active') == 'setup-exam') ? 'active' : ((!session()->has('active')) ? 'active' : '') }}" id="my_exams_setup">
                                 <div class="alert alert-info"> Setup Exam For an <strong> Academic Term</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',
