@@ -79,8 +79,8 @@
                                                     <td>{!! Form::select('status[]', [''=>'Term Status', 1=>'Active', 2=>'Inactive'], $academic_term->status, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::select('academic_year_id[]', $academic_years, $academic_term->academic_year_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::select('term_type_id[]', [''=>'Term Type', 1=>'First Term', 2=>'Second Term', 3=>'Third Term'], $academic_term->term_type_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                    <td>{!! Form::text('term_begins[]', $academic_term->term_begins, ['placeholder'=>'Term Begins', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
-                                                    <td>{!! Form::text('term_ends[]', $academic_term->term_ends, ['placeholder'=>'Term Ends', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
+                                                    <td>{!! Form::text('term_begins[]', $academic_term->term_begins->format('Y-m-d'), ['placeholder'=>'Term Begins', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
+                                                    <td>{!! Form::text('term_ends[]', $academic_term->term_ends->format('Y-m-d'), ['placeholder'=>'Term Ends', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
                                                     <td>
                                                         <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_academic_term">
                                                             <span class="fa fa-trash-o"></span> Delete
