@@ -251,6 +251,9 @@ class StudentController extends Controller
      */
     public function postEdit(Request $request)
     {
+        //Keep track of selected tab
+        session()->put('active', 'info');
+
         $inputs = $request->all();
         $student = (empty($inputs['student_id'])) ? abort(305) : Student::findOrFail($inputs['student_id']);
 
@@ -268,7 +271,7 @@ class StudentController extends Controller
         $student->update($inputs);
         $this->setFlashMessage('Student ' . $student->fullNames() . ', Information has been successfully updated.', 1);
 
-        return redirect('/students');
+        return redirect('/students/view/'.$this->getHashIds()->encode($student->student_id));
     }
 
     /**
@@ -307,5 +310,32 @@ class StudentController extends Controller
             $response[0]['value'] = 'No Record Found';
         }
         echo json_encode($response);
+    }
+
+    /**
+     * Profile Picture Upload
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postAvatar(Request $request)
+    {
+        $inputs = Input::all();
+        //Keep track of selected tab
+        session()->put('active', 'avatar');
+        
+        if ($request->file('avatar')) {
+            
+            $file = $request->file('avatar');
+            $filename = $file->getClientOriginalName();
+            $img_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+            $student = (empty($inputs['student_id'])) ? abort(403) : Student::findOrFail($inputs['student_id']);
+            $student->avatar = time() . '_avatar.' . $img_ext;
+            Input::file('avatar')->move($student->avatar_path, $student->avatar);
+
+            $student->save();
+            $this->setFlashMessage($student->fullNames() . '  passport has been successfully uploaded.', 1);
+            return redirect('/students/view/'.$this->getHashIds()->encode($inputs['student_id']));
+        }
     }
 }
