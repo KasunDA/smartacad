@@ -3,7 +3,7 @@
 
 /*
 |--------------------------------------------------------------------------
-| Application Routes
+| Application Routes HTTP WEB
 |--------------------------------------------------------------------------
 |
 | This route group applies the "web" middleware group to every route
