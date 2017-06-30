@@ -39,11 +39,7 @@
                         <div class="col-md-3">
                             <ul class="list-unstyled profile-nav">
                                 <li>
-                                    @if(!$student->avatar)
-                                        <img src="{{ asset('/uploads/no-image.jpg') }}" class="img-responsive pic-bordered" alt="{{ $student->fullNames() }}"/>
-                                    @else
-                                        <img src="{{ $student->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $student->fullNames() }}"/>
-                                    @endif
+                                    <img src="{{ $student->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $student->fullNames() }}"/>
                                     <a href="{{ url('/students/edit/'.$hashIds->encode($student->student_id)) }}" class="profile-edit"> edit </a>
                                 </li>
                             </ul>

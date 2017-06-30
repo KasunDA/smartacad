@@ -83,7 +83,9 @@ class Student extends Model
      * User Avatar full avatar path
      */
     public function getAvatarPath(){
-        return ($this->avatar) ? DIRECTORY_SEPARATOR . $this->avatar_path . $this->avatar : false;
+        return !empty($this->avatar)
+            ? DIRECTORY_SEPARATOR . $this->avatar_path . $this->avatar
+            : (!empty($this->gender) ? '/uploads/avatars/'. strtolower($this->gender) . '.png' : '/uploads/avatars/mixed.png');
     }
 
     /**

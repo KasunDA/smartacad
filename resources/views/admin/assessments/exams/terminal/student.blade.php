@@ -94,9 +94,14 @@
             <!-- END SAMPLE TABLE PORTLET-->
         </div>
 
-        <?php $domain = $student->domainAssessment()->where('academic_term_id', $term->academic_term_id);?>
-        @if($domain->count() > 0)
-            <div class="col-md-4 margin-bottom-10">
+        <div class="col-md-4 margin-bottom-10">
+            <ul class="list-unstyled profile-nav">
+                <li>
+                    <img style="max-width: 170px; max-height: 200px;" src="{{ $student->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $student->fullNames() }}"/>
+                </li>
+            </ul>
+            <?php $domain = $student->domainAssessment()->where('academic_term_id', $term->academic_term_id);?>
+            @if($domain->count() > 0)
                 <table class="table table-bordered">
                     <thead>
                     <tr style="font-weight:bold; background-color:#CCCCCC; !important;">
@@ -121,8 +126,8 @@
                     @endforeach
                     </tbody>
                 </table>
-            </div>
-        @endif
+            @endif
+        </div>
         <div class="col-md-10 margin-bottom-10">
             <!-- BEGIN SAMPLE TABLE PORTLET-->
             <div class="portlet light bordered">
