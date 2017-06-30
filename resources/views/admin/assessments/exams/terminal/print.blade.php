@@ -239,6 +239,11 @@
                     </h6>
                 </div>
                 <div id="apDiv2">
+                    <ul class="list-unstyled profile-nav">
+                        <li>
+                            <img style="max-width: 150px; max-height: 180px;" src="{{ $student->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $student->fullNames() }}"/>
+                        </li>
+                    </ul>
                     @if($term->nextAcademicTerm())
                         <table class="table table-bordered" style="margin-top: 20px;">
                             <tr>
@@ -251,11 +256,6 @@
                             </tr>
                         </table>
                     @endif
-                    <ul class="list-unstyled profile-nav">
-                        <li>
-                            <img style="max-width: 150px; max-height: 180px;" src="{{ $student->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $student->fullNames() }}"/>
-                        </li>
-                    </ul>
                     <?php $domain = $student->domainAssessment()->where('academic_term_id', $term->academic_term_id);?>
                     @if($domain->count() > 0)
                         <table class="table table-bordered" style="margin-top: 34px;">
