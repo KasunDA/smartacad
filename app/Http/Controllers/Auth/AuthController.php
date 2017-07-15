@@ -126,7 +126,7 @@ class AuthController extends Controller
 
         if (Auth::guard($this->getGuard())->attempt($credentials, $request->has('remember'))) {
 //            dd(Auth::user());
-            if(Auth::user()->user_type_id === Sponsor::USER_TYPE)
+            if(Auth::user()->user_type_id == Sponsor::USER_TYPE)
                 // redirect to the PARENT / STUDENT page
                 return redirect('/home');
             return $this->handleUserWasAuthenticated($request, $throttles);
