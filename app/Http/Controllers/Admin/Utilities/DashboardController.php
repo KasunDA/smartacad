@@ -57,21 +57,41 @@ class DashboardController extends Controller
         $students_count = Student::count();
 
         if(Auth::user()->user_type_id == Staff::USER_TYPE){
-            $assessments = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->where('tutor_id', Auth::user()->user_id)
-                ->where(function ($query) { $query->whereNull('assessment_id')->orWhere('marked', 2); })->get();
-            return view('admin.dashboards.staff', compact('assessments'));
+            $unmarked = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
+                ->where('tutor_id', Auth::user()->user_id)
+                ->where(function ($query) {
+                    $query->whereNull('assessment_id')->orWhere('marked', '<>', 1);
+                })
+                ->get();
+
+            $marked = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
+                ->where('tutor_id', Auth::user()->user_id)
+                ->where('marked', 1)
+                ->groupBy('subject', 'subject_id')
+                ->get();
+
+            return view('admin.dashboards.staff', compact('marked', 'unmarked'));
 
         }else if(Auth::user()->user_type_id == Sponsor::USER_TYPE){
-            $assessments = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->where('tutor_id', Auth::user()->user_id)
-                ->where(function ($query) { $query->whereNull('assessment_id')->orWhere('marked', 2); })->get();
+            $assessments = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
+                ->where('tutor_id', Auth::user()->user_id)
+                ->where(function ($query) {
+                    $query->whereNull('assessment_id')->orWhere('marked', '<>', 1);
+                })
+                ->get();
+
             return view('front.dashboards.dashboard', compact('assessments'));
 
         }else{
             $unmarked = DB::table('subjects_assessmentsviews')
                 ->select('tutor', 'tutor_id', DB::raw('COUNT(subject_classroom_id) AS subjects'))
                 ->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
-                ->where(function ($query) { $query->whereNull('assessment_id')->orWhere('marked', '<>', 1); })
-                ->groupBy('tutor', 'tutor_id')->get();
+                ->where(function ($query) {
+                    $query->whereNull('assessment_id')->orWhere('marked', '<>', 1);
+                })
+                ->groupBy('tutor', 'tutor_id')
+                ->get();
+
             return view('admin.dashboards.admin', compact('sponsors_count','staff_count', 'students_count', 'unmarked'));
         }
     }
