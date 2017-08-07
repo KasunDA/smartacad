@@ -61,7 +61,7 @@ class Controller extends BaseController
      * @param int $type
      * @return void
      */
-    public function setFlashMessage($msg, $type)
+    public function setFlashMessage($msg, $type=null)
     {
         $class1 = 'alert-info';
         $class2 = 'fa fa-info fa-2x';

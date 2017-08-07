@@ -14,8 +14,10 @@ use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\MasterRecords\Subjects\CustomSubject;
 use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
+use App\Models\Admin\RolesAndPermissions\Role;
 use App\Models\Admin\Users\User;
 use Barryvdh\DomPDF\PDF;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -139,14 +141,19 @@ class ExamsController extends Controller
             $exams = Exam::whereIn('subject_classroom_id', $class_subjects)->get();
             //format the record sets as json readable
             foreach($exams as $exam){
+                $subClass = ($exam->subjectClassroom()->first()) ? $exam->subjectClassroom()->first() : false;
                 $res[] = array(
-                    "ca_wp"=>$exam->subjectClassroom()->first()->classRoom()->first()->classLevel()->first()->classGroup()->first()->ca_weight_point,
-                    "exam_wp"=>$exam->subjectClassroom()->first()->classRoom()->first()->classLevel()->first()->classGroup()->first()->exam_weight_point,
-                    "classroom"=>$exam->subjectClassroom()->first()->classRoom()->first()->classroom,
-                    "subject"=>$exam->subjectClassroom()->first()->subject()->first()->subject,
+                    "ca_wp"=> ($subClass)
+                        ? $subClass->classRoom()->first()->classLevel()->first()->classGroup()->first()->ca_weight_point
+                        : '<span class="label label-danger">nil</span>',
+                    "exam_wp"=>($subClass)
+                        ? $subClass->classRoom()->first()->classLevel()->first()->classGroup()->first()->exam_weight_point
+                        : '<span class="label label-danger">nil</span>',
+                    "classroom"=>($subClass) ? $subClass->classRoom()->first()->classroom : '<span class="label label-danger">nil</span>',
+                    "subject"=>($subClass && $subClass->subject()->first()) ? $subClass->subject()->first()->subject : '<span class="label label-danger">nil</span>',
                     "exam_id"=>$exam->exam_id,
                     "hashed_id"=>$this->getHashIds()->encode($exam->exam_id),
-                    "academic_term"=>$exam->subjectClassroom()->first()->academicTerm()->first()->academic_term,
+                    "academic_term"=>($subClass) ? $subClass->academicTerm()->first()->academic_term : '<span class="label label-danger">nil</span>',
 //                    "tutor"=>($exam->subjectClassroom()->first()->tutor()->first()) ? $exam->subjectClassroom()->first()->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>',
                     "marked"=>($exam->marked == 1) ? '<span class="label label-success">Marked</span>' : '<span class="label label-danger">Not Marked</span>',
                 );
@@ -167,6 +174,18 @@ class ExamsController extends Controller
         $decodeId = $this->getHashIds()->decode($encodeId);
         $exam = (empty($decodeId)) ? abort(305) : Exam::findOrFail($decodeId[0]);
         $subject = ($exam) ? $exam->subjectClassroom()->first() : null;
+
+        $now = Carbon::now('Africa/Lagos');
+        $diff = $now->diffInDays(AcademicTerm::activeTerm()->term_ends, false);
+
+        if($diff < 0 && !Auth::user()->hasRole([Role::DEVELOPER, Role::SUPER_ADMIN])){
+            $msg = 'Exams for '.$subject->academicTerm()->first()->academic_term
+                . ' Academic Year is due therefore editing has been disabled... Do contact your Systems Admin for further complains';
+            $this->setFlashMessage($msg);
+
+            return redirect('/exams/view-scores/'.$this->getHashIds()->encode($exam->exam_id));
+        }
+
 
         return view('admin.assessments.exams.input-scores', compact('exam', 'subject'));
     }
