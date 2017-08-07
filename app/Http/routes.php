@@ -25,6 +25,10 @@ Route::group(['middleware' => ['web']], function () {
         }
     });
     
+    Route::get('/phpinfo', function () {
+        return view('/phpinfo');
+    });
+    
     //Dependent List Box
 //    Route::group(array('prefix'=>'list-box'), function(){
 //        // Ajax Get Local Governments Based on the state
