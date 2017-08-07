@@ -12,6 +12,7 @@
 |
 */
 //https://kheengz@bitbucket.org/ekaruztech/school.git
+//$2y$10$4FIskwMg9Wd40XnizVOyfudWzJb56vLyAbXCWon/QOuhuYYWP.woS
 
 Route::group(['middleware' => ['web']], function () {
 

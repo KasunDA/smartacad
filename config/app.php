@@ -219,8 +219,8 @@ return [
         'AcademicTerm' => App\Models\Admin\MasterRecords\AcademicTerm::class,
         'Assessment' => App\Models\Admin\Assessments\Assessment::class,
         'ResultChecker' => App\Models\Admin\PinNumbers\ResultChecker::class,
-
-
+        'Role' => App\Models\Admin\RolesAndPermissions\Role::class,
+        
     ],
 
 ];

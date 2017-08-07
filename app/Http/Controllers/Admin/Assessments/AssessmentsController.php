@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use phpDocumentor\Reflection\Types\Boolean;
 use stdClass;
 
 class AssessmentsController extends Controller
@@ -68,8 +69,8 @@ class AssessmentsController extends Controller
         if(isset($class_subjects)){
             foreach($class_subjects as $class_subject){
                 $res[] = array(
-                    "classroom"=>$class_subject->classRoom()->first()->classroom,
-                    "subject"=>$class_subject->subject()->first()->subject,
+                    "classroom"=> ($class_subject->classroom()->first()) ? $class_subject->classroom()->first()->classroom : '<span class="label label-danger">nil</span>',
+                    "subject"=> ($class_subject->subject()->first()) ? $class_subject->subject()->first()->subject : '<span class="label label-danger">nil</span>',
                     "subject_classroom_id"=>$class_subject->subject_classroom_id,
                     "hashed_id"=>$this->getHashIds()->encode($class_subject->subject_classroom_id),
                     "academic_term"=>$class_subject->academicTerm()->first()->academic_term,
@@ -101,9 +102,10 @@ class AssessmentsController extends Controller
      * Displays the details of the subjects and the number of assessments
      * @param String $setup_id
      * @param String $subject_id
+     * @param Boolean $view
      * @return \Illuminate\View\View
      */
-    public function getInputScores($setup_id, $subject_id)
+    public function getInputScores($setup_id, $subject_id, $view = false)
     {
         $setup_detail_id = $this->getHashIds()->decode($setup_id)[0];
         $subject_classroom_id = $this->getHashIds()->decode($subject_id)[0];
@@ -111,20 +113,22 @@ class AssessmentsController extends Controller
         $setup_detail = AssessmentSetupDetail::findOrFail($setup_detail_id);
         $assessment = Assessment::where('assessment_setup_detail_id', $setup_detail_id)->where('subject_classroom_id', $subject_classroom_id)->first();
 
-        if(empty($assessment)){
-            //Insert New
-            $assessment = new Assessment();
-            $assessment->assessment_setup_detail_id = $setup_detail_id;
-            $assessment->subject_classroom_id = $subject_classroom_id;
-            if($assessment->save()){
+        if(!$view){
+            if(empty($assessment)){
+                //Insert New
+                $assessment = new Assessment();
+                $assessment->assessment_setup_detail_id = $setup_detail_id;
+                $assessment->subject_classroom_id = $subject_classroom_id;
+                if($assessment->save()){
+                    Assessment::populatedAssessmentDetails($assessment->assessment_id);
+                }
+            }else{
+                //Update
                 Assessment::populatedAssessmentDetails($assessment->assessment_id);
             }
-        }else{
-            //Update
-            Assessment::populatedAssessmentDetails($assessment->assessment_id);
         }
 
-        return view('admin.assessments.input-scores', compact('assessment', 'subject', 'setup_detail'));
+        return view('admin.assessments.input-scores', compact('assessment', 'subject', 'setup_detail', 'view'));
     }
 
     /**

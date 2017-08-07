@@ -18,7 +18,7 @@
 
 
 @section('content')
-    <h3 class="page-academic_year">Assessment Input Scores</h3>
+    <h3 class="page-academic_year">Assessment {!! ($view) ? $view : 'Input' !!} Scores</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-7 margin-bottom-10">
@@ -81,67 +81,75 @@
                 </div>
                 <div id="error-div"></div>
                 <div class="portlet-body">
-                    {!! Form::open([
-                            'method'=>'POST',
-                            'class'=>'form',
-                            'role'=>'form',
-                            'id'=>'scores-form'
-                        ])
-                    !!}
-                        <div class="table-responsive">
-                            {!! Form::hidden('assessment_id', $assessment->assessment_id, ['class'=>'form-control']) !!}
-                            {!! Form::hidden('weight_point', $setup_detail->weight_point, ['class'=>'form-control', 'id'=>'weight_point']) !!}
-                            <table class="table table-hover table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Student Number</th>
-                                        <th>Student Name</th>
-                                        <th>Gender</th>
-                                        <th>C.A Score ({{ $setup_detail->weight_point }})</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                @if($assessment)
-                                    @if($assessment->assessmentDetails()->count() > 0)
-                                        <?php $i = 1; ?>
-                                        @foreach($assessment->assessmentDetails()->get() as $detail)
-                                            @if($detail->student()->first())
-                                                <tr class="odd gradeX">
-                                                    <td class="center">{{$i++}}</td>
-                                                    <td>{{ $detail->student()->first()->student_no }}</td>
-                                                    <td>{{ $detail->student()->first()->fullNames() }}</td>
-                                                    <td>
-                                                        {{ $detail->student()->first()->gender }}
-                                                        {!! Form::hidden('assessment_detail_id[]', $detail->assessment_detail_id, ['class'=>'form-control']) !!}
-                                                    </td>
-                                                    <td>
-                                                        {!! Form::text('score[]', $detail->score, ['class'=>'form-control scores', 'size'=>4, 'required'=>'required']) !!}
-                                                        <span></span>
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
-                                    @else
-                                        <tr><th colspan="5">No Record Found</th></tr>
+                    @if(!$view)
+                        {!! Form::open([
+                                'method'=>'POST',
+                                'class'=>'form',
+                                'role'=>'form',
+                                'id'=>'scores-form'
+                            ])
+                        !!}
+                            <div class="table-responsive">
+                                {!! Form::hidden('assessment_id', $assessment->assessment_id, ['class'=>'form-control']) !!}
+                                {!! Form::hidden('weight_point', $setup_detail->weight_point, ['class'=>'form-control', 'id'=>'weight_point']) !!}
+                    @endif
+                                <table class="table table-hover table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Student Number</th>
+                                            <th>Student Name</th>
+                                            <th>Gender</th>
+                                            <th>C.A Score ({{ $setup_detail->weight_point }})</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @if($assessment)
+                                        @if($assessment->assessmentDetails()->count() > 0)
+                                            <?php $i = 1; ?>
+                                            @foreach($assessment->assessmentDetails()->get() as $detail)
+                                                @if($detail->student()->first())
+                                                    <tr class="odd gradeX">
+                                                        <td class="center">{{$i++}}</td>
+                                                        <td>{{ $detail->student()->first()->student_no }}</td>
+                                                        <td>{{ $detail->student()->first()->fullNames() }}</td>
+                                                        <td>
+                                                            {{ $detail->student()->first()->gender }}
+                                                            {!! Form::hidden('assessment_detail_id[]', $detail->assessment_detail_id, ['class'=>'form-control']) !!}
+                                                        </td>
+                                                        <td>
+                                                            @if(!$view)
+                                                                {!! Form::text('score[]', $detail->score, ['class'=>'form-control scores', 'size'=>4, 'required'=>'required']) !!}
+                                                            @else
+                                                                {{ $detail->score }}
+                                                            @endif
+                                                            <span></span>
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            <tr><th colspan="5">No Record Found</th></tr>
+                                        @endif
                                     @endif
-                                @endif
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Student Number</th>
-                                        <th>Student Name</th>
-                                        <th>Gender</th>
-                                        <th>C.A Score ({{ $setup_detail->weight_point }})</th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                            <div class="form-actions noborder">
-                                <button type="submit" class="btn blue pull-right">Save Scores</button>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Student Number</th>
+                                            <th>Student Name</th>
+                                            <th>Gender</th>
+                                            <th>C.A Score ({{ $setup_detail->weight_point }})</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                    @if(!$view)
+                                    <div class="form-actions noborder">
+                                        <button type="submit" class="btn blue pull-right">Save Scores</button>
+                                    </div>
                             </div>
-                        </div>
-                    {!! Form::close() !!}
+                        {!! Form::close() !!}
+                    @endif
                 </div>
             </div>
             <!-- END SAMPLE TABLE PORTLET-->

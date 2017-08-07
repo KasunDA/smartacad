@@ -85,7 +85,10 @@
                             </thead>
                             <tbody>
                             @if($assessment_setup->assessmentSetupDetails()->count() > 0)
-                                <?php $i = 1; ?>
+                                <?php $i = 1;
+                                    $now = Carbon\Carbon::now('Africa/Lagos');
+                                    $diff = $now->diffInDays(AcademicTerm::activeTerm()->term_ends, false);
+                                ?>
                                 @foreach($assessment_setup->assessmentSetupDetails()->get() as $detail)
                                     <tr class="odd gradeX">
                                         <td class="center">{{$i++}}</td>
@@ -101,15 +104,21 @@
                                                 : '<label class="label label-danger">Not Marked</label>' !!}
                                         </td>
                                         <td>
-                                            @if($detail->assessments()->count() > 0 && $detail->assessments()->where('subject_classroom_id', $subject->subject_classroom_id)->count() > 0
-                                            && $detail->assessments()->where('subject_classroom_id', $subject->subject_classroom_id)->first()->marked == 1)
-                                                <a href="{{ url('/assessments/input-scores/'.$hashIds->encode($detail->assessment_setup_detail_id).'/'.$hashIds->encode($subject->subject_classroom_id)) }}" class="btn btn-link btn-xs">
-                                                    <span class="fa fa-edit"></span> Edit Scores
+                                            @if($diff < 0 && !Auth::user()->hasRole([Role::DEVELOPER, Role::SUPER_ADMIN]))
+                                                <a href="{{ url('/assessments/input-scores/'.$hashIds->encode($detail->assessment_setup_detail_id).'/'.$hashIds->encode($subject->subject_classroom_id).'/View') }}" class="btn btn-link btn-xs">
+                                                    <span class="fa fa-eye"></span> View Scores
                                                 </a>
                                             @else
-                                                <a href="{{ url('/assessments/input-scores/'.$hashIds->encode($detail->assessment_setup_detail_id).'/'.$hashIds->encode($subject->subject_classroom_id)) }}" class="btn btn-link btn-xs">
-                                                    <span class="fa fa-check-square"></span> Input Scores
-                                                </a>
+                                                @if($detail->assessments()->count() > 0 && $detail->assessments()->where('subject_classroom_id', $subject->subject_classroom_id)->count() > 0
+                                                && $detail->assessments()->where('subject_classroom_id', $subject->subject_classroom_id)->first()->marked == 1)
+                                                    <a href="{{ url('/assessments/input-scores/'.$hashIds->encode($detail->assessment_setup_detail_id).'/'.$hashIds->encode($subject->subject_classroom_id)) }}" class="btn btn-link btn-xs">
+                                                        <span class="fa fa-edit"></span> Edit Scores
+                                                    </a>
+                                                @else
+                                                    <a href="{{ url('/assessments/input-scores/'.$hashIds->encode($detail->assessment_setup_detail_id).'/'.$hashIds->encode($subject->subject_classroom_id)) }}" class="btn btn-link btn-xs">
+                                                        <span class="fa fa-check-square"></span> Input Scores
+                                                    </a>
+                                                @endif
                                             @endif
                                         </td>
                                     </tr>
