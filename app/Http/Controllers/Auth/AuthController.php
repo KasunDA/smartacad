@@ -89,7 +89,7 @@ class AuthController extends Controller
      */
     public function postLogin(Request $request)
     {
-        $login = $request->input('login');
+        $login = strtolower(trim($request->input('login')));
         //Check login field
         $login_type = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_no';
         //Merge login field into the request with either email or phone_no as key
@@ -100,6 +100,7 @@ class AuthController extends Controller
                 'email' => 'required|email', 'password' => 'required',
             ]);
             $credentials = $request->only('email', 'password');
+            $credentials['email'] = strtolower(trim($credentials['email']));
         }else{
             $this->validate($request, [
                 'phone_no' => 'required', 'password' => 'required',
@@ -122,6 +123,7 @@ class AuthController extends Controller
         // Allow Only Active Users Where status and verified is 1
         $credentials = array_add($credentials, 'status', 1);
         $credentials = array_add($credentials, 'verified', 1);
+
         //////////////////////////////////////////////// end: KHEENGZ CUSTOM CODE //////////////////////////////////////////////
 
         if (Auth::guard($this->getGuard())->attempt($credentials, $request->has('remember'))) {

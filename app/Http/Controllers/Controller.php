@@ -108,13 +108,14 @@ class Controller extends BaseController
     protected function newUser(array $data)
     {
         return User::create([
-            'email' => $data['email'],
+            'email' => trim(strtolower($data['email'])),
             'verified' => 1,
-//            'password' => Hash::make($data['password']),
-            'password' => Hash::make('password'),
+            'password' => Hash::make($data['password']),
+//            'password' => Hash::make('password'),
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
-            'phone_no' => $data['phone_no'],
+            'phone_no' => trim($data['phone_no']),
+            'gender' => $data['gender'],
             'user_type_id' => $data['user_type_id'],
             'verification_code' => $data['verification_code']
         ]);
