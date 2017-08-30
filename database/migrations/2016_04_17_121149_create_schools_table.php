@@ -28,6 +28,8 @@ class CreateSchoolsTable extends Migration
             $table->integer('admin_id')->nullable()->index()->unsigned();
             $table->integer('status_id')->default(1)->index()->unsigned();
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
     }
 

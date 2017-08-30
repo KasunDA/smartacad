@@ -63,6 +63,8 @@ class ProfileController extends Controller
     public function getEdit()
     {
         $user = Auth::user();
+        session()->put('active', 'info');
+
         if($user){
             $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->prepend('Select Title', '');
             $states = State::orderBy('state')->lists('state', 'state_id')->prepend('Select State', '');
@@ -171,7 +173,6 @@ class ProfileController extends Controller
         // Set the flash message
         $this->setFlashMessage('Changed!!! ' . $user->fullNames() . ' Your password change was successful.', 1);
         //Keep track of selected tab
-        session()->put('active', 'info');
         return redirect('/profiles/');
     }
 
@@ -183,6 +184,7 @@ class ProfileController extends Controller
     public function postAvatar(Request $request)
     {
         if ($request->file('avatar')) {
+            session()->put('active', 'avatar');
             $file = $request->file('avatar');
             $filename = $file->getClientOriginalName();
             $img_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));

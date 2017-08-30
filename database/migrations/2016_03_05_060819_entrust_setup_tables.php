@@ -20,6 +20,8 @@ class EntrustSetupTables extends Migration
             $table->string('description')->nullable();
             $table->integer('user_type_id')->index()->unsigned();
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
 
         // Create table for associating roles to users (Many-to-Many)
@@ -33,6 +35,8 @@ class EntrustSetupTables extends Migration
                 ->onUpdate('cascade')->onDelete('cascade');
 
             $table->primary(['user_id', 'role_id']);
+
+            $table->engine = 'InnoDB';
         });
 
         // Create table for storing permissions
@@ -43,6 +47,8 @@ class EntrustSetupTables extends Migration
             $table->string('description')->nullable();
             $table->string('uri')->nullable();
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
 
         // Create table for associating permissions to roles (Many-to-Many)
@@ -55,6 +61,8 @@ class EntrustSetupTables extends Migration
             $table->foreign('role_id')->references('role_id')->on('roles')
                 ->onUpdate('cascade')->onDelete('cascade');
             $table->primary(['permission_id', 'role_id']);
+
+            $table->engine = 'InnoDB';
         });
     }
 

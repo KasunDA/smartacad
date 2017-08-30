@@ -17,6 +17,8 @@ class CreateAcademicYearsAndTermsTable extends Migration
             $table->string('academic_year', 100);
             $table->integer('status')->index()->unsigned()->default(2);
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
 
         Schema::create('academic_terms', function (Blueprint $table) {
@@ -34,6 +36,8 @@ class CreateAcademicYearsAndTermsTable extends Migration
 
             $table->foreign('academic_year_id')->references('academic_year_id')->on('academic_years')
                 ->onUpdate('cascade')->onDelete('cascade');
+
+            $table->engine = 'InnoDB';
         });
     }
 

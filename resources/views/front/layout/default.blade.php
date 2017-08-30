@@ -45,6 +45,8 @@ License: You must have a valid license purchased only from themeforest(the above
     <link href="{{ asset('assets/layouts/layout3/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- END THEME LAYOUT STYLES -->
     <link rel="shortcut icon" href="{{ asset('assets/pages/img/favicon.png') }}" /> </head>
+
+    @yield('layout-style')
 <!-- END HEAD -->
 
 <body class="page-container-bg-solid page-header-menu-fixed page-boxed" onload="javascript:showTime();">

@@ -27,6 +27,8 @@ class CreateStaffsTable extends Migration
             $table->integer('salutation_id')->index()->unsigned()->nullable();
             $table->integer('created_by')->index()->unsigned();
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
     }
 

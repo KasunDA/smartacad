@@ -40,7 +40,7 @@ class Controller extends BaseController
 
         if(Auth::check()){
             // render PARENT / STUDENT page
-            $this->view = (Auth::user()->user_type_id === Sponsor::USER_TYPE) ? 'front.' : 'admin.';
+            $this->view = (Auth::user()->user_type_id == Sponsor::USER_TYPE) ? 'front.' : 'admin.';
         }
 
         //Check if the user has permission to perform such action

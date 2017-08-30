@@ -31,6 +31,8 @@ class CreateCustomSubjectsTable extends Migration
             $table->string('abbr', 50)->nullable();
 
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
         
     }

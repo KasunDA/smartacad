@@ -20,6 +20,8 @@ class CreateSchoolDatabasesTable extends Migration
             $table->string('password', 150)->nullable();
             $table->integer('school_id')->index()->unsigned();
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
     }
 

@@ -6,17 +6,12 @@
       rel="stylesheet" type="text/css"/>
 <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet"
       type="text/css"/>
+<link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet" type="text/css"/>
+<!-- END PAGE LEVEL PLUGINS -->
 @endsection
 
 @section('layout-style')
-        <!-- BEGIN PAGE LEVEL PLUGINS -->
-<link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet" type="text/css"/>
-
-<!-- END PAGE LEVEL PLUGINS -->
-<!-- BEGIN THEME GLOBAL STYLES -->
-<!-- BEGIN PAGE LEVEL STYLES -->
-<link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css"/>
-<!-- END PAGE LEVEL STYLES -->
+<link href="{{ asset('assets/pages/css/profile.min.css') }}" rel="stylesheet" type="text/css"/>
 @endsection
 
 @section('title', 'Edit Profile')
@@ -158,20 +153,26 @@
                                             <div class="form-group">
                                                 {{ csrf_field() }}
                                                 <div class="fileinput fileinput-new" data-provides="fileinput">
-                                                    <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
-                                                        @if(Auth::check() and $user->getAvatarPath())
-                                                            <img src="{{ $user->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $user->fullNames() }}"/>
+                                                    <div class="fileinput-new thumbnail"
+                                                         style="width: 200px; height: 150px;">
+                                                        @if($user->getAvatarPath())
+                                                            <img src="{{ $user->getAvatarPath() }}"
+                                                                 class="img-responsive pic-bordered"
+                                                                 alt="{{ $user->fullNames() }}"/>
                                                         @else
-                                                            <img alt="" class="img-circle img-responsive pic-bordered" src="{{ asset('/uploads/no-image.jpg') }}"/>
+                                                            <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image"
+                                                                 alt=""/>
                                                         @endif
                                                     </div>
-                                                    <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px;"></div>
+                                                    <div class="fileinput-preview fileinput-exists thumbnail"
+                                                         style="max-width: 200px; max-height: 150px;"></div>
                                                     <div>
-                                                        <span class="btn default btn-file">
-                                                        <span class="fileinput-new"> Select image </span>
-                                                        <span class="fileinput-exists"> Change </span>
-                                                        <input type="file" name="avatar"></span>
-                                                        <a href="javascript:;" class="btn default fileinput-exists" data-dismiss="fileinput"> Remove </a>
+                                                    <span class="btn default btn-file">
+                                                    <span class="fileinput-new"> Select image </span>
+                                                    <span class="fileinput-exists"> Change </span>
+                                                    <input type="file" name="avatar"></span>
+                                                        <a href="javascript:;" class="btn default fileinput-exists"
+                                                           data-dismiss="fileinput"> Remove </a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -217,13 +218,13 @@
 @section('page-level-js')
     <script src="{{ asset('assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/bootstrap-select/js/bootstrap-select.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/pages/scripts/components-date-time-pickers.min.js') }}" type="text/javascript"></script>
 @endsection
 
 @section('layout-script')
-    <script src="{{ asset('assets/pages/scripts/components-date-time-pickers.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/layouts/layout3/scripts/layout.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/layouts/layout3/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/users/profile.js') }}" type="text/javascript"></script>
     <!-- BEGIN PAGE LEVEL SCRIPTS -->

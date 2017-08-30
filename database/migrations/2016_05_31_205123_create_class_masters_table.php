@@ -18,6 +18,8 @@ class CreateClassMastersTable extends Migration
             $table->integer('classroom_id')->index()->unsigned();
             $table->integer('academic_year_id')->index()->unsigned();
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
     }
 

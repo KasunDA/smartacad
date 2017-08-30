@@ -16,6 +16,8 @@ class CreateSalutaionsTable extends Migration
             $table->increments('salutation_id');
             $table->string('salutation', 150);
             $table->string('salutation_abbr', 15);
+
+            $table->engine = 'InnoDB';
         });
     }
 

@@ -27,6 +27,8 @@ class CreateSponsorTable extends Migration
             $table->integer('salutation_id')->unsigned()->index()->nullable();
             $table->integer('created_by')->unsigned()->index();
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
     }
 

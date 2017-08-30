@@ -15,6 +15,8 @@ class CreateSubjectGroupsAndSubjectsTable extends Migration
         Schema::connection('admin_mysql')->create('subject_groups', function (Blueprint $table) {
             $table->increments('subject_group_id');
             $table->string('subject_group');
+
+            $table->engine = 'InnoDB';
         });
 
         Schema::connection('admin_mysql')->create('subjects', function (Blueprint $table) {
@@ -23,6 +25,8 @@ class CreateSubjectGroupsAndSubjectsTable extends Migration
             $table->string('subject_abbr', 10)->nullable();
             $table->integer('subject_group_id')->index()->unsigned();
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
 
             $table->foreign('subject_group_id')->references('subject_group_id')->on('subject_groups')
                 ->onUpdate('cascade')->onDelete('cascade');
@@ -40,6 +44,8 @@ class CreateSubjectGroupsAndSubjectsTable extends Migration
             $table->string('subject_alias')->nullable();
 
             $table->primary(['school_id', 'subject_id']);
+
+            $table->engine = 'InnoDB';
         });
     }
 

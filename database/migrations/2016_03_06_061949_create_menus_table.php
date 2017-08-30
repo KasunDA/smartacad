@@ -32,6 +32,8 @@ class CreateMenusTable extends Migration {
       $table->string('icon')->nullable();
 
       $table->timestamps();
+
+      $table->engine = 'InnoDB';
     });
 
     Schema::create('menus_roles', function (Blueprint $table) {
@@ -40,6 +42,8 @@ class CreateMenusTable extends Migration {
 
       $table->integer('role_id')->unsigned()->index();
       $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('cascade')->onUpdate('cascade');;
+
+      $table->engine = 'InnoDB';
     });
   }
 

@@ -17,6 +17,8 @@ class CreateStateAndLgaTable extends Migration
             $table->string('state', 150);
             $table->string('state_code', 10);
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
 
         Schema::connection('admin_mysql')->create('lgas', function (Blueprint $table) {
@@ -24,6 +26,8 @@ class CreateStateAndLgaTable extends Migration
             $table->string('lga', 150);
             $table->integer('state_id')->unsigned()->index();
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
     }
 

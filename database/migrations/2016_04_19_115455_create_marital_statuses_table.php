@@ -17,6 +17,8 @@ class CreateMaritalStatusesTable extends Migration
             $table->string('marital_status', 150);
             $table->string('marital_status_abbr', 150);
             $table->timestamps();
+
+            $table->engine = 'InnoDB';
         });
     }
 
