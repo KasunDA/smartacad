@@ -110,9 +110,9 @@
                                         <td class="center">{{$j++}}</td>
                                         <td>{{ $sub->subjectClassroom->subject->subject }}</td>
                                         @foreach($assessments as $assessment)
-                                            @if($assessment->subject_classroom_id === $sub->subject_classroom_id and $check < $setup_details->count())
+                                            @if($assessment->subject_classroom_id == $sub->subject_classroom_id and $check < $setup_details->count())
                                                 @for($i=1; $i <= $setup_details->count(); $i++)
-                                                    @if($i === $assessment->number)
+                                                    @if($i == $assessment->number)
                                                         <td>{{$assessment->score}}</td>
                                                         <?php $total += $assessment->score; ?>
                                                     @endif

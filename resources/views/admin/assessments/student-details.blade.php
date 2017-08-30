@@ -124,9 +124,9 @@
                                         <td>{{ $sub->subjectClassroom->subject->subject }}</td>
                                         @foreach($assessments as $assessment)
                                             <?php $check = 1; ?>
-                                            @if($assessment->subject_classroom_id === $sub->subject_classroom_id)
+                                            @if($assessment->subject_classroom_id == $sub->subject_classroom_id)
                                                 @for($i=1; $i <= $setup_details->count(); $i++)
-                                                    @if($i === $assessment->number)
+                                                    @if($i == $assessment->number)
                                                         <td>{{$assessment->score}}</td>
                                                         <?php $total += $assessment->score; ?>
                                                     @endif
