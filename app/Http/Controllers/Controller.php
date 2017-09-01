@@ -55,6 +55,14 @@ class Controller extends BaseController
     {
         return new Hashids(env('APP_KEY'), 20, env('APP_CHAR'));
     }
+    
+    public function decode($hashed){
+        return !empty($hashed) ? $this->getHashIds()->decode($hashed)[0] : null;
+    }
+
+    public function encode($raw){
+        return !empty($raw) ? $this->getHashIds()->encode($raw) : null;
+    }
 
     /**
      * @param  string  $msg

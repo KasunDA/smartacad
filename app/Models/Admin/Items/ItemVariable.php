@@ -6,9 +6,12 @@ use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ItemVariable extends Model
 {
+    use SoftDeletes;
+    
     protected $fillable = [
         'price',
         'item_id',

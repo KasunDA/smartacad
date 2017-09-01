@@ -17,20 +17,36 @@ class ItemQuotesController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param String $encodeId
+     * @param Boolean $year_id
+     * @param Boolean $item_id
      * @return Response
      */
-    public function getIndex($encodeId=null)
+    public function getIndex($year_id = false, $item_id = false)
     {
-        $academic_year = (empty($encodeId)) ? AcademicYear::activeYear() : AcademicYear::findOrFail($this->getHashIds()->decode($encodeId)[0]);
-        $item_quotes = (empty($academic_year)) ? ItemQuote::all() : $academic_year->itemQuotes()->get();
-        
-        $items = Item::lists('name', 'id')->prepend('- Items -', '');
+        $items = Item::orderBy('name')->lists('name', 'id')->prepend('- Items -', '');
+
+        if(count($items) == 1){
+            $this->setFlashMessage('Kindly Set up Items before proceeding to Item Quotes ', 3);
+            return redirect('/items');
+        }
+
+        $academic_year = ($year_id)
+            ? $academic_year = AcademicYear::findOrFail($this->decode($year_id))
+            : AcademicYear::activeYear();
+
+        $item_quotes = $academic_year->itemQuotes()->get();
+        if($year_id){
+            $item = Item::find($this->decode($item_id));
+            $item_quotes = ($item_id)
+                ? $academic_year->itemQuotes()->where('item_id', $this->decode($item_id))->get()
+                : $item_quotes;
+        }
+
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         
         return view('admin.master-records.items.item-quotes',
-            compact('items', 'item_quotes', 'classlevels', 'academic_year', 'academic_years')
+            compact('items', 'item_quotes', 'classlevels', 'academic_year', 'item', 'academic_years')
         );
     }
 
@@ -82,6 +98,9 @@ class ItemQuotesController extends Controller
     public function postAcademicYears(Request $request)
     {
         $inputs = $request->all();
-        return redirect('/item-quotes/index/' . $this->getHashIds()->encode($inputs['academic_year_id']));
+        $year = $this->encode($inputs['academic_year_id']);
+        $item = $this->encode($inputs['item_id']);
+
+        return redirect('/item-quotes/index/' . $year . '/' . $item);
     }
 }

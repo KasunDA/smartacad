@@ -25,13 +25,30 @@
             <form method="post" action="/item-quotes/academic-years" role="form" class="form-horizontal">
                 {!! csrf_field() !!}
                 <div class="form-group">
-                    <label class="col-md-3 control-label">Class Levels</label>
+                    <label class="col-md-3 control-label">Academic Year</label>
 
                     <div class="col-md-6">
                         <div class="col-md-9">
                             <select class="form-control selectpicker" name="academic_year_id" id="academic_year_id">
                                 @foreach($academic_years as $key => $value)
                                     @if($academic_year && $academic_year->academic_year_id === $key)
+                                        <option selected value="{{$key}}">{{$value}}</option>
+                                    @else
+                                        <option value="{{$key}}">{{$value}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Items</label>
+
+                    <div class="col-md-6">
+                        <div class="col-md-9">
+                            <select class="form-control selectpicker" name="item_id" id="item_id">
+                                @foreach($items as $key => $value)
+                                    @if(!empty($item) && $item->id === $key)
                                         <option selected value="{{$key}}">{{$value}}</option>
                                     @else
                                         <option value="{{$key}}">{{$value}}</option>
@@ -47,8 +64,10 @@
 
                 <div class="form-group">
                     <div class="col-md-10">
-                        <h3 class="text-center">Item Quotes in:
-                            <span class="text-primary">{{ ($academic_year) ? $academic_year->academic_year : 'All' }}</span> Academic Year</h3>
+                        <h3 class="text-center">
+                            <span class="text-primary">{{ !empty($item) ? $item->name : 'All' }}</span> Item, Quotes in:
+                            <span class="text-primary">{{ ($academic_year) ? $academic_year->academic_year : 'All' }}</span> Academic Year
+                        </h3>
                     </div>
                 </div>
             </form>
@@ -178,7 +197,7 @@
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
         jQuery(document).ready(function () {
-            setTabActive('[href="/item_quotes"]');
+            setTabActive('[href="/item-quotes"]');
 
             $('.add_item_quote').click(function(e){
                 e.preventDefault();
