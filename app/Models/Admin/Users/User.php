@@ -196,4 +196,14 @@ class User extends Authenticatable
     public function subjectClassRooms(){
         return $this->hasMany('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'tutor_id');
     }
+
+    /**
+     * Restore a soft-deleted model instance.
+     *
+     * @return bool|null
+     */
+    public function restore()
+    {
+        $this->restore();
+    }
 }
