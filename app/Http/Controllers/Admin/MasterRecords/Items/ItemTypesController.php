@@ -44,7 +44,7 @@ class ItemTypesController extends Controller
     }
 
     /**
-     * Delete a item type from the list of item Types using a given menu id
+     * Delete a item type from the list of item Types using a given id
      * @param $id
      */
     public function getDelete($id)

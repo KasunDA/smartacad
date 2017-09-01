@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\MasterRecords\Classes;
 
+use App\Models\Admin\Items\ItemQuote;
 use Illuminate\Database\Eloquent\Model;
 
 class ClassLevel extends Model
@@ -44,5 +45,14 @@ class ClassLevel extends Model
 
     public function classGroup(){
         return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassGroup', 'classgroup_id');
+    }
+
+    /**
+     * A Class Level Has Many Item Quotes
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function itemQuotes(){
+        return $this->hasMany(ItemQuote::class, 'classlevel_id');
     }
 }

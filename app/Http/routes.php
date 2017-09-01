@@ -111,6 +111,8 @@ Route::group(['middleware' => ['web']], function () {
 
         //Items Records
         'item-types' => 'Admin\MasterRecords\Items\ItemTypesController',
+        'items' => 'Admin\MasterRecords\Items\ItemsController',
+        'item-quotes' => 'Admin\MasterRecords\Items\ItemQuotesController',
 
         //Subjects
         'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',

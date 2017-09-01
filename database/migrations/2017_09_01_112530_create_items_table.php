@@ -32,9 +32,10 @@ class CreateItemsTable extends Migration
 
         Schema::create('item_quotes', function (Blueprint $table) {
             $table->increments('id');
-            $table->decimal('price', 10, 2)->index();
+            $table->decimal('amount', 10, 2)->index();
             $table->integer('item_id', false, true)->index();
             $table->integer('classlevel_id', false, true)->index();
+            $table->integer('academic_year_id', false, true)->index();
             $table->timestamps();
 
             $table->engine = 'InnoDB';
@@ -42,7 +43,7 @@ class CreateItemsTable extends Migration
 
         Schema::create('item_variables', function (Blueprint $table) {
             $table->increments('id');
-            $table->decimal('price', 10, 2)->index();
+            $table->decimal('amount', 10, 2)->index();
             $table->integer('item_id', false, true)->index();
             $table->integer('student_id', false, true)->index()->nullable();
             $table->integer('class_id', false, true)->index()->nullable();
