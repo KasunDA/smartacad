@@ -4,9 +4,12 @@ namespace App\Models\Admin\Accounts\Students;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Student extends Model
 {
+    use SoftDeletes;
+    
     /**
      * The table users primary key
      * @var string

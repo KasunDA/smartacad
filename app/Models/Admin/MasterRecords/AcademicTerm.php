@@ -4,10 +4,13 @@ namespace App\Models\Admin\MasterRecords;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class AcademicTerm extends Model
 {
+    use SoftDeletes;
+    
     /**
      * The database table used by the model.
      *

@@ -18,6 +18,7 @@ class CreateClassGroupsLevelsRoomsTable extends Migration
             $table->integer('ca_weight_point')->unsigned()->default(0)->nullable();
             $table->integer('exam_weight_point')->unsigned()->default(0)->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->engine = 'InnoDB';
         });
@@ -27,6 +28,7 @@ class CreateClassGroupsLevelsRoomsTable extends Migration
             $table->string('classlevel');
             $table->integer('classgroup_id')->unsigned()->index();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('classgroup_id')->references('classgroup_id')->on('classgroups')
                 ->onUpdate('cascade')->onDelete('cascade');
@@ -41,6 +43,7 @@ class CreateClassGroupsLevelsRoomsTable extends Migration
             $table->integer('class_status')->unsigned()->default(1);
             $table->integer('classlevel_id')->unsigned()->index();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('classlevel_id')->references('classlevel_id')->on('classlevels')
                 ->onUpdate('cascade')->onDelete('cascade');

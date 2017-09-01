@@ -18,6 +18,7 @@ class CreateUserTypeTable extends Migration
             $table->string('user_type', 150);
             $table->integer('type')->default(1);
             $table->timestamps();
+            $table->softDeletes();
 
             $table->engine = 'InnoDB';
         });

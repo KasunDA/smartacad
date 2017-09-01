@@ -3,9 +3,12 @@
 namespace App\Models\School\Setups\Subjects;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subject extends Model
 {
+    use SoftDeletes;
+    
     protected $connection = 'admin_mysql';
 
     /**

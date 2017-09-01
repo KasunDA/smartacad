@@ -17,6 +17,7 @@ class CreateAcademicYearsAndTermsTable extends Migration
             $table->string('academic_year', 100);
             $table->integer('status')->index()->unsigned()->default(2);
             $table->timestamps();
+            $table->softDeletes();
 
             $table->engine = 'InnoDB';
         });
@@ -33,6 +34,7 @@ class CreateAcademicYearsAndTermsTable extends Migration
 //            $table->integer('exam_setup_by')->index()->unsigned()->nullable();
 //            $table->date('exam_setup_date')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('academic_year_id')->references('academic_year_id')->on('academic_years')
                 ->onUpdate('cascade')->onDelete('cascade');
