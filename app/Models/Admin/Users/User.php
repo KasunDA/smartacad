@@ -2,16 +2,15 @@
 
 namespace App\Models\Admin\Users;
 
-use App\Models\Admin\Accounts\Sponsor;
-use App\Models\Admin\Accounts\Staff;
 use App\Models\Admin\Accounts\Student;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
 
 class User extends Authenticatable
 {
-    use EntrustUserTrait;
+    use EntrustUserTrait, SoftDeletes;
     /**
      * The table users primary key
      * @var string

@@ -3,9 +3,12 @@
 namespace App\Models\Admin\MasterRecords;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AcademicYear extends Model
 {
+    use SoftDeletes;
+    
     /**
      * The database table used by the model.
      *

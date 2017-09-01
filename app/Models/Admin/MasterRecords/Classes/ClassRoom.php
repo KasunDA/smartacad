@@ -3,9 +3,12 @@
 namespace App\Models\Admin\MasterRecords\Classes;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ClassRoom extends Model
 {
+    use SoftDeletes;
+    
     /**
      * The database table used by the model.
      *
