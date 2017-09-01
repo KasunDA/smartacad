@@ -15,6 +15,7 @@ class CreateSubjectGroupsAndSubjectsTable extends Migration
         Schema::connection('admin_mysql')->create('subject_groups', function (Blueprint $table) {
             $table->increments('subject_group_id');
             $table->string('subject_group');
+            $table->softDeletes();
 
             $table->engine = 'InnoDB';
         });
@@ -25,6 +26,7 @@ class CreateSubjectGroupsAndSubjectsTable extends Migration
             $table->string('subject_abbr', 10)->nullable();
             $table->integer('subject_group_id')->index()->unsigned();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->engine = 'InnoDB';
 

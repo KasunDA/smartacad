@@ -33,6 +33,7 @@ class CreateUsersTable extends Migration
             $table->integer('user_type_id')->unsigned()->index();
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->engine = 'InnoDB';
         });

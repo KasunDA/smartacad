@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class School extends Model
 {
-    use SoftDeletes;
+//    use SoftDeletes;
     
     protected $connection = 'admin_mysql';
 
