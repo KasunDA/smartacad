@@ -109,6 +109,9 @@ Route::group(['middleware' => ['web']], function () {
         'class-rooms' => 'Admin\MasterRecords\Classes\ClassRoomsController',
         'class-students' => 'Admin\MasterRecords\Classes\ClassStudentsController',
 
+        //Items Records
+        'item-types' => 'Admin\MasterRecords\Items\ItemTypesController',
+
         //Subjects
         'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
         'subjects' => 'School\Setups\Subjects\SubjectsController',
