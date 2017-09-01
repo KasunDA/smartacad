@@ -18,9 +18,13 @@ class ItemsController extends Controller
      */
     public function getIndex()
     {
-        $items = Item::all();
+        $items = Item::orderBy('name')->get();
         $item_types = ItemType::lists('item_type', 'id')->prepend('- Item Type -', '');
 
+        if(count($item_types) == 1){
+            $this->setFlashMessage('Kindly Set up Item Types before proceeding to Items', 3);
+            return redirect('/item-types');
+        }
         return view('admin.master-records.items.items', compact('items', 'item_types'));
     }
 
@@ -43,8 +47,8 @@ class ItemsController extends Controller
             $count = ($item->save()) ? $count+1 : '';
         }
         // Set the flash message
-        if($count > 0)
-            $this->setFlashMessage($count . ' Item has been successfully updated.', 1);
+        if($count > 0) $this->setFlashMessage($count . ' Item has been successfully updated.', 1);
+
         // redirect to the create a new inmate page
         return redirect('/items');
     }
@@ -56,10 +60,8 @@ class ItemsController extends Controller
     public function getDelete($id)
     {
         $item = Item::findOrFail($id);
-        //Delete The Warder Record
-        $delete = ($item !== null) ? $item->delete() : null;
 
-        ($delete)
+        (!empty($item) && $item->delete())
             ? $this->setFlashMessage('  Deleted!!! '.$item->item.' Item have been deleted.', 1)
             : $this->setFlashMessage('Error!!! Unable to delete record.', 2);
     }

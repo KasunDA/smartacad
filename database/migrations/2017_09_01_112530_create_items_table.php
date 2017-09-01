@@ -15,6 +15,7 @@ class CreateItemsTable extends Migration
         Schema::create('item_types', function (Blueprint $table) {
             $table->increments('id');
             $table->string('item_type', 60);
+            $table->softDeletes();
 
             $table->engine = 'InnoDB';
         });
@@ -26,8 +27,15 @@ class CreateItemsTable extends Migration
             $table->tinyInteger('status', false, true)->index()->default(1);
             $table->integer('item_type_id', false, true)->index();
             $table->timestamps();
-
+            $table->softDeletes();
             $table->engine = 'InnoDB';
+            
+            $table->foreign('item_type_id')
+                ->references('id')
+                ->on('item_types')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
         });
 
         Schema::create('item_quotes', function (Blueprint $table) {
@@ -49,6 +57,7 @@ class CreateItemsTable extends Migration
             $table->integer('class_id', false, true)->index()->nullable();
             $table->integer('academic_term_id', false, true)->index();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->engine = 'InnoDB';
         });
