@@ -278,3 +278,38 @@ function setTableData(table) {
     };
 
 };
+
+//Sweet Alert
+function setSweetAlert(url, name) {
+    swal({
+            title: "Are you sure?",
+            text: 'Are You sure You want to permanently delete: <span class="bold">' + name + '</span>',
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes, delete it!",
+            closeOnConfirm: false,
+            html: true
+            // timer: 3000,
+            // allowOutsideClick: true
+        },
+        function(){
+            $.ajax({
+                type: 'GET',
+                async: true,
+                url: url,
+                success: function(data,textStatus){
+                    swal("Deleted!", name + " record has been deleted.", "success");
+                    window.location.reload();
+                    // window.location.replace(redirect);
+                },
+                error: function(xhr,textStatus,error){
+                    swal("Server Error!", "Error encountered please try again later...", "error");
+                    // bootbox.alert("Error encountered pls try again later..", function() {
+                    //     $(this).hide();
+                    // });
+                }
+            });
+        }
+    );
+}

@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\MasterRecords;
 
+use App\Models\Admin\Items\ItemQuote;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -45,6 +46,15 @@ class AcademicYear extends Model
     public static function activeYear(){
 
         return AcademicYear::where('status', 1)->first();
+    }
+
+    /**
+     * A Academic Year Has Many Item Quotes
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function itemQuotes(){
+        return $this->hasMany(ItemQuote::class, 'academic_year_id');
     }
 
     /**
