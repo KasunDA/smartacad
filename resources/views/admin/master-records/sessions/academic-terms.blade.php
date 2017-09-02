@@ -27,6 +27,38 @@
     <h3 class="page"> Academic Terms</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
+        <div class="col-md-8 col-xs-12 col-md-offset-2 margin-bottom-10">
+            <form method="post" action="/academic-terms/academic-years" role="form" class="form-horizontal">
+                {!! csrf_field() !!}
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Academic Year</label>
+
+                    <div class="col-md-6">
+                        <div class="col-md-9">
+                            <select class="form-control selectpicker" name="academic_year_id" id="academic_year_id">
+                                @foreach($academic_years as $key => $value)
+                                    @if($academic_year && $academic_year->academic_year_id === $key)
+                                        <option selected value="{{$key}}">{{$value}}</option>
+                                    @else
+                                        <option value="{{$key}}">{{$value}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary" type="submit">Filter</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+                        <h3 class="text-center">Academic Terms in:
+                            <span class="text-primary">{{ ($academic_year) ? $academic_year->academic_year : 'All' }}</span> Academic Year
+                        </h3>
+                    </div>
+                </div>
+            </form>
+        </div>
         <div class="col-md-12">
             <div class="portlet light bordered">
                 <div class="portlet">
@@ -76,13 +108,15 @@
                                                         {!! Form::text('academic_term[]', $academic_term->academic_term, ['placeholder'=>'Academic Term', 'class'=>'form-control', 'required'=>'required']) !!}
                                                         {!! Form::hidden('academic_term_id[]', $academic_term->academic_term_id, ['class'=>'form-control']) !!}
                                                     </td>
-                                                    <td>{!! Form::select('status[]', [''=>'Term Status', 1=>'Active', 2=>'Inactive'], $academic_term->status, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                    <td>{!! Form::select('status[]', [''=>'- Term Status- ', 1=>'Active', 2=>'Inactive'], $academic_term->status, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::select('academic_year_id[]', $academic_years, $academic_term->academic_year_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::select('term_type_id[]', [''=>'Term Type', 1=>'First Term', 2=>'Second Term', 3=>'Third Term'], $academic_term->term_type_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::text('term_begins[]', $academic_term->term_begins->format('Y-m-d'), ['placeholder'=>'Term Begins', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
                                                     <td>{!! Form::text('term_ends[]', $academic_term->term_ends->format('Y-m-d'), ['placeholder'=>'Term Ends', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
                                                     <td>
-                                                        <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_academic_term">
+                                                        <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$academic_term->academic_term}}" data-title="Delete Confirmation"
+                                                                 data-message="Are you sure you want to delete <b>{{$academic_term->academic_term}}?</b>"
+                                                                 data-action="/academic-terms/delete/{{$academic_term->academic_term_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                             <span class="fa fa-trash-o"></span> Delete
                                                         </button>
                                                     </td>
@@ -96,13 +130,13 @@
                                                     {!! Form::text('academic_term[]', '', ['placeholder'=>'Academic Term', 'class'=>'form-control', 'required'=>'required']) !!}
                                                     {!! Form::hidden('academic_term_id[]', '-1', ['class'=>'form-control']) !!}
                                                 </td>
-                                                <td>{!! Form::select('status[]', [''=>'Term Status', 1=>'Active', 2=>'Inactive'],'', ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                <td>{!! Form::select('status[]', [''=>'- Term Status -', 1=>'Active', 2=>'Inactive'],'', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>{!! Form::select('academic_year_id[]', $academic_years, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>{!! Form::select('term_type_id[]', [''=>'Term Type', 1=>'First Term', 2=>'Second Term', 3=>'Third Term'], '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>{!! Form::text('term_begins[]', '', ['placeholder'=>'Term Begins', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
                                                 <td>{!! Form::text('term_ends[]', '', ['placeholder'=>'Term Ends', 'class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd']) !!}</td>
                                                 <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
+                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-xs">
                                                         <span class="fa fa-times"></span> Remove
                                                     </button>
                                                 </td>
@@ -124,6 +158,13 @@
                                     </tr>
                                     </tfoot>
                                 </table>
+                                <div class="col-md-12 margin-bottom-10 pull-left">
+                                    <div class="btn-group">
+                                        <button class="btn green add_academic_term"> Add New
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="form-actions noborder">
                                     <button type="submit" class="btn blue pull-right">Submit</button>
                                 </div>
