@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\MasterRecords;
 
+use App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -85,6 +86,15 @@ class AcademicTerm extends Model
     public static function activeTerm(){
 
         return AcademicTerm::where('status', 1)->first();
+    }
+
+    /**
+     * A Academic Term Has Many Assessment Setups
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function assessmentSetups(){
+        return $this->hasMany(AssessmentSetup::class, 'academic_term_id');
     }
 
     /**

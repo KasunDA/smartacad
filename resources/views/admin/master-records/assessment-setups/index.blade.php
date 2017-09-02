@@ -2,6 +2,7 @@
 
 @section('page-level-css')
         <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
 @endsection
@@ -27,7 +28,39 @@
     <h3 class="page"> Assessment Setups</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8 col-xs-12 col-md-offset-2 margin-bottom-10">
+            <form method="post" action="/assessment-setups/academic-years" role="form" class="form-horizontal">
+                {!! csrf_field() !!}
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Academic Year</label>
+
+                    <div class="col-md-6">
+                        <div class="col-md-9">
+                            <select class="form-control selectpicker" name="academic_year_id" id="academic_year_id">
+                                @foreach($academic_years as $key => $value)
+                                    @if($academic_year && $academic_year->academic_year_id === $key)
+                                        <option selected value="{{$key}}">{{$value}}</option>
+                                    @else
+                                        <option value="{{$key}}">{{$value}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary" type="submit">Filter</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+                        <h3 class="text-center">Assessments Setup in:
+                            <span class="text-primary">{{ ($academic_year) ? $academic_year->academic_year : 'All' }}</span> Academic Year
+                        </h3>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-10">
             <div class="portlet light bordered">
                 <div class="portlet">
                     <div class="caption">
@@ -84,7 +117,9 @@
                                                     <td>{!! Form::select('classgroup_id[]', $classgroups, $assessment_setup->classgroup_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::select('academic_term_id[]', $academic_terms, $assessment_setup->academic_term_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>
-                                                        <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_assessment_setup">
+                                                        <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$assessment_setup->classgroup->classgroup}}" data-title="Delete Confirmation"
+                                                                 data-message="Are you sure you want to delete <b>{{$assessment_setup->classgroup->classgroup}} on term {{ $assessment_setup->academicTerm->academic_term }}?</b>"
+                                                                 data-action="/assessment-setups/delete/{{$assessment_setup->assessment_setup_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                             <span class="fa fa-trash-o"></span> Delete
                                                         </button>
                                                     </td>
@@ -106,7 +141,7 @@
                                                 <td>{!! Form::select('classgroup_id[]', $classgroups, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>{!! Form::select('academic_term_id[]', $academic_terms, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm">
+                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-xs">
                                                         <span class="fa fa-times"></span> Remove
                                                     </button>
                                                 </td>
@@ -122,6 +157,13 @@
                                     </tr>
                                     </tfoot>
                                 </table>
+                                <div class="col-md-12 margin-bottom-10 pull-left">
+                                    <div class="btn-group">
+                                        <button class="btn green add_assessment_setup"> Add New
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="form-actions noborder">
                                     <button type="submit" class="btn blue pull-right">Submit</button>
                                 </div>

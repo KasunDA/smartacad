@@ -35,14 +35,38 @@ class AssessmentSetupsController extends Controller
     /**
      * Display a listing of the Menus for Master Records.
      *
+     * @param Boolean $year_id
      * @return Response
      */
-    public function getIndex()
+    public function getIndex($year_id=false)
     {
-        $assessment_setups = AssessmentSetup::all();
-        $academic_terms = AcademicTerm::orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', '');
-        $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('Select Class Group', '');
-        return view('admin.master-records.assessment-setups.index', compact('academic_terms', 'classgroups', 'assessment_setups'));
+        $academic_year = ($year_id) ? $academic_year = AcademicYear::findOrFail($this->decode($year_id)) : AcademicYear::activeYear();
+        $assessment_setups = AssessmentSetup::whereIn(
+            'academic_term_id', $academic_year->academicTerms()->lists('academic_term_id')->toArray()
+        )->get();
+
+        $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('- Class Group -', '');
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+
+        $academic_terms = $academic_year->academicTerms()
+            ->orderBy('term_type_id')
+            ->lists('academic_term', 'academic_term_id')
+            ->prepend('- Academic Term -', '');
+
+        return view('admin.master-records.assessment-setups.index',
+            compact('academic_terms', 'academic_years', 'academic_year', 'classgroups', 'assessment_setups')
+        );
+    }
+
+    /**
+     * Get The Assessments Setups Given the academic year id
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postAcademicYears(Request $request)
+    {
+        $inputs = $request->all();
+        return redirect('/assessment-setups/index/' . $this->encode($inputs['academic_year_id']));
     }
 
 
@@ -97,17 +121,21 @@ class AssessmentSetupsController extends Controller
 
     /**
      * Display a listing of the Menus for Master Records.
-     * @param String $encodeId
+     * @param Boolean $term
+     * @param Boolean $year
      * @return Response
      */
-    public function getDetails($encodeId=null)
+    public function getDetails($term=false, $year=false)
     {
-        $academic_term = ($encodeId === null) ? AcademicTerm::activeTerm() : AcademicTerm::findOrFail($this->getHashIds()->decode($encodeId)[0]);
-        $assessment_setups = AssessmentSetup::where('academic_term_id', $academic_term->academic_term_id)->get();
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
-//        $academic_terms = AcademicTerm::orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', '');
+        $academic_term = ($term) ? AcademicTerm::findOrFail($this->decode($term)) : AcademicTerm::activeTerm();
+        $academic_year = ($year) ? AcademicYear::findOrFail($this->decode($year)) : AcademicYear::activeYear();
+        
+        $assessment_setups = $academic_term->assessmentSetups()->get();
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
 
-        return view('admin.master-records.assessment-setups.detail', compact('academic_years', 'academic_terms', 'assessment_setups', 'academic_term'));
+        return view('admin.master-records.assessment-setups.detail',
+            compact('academic_years', 'academic_terms', 'assessment_setups', 'academic_term', 'academic_year')
+        );
     }
 
     /**
@@ -118,7 +146,9 @@ class AssessmentSetupsController extends Controller
     public function postTerms(Request $request)
     {
         $inputs = $request->all();
-        return redirect('/assessment-setups/details/' . $this->getHashIds()->encode($inputs['academic_term_id']));
+        $year = $this->encode($inputs['academic_year_id']);
+        $term = $this->encode($inputs['academic_term_id']);
+        return redirect('/assessment-setups/details/' . $term . '/' . $year);
     }
 
     /**

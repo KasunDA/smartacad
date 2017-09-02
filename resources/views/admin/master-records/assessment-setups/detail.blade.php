@@ -34,7 +34,7 @@
 
                     <div class="col-md-6">
                         <div class="col-md-9">
-                            {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required']) !!}
+                            {!! Form::select('academic_year_id', $academic_years,  $academic_year->academic_year_id, ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required']) !!}
                         </div>
                     </div>
                 </div>
@@ -44,17 +44,8 @@
                     <div class="col-md-6">
                         <div class="col-md-9">
                             {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', $academic_term->academic_year_id)
-                            ->orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
+                            ->orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('- Academic Term -', ''),
                             $academic_term->academic_term_id, ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required']) !!}
-                            {{--<select class="form-control selectpicker" name="academic_term_id" id="academic_term_id">--}}
-                                {{--@foreach($academic_terms as $key => $value)--}}
-                                    {{--@if($academic_term && $academic_term->academic_term_id === $key)--}}
-                                        {{--<option selected value="{{$key}}">{{$value}}</option>--}}
-                                    {{--@else--}}
-                                        {{--<option value="{{$key}}">{{$value}}</option>--}}
-                                    {{--@endif--}}
-                                {{--@endforeach--}}
-                            {{--</select>--}}
                         </div>
                         <div class="col-md-3">
                             <button class="btn btn-primary pull-right" type="submit">Filter</button>
@@ -148,7 +139,9 @@
                                                         <td>{!! Form::text('submission_date[]', $detail->submission_date->format('Y-m-d'), ['class'=>'form-control date-picker', 'data-date-format'=>'yyyy-mm-dd', 'required'=>'required']) !!}</td>
                                                         <td>
                                                             @if($count == ($j))
-                                                                <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_assessment_detail" value="{{ $assessment_setup->classGroup()->first()->classgroup_id }}">
+                                                                <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$detail->description}}" data-title="Delete Confirmation"
+                                                                         data-message="Are you sure you want to delete <b>{{$detail->description}} on {{ $academic_term->academic_term }} Term?</b>"
+                                                                         data-action="/assessment-setups/details-delete/{{$detail->assessment_setup_detail_id}}/{{$assessment_setup->classGroup()->first()->classgroup_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                                     <span class="fa fa-trash-o"></span> Delete
                                                                 </button>
                                                             @endif
