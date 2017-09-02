@@ -27,7 +27,12 @@ class AppServiceProvider extends ServiceProvider
         view()->share('school_name', 'Solid Step International School');
         
         //Set The School Info. into a variable school
-        if(env('SCHOOL_ID') && Schema::connection('admin_mysql')->hasTable('schools') && School::count() > 0){
+        if(
+            env('SCHOOL_ID') 
+            && Schema::connection('admin_mysql')->hasTable('schools') 
+            && Schema::connection('admin_mysql')->hasColumn('schools', 'deleted_at')
+        )
+        {
             $school = School::findOrFail(env('SCHOOL_ID'));
             view()->share('mySchool', $school);
         }
