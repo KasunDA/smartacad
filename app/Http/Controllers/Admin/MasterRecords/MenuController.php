@@ -17,23 +17,46 @@ class MenuController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function getIndex()
     {
         $menus = Menu::roots()->get();
         $max = Menu::max('depth');
         return view('admin.menus.index', compact('menus', 'max'));
     }
 
+
     /**
      * Display a listing of the Menu Level One for Master Records.
-     *
+     * @param Int $no
+     * @param String $encodeId
      * @return Response
      */
-    public function getLevelOne()
+    public function getLevel($no = 1, $encodeId=null)
     {
-        $menus = Menu::roots()->get();
         $roles = Role::orderBy('name')->get();
-        return view('admin.menus.level-1', compact('menus', 'roles'));
+        $filters = null;
+        $menu_id = '';
+
+        if($encodeId === null or $encodeId == 'all' or $encodeId == '') {
+            $menus = ($no > 2) ? Menu::where('depth', $no - 2)->get() : Menu::roots()->get();
+        }else{
+            $menu_id = $this->getHashIds()->decode($encodeId)[0];
+            $menus = Menu::where('menu_id', $menu_id)->get();
+        }
+
+        if($no == 2){
+            $sub = Menu::whereNotNull('parent_id')->count();
+            $parents = Menu::roots()->get()->pluck('name', 'menu_id')->prepend('- Select Parent -', '');
+        }else if($no > 2){
+            $filters = Menu::where('depth', $no - 2)->get();
+            $parents = Menu::where('depth', $no - 3)->get();
+            $sub = Menu::where('depth', $no - 1)->count();
+        }
+
+        return ($no == 1)
+            ? view('admin.menus.menu', compact('menus', 'roles', 'no'))
+            : view('admin.menus.sub-menus', compact('menus', 'parents', 'sub', 'roles', 'menu_id', 'no', 'filters'));
+
     }
 
     /**
@@ -41,153 +64,17 @@ class MenuController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postLevelOne(Request $request)
+    public function postLevel(Request $request)
     {
-        $count = $this->saveMenus($request);
+        $inputs = $request->all();
+        $root = ($inputs['level'] >= 2) ? true : false;
+        $count = $this->saveMenus($inputs, $root);
         // Set the flash message
-        $this->setFlashMessage($count . ' Menus Level One has been successfully updated.', 1);
+        $this->setFlashMessage($count . ' Menus Level '.$inputs['level'].' has been successfully updated.', 1);
         // redirect to the create a new inmate page
-        return redirect('/menus/level-1');
+        return redirect('/menus/level/' . $inputs['level']);
     }
 
-    /**
-     * Display a listing of the Menu Level Two for Master Records.
-     * @param String $encodeId
-     * @return Response
-     */
-    public function getLevelTwo($encodeId=null)
-    {
-        $menu_id = '';
-        if($encodeId == null or $encodeId == 'all' or $encodeId == '') {
-            $menus = Menu::roots()->get();
-        }else{
-            $menu_id = $this->getHashIds()->decode($encodeId)[0];
-            $menus = Menu::where('menu_id', $menu_id)->get();
-        }
-        $sub = Menu::whereNotNull('parent_id')->count();
-        $parents = Menu::roots()->orderBy('name')->get()->pluck('name', 'menu_id')->prepend('Select Parent', '');
-        $roles = Role::orderBy('name')->get();
-        return view('admin.menus.level-2', compact('menus', 'parents', 'sub', 'roles', 'menu_id'));
-    }
-
-    /**
-     * Insert or Update the Menu Level Two records also Assigning a Level One as the parent
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function postLevelTwo(Request $request)
-    {
-        $count = $this->saveMenus($request, true);
-        // Set the flash message
-        $this->setFlashMessage($count . ' Menus Level Two has been successfully updated.', 1);
-        // redirect to the create a new inmate page
-        return redirect('/menus/level-2');
-    }
-
-    /**
-     * Display a listing of the Menu Level Three for Master Records.
-     * @param String $encodeId
-     * @return Response
-     */
-    public function getLevelThree($encodeId=null)
-    {
-        $menu_id = '';
-        if($encodeId == null or $encodeId == 'all' or $encodeId == '') {
-            $menus = Menu::where('depth', 1)->get();
-        }else{
-            $menu_id = $this->getHashIds()->decode($encodeId)[0];
-            $menus = Menu::where('menu_id', $menu_id)->get();
-        }
-        $filters = Menu::where('depth', 1)->get();
-        $parents = Menu::where('depth', 0)->get();
-        $sub = Menu::where('depth', 2)->count();
-        $roles = Role::orderBy('name')->get();
-        return view('admin.menus.level-3', compact('menus', 'parents', 'sub', 'roles', 'menu_id', 'filters'));
-    }
-
-    /**
-     * Insert or Update the menu Level Three records also Assigning a Level Two as the parent
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function postLevelThree(Request $request)
-    {
-        $count = $this->saveMenus($request, true);
-        // Set the flash message
-        $this->setFlashMessage($count . ' Menus Level Three has been successfully updated.', 1);
-        // redirect to the create a new inmate page
-        return redirect('/menus/level-3');
-    }
-
-    /**
-     * Display a listing of the Menu Level Four for Master Records.
-     * @param String $encodeId
-     * @return Response
-     */
-    public function getLevelFour($encodeId=null)
-    {
-        $menu_id = '';
-        if($encodeId == null or $encodeId == 'all' or $encodeId == '') {
-            $menus = Menu::where('depth', 2)->get();
-        }else{
-            $menu_id = $this->getHashIds()->decode($encodeId)[0];
-            $menus = Menu::where('menu_id', $menu_id)->get();
-        }
-        $filters = Menu::where('depth', 2)->get();
-        $parents = Menu::where('depth', 1)->get();
-        $sub = Menu::where('depth', 3)->count();
-        $roles = Role::orderBy('name')->get();
-        return view('admin.menus.level-4', compact('menus', 'parents', 'sub', 'roles', 'menu_id', 'filters'));
-    }
-
-    /**
-     * Insert or Update the menu Level Four records also Assigning a Level Three as the parent
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function postLevelFour(Request $request)
-    {
-        $count = $this->saveMenus($request, true);
-        // Set the flash message
-        $this->setFlashMessage($count . ' Menus Level Four has been successfully updated.', 1);
-        // redirect to the create a new inmate page
-        return redirect('/menus/level-4');
-    }
-
-    /**
-     * Display a listing of the Menu Level Five for Master Records.
-     * @param String $encodeId
-     * @return Response
-     */
-    public function getLevelFive($encodeId=null)
-    {
-        $menu_id = '';
-        if($encodeId == null or $encodeId == 'all' or $encodeId == '') {
-            $menus = Menu::where('depth', 3)->get();
-        }else{
-            $menu_id = $this->getHashIds()->decode($encodeId)[0];
-            $menus = Menu::where('menu_id', $menu_id)->get();
-        }
-        $filters = Menu::where('depth', 3)->get();
-        $parents = Menu::where('depth', 2)->get();
-        $sub = Menu::where('depth', 4)->count();
-        $roles = Role::orderBy('name')->get();
-        return view('admin.menus.level-5', compact('menus', 'parents', 'sub', 'roles', 'menu_id', 'filters'));
-    }
-
-    /**
-     * Insert or Update the menu Level Five records also Assigning a Level Four as the parent
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function postLevelFive(Request $request)
-    {
-        $count = $this->saveMenus($request, true);
-        // Set the flash message
-        $this->setFlashMessage($count . ' Menus Level Five has been successfully updated.', 1);
-        // redirect to the create a new inmate page
-        return redirect('/menus/level-5');
-    }
 
     /**
      * Delete a Menu from the list of Categories using a given menu id
@@ -208,13 +95,12 @@ class MenuController extends Controller
 
     /**
      * Helper Method for saving sub levels of a menu
-     * @param mixed $request
+     * @param mixed $inputs
      * @param Boolean $isRoot
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    private function saveMenus($request, $isRoot=false)
+    private function saveMenus($inputs, $isRoot=false)
     {
-        $inputs = $request->all();
         $count = 0;
         for($i = 0; $i < count($inputs['menu_id']); $i++){
             //Create New or Modify Existing Sub Menu
@@ -246,6 +132,6 @@ class MenuController extends Controller
     public function menusFilter(Request $request)
     {
         $inputs = $request->all();
-        return redirect('/menus/level-'.$inputs['level'].'/' . $this->getHashIds()->encode($inputs['menu_id']));
+        return redirect('/menus/level/'.$inputs['level'].'/' . $this->encode($inputs['menu_id']));
     }
 }

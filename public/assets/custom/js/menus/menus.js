@@ -31,46 +31,6 @@ $(function () {
         $(this).parent().parent().remove();
     });
 
-    $(document.body).on('click', '.delete_menu',function(e){
-        e.preventDefault();
-
-        var parent = $(this).parent().parent();
-        var menu = parent.children(':nth-child(2)').children('input').val();
-        var menu_id = parent.children(':nth-child(2)').children('input[type=hidden]').val();
-
-        bootbox.dialog({
-            message: 'Are You sure You want to permanently delete menu:<span class="bold"> '+menu+'</span>',
-            title: '<span class="bold font-red">Warning Alert</span>',
-            buttons: {
-                danger: {
-                    label: "NO",
-                    className: "btn-default",
-                    callback: function() {
-                        $(this).hide();
-                    }
-                },
-                success: {
-                    label: "YES",
-                    className: "btn-success",
-                    callback: function() {
-                        $.ajax({
-                            type: 'GET',
-                            async: true,
-                            url: '/menus/delete/' + menu_id,
-                            success: function(data,textStatus){
-                                window.location.reload();
-                            },
-                            error: function(xhr,textStatus,error){
-                                bootbox.alert("Error encountered pls try again later..", function() {
-                                    $(this).hide();
-                                });
-                            }
-                        });
-                    }
-                }
-            }
-        });
-    });
 });
 
 var UITree = function () {

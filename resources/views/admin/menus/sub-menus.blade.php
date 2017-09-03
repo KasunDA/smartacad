@@ -1,17 +1,22 @@
 @extends('admin.layout.default')
 
-@section('layout-style')
+@section('page-level-css')
     <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
 @endsection
 
-@section('title', 'Manage Menu Level Four')
+@section('title', 'Manage Menu: Level ' . $no)
+
+@section('page-title')
+    <!-- BEGIN PAGE TITLE -->
+    <h1 class="page-title"> Manage Menu: Level {{ $no }}
+        <small>Create / Edit / Delete Menus</small>
+    </h1>
+    <!-- END PAGE TITLE -->
+@endsection
 
 @section('breadcrumb')
     <li>
-        <a href="{{ url('/') }}">Home</a>
-        <i class="fa fa-circle"></i>
-    </li>
-    <li>
+        <i class="fa fa-dashboard"></i>
         <a href="{{ url('/dashboard') }}">Dashboard</a>
         <i class="fa fa-circle"></i>
     </li>
@@ -19,35 +24,45 @@
         <a href="{{ url('/menus') }}">Menus</a>
         <i class="fa fa-circle"></i>
     </li>
-    <li><span class="active">Level Four</span></li>
+    <li><span class="active">Level {{ $no }}</span></li>
     @stop
 
 
-@section('content')
-    <!-- BEGIN PAGE BASE CONTENT -->
-    <h3 class="page-title"> Manage Menu: Level Four</h3>
+    @section('content')
+            <!-- BEGIN PAGE BASE CONTENT -->
+    <div class="note note-info">
         <!-- END PAGE HEADER-->
         <div class="row">
             <div class="col-md-8 col-md-offset-2 margin-bottom-20 margin-top-20">
                 <form method="post" action="/menus/filter" role="form" class="form-horizontal">
                     {!! csrf_field() !!}
-                    {!! Form::hidden('level', 4, ['class'=>'form-control']) !!}
+                    {!! Form::hidden('level', $no, ['class'=>'form-control']) !!}
                     <div class="form-group">
                         <label class="col-md-3 control-label">Filter By Parent Menu</label>
                         <div class="col-md-6">
                             <div class="col-md-9">
                                 <select class="form-control selectpicker" name="menu_id" required>
-                                    <option value="">Select Parent</option>
-                                    @foreach($filters as $child)
-                                        @if(count($child->getImmediateDescendants()) > 0)
-                                            @if($child->menu_id === $menu_id)
-                                                <option selected value="{{$child->menu_id}}">{{$child->name}}</option>
-                                            @else
-                                                <option value="{{$child->menu_id}}">{{$child->name}}</option>
+                                    @if($no > 2)
+                                        <option value="">- Select Parent -</option>
+                                        @foreach($filters as $child)
+                                            @if(count($child->getImmediateDescendants()) > 0)
+                                                @if($child->menu_id === $menu_id)
+                                                    <option selected value="{{$child->menu_id}}">{{$child->name}}</option>
+                                                @else
+                                                    <option value="{{$child->menu_id}}">{{$child->name}}</option>
+                                                @endif
                                             @endif
-                                        @endif
-                                    @endforeach
-                                    <option value="all">ALL LEVEL FOUR</option>
+                                        @endforeach
+                                    @else
+                                        @foreach($parents as $key => $value)
+                                            @if($key === $menu_id)
+                                                <option selected value="{{$key}}">{{$value}}</option>
+                                            @else
+                                                <option value="{{$key}}">{{$value}}</option>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                    <option value="all">ALL LEVEL {{ $no }}</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -62,7 +77,7 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <i class="fa fa-tree font-green"></i>
-                            <span class="caption-subject font-green bold uppercase">Menu Level Four</span>
+                            <span class="caption-subject font-green bold uppercase">Menu Level {{ $no }}</span>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -77,10 +92,11 @@
                             <div class="col-md-12">
                                 {!! Form::open([
                                        'method'=>'POST',
-                                       'class'=>'form',
+                                       'class'=>'form-horizontal',
                                        'role'=>'form',
                                     ])
                                 !!}
+                                {!! Form::hidden('level', $no, ['class'=>'form-control']) !!}
                                 <div class="table-responsive">
                                     <table class="table table-bordered" id="menu_table">
                                         <thead>
@@ -124,22 +140,26 @@
                                                         </td>
 
                                                         <td>
-                                                            <select name="parent_id[]" class="bs-select form-control" required="required" data-live-search="true" data-size="8">
-                                                                <option value="">Parent Menu</option>
-                                                                @foreach($parents as $child)
-                                                                    @if(count($child->getImmediateDescendants()) > 0)
-                                                                        <optgroup label="{{ $child->parent()->first()->name }} > {{ $child->name }}">
-                                                                            @foreach($child->getImmediateDescendants() as $men)
-                                                                                @if($menu->parent_id == $men->menu_id)
-                                                                                    <option selected value="{{ $men->menu_id }}">{{ $men->name }}</option>
-                                                                                @else
-                                                                                    <option value="{{ $men->menu_id }}">{{ $men->name }}</option>
-                                                                                @endif
-                                                                            @endforeach
-                                                                        </optgroup>
-                                                                    @endif
-                                                                @endforeach
-                                                            </select>
+                                                            @if($no == 2)
+                                                                {!! Form::select('parent_id[]', $parents, $menu->parent_id, ['class'=>'form-control']) !!}
+                                                            @else
+                                                                <select name="parent_id[]" class="bs-select form-control" required="required" data-live-search="true" data-size="8">
+                                                                    <option value="">Parent Menu</option>
+                                                                    @foreach($parents as $child)
+                                                                        @if(count($child->getImmediateDescendants()) > 0)
+                                                                            <optgroup label="{{ $child->name }}">
+                                                                                @foreach($child->getImmediateDescendants() as $men)
+                                                                                    @if($menu->parent_id == $men->menu_id)
+                                                                                        <option selected value="{{ $men->menu_id }}">{{ $men->name }}</option>
+                                                                                    @else
+                                                                                        <option value="{{ $men->menu_id }}">{{ $men->name }}</option>
+                                                                                    @endif
+                                                                                @endforeach
+                                                                            </optgroup>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </select>
+                                                            @endif
                                                         </td>
                                                         <td>
                                                             <div class="input-group">
@@ -163,7 +183,9 @@
                                                         <td>{!! Form::text('type[]', $menu->type, ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                         <td>{!! Form::text('sequence[]', $menu->sequence, ['placeholder'=>'Sort', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                         <td>
-                                                            <button class="btn btn-danger btn-rounded btn-condensed btn-xs delete_menu">
+                                                            <button  data-name="{{$menu->name}}" data-title="Delete Confirmation"
+                                                                     data-message="Are you sure you want to delete <b>{{$menu->name}}?</b>"
+                                                                     data-action="/menus/delete/{{$menu->menu_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                                 <span class="fa fa-trash-o"></span> Delete
                                                             </button>
                                                         </td>
@@ -179,18 +201,22 @@
                                                         {!! Form::hidden('menu_id[]', '-1', ['class'=>'form-control']) !!}
                                                     </td>
                                                     <td>
-                                                        <select name="parent_id[]" class="bs-select form-control" required="required" data-live-search="true" data-size="8">
-                                                            <option value="">Select Parent Level</option>
-                                                            @foreach($parents as $child)
-                                                                @if(count($child->getImmediateDescendants()) > 0)
-                                                                    <optgroup label="{{ $child->parent()->first()->name }} > {{ $child->name }}">
-                                                                        @foreach($child->getImmediateDescendants() as $menu)
-                                                                            <option value="{{ $menu->menu_id }}">{{ $menu->name }}</option>
-                                                                        @endforeach
-                                                                    </optgroup>
-                                                                @endif
-                                                            @endforeach
-                                                        </select>
+                                                        @if($no == 2)
+                                                            {!! Form::select('parent_id[]', $parents, '', ['class'=>'form-control']) !!}
+                                                        @else
+                                                            <select name="parent_id[]" class="bs-select form-control" required="required" data-live-search="true" data-size="8">
+                                                                <option value="">Select Parent Level</option>
+                                                                @foreach($parents as $child)
+                                                                    @if(count($child->getImmediateDescendants()) > 0)
+                                                                        <optgroup label="{{ $child->name }}">
+                                                                            @foreach($child->getImmediateDescendants() as $menu)
+                                                                                <option value="{{ $menu->menu_id }}">{{ $menu->name }}</option>
+                                                                            @endforeach
+                                                                        </optgroup>
+                                                                    @endif
+                                                                @endforeach
+                                                            </select>
+                                                        @endif
                                                     </td>
                                                     <td>
                                                         <div class="input-group">
@@ -241,10 +267,11 @@
                 @endforeach
             </select>
         </div>
-<!-- END PAGE BASE CONTENT -->
-@endsection
+    </div>
+    <!-- END PAGE BASE CONTENT -->
+    @endsection
 
-@section('layout-script')
+    @section('page-level-js')
     <!-- BEGIN PAGE LEVEL PLUGINS -->
     <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
@@ -255,14 +282,14 @@
     <script src="{{ asset('assets/pages/scripts/ui-bootbox.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/bootstrap-select/js/bootstrap-select.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL SCRIPTS -->
+    @endsection
+
+    @section('layout-script')
     <!-- BEGIN THEME LAYOUT SCRIPTS -->
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/menus/sub-menus.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/menus/level-4"]');
+            setTabActive('[href="/menus/level/{{$no}}"]');
         });
     </script>
 @endsection

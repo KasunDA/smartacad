@@ -1,17 +1,22 @@
 @extends('admin.layout.default')
 
-@section('layout-style')
+@section('page-level-css')
     <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
 @endsection
 
-@section('title', 'Manage Menu Level One')
+@section('title', 'Manage Menu Level ' . $no)
+
+@section('page-title')
+    <!-- BEGIN PAGE TITLE -->
+    <h1 class="page-title"> Manage Menu: Level {{$no}}
+        <small>Create / Edit / Delete Menus</small>
+    </h1>
+    <!-- END PAGE TITLE -->
+@endsection
 
 @section('breadcrumb')
     <li>
-        <a href="{{ url('/') }}">Home</a>
-        <i class="fa fa-circle"></i>
-    </li>
-    <li>
+        <i class="fa fa-dashboard"></i>
         <a href="{{ url('/dashboard') }}">Dashboard</a>
         <i class="fa fa-circle"></i>
     </li>
@@ -19,13 +24,13 @@
         <a href="{{ url('/menus') }}">Menus</a>
         <i class="fa fa-circle"></i>
     </li>
-    <li><span class="active">Level One</span></li>
+    <li><span class="active">Level {{$no}}</span></li>
 @stop
 
 
 @section('content')
 <!-- BEGIN PAGE BASE CONTENT -->
-    <h3 class="page-title"> Manage Menu: Level One</h3>
+<div class="note note-info">
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -33,7 +38,7 @@
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="fa fa-tree font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">Menu Level One</span>
+                        <span class="caption-subject font-green bold uppercase">Menu Level {{$no}}</span>
                     </div>
                 </div>
                 <div class="portlet-body">
@@ -52,6 +57,7 @@
                                    'role'=>'form',
                                 ])
                             !!}
+                            {!! Form::hidden('level', $no, ['class'=>'form-control']) !!}
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="menu_table">
                                     <thead>
@@ -90,7 +96,7 @@
                                                         {!! Form::text('name[]', $menu->name, ['placeholder'=>'Menu Name', 'class'=>'form-control', 'required'=>'required']) !!}
                                                         {!! Form::hidden('menu_id[]', $menu->menu_id, ['class'=>'form-control']) !!}
                                                     </td>
-                                                    <td>{!! Form::text('url[]', $menu->url, ['placeholder'=>'Url', 'class'=>'form-control']) !!}</td>
+                                                    <td>{!! Form::text('url[]', $menu->url, ['placeholder'=>'Url', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>
                                                         <div class="input-group">
                                                             <span class="input-group-addon"><i class="{{$menu->icon}}"></i></span>
@@ -112,7 +118,9 @@
                                                     <td>{!! Form::text('type[]', $menu->type, ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::text('sequence[]', $menu->sequence, ['placeholder'=>'Sort', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>
-                                                        <button class="btn btn-danger btn-rounded btn-condensed btn-xs delete_menu">
+                                                        <button  data-name="{{$menu->name}}" data-title="Delete Confirmation"
+                                                                 data-message="Are you sure you want to delete <b>{{$menu->name}}?</b>"
+                                                                 data-action="/menus/delete/{{$menu->menu_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                             <span class="fa fa-trash-o"></span> Delete
                                                         </button>
                                                     </td>
@@ -174,11 +182,12 @@
             @endforeach
         </select>
     </div>
+</div>
 <!-- END PAGE BASE CONTENT -->
 @endsection
 
-@section('layout-script')
-        <!-- BEGIN PAGE LEVEL PLUGINS -->
+@section('page-level-js')
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
     <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
@@ -188,15 +197,14 @@
     <script src="{{ asset('assets/pages/scripts/ui-bootbox.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/bootstrap-select/js/bootstrap-select.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL SCRIPTS -->
+@endsection
+
+@section('layout-script')
     <!-- BEGIN THEME LAYOUT SCRIPTS -->
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/menus/menus.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/menus/level-1"]');
-
+            setTabActive('[href="/menus/level/1"]');
         });
     </script>
 @endsection
