@@ -53,10 +53,10 @@ jQuery(document).ready(function() {
             data: values,
             url: '/exams/validate-all-setup',
             success: function(data,textStatus){
-                if(data.flag === 1){
+                if(data.flag == 1){
                     //set_msg_box($('#error-box'), data.output, 2);
                     $('#exam-message').html(data.output);
-                }else if(data.flag === 2){
+                }else if(data.flag == 2){
                     $('#exam-message').html(data.output);
                 }
                 $('#confirm-btn').val(data.term);
@@ -143,7 +143,7 @@ var UIBlockUI = function() {
                 data: values,
                 success: function (data) {
                     // console.log(data);
-                    if(data.flag === 1){
+                    if(data.flag == 1){
                         bootbox.dialog({
                             message: '<h4>Are You Sure You Want To Setup your exams for <strong>'+data.term.academic_term+' Academic Year? </strong>' +
                             '<span class="text-danger">Note: its not reversible</span></h4>',
@@ -226,7 +226,7 @@ var UIBlockUI = function() {
                                 </tr>\
                             </thead>\
                             <tbody>';
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         $.each(obj.Exam, function(key, value) {
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
@@ -293,7 +293,7 @@ var UIBlockUI = function() {
                                 </tr>\
                             </thead>\
                             <tbody>';
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         $.each(obj.Students, function(key, value) {
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
@@ -305,7 +305,7 @@ var UIBlockUI = function() {
                                 //'<td><a href="/exams/print/'+value.hashed_stud+'/'+value.hashed_term+'" class="btn btn-primary btn-xs"> <i class="fa fa-eye"></i> Print</a></td>' +
                                 '</tr>';
                         });
-                    }else if(obj.flag === 2){
+                    }else if(obj.flag == 2){
                         assign = '<thead>\
                                 <tr>\
                                     <th>#</th>\

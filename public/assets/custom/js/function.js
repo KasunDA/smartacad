@@ -97,7 +97,7 @@ function validateImageFile(id) {
         var size = this.files[0].size;
         var value = $(this).val().toLowerCase();
         var extension = value.substring(value.lastIndexOf('.'));
-        if ($.inArray(extension, ['.gif', '.png', '.jpg', '.jpeg']) === -1) {
+        if ($.inArray(extension, ['.gif', '.png', '.jpg', '.jpeg']) == -1) {
             $('#image_error').html('<div class="alert alert-danger" style="margin:0; padding:0;">\n\
             Invalid File Type. Require Only Image Files With Extensions Of .gif, .png, .jpg, .jpeg</div>')
         } else if (size >= 1048576) {
@@ -115,7 +115,7 @@ function validateDocumentFile(id) {
         var size = this.files[0].size;
         var value = $(this).val().toLowerCase();
         var extension = value.substring(value.lastIndexOf('.'));
-        if ($.inArray(extension, ['.pdf']) === -1) {
+        if ($.inArray(extension, ['.pdf']) == -1) {
             $('#image_error').html('<div class="alert alert-danger" style="margin:0; padding:0;">\n\
             Invalid File Type. Require Only PDF Files With Extension Of .pdf</div>')
         } else if (size >= 5120000) {
@@ -163,11 +163,11 @@ function readURL(input) {
 
 //Set Warning 3, Error 2, Info 0 or success 1 messages
 function set_msg_box(div, text, type) {
-    if(type === 1)
+    if(type == 1)
         div.html('<div class="alert alert-success"> <i class="fa fa-thumbs-up fa-1x"></i> ' + text + ' </div>');
-    else if(type === 2)
+    else if(type == 2)
         div.html('<div class="alert alert-danger"> <i class="fa fa-thumbs-down fa-1x"></i> ' + text + ' </div>');
-    else if(type === 3)
+    else if(type == 3)
         div.html('<div class="alert alert-warning"> <i class="fa fa-warning fa-1x"></i> ' + text + ' </div>');
     else
         div.html('<div class="alert alert-info"> <i class="fa fa-info fa-1x"></i> ' + text + ' </div>');
@@ -180,11 +180,11 @@ function setAlert(div, text, type) {
         container: '#sponsors',
         place: 'prepend'
     });
-    if(type === 1)
+    if(type == 1)
         div.html('<div class="alert alert-success"> <i class="fa fa-thumbs-up fa-1x"></i> ' + text + ' </div>');
-    else if(type === 2)
+    else if(type == 2)
         div.html('<div class="alert alert-danger"> <i class="fa fa-thumbs-down fa-1x"></i> ' + text + ' </div>');
-    else if(type === 3)
+    else if(type == 3)
         div.html('<div class="alert alert-warning"> <i class="fa fa-warning fa-1x"></i> ' + text + ' </div>');
     else
         div.html('<div class="alert alert-info"> <i class="fa fa-info fa-1x"></i> ' + text + ' </div>');

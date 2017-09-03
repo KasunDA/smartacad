@@ -67,7 +67,7 @@ class AcademicYear extends Model
             $results = AcademicYear::all();
             foreach($results as $result){
                 $next_year = substr($result->academic_year, -4);
-                if((intval($year) + 1) === intval($next_year)){
+                if((intval($year) + 1) == intval($next_year)){
                     return $result;
                     break;
                 }

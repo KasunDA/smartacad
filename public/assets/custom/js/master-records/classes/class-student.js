@@ -17,13 +17,13 @@ jQuery(document).ready(function() {
         var student_class_id = $(this).prop('title');
         var parent_tr = $(this).parent().parent();
         //Assign A Students
-        if($(this).prop('checked') === true){
+        if($(this).prop('checked') == true){
             $(this).attr("checked", "checked");
             $.post('/class-students/assign', {student_class_id:student_class_id, student_id:student_id, class_id:class_id, year_id:year_id}, function(data){
                 if(data !== '0'){
                     var title = parent_tr.children().next().next();
                     title.children().attr("title", data);
-                    if($("#assign_student_tr").next().children().html() === "No Student Has Been Assigned"){
+                    if($("#assign_student_tr").next().children().html() == "No Student Has Been Assigned"){
                         $("#assign_student_tr").next().remove();
                     }
                     $("#assign_student_tr").after("<tr><td>"+parent_tr.children().html()+"</td><td>"+parent_tr.children().next().html()+"</td><td>"+title.html()+"</td></tr>");
@@ -31,13 +31,13 @@ jQuery(document).ready(function() {
                 }
             });
             //Remove An Assigned Examiner
-        } else if($(this).prop('checked') === false){
+        } else if($(this).prop('checked') == false){
             $(this).removeAttr("checked");
             $.post('/class-students/assign', {student_class_id:student_class_id, student_id:student_id}, function(data){
                 if(data !== '0'){
                     var title = parent_tr.children().next().next();
                     title.children().attr("title", '-1');
-                    if($("#available_student_tr").next().children().html() === "No Student Available"){
+                    if($("#available_student_tr").next().children().html() == "No Student Available"){
                         $("#available_student_tr").next().remove();
                     }
                     $("#available_student_tr").after("<tr><td>"+parent_tr.children().html()+"</td><td>"+parent_tr.children().next().html()+"</td><td>"+title.html()+"</td></tr>");
@@ -56,7 +56,7 @@ jQuery(document).ready(function() {
             data: values,
             url: '/class-students/validate-clone',
             success: function(data,textStatus){
-                if(data.flag === 1){
+                if(data.flag == 1){
                     bootbox.dialog({
                         message: '<h4>Are You Sure You Want To Clone Students Class Records From <strong>'+data.from.academic_year+'</strong> to <strong>'+data.to.academic_year+'</strong>? ' +
                         '<span class="text-danger">Note: its not reversible</span></h4>',
@@ -206,7 +206,7 @@ var UIBlockUI = function() {
                                     </tr>\
                                 </thead>\
                                 <tbody>';
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         $.each(obj.Students, function(key, value) {
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +

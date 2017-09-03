@@ -77,7 +77,7 @@ var UIBlockUI = function() {
                                     </tr>\
                                 </thead>\
                                 <tbody>';
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         $.each(obj.Students, function(key, value) {
                             assign += '<tr>' +
                                 '<td><input type="checkbox" class="phone-checkbox" name="phone_no[]" value="'+value.phone_no+'"></td>' +

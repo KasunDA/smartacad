@@ -54,7 +54,7 @@ class AcademicTermsController extends Controller
 
         // Validate TO Make Sure Only One Status is Set
         for($j=0; $j<count($inputs['status']); $j++)
-            if($inputs['status'][$j] === '1') $status++;
+            if($inputs['status'][$j] == '1') $status++;
 
         if($status > 1 || $status < 1) {
             $this->setFlashMessage('Note!!! An Academic Term (Only One) Must Be Set To Active At Any Point In Time.', 2);

@@ -83,7 +83,7 @@ var UIBlockUI = function() {
                                     </tr>\
                                 </thead>\
                                 <tbody>';
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         $.each(obj.ClassRooms, function(key, value) {
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +

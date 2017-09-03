@@ -155,7 +155,7 @@ var UIBlockUI = function() {
                     var obj = $.parseJSON(data);
                     var assign = '';
 
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         //console.log(obj.ClassSubjects);
                         $.each(obj.SchoolSubjects, function(key, value) {
                             var arrayOfNumbers = obj.ClassSubjects.map(Number);
@@ -216,7 +216,7 @@ var UIBlockUI = function() {
                                     </tr>\
                                 </thead>\
                                 <tbody>';
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         $.each(obj.ClassSubjects, function(key, value) {
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
@@ -279,7 +279,7 @@ var UIBlockUI = function() {
                                     </tr>\
                                 </thead>\
                                 <tbody>';
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         $.each(obj.ClassSubjects, function(key, value) {
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
@@ -331,7 +331,7 @@ var UIBlockUI = function() {
                     //console.log(data);
                     var obj = $.parseJSON(data);
                     var assign = '<optgroup label="Select All Students">';
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         $.each(obj.Students, function(key, value) {
                             var selected = ($.inArray(value.student_id, obj.Registered) > -1) ? 'selected' : '';
                             assign += '<option ' + selected + ' value="'+value.student_id+'">' + value.name + '</option>';

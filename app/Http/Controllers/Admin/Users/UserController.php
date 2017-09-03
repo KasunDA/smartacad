@@ -240,7 +240,7 @@ class UserController extends Controller
             $user->status = $status;
             //Save The Project
             $user->save();
-            ($status === '1')
+            ($status == '1')
                 ? $this->setFlashMessage(' Activated!!! '.$user->fullNames().' have been activated.', 1)
                 : $this->setFlashMessage(' Deactivated!!! '.$user->fullNames().' have been deactivated.', 1);
         }else{

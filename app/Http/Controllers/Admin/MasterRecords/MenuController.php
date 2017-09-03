@@ -58,7 +58,7 @@ class MenuController extends Controller
     public function getLevelTwo($encodeId=null)
     {
         $menu_id = '';
-        if($encodeId === null or $encodeId == 'all' or $encodeId == '') {
+        if($encodeId == null or $encodeId == 'all' or $encodeId == '') {
             $menus = Menu::roots()->get();
         }else{
             $menu_id = $this->getHashIds()->decode($encodeId)[0];
@@ -92,7 +92,7 @@ class MenuController extends Controller
     public function getLevelThree($encodeId=null)
     {
         $menu_id = '';
-        if($encodeId === null or $encodeId == 'all' or $encodeId == '') {
+        if($encodeId == null or $encodeId == 'all' or $encodeId == '') {
             $menus = Menu::where('depth', 1)->get();
         }else{
             $menu_id = $this->getHashIds()->decode($encodeId)[0];
@@ -127,7 +127,7 @@ class MenuController extends Controller
     public function getLevelFour($encodeId=null)
     {
         $menu_id = '';
-        if($encodeId === null or $encodeId == 'all' or $encodeId == '') {
+        if($encodeId == null or $encodeId == 'all' or $encodeId == '') {
             $menus = Menu::where('depth', 2)->get();
         }else{
             $menu_id = $this->getHashIds()->decode($encodeId)[0];
@@ -162,7 +162,7 @@ class MenuController extends Controller
     public function getLevelFive($encodeId=null)
     {
         $menu_id = '';
-        if($encodeId === null or $encodeId == 'all' or $encodeId == '') {
+        if($encodeId == null or $encodeId == 'all' or $encodeId == '') {
             $menus = Menu::where('depth', 3)->get();
         }else{
             $menu_id = $this->getHashIds()->decode($encodeId)[0];

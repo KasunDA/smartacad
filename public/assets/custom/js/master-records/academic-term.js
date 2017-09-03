@@ -40,7 +40,7 @@ $(function () {
             data: values,
             url: '/academic-terms/validate-clone',
             success: function(data,textStatus){
-                if(data.flag === 1){
+                if(data.flag == 1){
                     // set_msg_box($('#error-box'), data.output, 1);
                     bootbox.dialog({
                         message: '<h4>Are You Sure You Want To Clone Records From <strong>'+data.from.academic_term+'</strong> to <strong>'+data.to.academic_term+'</strong>? ' +

@@ -106,7 +106,7 @@ class SchoolController extends Controller
             $school->status_id = $status;
             //Save The Project
             $school->save();
-            ($status === '1')
+            ($status == '1')
                 ? $this->setFlashMessage(' Activated!!! '.$school->full_name.' have been activated.', 1)
                 : $this->setFlashMessage(' Deactivated!!! '.$school->full_name.' have been deactivated.', 1);
         }else{
@@ -121,7 +121,7 @@ class SchoolController extends Controller
      */
     public function getEdit($encodeId = null)
     {
-        if($encodeId === null){
+        if($encodeId == null){
             $school = $this->school_profile;
         }else{
             $decodeId = $this->getHashIds()->decode($encodeId);

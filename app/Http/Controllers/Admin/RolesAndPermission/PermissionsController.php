@@ -31,7 +31,7 @@ class PermissionsController extends Controller
             {
 
                 $method = explode('@', $action['controller'])[1];
-                if($method === 'missingMethod' || $method === 'getHashIds' || substr($method, 0, 4) === 'post')
+                if($method == 'missingMethod' || $method == 'getHashIds' || substr($method, 0, 4) == 'post')
                     continue;
                 // You can also use explode('@', $action['controller']); here
                 // to separate the class name from the method
@@ -92,7 +92,7 @@ class PermissionsController extends Controller
      * @return Response
      */
     public function getRolesPermissions($encodeId=null){
-        $decodeId = ($encodeId === null) ? Role::DEFAULT_ROLE : $this->getHashIds()->decode($encodeId)[0];
+        $decodeId = ($encodeId == null) ? Role::DEFAULT_ROLE : $this->getHashIds()->decode($encodeId)[0];
         $role = Role::findorFail($decodeId);
 
         $roles = Role::orderBy('display_name')->lists('display_name','role_id');

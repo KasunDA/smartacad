@@ -70,7 +70,7 @@ var UIBlockUI = function() {
                                 </tr>\
                             </thead>\
                             <tbody>';
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         $.each(obj.Students, function(key, value) {
                             var hashed = value.hashed_stud+'/'+value.hashed_term;
                             assign += '<tr>' +

@@ -143,11 +143,11 @@ Route::group(array('prefix'=>'/api'),function(){
 
     Route::get('/sms/{to?}/{message?}/{msg_sender?}', function ($to, $message, $msg_sender="WUFPBKPortal") {
         $mobile_no = trim($to);
-        if(substr($mobile_no, 0, 1) === '0'){
+        if(substr($mobile_no, 0, 1) == '0'){
             $no = '234' . substr($mobile_no, 1);
-        }elseif (substr($mobile_no, 0, 3) === '234') {
+        }elseif (substr($mobile_no, 0, 3) == '234') {
             $no = $mobile_no;
-        }elseif (substr($mobile_no, 0, 1) === '+') {
+        }elseif (substr($mobile_no, 0, 1) == '+') {
             $no = substr($mobile_no, 1);
         }else{
             $no = '234' . $mobile_no;

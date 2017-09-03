@@ -42,8 +42,8 @@ class ClassRoomsController extends Controller
      */
     public function getIndex($encodeId=null)
     {
-        $classlevel = ($encodeId === null) ? null : ClassLevel::findOrFail($this->getHashIds()->decode($encodeId)[0]);
-        $classrooms = ($classlevel === null) ? ClassRoom::all() : $classlevel->classRooms()->get();
+        $classlevel = ($encodeId == null) ? null : ClassLevel::findOrFail($this->getHashIds()->decode($encodeId)[0]);
+        $classrooms = ($classlevel == null) ? ClassRoom::all() : $classlevel->classRooms()->get();
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('All Class Level', '');
         return view('admin.master-records.classes.class-rooms.index', compact('classlevels', 'classrooms', 'classlevel'));
     }

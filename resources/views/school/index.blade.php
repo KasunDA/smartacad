@@ -66,7 +66,7 @@
                                             </a>
                                         </td>
                                         <td>
-                                            @if($school->status_id === 1)
+                                            @if($school->status_id == 1)
                                                 <button value="{{ $school->school_id }}" rel="2" class="btn btn-success btn-rounded btn-condensed btn-xs school_status">
                                                     Deactivate
                                                 </button>

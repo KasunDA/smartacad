@@ -10,7 +10,7 @@ $(function () {
         var user_name = parent.children(':nth-child(2)').text();
         var user_id = $(this).val();
         var value = $(this).attr('rel');
-        var msg = (value === '1') ? '<strong>ACTIVATE '+user_name+' </strong>' : '<strong>DEACTIVATE '+user_name+'</strong>';
+        var msg = (value == '1') ? '<strong>ACTIVATE '+user_name+' </strong>' : '<strong>DEACTIVATE '+user_name+'</strong>';
         //alert(user_name + ' = ' + value);
 
         bootbox.dialog({

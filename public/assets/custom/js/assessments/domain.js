@@ -40,7 +40,7 @@ var UIBlockUI = function() {
                                 </tr>\
                             </thead>\
                             <tbody>';
-                    if(obj.flag === 1){
+                    if(obj.flag == 1){
                         $.each(obj.Classrooms, function(key, value) {
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
@@ -51,7 +51,7 @@ var UIBlockUI = function() {
                                 '<td><a href="/domains/remark/'+value.hashed_class_id+'/'+value.hashed_term_id+'" class="btn btn-warning btn-xs"><i class="fa fa-comments"></i> Remark</a></td>' +
                                 '</tr>';
                         });
-                    }else if(obj.flag === 0){
+                    }else if(obj.flag == 0){
                         App.alert({
                             icon: 'warning',
                             type: 'danger',

@@ -19,7 +19,7 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
-            if(Auth::user()->user_type_id === Sponsor::USER_TYPE)
+            if(Auth::user()->user_type_id == Sponsor::USER_TYPE)
                 // redirect to the PARENT / STUDENT page
                 return redirect('/home');
             return redirect()->intended();

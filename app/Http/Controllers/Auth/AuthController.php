@@ -179,7 +179,7 @@ class AuthController extends Controller
         if($user){
             Auth::login($user);
 
-            if($user->user_type_id === Sponsor::USER_TYPE)
+            if($user->user_type_id == Sponsor::USER_TYPE)
                 // redirect to the PARENT / STUDENT page
                 return redirect('/home');
             return redirect('/dashboard');

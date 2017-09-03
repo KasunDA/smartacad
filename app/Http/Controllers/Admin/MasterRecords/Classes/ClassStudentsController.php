@@ -93,7 +93,7 @@ class ClassStudentsController extends Controller
         $inputs = $request->all();
         $student = Student::find($inputs['student_id']);
         //assign
-        if($inputs['student_class_id'] === '-1') {
+        if($inputs['student_class_id'] == '-1') {
             $student_class = new StudentClass();
             $student_class->student_id = $inputs['student_id'];
             $student_class->classroom_id = $inputs['class_id'];
