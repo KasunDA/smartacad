@@ -21,7 +21,7 @@
     <h3 class="page-title"> User Types</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8">
             <div class="portlet light bordered">
                 <div class="portlet-title">
                     <div class="caption">
@@ -33,7 +33,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_user_type"> Add New
+                                <button class="btn btn-sm green add_user_type"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -56,6 +56,14 @@
                                         <th style="width: 10%;">Actions</th>
                                     </tr>
                                     </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th style="width: 5%;">s/no</th>
+                                        <th style="width: 40%;">User Type</th>
+                                        <th style="width: 40%;">Type</th>
+                                        <th style="width: 10%;">Actions</th>
+                                    </tr>
+                                    </tfoot>
                                     @if(count($user_types) > 0)
                                         <tbody>
                                         <?php $i = 1; ?>
@@ -70,7 +78,8 @@
                                                     {!! Form::text('type[]', $user_type->type, ['placeholder'=>'Type', 'class'=>'form-control', 'required'=>'required']) !!}
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_user_type">
+                                                    <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$user_type->user_type}}" data-title="Delete Confirmation"
+                                                             data-action="/user-types/delete/{{$user_type->user_type_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                         <span class="fa fa-trash-o"></span> Delete
                                                     </button>
                                                 </td>
@@ -91,15 +100,15 @@
                                             </td>
                                         </tr>
                                     @endif
-                                    <tfoot>
-                                    <tr>
-                                        <th style="width: 5%;">s/no</th>
-                                        <th style="width: 40%;">User Type</th>
-                                        <th style="width: 40%;">Type</th>
-                                        <th style="width: 10%;">Actions</th>
-                                    </tr>
-                                    </tfoot>
+
                                 </table>
+                                <div class="col-md-12 margin-bottom-10">
+                                    <div class="btn-group pull-left">
+                                        <button class="btn btn-sm green add_user_type"> Add New
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="form-actions noborder">
                                     <button type="submit" class="btn blue pull-right">Submit</button>
                                 </div>
@@ -129,9 +138,26 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/users/user_type.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
+
+            $('.add_user_type').click(function(e){
+                e.preventDefault();
+                var clone_row = $('#menu_table tbody tr:last-child').clone();
+
+                $('#menu_table tbody').append(clone_row);
+
+                clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
+                clone_row.children(':nth-child(2)').children('input').val('');
+                clone_row.children(':nth-child(3)').children('input').val('');
+                clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
+                clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-xs remove_user_type"><span class="fa fa-times"></span> Remove</button>');
+            });
+
+            $(document.body).on('click','.remove_user_type',function(){
+                $(this).parent().parent().remove();
+            });
+
             setTabActive('[href="/user-types"]');
         });
     </script>

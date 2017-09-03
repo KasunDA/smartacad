@@ -21,7 +21,7 @@
     <h3 class="page-salutation"> Salutations</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8">
             <div class="portlet light bordered">
                 <div class="portlet-salutation">
                     <div class="caption">
@@ -33,7 +33,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_salutation"> Add New
+                                <button class="btn btn-sm green add_salutation"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -69,7 +69,9 @@
                                                     {!! Form::text('salutation_abbr[]', $salutation->salutation_abbr, ['placeholder'=>'Salutation Abbr.', 'class'=>'form-control', 'required'=>'required']) !!}
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_salutation">
+                                                    <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$salutation->salutation}}" data-title="Delete Confirmation"
+                                                             data-message="Are you sure you want to delete <b>{{$salutation->salutation}}?</b>"
+                                                             data-action="/salutations/delete/{{$salutation->salutation_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                         <span class="fa fa-trash-o"></span> Delete
                                                     </button>
                                                 </td>
@@ -102,6 +104,11 @@
                                     </tr>
                                     </tfoot>
                                 </table>
+                                <div class="btn-group pull-left">
+                                    <button class="btn btn-sm green add_salutation"> Add New
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
                                 <div class="form-actions noborder">
                                     <button type="submit" class="btn blue pull-right">Submit</button>
                                 </div>
@@ -131,9 +138,26 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/setups/salutation.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
+
+            $('.add_salutation').click(function(e){
+                e.preventDefault();
+                var clone_row = $('#salutation_table tbody tr:last-child').clone();
+
+                $('#salutation_table tbody').append(clone_row);
+
+                clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
+                clone_row.children(':nth-child(2)').children('input').val('');
+                clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
+                clone_row.children(':nth-child(3)').children('input').val('');
+                clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-xs remove_salutation"><span class="fa fa-times"></span> Remove</button>');
+            });
+
+            $(document.body).on('click','.remove_salutation',function(){
+                $(this).parent().parent().remove();
+            });
+
             setTabActive('[href="/salutations"]');
         });
     </script>

@@ -25,6 +25,7 @@ class ClassStudentsController extends Controller
      */
     public function getIndex()
     {
+        session()->put('active', 'search');
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
         return view('admin.master-records.classes.class-rooms.class-student', compact('academic_years', 'classlevels', 'tutors'));
@@ -90,6 +91,7 @@ class ClassStudentsController extends Controller
      */
     public function postAssign(Request $request)
     {
+        session()->put('active', 'assign');
         $inputs = $request->all();
         $student = Student::find($inputs['student_id']);
         //assign
@@ -121,6 +123,7 @@ class ClassStudentsController extends Controller
      */
     public function postViewStudents(Request $request)
     {
+        session()->put('active', 'search');
         $inputs = $request->all();
         if(isset($inputs['view_classroom_id']) and $inputs['view_classroom_id'] != ''){
             $students = StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])

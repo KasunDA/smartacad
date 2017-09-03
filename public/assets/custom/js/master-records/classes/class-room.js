@@ -14,54 +14,12 @@ $(function () {
         clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
         clone_row.children(':nth-child(3)').children('select').val('');
         clone_row.children(':nth-child(4)').children('input').val('');
-        clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-sm remove_class_room"><span class="fa fa-times"></span> Remove</button>');
+        clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-xs remove_class_room"><span class="fa fa-times"></span> Remove</button>');
     });
 
     $(document.body).on('click','.remove_class_room',function(){
         $(this).parent().parent().remove();
     });
-
-    $(document.body).on('click', '.delete_class_room',function(e){
-        e.preventDefault();
-
-        var parent = $(this).parent().parent();
-        var class_room = parent.children(':nth-child(2)').children('input').val();
-        var class_room_id = parent.children(':nth-child(2)').children('input[type=hidden]').val();
-
-        bootbox.dialog({
-            message: "Are You sure You want to permanently delete Class Room "+class_room,
-            title: "Warning Alert",
-            buttons: {
-                danger: {
-                    label: "NO",
-                    className: "btn-default",
-                    callback: function() {
-                        $(this).hide();
-                    }
-                },
-                success: {
-                    label: "YES",
-                    className: "btn-success",
-                    callback: function() {
-                        $.ajax({
-                            type: 'GET',
-                            async: true,
-                            url: '/class-rooms/delete/' + class_room_id,
-                            success: function(data,textStatus){
-                                window.location.replace('/class-rooms');
-                            },
-                            error: function(xhr,textStatus,error){
-                                bootbox.alert("Error encountered pls try again later..", function() {
-                                    $(this).hide();
-                                });
-                            }
-                        });
-                    }
-                }
-            }
-        });
-    });
-
 });
 
 var TableManaged = function () {

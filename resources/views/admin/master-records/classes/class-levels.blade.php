@@ -25,7 +25,39 @@
     <h3 class="page"> Class Levels</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8 col-xs-12 col-md-offset-2 margin-bottom-10">
+            <form method="post" action="/class-levels/class-groups" role="form" class="form-horizontal">
+                {!! csrf_field() !!}
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Class Groups</label>
+
+                    <div class="col-md-6">
+                        <div class="col-md-9">
+                            <select class="form-control selectpicker" name="class_group_id" id="class_group_id">
+                                @foreach($classgroups as $key => $value)
+                                    @if($classGroup && $classGroup->classgroup_id === $key)
+                                        <option selected value="{{$key}}">{{$value}}</option>
+                                    @else
+                                        <option value="{{$key}}">{{$value}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary" type="submit">Filter</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+                        <h3 class="text-center">Class Levels in:
+                            <span class="text-primary">{{ ($classGroup) ? $classGroup->classgroup : 'All' }}</span> Class Groups
+                        </h3>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-8">
             <div class="portlet light bordered">
                 <div class="portlet">
                     <div class="caption">
@@ -37,7 +69,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-level">
-                                <button class="btn green add_class_level"> Add New
+                                <button class="btn btn-sm green add_class_level"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -59,6 +91,14 @@
                                         <th style="width: 5%;">Actions</th>
                                     </tr>
                                     </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th style="width: 5%;">s/no</th>
+                                        <th style="width: 40%;">Class Level</th>
+                                        <th style="width: 40%;">Class Group</th>
+                                        <th style="width: 5%;">Actions</th>
+                                    </tr>
+                                    </tfoot>
                                     @if(count($classgroups) > 1)
                                         @if(count($classlevels) > 0)
                                             <tbody>
@@ -72,7 +112,8 @@
                                                     </td>
                                                     <td>{!! Form::select('classgroup_id[]', $classgroups, $class_level->classgroup_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>
-                                                        <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_class_level">
+                                                        <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$class_level->classlevel}}" data-title="Delete Confirmation"
+                                                                 data-action="/class-levels/delete/{{$class_level->classlevel_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                             <span class="fa fa-trash-o"></span> Delete
                                                         </button>
                                                     </td>
@@ -97,15 +138,14 @@
                                     @else
                                         <tr><td colspan="4" class="text-center"><label class="label label-danger"><strong>A Class Group Record Must Be Inserted Before Inserting Class Level</strong></label></td></tr>
                                     @endif
-                                    <tfoot>
-                                    <tr>
-                                        <th style="width: 5%;">s/no</th>
-                                        <th style="width: 40%;">Class Level</th>
-                                        <th style="width: 40%;">Class Group</th>
-                                        <th style="width: 5%;">Actions</th>
-                                    </tr>
-                                    </tfoot>
                                 </table>
+                                <div class="col-md-12 margin-bottom-10">
+                                    <div class="btn-level pull-left">
+                                        <button class="btn btn-sm green add_class_level"> Add New
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="form-actions noborder">
                                     <button type="submit" class="btn blue pull-right">Submit</button>
                                 </div>
@@ -138,9 +178,26 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/master-records/classes/class-level.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
+
+            $('.add_class_level').click(function(e){
+                e.preventDefault();
+                var clone_row = $('#class_level_table tbody tr:last-child').clone();
+
+                $('#class_level_table tbody').append(clone_row);
+
+                clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
+                clone_row.children(':nth-child(2)').children('input').val('');
+                clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
+                clone_row.children(':nth-child(3)').children('select').val('');
+                clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-xs remove_class_level"><span class="fa fa-times"></span> Remove</button>');
+            });
+
+            $(document.body).on('click','.remove_class_level',function(){
+                $(this).parent().parent().remove();
+            });
+
             setTabActive('[href="/class-levels"]');
             setTableData($('#class_level_table')).init();
         });

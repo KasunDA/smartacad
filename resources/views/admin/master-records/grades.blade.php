@@ -27,7 +27,7 @@
     <h3 class="page"> Grades</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
-        <div class="col-md-10 col-md-offset-1 margin-bottom-10">
+        <div class="col-md-8 col-xs-12 col-md-offset-2 margin-bottom-10">
             <form method="post" action="/grades/class-groups" role="form" class="form-horizontal">
                 {!! csrf_field() !!}
                 <div class="form-group">
@@ -54,7 +54,7 @@
                 <div class="form-group">
                     <div class="col-md-10">
                         <h3 class="text-center">Grades Assigned in:
-                            <span class="text-danger">{{ ($classgroup) ? $classgroup->classgroup : 'All' }}</span> Class Group</h3>
+                            <span class="text-primary">{{ ($classgroup) ? $classgroup->classgroup : 'All' }}</span> Class Group</h3>
                     </div>
                 </div>
             </form>
@@ -71,7 +71,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_grade"> Add New
+                                <button class="btn btn-sm green add_grade"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -96,6 +96,17 @@
                                         <th style="width: 8%;">Actions</th>
                                     </tr>
                                     </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th style="width: 1%;">s/no</th>
+                                        <th style="width: 24%;">Grades</th>
+                                        <th style="width: 20%;">Class Group</th>
+                                        <th style="width: 13%;">Grades Abbr.</th>
+                                        <th style="width: 13%;">Upper Bound</th>
+                                        <th style="width: 13%;">Lower Bound</th>
+                                        <th style="width: 8%;">Actions</th>
+                                    </tr>
+                                    </tfoot>
                                     @if(count($classgroups) > 1)
                                         @if(count($grades) > 0)
                                             <tbody>
@@ -112,7 +123,9 @@
                                                     <td>{!! Form::text('upper_bound[]', $grade->upper_bound, ['placeholder'=>'Upper Bound', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>{!! Form::text('lower_bound[]', $grade->lower_bound, ['placeholder'=>'Lower Bound', 'class'=>'form-control', 'required'=>'required']) !!}</td>
                                                     <td>
-                                                        <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_grade">
+                                                        <button  data-name="{{$grade->grade}}"
+                                                                 data-action="/grades/delete/{{$grade->grade_id}}"
+                                                                 class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                             <span class="fa fa-trash-o"></span> Delete
                                                         </button>
                                                     </td>
@@ -140,18 +153,14 @@
                                     @else
                                         <tr><td colspan="7" class="text-center"><label class="label label-danger"><strong>An Academic Years Record Must Be Inserted Before Inserting Grade</strong></label></td></tr>
                                     @endif
-                                    <tfoot>
-                                    <tr>
-                                        <th style="width: 1%;">s/no</th>
-                                        <th style="width: 24%;">Grades</th>
-                                        <th style="width: 20%;">Class Group</th>
-                                        <th style="width: 13%;">Grades Abbr.</th>
-                                        <th style="width: 13%;">Upper Bound</th>
-                                        <th style="width: 13%;">Lower Bound</th>
-                                        <th style="width: 8%;">Actions</th>
-                                    </tr>
-                                    </tfoot>
                                 </table>
+                                <div class="col-md-12 margin-bottom-10">
+                                    <div class="btn-group pull-left">
+                                        <button class="btn btn-sm green add_grade"> Add New
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="form-actions noborder">
                                     <button type="submit" class="btn blue pull-right">Submit</button>
                                 </div>
@@ -186,9 +195,28 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/master-records/grade.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
+            $('.add_grade').click(function(e){
+                e.preventDefault();
+                var clone_row = $('#grade_table tbody tr:last-child').clone();
+
+                $('#grade_table tbody').append(clone_row);
+
+                clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
+                clone_row.children(':nth-child(2)').children('input').val('');
+                clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
+                clone_row.children(':nth-child(3)').children('select').val('');
+                clone_row.children(':nth-child(4)').children('input').val('');
+                clone_row.children(':nth-child(5)').children('input').val('');
+                clone_row.children(':nth-child(6)').children('input').val('');
+                clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-xs remove_grade"><span class="fa fa-times"></span> Remove</button>');
+            });
+
+            $(document.body).on('click','.remove_grade',function(){
+                $(this).parent().parent().remove();
+            });
+
             setTabActive('[href="/grades"]');
             setTableData($('#grade_table')).init();
         });

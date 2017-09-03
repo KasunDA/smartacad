@@ -29,14 +29,16 @@ class ClassLevelsController extends Controller
 
     /**
      * Display a listing of the Menus for Master Records.
-     *
+     * @param Boolean $group_id
      * @return Response
      */
-    public function getIndex()
+    public function getIndex($group_id=false)
     {
-        $classlevels = ClassLevel::all();
+        $classGroup = ($group_id) ? ClassGroup::findOrFail($this->decode($group_id)) : false;
+        $classlevels = ($classGroup) ? $classGroup->classLevels()->get() : ClassLevel::all();
+
         $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('Select Class Group', '');
-        return view('admin.master-records.classes.class-levels', compact('classlevels', 'classgroups'));
+        return view('admin.master-records.classes.class-levels', compact('classlevels', 'classgroups', 'classGroup'));
     }
 
     /**
@@ -86,5 +88,17 @@ class ClassLevelsController extends Controller
         }else{
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
+    }
+
+    /**
+     * Get The Class Levels Given the group id
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postClassGroups(Request $request)
+    {
+        $inputs = $request->all();
+
+        return redirect('/class-levels/index/' . $this->encode($inputs['class_group_id']));
     }
 }

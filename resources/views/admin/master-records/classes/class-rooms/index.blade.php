@@ -25,7 +25,7 @@
     <h3 class="page"> Class Rooms</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
-        <div class="col-md-7 margin-bottom-10">
+        <div class="col-md-8 col-xs-12 col-md-offset-2 margin-bottom-10">
             <form method="post" action="/class-rooms/levels" role="form" class="form-horizontal">
                 {!! csrf_field() !!}
                 <div class="form-group">
@@ -52,12 +52,12 @@
                 <div class="form-group">
                     <div class="col-md-10">
                         <h3 class="text-center">Class Rooms in:
-                            <span class="text-danger">{{ ($classlevel) ? $classlevel->classlevel : 'All' }}</span> Class Level</h3>
+                            <span class="text-primary">{{ ($classlevel) ? $classlevel->classlevel : 'All' }}</span> Class Level</h3>
                     </div>
                 </div>
             </form>
         </div>
-        <div class="col-md-12">
+        <div class="col-md-10">
             <div class="portlet light bordered">
                 <div class="portlet">
                     <div class="caption">
@@ -69,7 +69,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-room">
-                                <button class="btn green add_class_room"> Add New
+                                <button class="btn btn-sm green add_class_room"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -92,6 +92,15 @@
                                         <th style="width: 5%;">Actions</th>
                                     </tr>
                                     </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th style="width: 5%;">s/no</th>
+                                        <th style="width: 35%;">Class Room</th>
+                                        <th style="width: 30%;">Class Level</th>
+                                        <th style="width: 15%;">Capacity</th>
+                                        <th style="width: 5%;">Actions</th>
+                                    </tr>
+                                    </tfoot>
                                     <tbody>
                                         @if(count($classlevels) > 1)
                                             @if(count($classrooms) > 0)
@@ -107,8 +116,10 @@
                                                         <td>{!! Form::select('classlevel_id[]', $classlevels, $class_room->classlevel_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                         <td>{!! Form::text('class_size[]', $class_room->class_size, ['placeholder'=>'Class Capacity', 'class'=>'form-control']) !!}</td>
                                                         <td>
-                                                            <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_class_room">
-                                                                <span class="fa fa-trash-o"></span> Delete
+                                                            <button  data-name="{{$class_room->classroom}}"
+                                                                     data-action="/class-rooms/delete/{{$class_room->classroom_id}}"
+                                                                     class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
+                                                                    <span class="fa fa-trash-o"></span> Delete
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -133,16 +144,14 @@
                                             <tr><td colspan="5" class="text-center"><label class="label label-danger"><strong>A Class Level Record Must Be Inserted Before Inserting Class Room</strong></label></td></tr>
                                         @endif
                                     </tbody>
-                                    <tfoot>
-                                    <tr>
-                                        <th style="width: 5%;">s/no</th>
-                                        <th style="width: 35%;">Class Room</th>
-                                        <th style="width: 30%;">Class Level</th>
-                                        <th style="width: 15%;">Capacity</th>
-                                        <th style="width: 5%;">Actions</th>
-                                    </tr>
-                                    </tfoot>
                                 </table>
+                                <div class="col-md-12 margin-bottom-10">
+                                    <div class="btn-room pull-left">
+                                        <button class="btn btn-sm green add_class_room"> Add New
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="form-actions noborder">
                                     <button type="submit" class="btn blue pull-right">Submit</button>
                                 </div>

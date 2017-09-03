@@ -45,7 +45,7 @@ class ClassGroup extends Model
      */
 
     public function classLevels(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\Classes\ClassLevel', 'classlevel_id');
+        return $this->hasMany(ClassLevel::class, 'classgroup_id');
     }
 
     /**

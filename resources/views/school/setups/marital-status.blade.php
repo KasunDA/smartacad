@@ -21,7 +21,7 @@
     <h3 class="page-marital_status"> Marital Status</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8">
             <div class="portlet light bordered">
                 <div class="portlet-marital_status">
                     <div class="caption">
@@ -33,7 +33,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_marital_status"> Add New
+                                <button class="btn btn-sm green add_marital_status"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -50,11 +50,19 @@
                                     <thead>
                                     <tr>
                                         <th style="width: 5%;">s/no</th>
-                                        <th style="width: 50%;">Marital Status</th>
-                                        <th style="width: 25%;">Marital Status Abbr.</th>
+                                        <th style="width: 50%;">Status</th>
+                                        <th style="width: 25%;">Status (Abbr.)</th>
                                         <th style="width: 20%;">Actions</th>
                                     </tr>
                                     </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th style="width: 5%;">s/no</th>
+                                        <th style="width: 50%;">Status</th>
+                                        <th style="width: 25%;">Status (Abbr.)</th>
+                                        <th style="width: 20%;">Actions</th>
+                                    </tr>
+                                    </tfoot>
                                     @if(count($marital_statuses) > 0)
                                         <tbody>
                                         <?php $i = 1; ?>
@@ -69,7 +77,9 @@
                                                     {!! Form::text('marital_status_abbr[]', $marital_status->marital_status_abbr, ['placeholder'=>'Marital Status Abbr.', 'class'=>'form-control', 'required'=>'required']) !!}
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_marital_status">
+                                                    <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$marital_status->marital_status}}" data-title="Delete Confirmation"
+                                                             data-message="Are you sure you want to delete <b>{{$marital_status->marital_status}}?</b>"
+                                                             data-action="/marital-statuses/delete/{{$marital_status->marital_status_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                         <span class="fa fa-trash-o"></span> Delete
                                                     </button>
                                                 </td>
@@ -93,15 +103,14 @@
                                             </td>
                                         </tr>
                                     @endif
-                                    <tfoot>
-                                    <tr>
-                                        <th style="width: 5%;">s/no</th>
-                                        <th style="width: 50%;">Marital Status</th>
-                                        <th style="width: 25%;">Marital Status Abbr.</th>
-                                        <th style="width: 20%;">Actions</th>
-                                    </tr>
-                                    </tfoot>
                                 </table>
+                                <div class="col-md-12 margin-bottom-10">
+                                    <div class="btn-group pull-left">
+                                        <button class="btn btn-sm green add_marital_status"> Add New
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="form-actions noborder">
                                     <button type="submit" class="btn blue pull-right">Submit</button>
                                 </div>
@@ -131,9 +140,26 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/setups/marital-status.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
+
+            $('.add_marital_status').click(function(e){
+                e.preventDefault();
+                var clone_row = $('#marital_status_table tbody tr:last-child').clone();
+
+                $('#marital_status_table tbody').append(clone_row);
+
+                clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
+                clone_row.children(':nth-child(2)').children('input').val('');
+                clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
+                clone_row.children(':nth-child(3)').children('input').val('');
+                clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-xs remove_marital_status"><span class="fa fa-times"></span> Remove</button>');
+            });
+
+            $(document.body).on('click','.remove_marital_status',function(){
+                $(this).parent().parent().remove();
+            });
+
             setTabActive('[href="/marital-statuses"]');
         });
     </script>

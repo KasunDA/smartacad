@@ -21,7 +21,7 @@
     <h3 class="page"> Subject Groups</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8">
             <div class="portlet light bordered">
                 <div class="portlet">
                     <div class="caption">
@@ -33,7 +33,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_subject_groups"> Add New
+                                <button class="btn btn-sm green add_subject_groups"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -54,6 +54,13 @@
                                         <th style="width: 20%;">Actions</th>
                                     </tr>
                                     </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th style="width: 5%;">s/no</th>
+                                            <th style="width: 50%;">Subject Groups</th>
+                                            <th style="width: 20%;">Actions</th>
+                                        </tr>
+                                    </tfoot>
                                     @if(count($subject_groups) > 0)
                                         <tbody>
                                         <?php $i = 1; ?>
@@ -65,7 +72,9 @@
                                                     {!! Form::hidden('subject_group_id[]', $subject_group->subject_group_id, ['class'=>'form-control']) !!}
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_subject_groups">
+                                                    <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$subject_group->subject_group}}" data-title="Delete Confirmation"
+                                                             data-message="Are you sure you want to delete <b>{{$subject_group->subject_group}}?</b>"
+                                                             data-action="/subject-groups/delete/{{$subject_group->subject_group_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                         <span class="fa fa-trash-o"></span> Delete
                                                     </button>
                                                 </td>
@@ -86,14 +95,14 @@
                                             </td>
                                         </tr>
                                     @endif
-                                    <tfoot>
-                                    <tr>
-                                        <th style="width: 5%;">s/no</th>
-                                        <th style="width: 50%;">Subject Groups</th>
-                                        <th style="width: 20%;">Actions</th>
-                                    </tr>
-                                    </tfoot>
                                 </table>
+                                <div class="col-md-12 margin-bottom-10">
+                                    <div class="btn-group pull-left">
+                                        <button class="btn btn-sm green add_subject_groups"> Add New
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="form-actions noborder">
                                     <button type="submit" class="btn blue pull-right">Submit</button>
                                 </div>
@@ -123,9 +132,25 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/setups/subjects/subject-groups.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
+
+            $('.add_subject_groups').click(function(e){
+                e.preventDefault();
+                var clone_row = $('#subject_groups_table tbody tr:last-child').clone();
+
+                $('#subject_groups_table tbody').append(clone_row);
+
+                clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
+                clone_row.children(':nth-child(2)').children('input').val('');
+                clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
+                clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-xs remove_subject_groups"><span class="fa fa-times"></span> Remove</button>');
+            });
+
+            $(document.body).on('click','.remove_subject_groups',function(){
+                $(this).parent().parent().remove();
+            });
+
             setTabActive('[href="/subject-groups"]');
         });
     </script>

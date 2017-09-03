@@ -14,14 +14,17 @@ class SubjectsController extends Controller
     /**
      * Display a listing of the Menus for Master Records.
      *
+     * @param Boolean $group_id
      * @return Response
      */
-    public function getIndex()
+    public function getIndex($group_id=false)
     {
-        $subjects = Subject::all();
-        $subject_groups = SubjectGroup::orderBy('subject_group')->lists('subject_group', 'subject_group_id')->prepend('Subject Group', '');
+        $subject_group = ($group_id) ? SubjectGroup::findOrFail($this->decode($group_id)) : false;
+        
+        $subjects = ($subject_group) ? $subject_group->subjects()->orderBy('subject')->get() : Subject::orderBy('subject')->get();
+        $subject_groups = SubjectGroup::orderBy('subject_group')->lists('subject_group', 'subject_group_id')->prepend('- Subject Group -', '');
 
-        return view('school.setups.subjects.subjects', compact('subjects', 'subject_groups'));
+        return view('school.setups.subjects.subjects', compact('subjects', 'subject_groups', 'subject_group'));
     }
 
 
@@ -66,5 +69,17 @@ class SubjectsController extends Controller
         }else{
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
+    }
+
+    /**
+     * Get The Subjects Given the group id
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postSubjectGroups(Request $request)
+    {
+        $inputs = $request->all();
+
+        return redirect('/subjects/index/' . $this->encode($inputs['subject_group_id']));
     }
 }

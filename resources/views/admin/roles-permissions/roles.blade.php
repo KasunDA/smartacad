@@ -40,7 +40,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_role"> Add New
+                                <button class="btn btn-sm green add_role"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -78,7 +78,9 @@
                                             <td>{!! Form::text('description[]', $role->description  , ['placeholder'=>'Role Description', 'class'=>'form-control']) !!} </td>
                                             <td>{!! Form::select('user_type_id[]', $user_types, $role->user_type_id, ['class'=>'form-control selectpicker']) !!} </td>
                                             <td>
-                                                <button class="btn btn-danger btn-rounded btn-condensed btn-sm delete_role">
+                                                <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$role->name}}" data-title="Delete Confirmation"
+                                                         data-message="Are you sure you want to delete <b>{{$role->name}}?</b>"
+                                                         data-action="/roles/delete/{{$role->role_id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
                                                     <span class="fa fa-trash-o"></span> Delete
                                                 </button>
                                             </td>
@@ -103,6 +105,13 @@
                                     </tr>
                                 @endif
                             </table>
+                            <div class="col-md-12 margin-bottom-10 pull-left">
+                                <div class="btn-group">
+                                    <button class="btn btn-sm green add_role"> Add New
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="form-actions noborder">
                                 <button type="submit" class="btn blue pull-right">Submit</button>
                             </div>

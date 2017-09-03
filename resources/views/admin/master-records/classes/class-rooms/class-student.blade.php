@@ -44,7 +44,7 @@
                             <li class="{{ (session('active') == 'search' || (!session()->has('active'))) ? 'active' : '' }}">
                                 <a href="#search4student" data-toggle="tab"><i class="fa fa-search"></i> Find /  <i class="fa fa-eye"></i> View Student in Class Room </a>
                             </li>
-                            <li>
+                            <li class="{{ (session('active') == 'assign') ? 'active' : '' }}">
                                 <a href="#assign2student" data-toggle="tab"><i class="fa fa-plus-square"></i> Add / <i class="fa fa-minus-square"></i> Remove Student in Class Room </a>
                             </li>
                             <li class="{{ (session('active') == 'cloning') ? 'active' : '' }}">
@@ -54,7 +54,7 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
-                            <div class="tab-pane {{ (session('active') == 'search' || (!session()->has('active'))) ? 'active' : '' }}" id="search4student">
+                            <div class="tab-pane {{ (session('active') == 'search') ? 'active' : ((!session()->has('active')) ? 'active' : '') }}" id="search4student">
                                 <div class="alert alert-info"> Search by <strong>Academic Year</strong> and  <strong>Class Level</strong> To View Students</div>
                                 <div id="msg_box1"></div>
                                 {!! Form::open([
@@ -105,7 +105,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane" id="assign2student">
+                            <div class="tab-pane {{ (session('active') == 'assign') ? 'active' : '' }}" id="assign2student">
                                 <div class="alert alert-info"> Search by <strong>Academic Year</strong> and <strong>Class Room</strong></div>
                                 <div id="msg_box"></div>
                                 {!! Form::open([
