@@ -108,7 +108,8 @@ Route::group(['middleware' => ['web']], function () {
         'domains' => 'Admin\Assessments\DomainsController',
         'exams' => 'Admin\Assessments\ExamsController',
 
-
+        //Order Routes
+        'orders' => 'Admin\Orders\OrdersController',
     ]);
 });
 

@@ -33,7 +33,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_item_type"> Add New
+                                <button class="btn btn-sm green add_item_type"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
