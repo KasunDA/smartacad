@@ -24,7 +24,7 @@ class CreateItemsTable extends Migration
             $table->increments('id');
             $table->string('name', 80);
             $table->text('description')->nullable();
-            $table->tinyInteger('status', false, true)->index()->default(1);
+            $table->boolean('status')->index()->default(1);
             $table->integer('item_type_id', false, true)->index();
             $table->timestamps();
             $table->softDeletes();
