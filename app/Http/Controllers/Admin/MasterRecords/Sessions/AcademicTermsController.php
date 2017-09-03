@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class AcademicTermsController extends Controller
 {
@@ -51,12 +52,13 @@ class AcademicTermsController extends Controller
     {
         $inputs = $request->all();
         $count = $status =0;
+        $active_academic_term = false;
 
         // Validate TO Make Sure Only One Status is Set
         for($j=0; $j<count($inputs['status']); $j++)
             if($inputs['status'][$j] == '1') $status++;
 
-        if($status > 1 || $status < 1) {
+        if($status != 1) {
             $this->setFlashMessage('Note!!! An Academic Term (Only One) Must Be Set To Active At Any Point In Time.', 2);
         }else{
             for($i = 0; $i < count($inputs['academic_term_id']); $i++){
@@ -69,6 +71,8 @@ class AcademicTermsController extends Controller
                 $academic_term->term_ends = $inputs['term_ends'][$i];
                 if($academic_term->save()){
                     $count = $count+1;
+
+                    if($academic_term->status == 1) $active_academic_term = $academic_term;
                 }
             }
             //Update The Setup Process
@@ -76,6 +80,21 @@ class AcademicTermsController extends Controller
                 $this->school->setup = School::CLASS_GROUP;
                 $this->school->save();
                 return redirect('/class-groups');
+            }
+
+            //update status
+            if($active_academic_term){
+                DB::table('academic_terms')
+                    ->where('academic_term_id', '<>', $active_academic_term->academic_term_id)
+                    ->update(['status' => 2]);
+
+                DB::table('academic_years')
+                    ->where('academic_year_id', $active_academic_term->academic_year_id)
+                    ->update(['status' => 1]);
+
+                DB::table('academic_years')
+                    ->where('academic_year_id', '<>', $active_academic_term->academic_year_id)
+                    ->update(['status' => 2]);
             }
 
             // Set the flash message
@@ -93,7 +112,7 @@ class AcademicTermsController extends Controller
     {
         $academic_term = AcademicTerm::findOrFail($id);
         //Delete The Record
-        $delete = ($academic_term !== null) ? $academic_term->delete() : null;
+        $delete = (!empty($academic_term)) ? $academic_term->delete() : false;
 
         if($delete){
             $this->setFlashMessage('  Deleted!!! '.$academic_term->academic_term.' Academic Term have been deleted.', 1);
@@ -108,7 +127,7 @@ class AcademicTermsController extends Controller
      */
     public function getClones()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         return view('admin.master-records.sessions.clones', compact('academic_years'));
     }
 

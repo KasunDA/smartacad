@@ -49,7 +49,7 @@ class AcademicYearsController extends Controller
         for($j=0; $j<count($inputs['status']); $j++)
             if($inputs['status'][$j] == '1') $status++;
 
-        if($status > 1 || $status < 1) {
+        if($status != 1) {
             $this->setFlashMessage('Note!!! An Academic Year (Only One) Must Be Set To Active At Any Point In Time.', 2);
         }else{
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin\Accounts\Sponsor;
+use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\Users\User;
 use App\Models\School\School;
 use GuzzleHttp\Client;
@@ -41,6 +42,9 @@ class Controller extends BaseController
         if(Auth::check()){
             // render PARENT / STUDENT page
             $this->view = (Auth::user()->user_type_id == Sponsor::USER_TYPE) ? 'front.' : 'admin.';
+
+            if(empty(AcademicTerm::activeTerm()))
+                $this->setFlashMessage('Note!!! An Academic Term (Only One) Must Be Set To Active At Any Point In Time.', 2);
         }
 
         //Check if the user has permission to perform such action

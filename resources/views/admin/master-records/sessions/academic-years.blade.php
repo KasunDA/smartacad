@@ -25,7 +25,7 @@
     <h3 class="page-academic_year"> Academic Years</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8">
             <div class="portlet light bordered">
                 <div class="portlet-academic_year">
                     <div class="caption">
@@ -37,7 +37,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_academic_year"> Add New
+                                <button class="btn green btn-sm add_academic_year"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -55,10 +55,18 @@
                                     <tr>
                                         <th style="width: 5%;">s/no</th>
                                         <th style="width: 50%;">Academic Years</th>
-                                        <th style="width: 25%;">Academic Year Status</th>
+                                        <th style="width: 25%;">Year Status</th>
                                         <th style="width: 20%;">Actions</th>
                                     </tr>
                                     </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th style="width: 5%;">s/no</th>
+                                        <th style="width: 50%;">Academic Years</th>
+                                        <th style="width: 25%;">Year Status</th>
+                                        <th style="width: 20%;">Actions</th>
+                                    </tr>
+                                    </tfoot>
                                     @if(count($academic_years) > 0)
                                         <tbody>
                                         <?php $i = 1; ?>
@@ -95,18 +103,10 @@
                                             </td>
                                         </tr>
                                     @endif
-                                    <tfoot>
-                                    <tr>
-                                        <th style="width: 5%;">s/no</th>
-                                        <th style="width: 50%;">Academic Years</th>
-                                        <th style="width: 25%;">Academic Year Status</th>
-                                        <th style="width: 20%;">Actions</th>
-                                    </tr>
-                                    </tfoot>
                                 </table>
                                 <div class="col-md-12 margin-bottom-10 pull-left">
                                     <div class="btn-group">
-                                        <button class="btn green add_academic_year"> Add New
+                                        <button class="btn green btn-sm add_academic_year"> Add New
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>

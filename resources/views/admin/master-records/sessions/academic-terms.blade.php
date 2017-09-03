@@ -71,7 +71,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_academic_term"> Add New
+                                <button class="btn green btn-sm add_academic_term"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -160,7 +160,7 @@
                                 </table>
                                 <div class="col-md-12 margin-bottom-10 pull-left">
                                     <div class="btn-group">
-                                        <button class="btn green add_academic_term"> Add New
+                                        <button class="btn green btn-sm add_academic_term"> Add New
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>
