@@ -286,9 +286,41 @@
 
     @section('layout-script')
     <!-- BEGIN THEME LAYOUT SCRIPTS -->
-    <script src="{{ asset('assets/custom/js/menus/sub-menus.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
+
+            $('.add_menu').click(function(e){
+                e.preventDefault();
+                var clone_row = $('#menu_table tbody tr:last-child').clone();
+                var new_role = $('#new_roles').clone();
+
+                $('#menu_table tbody').append(clone_row);
+                var count = $('#menu_table tbody tr').length;
+
+                clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
+                clone_row.children(':nth-child(2)').children('input').val('');
+                clone_row.children(':nth-child(2)').children('input[type=hidden]').val(-1);
+                clone_row.children(':nth-child(3)').children('select').val('');
+                clone_row.children(':nth-child(4)').children('div.input-group').children('input').val('');
+                clone_row.children(':nth-child(4)').children('div.input-group').children('span').html('');
+                clone_row.children(':nth-child(5)').children('input').val('');
+                clone_row.children(':nth-child(6)').children('select').val('');
+
+                new_role.children('select').attr('name', 'role_id['+count+'][]');
+                clone_row.children(':nth-child(7)').html(new_role.html());
+
+                clone_row.children(':nth-child(8)').children('input').val('');
+                clone_row.children(':nth-child(9)').children('input').val('');
+                clone_row.children(':last-child').html('<button class="btn btn-danger btn-rounded btn-condensed btn-xs remove_menu"><span class="fa fa-times"></span> Remove</button>');
+            });
+
+            $(document.body).on('click','.remove_menu',function(){
+                $(this).parent().parent().remove();
+            });
+
             setTabActive('[href="/menus/level/{{$no}}"]');
         });
     </script>
