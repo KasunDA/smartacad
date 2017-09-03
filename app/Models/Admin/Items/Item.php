@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\Items;
 
+use App\Models\Admin\Orders\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -42,5 +43,14 @@ class Item extends Model
 
     public function itemVariables(){
         return $this->hasMany(ItemVariable::class);
+    }
+
+    /**
+     * An Item has many Order Items
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function orderItems(){
+        return $this->hasMany(OrderItem::class);
     }
 }

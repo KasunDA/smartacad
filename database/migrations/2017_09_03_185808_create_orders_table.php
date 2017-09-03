@@ -14,12 +14,12 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('status', 20);
             $table->string('number', 20);
+            $table->string('status', 20);
             $table->boolean('paid')->default(0);
             $table->boolean('backend')->default(0);
-            $table->decimal('amount', 10, 2)->index();
-            $table->decimal('tax', 10, 2)->index();
+            $table->decimal('amount', 10, 2)->index()->default(0);
+            $table->decimal('tax', 10, 2)->nullable()->default(0);
             $table->integer('student_id', false, true)->index();
             $table->integer('sponsor_id', false, true)->index();
             $table->integer('classroom_id', false, true)->index();
@@ -45,7 +45,16 @@ class CreateOrdersTable extends Migration
                 ->on('orders')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
+        });
 
+        Schema::create('order_logs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('comment');
+            $table->integer('user_id', false, true)->index();
+            $table->integer('order_id', false, true)->index();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->engine = 'InnoDB';
         });
     }
 
@@ -56,6 +65,7 @@ class CreateOrdersTable extends Migration
      */
     public function down()
     {
+        Schema::drop('order_logs');
         Schema::drop('order_items');
         Schema::drop('orders');
     }
