@@ -45,7 +45,7 @@
                     <div class="row">
                         <div class="col-md-12 margin-bottom-10">
                             <div class="btn-group">
-                                <button class="btn green add_menu"> Add New
+                                <button class="btn btn-sm green add_menu"> Add New
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -161,7 +161,7 @@
                                     </tbody>
                                 </table>
                                 <div class="form-actions noborder">
-                                    <button class="btn green pull-left add_menu"> Add New
+                                    <button class="btn btn-sm green pull-left add_menu"> Add New
                                         <i class="fa fa-plus"></i>
                                     </button>
                                     <button type="submit" class="btn blue pull-right">Submit</button>

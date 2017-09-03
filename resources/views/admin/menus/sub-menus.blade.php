@@ -46,7 +46,7 @@
                                         <option value="">- Select Parent -</option>
                                         @foreach($filters as $child)
                                             @if(count($child->getImmediateDescendants()) > 0)
-                                                @if($child->menu_id === $menu_id)
+                                                @if(!empty($menu) && $child->menu_id == $menu->menu_id)
                                                     <option selected value="{{$child->menu_id}}">{{$child->name}}</option>
                                                 @else
                                                     <option value="{{$child->menu_id}}">{{$child->name}}</option>
@@ -55,7 +55,7 @@
                                         @endforeach
                                     @else
                                         @foreach($parents as $key => $value)
-                                            @if($key === $menu_id)
+                                            @if(!empty($menu) && $key == $menu->menu_id)
                                                 <option selected value="{{$key}}">{{$value}}</option>
                                             @else
                                                 <option value="{{$key}}">{{$value}}</option>
@@ -68,6 +68,13 @@
                             <div class="col-md-3">
                                 <button class="btn btn-primary pull-right" type="submit">Filter</button>
                             </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-10">
+                            <h3 class="text-center">
+                                <span class="text-primary">{{ ($menu) ? $menu->name : 'All' }}</span> Menus in {{'Level ' . $no}}
+                            </h3>
                         </div>
                     </div>
                 </form>
@@ -84,7 +91,7 @@
                         <div class="row">
                             <div class="col-md-12 margin-bottom-10">
                                 <div class="btn-group">
-                                    <button class="btn green add_menu"> Add New
+                                    <button class="btn btn-sm green add_menu"> Add New
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </div>
@@ -246,7 +253,7 @@
                                         </tbody>
                                     </table>
                                     <div class="form-actions noborder">
-                                        <button class="btn green pull-left add_menu"> Add New
+                                        <button class="btn btn-sm green pull-left add_menu"> Add New
                                             <i class="fa fa-plus"></i>
                                         </button>
                                         <button type="submit" class="btn blue pull-right">Submit</button>

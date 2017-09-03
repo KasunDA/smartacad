@@ -28,20 +28,20 @@ class MenuController extends Controller
     /**
      * Display a listing of the Menu Level One for Master Records.
      * @param Int $no
-     * @param String $encodeId
+     * @param Boolean $encodeId
      * @return Response
      */
-    public function getLevel($no = 1, $encodeId=null)
+    public function getLevel($no = 1, $encodeId=false)
     {
         $roles = Role::orderBy('name')->get();
         $filters = null;
-        $menu_id = '';
+        $menu = '';
 
-        if($encodeId === null or $encodeId == 'all' or $encodeId == '') {
+        if(!$encodeId || $encodeId == 'all' || $encodeId == '') {
             $menus = ($no > 2) ? Menu::where('depth', $no - 2)->get() : Menu::roots()->get();
         }else{
-            $menu_id = $this->getHashIds()->decode($encodeId)[0];
-            $menus = Menu::where('menu_id', $menu_id)->get();
+            $menu = Menu::find($this->decode($encodeId));
+            $menus = Menu::where('menu_id', $menu->menu_id)->get();
         }
 
         if($no == 2){
@@ -55,7 +55,7 @@ class MenuController extends Controller
 
         return ($no == 1)
             ? view('admin.menus.menu', compact('menus', 'roles', 'no'))
-            : view('admin.menus.sub-menus', compact('menus', 'parents', 'sub', 'roles', 'menu_id', 'no', 'filters'));
+            : view('admin.menus.sub-menus', compact('menus', 'parents', 'sub', 'roles', 'menu', 'no', 'filters'));
 
     }
 
@@ -84,7 +84,7 @@ class MenuController extends Controller
     {
         $menu = Menu::findOrFail($menu_id);
         //Delete The Menu Record
-        $delete = ($menu !== null) ? $menu->delete() : null;
+        $delete = ($menu) ? $menu->delete() : false;
         if($delete){
             //Delete its Equivalent Users Record
             $this->setFlashMessage('  Deleted!!! '.$menu->name.' Menu have been deleted.', 1);
