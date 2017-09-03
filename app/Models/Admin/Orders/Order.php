@@ -27,6 +27,53 @@ class Order extends Model
         'academic_term_id'
     ];
 
+    const PAID = 'paid';
+    const NOT_PAID = 'not-paid';
+    const CANCELLED = 'cancelled';
+
+    const STATUSES =  [
+        self::PAID => [
+            'title' => 'Paid',
+            'label' => 'success',
+            'paid' => true,
+            'cancelled' => false,
+        ],
+        self::NOT_PAID => [
+            'title' => 'Not Paid',
+            'label' => 'danger',
+            'paid' => false,
+            'cancelled' => false,
+        ],
+        self::CANCELLED => [
+            'title' => 'Cancelled',
+            'label' => 'warning',
+            'paid' => false,
+            'cancelled' => true,
+        ],
+    ];
+
+
+    public static function paidStatuses()
+    {
+        return array_filter(self::STATUSES, function($status) {
+            return $status['paid'];
+        });
+    }
+
+    public static function notPaidStatuses()
+    {
+        return array_filter(self::STATUSES, function($status) {
+            return $status['not-paid'];
+        });
+    }
+
+    public static function cancelledStatuses()
+    {
+        return array_filter(self::STATUSES, function($status) {
+            return $status['cancelled'];
+        });
+    }
+    
     /**
      * An Order belongs to a Student
      *
