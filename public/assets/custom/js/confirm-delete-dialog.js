@@ -21,6 +21,12 @@ $(function () {
         var confirmText = $.trim($(this).data('confirm-text'));
         confirmText = (confirmText.length) ? confirmText : 'Yes, delete it!';
 
+        var status = $.trim($(this).data('status'));
+        status = (status.length) ? status : 'Deleted!';
+
+        var statusText = $.trim($(this).data('status-text'));
+        statusText = (statusText.length) ? statusText : name + ' record has been deleted.!';
+
         var action = $(this).data('action');
 
         var redirect = $.trim($(this).data('redirect'));
@@ -43,7 +49,7 @@ $(function () {
                     async: true,
                     url: action,
                     success: function(data,textStatus){
-                        swal("Deleted!", name + " record has been deleted.", "success");
+                        swal(status, statusText, "success");
                         (redirect.length) ? window.location.replace(redirect) : window.location.reload();
 //                    window.location.reload();
                         // window.location.replace(redirect);

@@ -11,6 +11,10 @@ class ItemType extends Model
     use SoftDeletes;
 
     public $timestamps = false;
+    
+    const UNIVERSAL = 1;
+    const VARIABLE = 2;
+    const ELECTIVE = 3;
 
     protected $fillable = [
         'item_type'

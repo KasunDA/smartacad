@@ -8,6 +8,7 @@ use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -73,6 +74,26 @@ class Order extends Model
             return $status['cancelled'];
         });
     }
+
+    /**
+     *  Initiate Billings for all active students in an academic term
+     * @param Int $term_id
+     */
+    public static function processBillings($term_id){
+        return DB::statement('call sp_processBillings(' . $term_id .')');
+    }
+
+    /**
+     *  Process Item Variables for all active students in an academic term
+     * @param Int $term_id
+     * @param String $ids
+     * @param Int $items
+     * @param Int $type
+     */
+    public static function processItemVariables($term_id, $ids, $items, $type){
+        return DB::statement('call sp_processItemVariables(' . $term_id .', ' . $ids .', ' . $items .', ' . $type . ')');
+    }
+
     
     /**
      * An Order belongs to a Student

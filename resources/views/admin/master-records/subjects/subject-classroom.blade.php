@@ -40,23 +40,23 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
-                            <li class="{{ (session('active') == 'classroom' || (!session()->has('active'))) ? 'active' : '' }}">
+                            <li class="{{ (session('subject-tab') == 'classroom' || (!session()->has('subject-tab'))) ? 'active' : '' }}">
                                 <a href="#assign_2classroom" data-toggle="tab"><i class="fa fa-plus"></i> Assign To CLass Room </a>
                             </li>
-                            <li class="{{ (session('active') == 'classlevel') ? 'active' : '' }}">
+                            <li class="{{ (session('subject-tab') == 'classlevel') ? 'active' : '' }}">
                                 <a href="#assign_2classlevel" data-toggle="tab"><i class="fa fa-plus-square"></i> Assign To CLass Level </a>
                             </li>
                             <li>
                                 <a href="#view_subject" data-toggle="tab"><i class="fa fa-ticket"></i> View Subjects / Assign Tutor</a>
                             </li>
-                            <li class="{{ (session('active') == 'manage-subject') ? 'active' : '' }}">
+                            <li class="{{ (session('subject-tab') == 'manage-subject') ? 'active' : '' }}">
                                 <a href="#manage_subject" data-toggle="tab"><i class="fa fa-edit"></i> Manage Subjects / Students</a>
                             </li>
                         </ul>
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
-                            <div class="tab-pane {{ (session('active') == 'classroom' || (!session()->has('active'))) ? 'active' : '' }}" id="assign_2classroom">
+                            <div class="tab-pane {{ (session('subject-tab') == 'classroom' || (!session()->has('subject-tab'))) ? 'active' : '' }}" id="assign_2classroom">
                                 <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',
@@ -102,7 +102,7 @@
                                     </div>
                                 {!! Form::close() !!}
                             </div>
-                            <div class="tab-pane {{ (session('active') == 'classlevel') ? 'active' : '' }}" id="assign_2classlevel">
+                            <div class="tab-pane {{ (session('subject-tab') == 'classlevel') ? 'active' : '' }}" id="assign_2classlevel">
                                 <div class="row">
                                     <div class="col-md-10 col-md-offset-1">
                                         <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Level</strong></div>
@@ -202,7 +202,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane {{ (session('active') == 'manage-subject') ? 'active' : '' }}" id="manage_subject">
+                            <div class="tab-pane {{ (session('subject-tab') == 'manage-subject') ? 'active' : '' }}" id="manage_subject">
                                 <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Level</strong> To Manage Subjects</div>
                                 <div id="error-box"></div>
                                 {!! Form::open([
