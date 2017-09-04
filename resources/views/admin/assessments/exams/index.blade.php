@@ -35,14 +35,21 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
-                            <li class="{{ (session('active') == 'setup-exam') ? 'active' : ((!session()->has('active')) ? 'active' : '') }}">
+                            <li class="{{ (session('exams-tab') == 'setup-exam') ? 'active' : ((!session()->has('exams-tab')) ? 'active' : '') }}">
                                 <a href="#my_exams_setup" data-toggle="tab"><i class="fa fa-gears"></i> Setup My Exams </a>
                             </li>
-                            <li class="{{ (session('active') == 'input-scores') ? 'active' : '' }}">
+                            <li class="{{ (session('exams-tab') == 'input-scores') ? 'active' : '' }}">
                                 <a href="#exams_input_score" data-toggle="tab"><i class="fa fa-pencil-square-o"></i> Input Scores </a>
                             </li>
                             <li>
-                                <a href="#" id="compute_ca" class="btn btn-link"><i class="fa fa-barcode"></i> Auto Compute C. A.</a>
+                                <button  data-name="Auto Compute C.A" data-title="Auto Computation Confirmation"
+                                         data-confirm-text="Yes Compute!!!"
+                                         data-status="Computed!"
+                                         data-status-text="Auto Computation Successful!!!"
+                                         data-message="Do You want to <b>Compute the C.A for the current Term?</b>"
+                                         data-action="/exams/compute-ca" class="btn btn-link confirm-delete-btn">
+                                    <i class="fa fa-barcode"></i> Auto Compute C. A.
+                                </button>
                             </li>
                             @if(Auth::user()->hasRole(['admin', 'class_teacher', 'developer', 'super_admin']))
                                 <li>
@@ -54,7 +61,7 @@
                     <div class="portlet-body form">
                         <div class="tab-content">
                             <div id="error-box"></div>
-                            <div class="tab-pane {{ (session('active') == 'setup-exam') ? 'active' : ((!session()->has('active')) ? 'active' : '') }}" id="my_exams_setup">
+                            <div class="tab-pane {{ (session('exams-tab') == 'setup-exam') ? 'active' : ((!session()->has('exams-tab')) ? 'active' : '') }}" id="my_exams_setup">
                                 <div class="alert alert-info"> Setup Exam For an <strong> Academic Term</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',
@@ -68,14 +75,23 @@
                                             <div class="form-group">
                                                 <label class="control-label">Academic Year <span class="text-danger">*</span></label>
                                                 <div>
-                                                    {!! Form::select('setup_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'setup_academic_year_id', 'required'=>'required']) !!}
+                                                    {!! Form::select('setup_academic_year_id',
+                                                        $academic_years,
+                                                        AcademicYear::activeYear()->academic_year_id,
+                                                        ['class'=>'form-control', 'id'=>'setup_academic_year_id', 'required'=>'required'])
+                                                    !!}
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label class="control-label">Academic Term <span class="text-danger">*</span></label>
-                                                {!! Form::select('setup_academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
-                                                ->orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
-                                                AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'setup_academic_term_id', 'required'=>'required']) !!}
+                                                {!! Form::select('setup_academic_term_id',
+                                                    AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
+                                                        ->orderBy('term_type_id')
+                                                        ->lists('academic_term', 'academic_term_id')
+                                                        ->prepend('- Academic Term -', ''),
+                                                    AcademicTerm::activeTerm()->academic_term_id,
+                                                    ['class'=>'form-control', 'id'=>'setup_academic_term_id', 'required'=>'required'])
+                                                 !!}
                                             </div>
                                         </div>
                                     </div>
@@ -87,7 +103,7 @@
                                 </div>
                                 {!! Form::close() !!}
                             </div>
-                            <div class="tab-pane {{ (session('active') == 'input-scores') ? 'active' : '' }}" id="exams_input_score">
+                            <div class="tab-pane {{ (session('exams-tab') == 'input-scores') ? 'active' : '' }}" id="exams_input_score">
                                 <div class="alert alert-info"> Search for <strong>Subjects Assigned</strong> For The <strong> Academic Term</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',
@@ -101,21 +117,34 @@
                                                 <div class="form-group">
                                                     <label class="control-label">Academic Year <span class="text-danger">*</span></label>
                                                     <div>
-                                                        {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required']) !!}
+                                                        {!! Form::select('academic_year_id',
+                                                            $academic_years,
+                                                            AcademicYear::activeYear()->academic_year_id,
+                                                            ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required'])
+                                                         !!}
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="control-label">Academic Term <span class="text-danger">*</span></label>
-                                                    {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
-                                                    ->orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
-                                                    AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required']) !!}
+                                                    {!! Form::select('academic_term_id',
+                                                        AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
+                                                            ->orderBy('term_type_id')
+                                                            ->lists('academic_term', 'academic_term_id')
+                                                            ->prepend('- Academic Term -', ''),
+                                                        AcademicTerm::activeTerm()->academic_term_id,
+                                                        ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required'])
+                                                     !!}
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-md-offset-1">
                                                 <div class="form-group">
                                                     <label class="control-label">Class Level </label>
                                                     <div>
-                                                        {!! Form::select('classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'id'=>'classlevel_id']) !!}
+                                                        {!! Form::select('classlevel_id',
+                                                            $classlevels,
+                                                            old('classlevel_id'),
+                                                            ['class'=>'form-control', 'id'=>'classlevel_id'])
+                                                        !!}
                                                     </div>
                                                 </div>
                                             </div>
@@ -154,21 +183,34 @@
                                                     <div class="form-group">
                                                         <label class="control-label">Academic Year <span class="text-danger">*</span></label>
                                                         <div>
-                                                            {!! Form::select('view_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'view_academic_year_id', 'required'=>'required']) !!}
+                                                            {!! Form::select('view_academic_year_id',
+                                                                $academic_years,
+                                                                AcademicYear::activeYear()->academic_year_id,
+                                                                ['class'=>'form-control', 'id'=>'view_academic_year_id', 'required'=>'required'])
+                                                             !!}
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
                                                         <label class="control-label">Academic Term <span class="text-danger">*</span></label>
-                                                        {!! Form::select('view_academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
-                                                        ->orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
-                                                        AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'view_academic_term_id', 'required'=>'required']) !!}
+                                                        {!! Form::select('view_academic_term_id',
+                                                            AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
+                                                                ->orderBy('term_type_id')
+                                                                ->lists('academic_term', 'academic_term_id')
+                                                                ->prepend('- Academic Term -', ''),
+                                                            AcademicTerm::activeTerm()->academic_term_id,
+                                                            ['class'=>'form-control', 'id'=>'view_academic_term_id', 'required'=>'required'])
+                                                         !!}
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4 col-md-offset-1">
                                                     <div class="form-group">
                                                         <label class="control-label">Class Level <span class="text-danger">*</span></label>
                                                         <div>
-                                                            {!! Form::select('view_classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'id'=>'view_classlevel_id', 'required'=>'required']) !!}
+                                                            {!! Form::select('view_classlevel_id',
+                                                                $classlevels,
+                                                                old('classlevel_id'),
+                                                                ['class'=>'form-control', 'id'=>'view_classlevel_id', 'required'=>'required'])
+                                                             !!}
                                                         </div>
                                                     </div>
                                                     <div class="form-group">

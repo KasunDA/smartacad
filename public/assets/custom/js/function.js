@@ -252,7 +252,8 @@ function setTableData(table) {
     }
 
     var refreshTable = function () {
-        var oTable = table.dataTable().fnDestroy();
+        table.dataTable().fnDestroy();
+        // table.dataTable().fnDraw();
     }
 
     return {

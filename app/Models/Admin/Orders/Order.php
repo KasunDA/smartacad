@@ -83,6 +83,17 @@ class Order extends Model
         return DB::statement('call sp_processBillings(' . $term_id .')');
     }
 
+    /**
+     *  Process Item Variables for all active students in an academic term
+     * @param Int $term_id
+     * @param String $ids
+     * @param Int $items
+     * @param Int $type
+     */
+    public static function processItemVariables($term_id, $ids, $items, $type){
+        return DB::statement('call sp_processItemVariables(' . $term_id .', ' . $ids .', ' . $items .', ' . $type . ')');
+    }
+
     
     /**
      * An Order belongs to a Student

@@ -6,7 +6,7 @@
     <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
-@section('title', 'Assessments')
+@section('title', 'Item Billings')
 
 @section('breadcrumb')
     <li>
@@ -17,14 +17,14 @@
         <i class="fa fa-chevron-right"></i>
     </li>
     <li>
-        <a href="{{ url('/orders/billings') }}">Billings</a>
+        <a href="{{ url('/billings') }}">Billings</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page">Process, Manage and View Billings</h3>
+    <h3 class="page">Process, Manage and View Order Billings</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -32,17 +32,17 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
-                            <li class="{{ (session('active') == 'terminal') ? 'active' : ((!session()->has('active')) ? 'active' : '') }}">
+                            <li class="{{ (session('billing-tab') == 'terminal') ? 'active' : ((!session()->has('billing-tab')) ? 'active' : '') }}">
                                 <a href="#terminal_biiling" data-toggle="tab"><i class="fa fa-gears"></i> Process Terminal Billings</a>
                             </li>
-                            <li class="{{ (session('active') == 'student') ? 'active' : '' }}">
+                            <li class="{{ (session('billing-tab') == 'student') ? 'active' : '' }}">
                                 <a href="#student_billing" data-toggle="tab"> <i class="fa fa-money"></i> Bill Student / Class Room</a>
                             </li>
                         </ul>
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
-                            <div class="tab-pane {{ (session('active') == 'terminal') ? 'active' : ((!session()->has('active')) ? 'active' : '') }}" id="terminal_biiling">
+                            <div class="tab-pane {{ (session('billing-tab') == 'terminal') ? 'active' : ((!session()->has('billing-tab')) ? 'active' : '') }}" id="terminal_biiling">
                                 <div class="alert alert-info"> Initiate the process to <strong>Bill All Active Students</strong> For a specific <strong> Academic Term</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',
@@ -92,12 +92,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane {{ (session('active') == 'student') ? 'active' : '' }}" id="student_billing">
+                            <div class="tab-pane {{ (session('billing-tab') == 'student') ? 'active' : '' }}" id="student_billing">
                                 <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Reports</div>
                                 {!! Form::open([
                                         'method'=>'POST',
                                         'class'=>'form-horizontal',
-                                        'id' => 'assessment_report_form'
+                                        'id' => 'search_view_student_form'
                                     ])
                                 !!}
                                     <div class="form-body">
@@ -106,25 +106,35 @@
                                                 <div class="form-group">
                                                     <label class="control-label">Academic Year <small class="font-red">*</small></label>
                                                     <div>
-                                                        {!! Form::select('view_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'view_academic_year_id', 'required'=>'required']) !!}
+                                                        {!! Form::select('view_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id,
+                                                            ['class'=>'form-control', 'id'=>'view_academic_year_id', 'required'=>'required'])
+                                                         !!}
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="control-label">Academic Term <small class="font-red">*</small></label>
-                                                    {!! Form::select('view_academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
-                                                    AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'view_academic_term_id', 'required'=>'required']) !!}
+                                                    {!! Form::select('view_academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
+                                                        ->lists('academic_term', 'academic_term_id')
+                                                        ->prepend('- Academic Term -', ''),
+                                                        AcademicTerm::activeTerm()->academic_term_id,
+                                                        ['class'=>'form-control', 'id'=>'view_academic_term_id', 'required'=>'required'])
+                                                     !!}
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-md-offset-1">
                                                 <div class="form-group">
                                                     <label class="control-label">Class Level <small class="font-red">*</small></label>
                                                     <div>
-                                                        {!! Form::select('view_classlevel_id', $classlevels, old('classlevel_id'), ['class'=>'form-control', 'id'=>'view_classlevel_id', 'required'=>'required']) !!}
+                                                        {!! Form::select('view_classlevel_id', $classlevels, old('classlevel_id'),
+                                                            ['class'=>'form-control', 'id'=>'view_classlevel_id', 'required'=>'required'])
+                                                         !!}
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label class="control-label">Class Room <small class="font-red">*</small></label>
-                                                    {!! Form::select('view_classroom_id', [], '', ['class'=>'form-control', 'id'=>'view_classroom_id', 'required'=>'required']) !!}
+                                                    <label class="control-label">Class Room </label>
+                                                    {!! Form::select('view_classroom_id', [], '',
+                                                        ['class'=>'form-control', 'id'=>'view_classroom_id'])
+                                                     !!}
                                                 </div>
                                             </div>
                                         </div>
@@ -136,12 +146,17 @@
                                     </div>
                                 {!! Form::close() !!}
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-10">
                                         <div class="portlet-body">
                                             <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="view_report_datatable">
+                                                <table class="table table-striped table-bordered table-hover table-checkable" id="view_student_datatable">
 
                                                 </table>
+                                                <div class="form-actions noborder">
+                                                    <button type="button" id="all-marked" value="all" class="btn blue hide">
+                                                        <i class="fa fa-money"></i> Bill All Marked
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -153,6 +168,88 @@
             </div>
         </div>
     </div>
+
+    <!-- modal -->
+    <div id="billing_form" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title text-center text-primary" id="modal-title-text">Header Form</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12 margin-bottom-10">
+                            <div class="btn-group">
+                                <button class="btn btn-xs green add_item"> Add New
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <form method="POST" action="#" class="form" role="form" id="items_billing_form">
+                            {!! csrf_field() !!}
+                            {!! Form::hidden('ids', '', ['id'=>'ids']) !!}
+                            {!! Form::hidden('type_id', '', ['id'=>'type_id']) !!}
+                            {!! Form::hidden('term_id', '', ['id'=>'term_id']) !!}
+                            <div style="width: auto" data-always-visible="1" data-rail-visible1="1">
+                                <div class="col-md-12">
+                                    <table class="table table-bordered table-striped table-actions" id="item_table">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 5%;">#</th>
+                                            <th style="width: 50%;">Item</th>
+                                            <th style="width: 35%;">Amount</th>
+                                            <th style="width: 10%;">Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tfoot>
+                                        <tr>
+                                            <th style="width: 5%;">#</th>
+                                            <th style="width: 50%;">Item</th>
+                                            <th style="width: 35%;">Amount</th>
+                                            <th style="width: 10%;">Actions</th>
+                                        </tr>
+                                        </tfoot>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center">1</td>
+                                                <td>
+                                                    {!! Form::select('item_id[]', $items, old('item_id'),
+                                                        ['class'=>'form-control each-item', 'id'=>'item_id', 'required'=>'required'])
+                                                     !!}
+                                                </td>
+                                                <td>
+                                                    {!! Form::text('amount[]', '', ['placeholder'=>'Amount', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-danger btn-xs btn-condensed btn-sm">
+                                                        <span class="fa fa-times"></span> Remove
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close</button>
+                                <button type="submit" class="btn green">Submit</button>
+                                <div class="col-md-12">
+                                    <div class="btn-group pull-left">
+                                        <button class="btn btn-xs green add_item"> Add New
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+
     <!-- END CONTENT BODY -->
     @endsection
 
@@ -176,7 +273,23 @@
     <script>
         jQuery(document).ready(function () {
 
-            setTabActive('[href="/orders/billings"]');
+            $('.add_item').click(function(e){
+                e.preventDefault();
+                var clone_row = $('#item_table tbody tr:last-child').clone();
+
+                $('#item_table tbody').append(clone_row);
+
+                clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
+                clone_row.children(':nth-child(2)').children('select').val('');
+                clone_row.children(':nth-child(3)').children('input').val('');
+                clone_row.children(':last-child').html('<button class="btn btn-danger btn-xs btn-condensed btn-xs remove_item"><span class="fa fa-times"></span> Remove</button>');
+            });
+
+            $(document.body).on('click','.remove_item',function(){
+                $(this).parent().parent().remove();
+            });
+
+            setTabActive('[href="/billings"]');
         });
     </script>
 @endsection

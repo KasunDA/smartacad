@@ -110,6 +110,7 @@ Route::group(['middleware' => ['web']], function () {
 
         //Order Routes
         'orders' => 'Admin\Orders\OrdersController',
+        'billings' => 'Admin\Orders\BillingsController',
     ]);
 });
 

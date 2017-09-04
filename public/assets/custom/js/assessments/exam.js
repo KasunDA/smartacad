@@ -85,44 +85,6 @@ jQuery(document).ready(function() {
         });
         return false;
     });
-    
-    //Compute C.A
-    $(document.body).on('click', '#compute_ca',function(e){
-        e.preventDefault();
-
-        bootbox.dialog({
-            message: 'Are You sure You want Compute the C.A for the current Term?',
-            title: '<span class="bold font-blue">Warning Alert</span>',
-            buttons: {
-                danger: {
-                    label: "NO",
-                    className: "btn-default",
-                    callback: function() {
-                        $(this).hide();
-                    }
-                },
-                success: {
-                    label: "YES",
-                    className: "btn-success",
-                    callback: function() {
-                        $.ajax({
-                            type: 'GET',
-                            async: true,
-                            url: '/exams/compute-ca',
-                            success: function(data,textStatus){
-                                window.location.reload();
-                            },
-                            error: function(xhr,textStatus,error){
-                                bootbox.alert("Error encountered pls try again later..", function() {
-                                    $(this).hide();
-                                });
-                            }
-                        });
-                    }
-                }
-            }
-        });
-    });
 });
 
 var UIBlockUI = function() {
