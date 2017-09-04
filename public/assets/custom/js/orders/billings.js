@@ -33,6 +33,14 @@ jQuery(document).ready(function() {
 
     });
 
+    //Each item on change
+    $(document.body).on('change', '.each-item', function () {
+        var amount = $(this).children('option:selected').data('amount');
+        var td = $(this).parent('td').next()
+        td.html('<b> '+amount+'</b>');
+        // alert(amount);
+    });
+
     $(document.body).on('click', '.billing-items', function(){
         $('#modal-title-text').html('Items Billing for a ' + $(this).data('type'));
         $('#type_id').val($(this).data('type-id'));
@@ -185,6 +193,13 @@ var UIBlockUI = function() {
 
                     $('#all-marked').removeClass('hide');
                     $('#term_id').val(obj.term_id);
+
+                    var option = '<option value="">- Select Item -</option>';
+                    //Set items
+                    $.each(obj.Items, function(key, item) {
+                        option += '<option data-amount="'+item.amount+'" value="'+item.id+'">'+item.name+'</option>';
+                    });
+                    $('#all_item_id').html(option);
 
                     window.setTimeout(function() {
                         App.unblockUI('#student_billing');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Orders;
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\Items\Item;
+use App\Models\Admin\Items\ItemQuote;
 use App\Models\Admin\Items\ItemType;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
@@ -64,7 +65,7 @@ class BillingsController extends Controller
     {
         session()->put('billing-tab', 'student');
         $inputs = $request->all();
-        $students = $classrooms = $output = [];
+        $students = $classrooms = $output = $items = [];
         $term = AcademicTerm::findOrFail($inputs['view_academic_term_id']);
 
         if(!empty($inputs['view_classroom_id'])){
@@ -75,10 +76,29 @@ class BillingsController extends Controller
         }else{
             $classrooms = ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->get();
         }
+
+        $quotes = ItemQuote::where('classlevel_id', $inputs['view_classlevel_id'])
+                ->where('academic_year_id', $term->academic_year_id)
+                ->whereIn('item_id', 
+                    Item::where('status', 1)
+                        ->where('item_type_id', '<>', ItemType::UNIVERSAL)
+                        ->lists('id')
+                        ->toArray()
+                )
+                ->get();
+        
+        foreach ($quotes as $quote){
+            $items[] = array(
+                "id"=>$quote->item_id,
+                "name"=>$quote->item->name,
+                "amount"=>$quote->amount
+            );
+        }
         
         $response = array();
         $response['flag'] = 0;
         $response['term_id'] = $term->academic_term_id;
+            $response['Items'] = $items;
 
         if(!empty($students)){
             //All the students in the class room for the academic year
@@ -138,5 +158,21 @@ class BillingsController extends Controller
             Order::processItemVariables($inputs['term_id'], $ids, $items, $inputs['type_id']);
             $this->setFlashMessage('Billings for ' . $term->academic_term . ' Academic Term has been successfully charged.', 1);
         }
+    }
+
+    /**
+     * Get Item Quotes based on an item
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function getItemQuotes(Request $request)
+    {
+        $inputs = $request->all();
+        $term = AcademicTerm::findOrFail($inputs['term_id']);
+        $quote = ItemQuote::where('item_id', $inputs['item_id'])
+            ->where('academic_year_id', $term->academic_year_id)
+            ->first();
+
+        echo json_encode($quote->amount);
     }
 }

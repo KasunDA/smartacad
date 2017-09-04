@@ -197,16 +197,16 @@
                                         <thead>
                                         <tr>
                                             <th style="width: 5%;">#</th>
-                                            <th style="width: 50%;">Item</th>
-                                            <th style="width: 35%;">Amount</th>
+                                            <th style="width: 55%;">Item</th>
+                                            <th style="width: 30%;">Amount (&#8358;)</th>
                                             <th style="width: 10%;">Actions</th>
                                         </tr>
                                         </thead>
                                         <tfoot>
                                         <tr>
                                             <th style="width: 5%;">#</th>
-                                            <th style="width: 50%;">Item</th>
-                                            <th style="width: 35%;">Amount</th>
+                                            <th style="width: 55%;">Item</th>
+                                            <th style="width: 30%;">Amount (&#8358;)</th>
                                             <th style="width: 10%;">Actions</th>
                                         </tr>
                                         </tfoot>
@@ -215,12 +215,10 @@
                                                 <td class="text-center">1</td>
                                                 <td>
                                                     {!! Form::select('item_id[]', $items, old('item_id'),
-                                                        ['class'=>'form-control each-item', 'id'=>'item_id', 'required'=>'required'])
+                                                        ['class'=>'form-control each-item', 'id'=>'all_item_id', 'required'=>'required'])
                                                      !!}
                                                 </td>
-                                                <td>
-                                                    {!! Form::text('amount[]', '', ['placeholder'=>'Amount', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                </td>
+                                                <td></td>
                                                 <td>
                                                     <button class="btn btn-danger btn-xs btn-condensed btn-sm">
                                                         <span class="fa fa-times"></span> Remove
@@ -281,7 +279,7 @@
 
                 clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
                 clone_row.children(':nth-child(2)').children('select').val('');
-                clone_row.children(':nth-child(3)').children('input').val('');
+                clone_row.children(':nth-child(3)').children().html('');
                 clone_row.children(':last-child').html('<button class="btn btn-danger btn-xs btn-condensed btn-xs remove_item"><span class="fa fa-times"></span> Remove</button>');
             });
 
