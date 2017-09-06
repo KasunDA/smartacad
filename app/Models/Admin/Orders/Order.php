@@ -25,7 +25,8 @@ class Order extends Model
         'student_id',
         'sponsor_id',
         'classroom_id',
-        'academic_term_id'
+        'academic_term_id',
+        'order_initiate_id'
     ];
 
     const PAID = 'paid';
@@ -77,10 +78,10 @@ class Order extends Model
 
     /**
      *  Initiate Billings for all active students in an academic term
-     * @param Int $term_id
+     * @param Int $item_initiate_id
      */
-    public static function processBillings($term_id){
-        return DB::statement('call sp_processBillings(' . $term_id .')');
+    public static function processBillings($item_initiate_id){
+        return DB::statement('call sp_processBillings(' . $item_initiate_id .')');
     }
 
     /**
@@ -129,6 +130,15 @@ class Order extends Model
      */
     public function academicTerm(){
         return $this->belongsTo(AcademicTerm::class);
+    }
+
+    /**
+     * An Order belongs to an Order Initiate
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function orderInitiate(){
+        return $this->belongsTo(OrderInitiate::class);
     }
 
     /**

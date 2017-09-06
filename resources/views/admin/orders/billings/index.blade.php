@@ -80,17 +80,6 @@
                                         </button>
                                     </div>
                                 {!! Form::close() !!}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="portlet-body">
-                                            <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="subject_assigned_datatable">
-
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                             <div class="tab-pane {{ (session('billing-tab') == 'student') ? 'active' : '' }}" id="student_billing">
                                 <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Reports</div>

@@ -12,10 +12,12 @@ use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\Orders\Order;
+use App\Models\Admin\Orders\OrderInitiate;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use stdClass;
 
 class BillingsController extends Controller
@@ -46,11 +48,22 @@ class BillingsController extends Controller
         $inputs = $request->all();
 
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
-        if($term){
-            //Update
-            Order::processBillings($term->academic_term_id);
+        $stat = 'Updated';
+        
+        if(!empty($term)){
+            
+            $initiate = OrderInitiate::where('academic_term_id', $term->academic_term_id)->first();
+            if(empty($initiate)){
+                $initiate = OrderInitiate::create([
+                    'academic_term_id' => $term->academic_term_id,
+                    'user_id' => Auth::id()
+                ]);
+                $stat = 'Initiated';
+            }
+            
+            Order::processBillings($initiate->id);
             session()->put('billing-tab', 'terminal');
-            $this->setFlashMessage('Billings for ' . $term->academic_term . ' Academic Term has been successfully initiated.', 1);
+            $this->setFlashMessage('Billings for ' . $term->academic_term . ' Academic Term has been successfully ' . $stat, 1);
         }
 
         return response()->json($term);
