@@ -220,7 +220,9 @@ return [
         'Assessment' => App\Models\Admin\Assessments\Assessment::class,
         'ResultChecker' => App\Models\Admin\PinNumbers\ResultChecker::class,
         'Role' => App\Models\Admin\RolesAndPermissions\Role::class,
-        
+
+        'CurrencyHelper' => App\Helpers\CurrencyHelper::class,
+
     ],
 
 ];
