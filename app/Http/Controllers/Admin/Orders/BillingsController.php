@@ -177,7 +177,7 @@ class BillingsController extends Controller
                     if($type_id == 1)
                         $query->whereIn('student_id', explode(',', $ids));
                     else if($type_id == 2)
-                        $query->whereIn('class_id', explode(',', $ids));
+                        $query->whereIn('classroom_id', explode(',', $ids));
                 })
                 ->lists('id')
                 ->toArray();
@@ -192,7 +192,7 @@ class BillingsController extends Controller
                         $variable->academic_term_id = $term->academic_term_id;
                         $variable->item_id = $items[$i];
                         $variable->student_id = ($type_id == 1) ? $records[$j] : Null;
-                        $variable->class_id = ($type_id == 2) ? $records[$j] : Null;
+                        $variable->classroom_id = ($type_id == 2) ? $records[$j] : Null;
                         if($variable->save()){
                             $variableIds[] = $variable->id;
                         }
@@ -200,11 +200,15 @@ class BillingsController extends Controller
                 }
                 $stat = 'Initiated';
             }
-            
-            Order::processItemVariables(implode(',', $variableIds));
+
+            $variableIds = implode(',', $variableIds);
+
+            Order::processItemVariables($variableIds);
             session()->put('billing-tab', 'student');
             $this->setFlashMessage('Item Billings for ' . $term->academic_term . ' has been successfully ' . $stat, 1);
         }
+        
+        return response()->json($term);
     }
 
     /**

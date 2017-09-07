@@ -54,7 +54,7 @@ class CreateItemsTable extends Migration
             $table->decimal('amount', 10, 2)->index()->nullable()->default(0);
             $table->integer('item_id', false, true)->index();
             $table->integer('student_id', false, true)->index()->nullable();
-            $table->integer('class_id', false, true)->index()->nullable();
+            $table->integer('classroom_id', false, true)->index()->nullable();
             $table->integer('academic_term_id', false, true)->index();
             $table->timestamps();
             $table->softDeletes();

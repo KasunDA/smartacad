@@ -16,7 +16,7 @@ class ItemVariable extends Model
         'price',
         'item_id',
         'student_id',
-        'class_id',
+        'classroom_id',
         'academic_term_id',
     ];
 
@@ -44,7 +44,7 @@ class ItemVariable extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function classRoom(){
-        return $this->belongsTo(ClassRoom::class);
+        return $this->belongsTo(ClassRoom::class, 'classroom_id');
     }
 
     /**

@@ -67,6 +67,11 @@ jQuery(document).ready(function() {
 
     $(document.body).on('submit', '#items_billing_form', function(){
         var values = $(this).serialize();
+
+        App.blockUI({
+            target: '#billing_form',
+            animate: true
+        });
         
         $.ajax({
             type: "POST",
@@ -74,9 +79,11 @@ jQuery(document).ready(function() {
             data: values,
             success: function (data) {
 
+                window.location.reload();
                 window.setTimeout(function() {
-                    App.unblockUI('#student_billing');
+                    App.unblockUI('#billing_form');
                 }, 2000);
+
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)

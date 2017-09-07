@@ -89,7 +89,7 @@ class Order extends Model
      * @param String $variableIds
      */
     public static function processItemVariables($variableIds){
-        return DB::statement('call sp_processItemVariables(' . $variableIds. ')');
+        return DB::statement('call sp_processItemVariables("' . $variableIds . '")');
     }
     
     /**
