@@ -14,6 +14,7 @@ use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\Orders\Order;
 use App\Models\Admin\Orders\OrderInitiate;
+use App\Models\Admin\Orders\OrderItem;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -300,10 +301,32 @@ class BillingsController extends Controller
         $student = Student::findOrFail($this->decode($studentId));
 
         $order = Order::where('academic_term_id', $term->academic_term_id)
-            ->where('student_id', $student->student_d)
+            ->where('student_id', $student->student_id)
             ->first();
+        
+        $items = !empty($order) ? $order->orderItems()->get() : false;
 
-        return view('admin.orders.billings.items', compact('order', 'term', 'student'));
+        return view('admin.orders.billings.items', compact('order', 'term', 'student', 'items'));
+    }
+
+    /**
+     * Soft Delete an Item billed to a student
+     *
+     * @param Int $itemId
+     * @return Response
+     */
+    public function getDeleteItem($itemId)
+    {
+        $orderItem = OrderItem::findOrFail($itemId);
+
+        //Delete The Role Record
+        $delete = !empty($orderItem) ? $orderItem->delete() : false;
+
+        if ($delete) {
+            $this->setFlashMessage('  Deleted!!! ' . $orderItem->item->name . ' deleted from the student billings.', 1);
+        } else {
+            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
+        }
     }
 
 }
