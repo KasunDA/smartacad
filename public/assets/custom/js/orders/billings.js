@@ -65,6 +65,7 @@ jQuery(document).ready(function() {
         $('#billing_form').modal('show');
     });
 
+    //Bill Student or Class Room Form
     $(document.body).on('submit', '#items_billing_form', function(){
         var values = $(this).serialize();
 
@@ -87,7 +88,44 @@ jQuery(document).ready(function() {
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
-                App.unblockUI('#student_billing');
+                App.unblockUI('#billing_form');
+            }
+        });
+        return false;
+    });
+    
+    //Edit Order Item Amount
+    $(document.body).on('click', '.item-edit', function(){
+        $('#modal-title-text').html('Edit Item Amount on: <b>' + $(this).data('item') +'</b>');
+        $('#order_item_id').val($(this).data('id'));
+        $('#amount').val($(this).data('amount'));
+        $('#edit_item_modal').modal('show');
+    });
+
+    //Update Order Item Amount
+    $(document.body).on('submit', '#edit_item_form', function(){
+        var values = $(this).serialize();
+
+        App.blockUI({
+            target: '#edit_item_modal',
+            animate: true
+        });
+
+        $.ajax({
+            type: "POST",
+            url: '/billings/item-update-amount',
+            data: values,
+            success: function (data) {
+
+                window.location.reload();
+                window.setTimeout(function() {
+                    App.unblockUI('#edit_item_modal');
+                }, 2000);
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+                App.unblockUI('#edit_item_modal');
             }
         });
         return false;

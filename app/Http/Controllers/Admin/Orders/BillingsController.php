@@ -329,4 +329,21 @@ class BillingsController extends Controller
         }
     }
 
+    /**
+     * Update an order item amount
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postItemUpdateAmount(Request $request)
+    {
+        $inputs = $request->all();
+        $item = OrderItem::findOrFail($inputs['order_item_id']);
+        $item->amount = $inputs['amount'];
+        
+        ($item->save())
+            ? $this->setFlashMessage('  Updated!!! ' . $item->item->name . ' Amount successfully updated.', 1)
+            : $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
+        
+        echo json_encode($item);
+    }
 }
