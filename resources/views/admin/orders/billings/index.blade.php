@@ -24,7 +24,7 @@
 
 
 @section('content')
-    <h3 class="page">Process, Manage and View Order Billings</h3>
+    <h3 class="page">Process, Manage Orders(Items) Billings</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">

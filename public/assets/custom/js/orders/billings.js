@@ -231,7 +231,69 @@ var UIBlockUI = function() {
             });
             return false;
         });
-    }
+    };
+
+    var handleSample3 = function() {
+
+        //When the search button is clicked
+        $(document.body).on('submit', '#view_adjust_billing_form', function(){
+            var values = $(this).serialize();
+
+            App.blockUI({
+                target: '#view_adjust_billing',
+                animate: true
+            });
+
+            $.ajax({
+                type: "POST",
+                url: '/billings/search-students',
+                data: values,
+                success: function (data) {
+
+                    var obj = $.parseJSON(data);
+                    var assign = '<thead>\
+                                <tr role="row" class="heading">\
+                                    <th>#</th>\
+                                    <th>Student ID</th>\
+                                    <th>Student Name</th>\
+                                    <th>Gender</th>\
+                                    <th>Action </th>\
+                                </tr>\
+                            </thead>\
+                            <tbody>';
+                    if(obj.flag == 1){
+                        $.each(obj.Students, function(key, student) {
+                            assign += '<tr>' +
+                                '<td>'+(key + 1)+'</td>' +
+                                '<td>'+student.student_no+'</td>' +
+                                '<td>'+student.name+'</td>' +
+                                '<td>'+student.gender+'</td>' +
+                                '<td><a target="_blank" href="/billings/items/'+student.student_id+'/'+ student.term_id + '"' +
+                                ' class="btn btn-xs btn-info"> <i class="fa fa-send"></i> Proceed</a></td>' +
+                            '</tr>';
+                        });
+                    }
+                    assign += '</tbody>';
+
+                    $('#view_adjust_student_datatable').html(assign);
+                    //FormEditable.init();
+                    setTableData($('#view_adjust_student_datatable')).refresh();
+                    setTableData($('#view_adjust_student_datatable')).init();
+
+                    window.setTimeout(function() {
+                        App.unblockUI('#view_adjust_billing');
+                    }, 2000);
+                    //Scroll To Div
+                    scroll2Div($('#view_adjust_student_datatable'));
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+                    App.unblockUI('#view_adjust_billing');
+                }
+            });
+            return false;
+        });
+    };
  
     return {
         //main function to initiate the module
@@ -239,6 +301,7 @@ var UIBlockUI = function() {
 
             handleSample1();
             handleSample2();
+            handleSample3();
         }
     };
 }();

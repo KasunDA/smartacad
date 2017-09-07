@@ -25,7 +25,7 @@ use stdClass;
 class BillingsController extends Controller
 {
     /**
-     * Display a listing of the Orders.
+     * Display a Form for billing.
      *
      * @return Response
      */
@@ -39,6 +39,23 @@ class BillingsController extends Controller
             ->prepend('- Select Item -', '');
 
         return view('admin.orders.billings.index', compact('academic_years', 'classlevels', 'items'));
+    }
+
+    /**
+     * Display a form for viewing bills records.
+     *
+     * @return Response
+     */
+    public function getView()
+    {
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
+        $items = Item::where('status', 1)
+            ->where('item_type_id', '<>', ItemType::UNIVERSAL)
+            ->lists('name', 'id')
+            ->prepend('- Select Item -', '');
+
+        return view('admin.orders.billings.view', compact('academic_years', 'classlevels', 'items'));
     }
 
     /**
@@ -226,4 +243,67 @@ class BillingsController extends Controller
 
         echo json_encode($quote->amount);
     }
+
+    /**
+     * Search For Students in a classroom for an academic term for view/adjust billings
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postSearchStudents(Request $request)
+    {
+        $inputs = $request->all();
+        $students = $output = [];
+        $term = AcademicTerm::findOrFail($inputs['view_academic_term_id']);
+
+        if(!empty($inputs['view_classroom_id'])){
+            $students = StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])
+                ->where('classroom_id', $inputs['view_classroom_id'])
+                ->whereIn('student_id', Student::where('status_id', 1)->lists('student_id')->toArray())
+                ->get();
+        }
+
+        $response = array();
+        $response['flag'] = 0;
+
+        if(!empty($students)){
+            //All the students in the class room for the academic year
+            foreach($students as $student){
+                $object = new stdClass();
+                $object->student_id = $this->encode($student->student_id);
+                $object->term_id = $this->encode($inputs['view_academic_term_id']);
+                $object->student_no = $student->student()->first()->student_no;
+                $object->name = $student->student()->first()->fullNames();
+                $object->gender = $student->student()->first()->gender;
+                $output[] = $object;
+            }
+            //Sort The Students by name
+            usort($output, function($a, $b)
+            {
+                return strcmp($a->name, $b->name);
+            });
+            $response['flag'] = 1;
+            $response['Students'] = $output;
+        }
+        echo json_encode($response);
+    }
+
+    /**
+     * Details of a student orders and items in an academic term
+     *
+     * @param String $studentId
+     * @param String $termId
+     * @return Response
+     */
+    public function getItems($studentId, $termId)
+    {
+        $term = AcademicTerm::findOrFail($this->decode($termId));
+        $student = Student::findOrFail($this->decode($studentId));
+
+        $order = Order::where('academic_term_id', $term->academic_term_id)
+            ->where('student_id', $student->student_d)
+            ->first();
+
+        return view('admin.orders.billings.items', compact('order', 'term', 'student'));
+    }
+
 }
