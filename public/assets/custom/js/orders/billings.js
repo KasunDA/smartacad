@@ -36,7 +36,8 @@ jQuery(document).ready(function() {
     //Each item on change
     $(document.body).on('change', '.each-item', function () {
         var amount = $(this).children('option:selected').data('amount');
-        var td = $(this).parent('td').next()
+        var td = $(this).parent('td').next();
+        amount = (typeof amount == "undefined") ? ' ' : amount;
         td.html('<b> '+amount+'</b>');
         // alert(amount);
     });
@@ -136,6 +137,15 @@ var UIBlockUI = function() {
                 target: '#student_billing',
                 animate: true
             });
+
+            var clone_row = $('#item_table tbody tr:first-child').clone();
+
+            $('#item_table tbody').html(clone_row);
+
+            clone_row.children(':nth-child(1)').html(1);
+            clone_row.children(':nth-child(2)').children('select').val('');
+            clone_row.children(':nth-child(3)').children().html('');
+            clone_row.children(':last-child').html('<button class="btn btn-danger btn-xs btn-condensed btn-xs remove_item"><span class="fa fa-times"></span> Remove</button>');
 
             $.ajax({
                 type: "POST",

@@ -7,6 +7,7 @@ use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\Items\Item;
 use App\Models\Admin\Items\ItemQuote;
 use App\Models\Admin\Items\ItemType;
+use App\Models\Admin\Items\ItemVariable;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
@@ -18,6 +19,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use phpDocumentor\Reflection\Types\Null_;
 use stdClass;
 
 class BillingsController extends Controller
@@ -162,14 +164,46 @@ class BillingsController extends Controller
         $inputs = $request->all();
         $term = AcademicTerm::findOrFail($inputs['term_id']);
         $inputs['ids'] = trim($inputs['ids']);
-        $ids = !empty($inputs['ids']) ? substr($inputs['ids'], 0, strlen($inputs['ids']) -1) : $inputs['ids'];
-        $items = implode(',', $inputs['item_id']);
+        $ids = !empty($inputs['ids'] && strlen($inputs['ids']) > 1) ? substr($inputs['ids'], 0, strlen($inputs['ids']) -1) : $inputs['ids'];
+        $type_id = $inputs['type_id'];
+        $stat = 'Updated';
+        $items = array_unique($inputs['item_id']);
 
-        dd($inputs);
         if($term){
+
+            $variableIds = ItemVariable::where('academic_term_id', $term->academic_term_id)
+                ->whereIn('item_id', $items)
+                ->where( function($query) use($type_id, $ids){
+                    if($type_id == 1)
+                        $query->whereIn('student_id', explode(',', $ids));
+                    else if($type_id == 2)
+                        $query->whereIn('class_id', explode(',', $ids));
+                })
+                ->lists('id')
+                ->toArray();
+
+            if(empty($variableIds)){
+                $records = array_unique(explode(',', $ids));
+                $variableIds = [];
+
+                for ($i = 0; $i < count($items); $i++){
+                    for ($j = 0; $j < count($records); $j++){
+                        $variable = new ItemVariable();
+                        $variable->academic_term_id = $term->academic_term_id;
+                        $variable->item_id = $items[$i];
+                        $variable->student_id = ($type_id == 1) ? $records[$j] : Null;
+                        $variable->class_id = ($type_id == 2) ? $records[$j] : Null;
+                        if($variable->save()){
+                            $variableIds[] = $variable->id;
+                        }
+                    }
+                }
+                $stat = 'Initiated';
+            }
+            
+            Order::processItemVariables(implode(',', $variableIds));
             session()->put('billing-tab', 'student');
-            Order::processItemVariables($inputs['term_id'], $ids, $items, $inputs['type_id']);
-            $this->setFlashMessage('Billings for ' . $term->academic_term . ' Academic Term has been successfully charged.', 1);
+            $this->setFlashMessage('Item Billings for ' . $term->academic_term . ' has been successfully ' . $stat, 1);
         }
     }
 

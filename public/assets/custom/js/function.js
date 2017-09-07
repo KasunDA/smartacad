@@ -1,6 +1,6 @@
 $(function () {
 
-    $('#flash_message').delay(10000).slideUp(850);
+    $('#flash_message').delay(20000).slideUp(850);
 });
 
 //time function

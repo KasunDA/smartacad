@@ -86,15 +86,11 @@ class Order extends Model
 
     /**
      *  Process Item Variables for all active students in an academic term
-     * @param Int $term_id
-     * @param String $ids
-     * @param Int $items
-     * @param Int $type
+     * @param String $variableIds
      */
-    public static function processItemVariables($term_id, $ids, $items, $type){
-        return DB::statement('call sp_processItemVariables(' . $term_id .', ' . $ids .', ' . $items .', ' . $type . ')');
+    public static function processItemVariables($variableIds){
+        return DB::statement('call sp_processItemVariables(' . $variableIds. ')');
     }
-
     
     /**
      * An Order belongs to a Student
