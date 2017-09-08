@@ -13,8 +13,8 @@ class CurrencyHelper
     
     const NAIRA = '&#8358;';
     
-    public static function format(Float $number, Int $decimal=0)
+    public static function format(Float $number, Int $decimal=0, $symbol=false)
     {
-        return number_format($number, $decimal);
+        return ($symbol) ? self::NAIRA . ' '. number_format($number, $decimal) : number_format($number, $decimal);
     }
 }

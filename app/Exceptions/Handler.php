@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use BadMethodCallException;
 use Exception;
 use ErrorException;
 use Illuminate\Database\QueryException;
@@ -110,6 +111,15 @@ class Handler extends ExceptionHandler
             return response()->view('errors.custom', [
                 'code'=>'507.3',
                 'header'=>'Bad or Poor Network Issues',
+                'message'=>'<strong>Whoops!!!</strong> Something went wrong with your network kindly retry again and 
+                    <strong>allow the page to load completely</strong><br>' . $e->getMessage()
+            ]);
+        }
+        // Bad Method Call Exception
+        if ($e instanceof BadMethodCallException){
+            return response()->view('errors.custom', [
+                'code'=>'502.3',
+                'header'=>'Bad Method Call',
                 'message'=>'<strong>Whoops!!!</strong> Something went wrong with your network kindly retry again and 
                     <strong>allow the page to load completely</strong><br>' . $e->getMessage()
             ]);

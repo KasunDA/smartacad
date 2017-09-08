@@ -1,0 +1,12 @@
+<button  data-name="{{$menu->name}}"
+         data-title="Delete Confirmation"
+         data-message="Are you sure you want to delete <b>{{$menu->name}}?</b>"
+         data-action="/menus/delete/{{$menu->menu_id}}"
+         data-confirm-text="Yes Delete"
+         data-status="Deleted"
+         data-status-text="Yes Delete"
+         data-type="warning/success"
+         data-redirect="/orders/delete/id"
+         class="btn btn-danger btn-xs confirm-delete-btn">
+    <span class="fa fa-trash-o"></span> Delete
+</button>

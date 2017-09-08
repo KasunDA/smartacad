@@ -44,6 +44,7 @@
                         <div class="tab-content">
                             <div class="tab-pane {{ (session('billing-tab') == 'terminal') ? 'active' : ((!session()->has('billing-tab')) ? 'active' : '') }}" id="terminal_biiling">
                                 <div class="alert alert-info"> Initiate the process to <strong>Bill All Active Students</strong> For a specific <strong> Academic Term</strong></div>
+                                <div class="alert alert-warning"> <strong>Note: </strong>Only <strong>Active Students</strong> in the selected Academic Term will be billed</div>
                                 {!! Form::open([
                                         'method'=>'POST',
                                         'class'=>'form-horizontal',
