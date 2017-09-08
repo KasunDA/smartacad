@@ -43,12 +43,12 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
-                            <div class="tab-pane {{ (session('order-tab') == 'view-order') ? 'active' : ((!session()->has('order-tab')) ? 'active' : '') }}" id="view_order">
+                            <div class="tab-pane {{ (session('order-tab') == 'view-order') ? 'active' : ((!session()->has('order-tab')) ? 'active' : '') }}" id="view_order_tab">
                                 <div class="alert alert-info"> View <strong>Students Orders</strong> For a specific <strong> Academic Term</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',
                                         'class'=>'form-horizontal',
-                                        'id' => 'view_orders_form'
+                                        'id' => 'view_order_form'
                                     ])
                                 !!}
                                 <div class="form-body">
@@ -72,31 +72,42 @@
                                                     ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required'])
                                                 !!}
                                             </div>
-                                            <div class="col-md-4 col-md-offset-1">
-                                                <div class="form-group">
-                                                    <label class="control-label">Class Level <small class="font-red">*</small></label>
-                                                    <div>
-                                                        {!! Form::select('classlevel_id', $classlevels, old('classlevel_id'),
-                                                            ['class'=>'form-control', 'id'=>'classlevel_id', 'required'=>'required'])
-                                                         !!}
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="control-label">Class Room <small class="font-red">*</small></label>
-                                                    {!! Form::select('classroom_id', [], '',
-                                                        ['class'=>'form-control', 'id'=>'lassroom_id', 'required'=>'required'])
+                                        </div>
+                                        <div class="col-md-4 col-md-offset-1">
+                                            <div class="form-group">
+                                                <label class="control-label">Class Level <small class="font-red">*</small></label>
+                                                <div>
+                                                    {!! Form::select('classlevel_id', $classlevels, old('classlevel_id'),
+                                                        ['class'=>'form-control', 'id'=>'classlevel_id', 'required'=>'required'])
                                                      !!}
                                                 </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Class Room </label>
+                                                {!! Form::select('classroom_id', [], '',
+                                                    ['class'=>'form-control', 'id'=>'classroom_id'])
+                                                 !!}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-actions noborder">
-                                    <button type="submit" class="btn blue  col-md-2 col-md-offset-4">
-                                        <i class="fa fa-send"></i> Proceed
+                                    <button type="submit" class="btn blue pull-right">
+                                        <i class="fa fa-search"></i> Search
                                     </button>
                                 </div>
                                 {!! Form::close() !!}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="portlet-body">
+                                            <div class="row">
+                                                <table class="table table-striped table-bordered table-hover" id="view_order_datatable">
+
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="tab-pane {{ (session('order-tab') == 'adjust-order') ? 'active' : ((!session()->has('billing-tab')) ? 'active' : '') }}" id="adjust_order_tab">
                                 <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Orders for Adjustments</div>

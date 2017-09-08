@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\Orders;
 
+use App\Helpers\CurrencyHelper;
 use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\MasterRecords\AcademicTerm;
@@ -91,7 +92,22 @@ class Order extends Model
     public static function processItemVariables($variableIds){
         return DB::statement('call sp_processItemVariables("' . $variableIds . '")');
     }
-    
+
+    /**
+     * Compute Order Amount from Order Items
+     *
+     * @param $format
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function amount($format=false){
+        return (!empty($this->orderItems()->lists('amount'))) 
+            ? ( ($format) 
+                ? CurrencyHelper::format($this->orderItems()->lists('amount')->sum()) 
+                : $this->orderItems()->lists('amount')->sum()
+            ) 
+            : 0;
+    }
+
     /**
      * An Order belongs to a Student
      *

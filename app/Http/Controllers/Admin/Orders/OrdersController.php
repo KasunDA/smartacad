@@ -11,6 +11,7 @@ use App\Models\Admin\Items\ItemType;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
+use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\Orders\Order;
 use App\Models\Admin\Orders\OrderItem;
 use Illuminate\Http\Request;
@@ -33,6 +34,64 @@ class OrdersController extends Controller
             ->prepend('- Select Item -', '');
 
         return view('admin.orders.index', compact('academic_years', 'classlevels', 'items'));
+    }
+
+    /**
+     * Search For Students in a classroom for an academic term to view Orders
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postSearch(Request $request)
+    {
+        $inputs = $request->all();
+        $output = [];
+        $response['flag'] = 0;
+        $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
+
+        if(!empty($inputs['classroom_id'])){
+            $orders = Order::where('academic_term_id', $inputs['academic_term_id'])
+                ->where('classroom_id', $inputs['classroom_id'])
+                ->get();
+        }else{
+            $orders = Order::where('academic_term_id', $inputs['academic_term_id'])
+                ->whereIn(
+                    'classroom_id',
+                    ClassRoom::where('classlevel_id', $inputs['classlevel_id'])
+                        ->lists('classroom_id')
+                        ->toArray()
+                )
+                ->get();
+        }
+
+
+        if(!empty($orders)){
+            session()->put('order-tab', 'view-order');
+            //All the students in the class room for the academic year
+            foreach($orders as $order){
+                $object = new stdClass();
+                $status = ($order->paid) ? 'success' : 'danger';
+                
+                $object->student_id = $this->encode($order->student->student_id);
+                $object->term_id = $this->encode($term->academic_term_id);
+                $object->order_id = $order->id;
+                $object->number = $order->number;
+                $object->status = '<span class="label label-'.$status.'">'.$order->status.'</span>';
+                $object->amount = $order->amount(true);
+                $object->paid = $order->paid;
+                $object->student_no = $order->student->student_no;
+                $object->name = $order->student->fullNames();
+                $object->classroom = $order->classroom->classroom;
+                $output[] = $object;
+            }
+            //Sort The Students by name
+            usort($output, function($a, $b)
+            {
+                return strcmp($a->name, $b->name);
+            });
+            $response['flag'] = 1;
+            $response['Orders'] = $output;
+        }
+        echo json_encode($response);
     }
 
     /**
@@ -137,6 +196,29 @@ class OrdersController extends Controller
             : $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
 
         echo json_encode($item);
+    }
+
+    /**
+     * Update Order Status
+     *
+     * @param Int $orderId
+     * @param Int $paid
+     * @return Response
+     */
+    public function getStatus($orderId, $paid)
+    {
+        $order = Order::findOrFail($orderId);
+//        $order->paid = $paid;
+//        $order->status = Order::NOT_PAID;
+        //:: TODO update status and Log order
+
+        if($order->save()){
+            $this->setFlashMessage('Updated!!! Status for Order No. ' . $order->number . ' Updated.', 1);
+        } else {
+            $this->setFlashMessage('Error!!! Unable to updating record.', 2);
+        }
+
+        return response()->json($order);
     }
     
 }
