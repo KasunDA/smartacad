@@ -6,7 +6,7 @@
     <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
-@section('title', 'Item View/Adjust Billings')
+@section('title', 'Orders View / Adjust')
 
 @section('breadcrumb')
     <li>
@@ -17,14 +17,14 @@
         <i class="fa fa-chevron-right"></i>
     </li>
     <li>
-        <a href="{{ url('/billings/view') }}">View/Adjust Billings</a>
+        <a href="{{ url('/billings/view') }}">View/Adjust Orders</a>
         <i class="fa fa-circle"></i>
     </li>
 @stop
 
 
 @section('content')
-    <h3 class="page"> View/Adjust Items Billings</h3>
+    <h3 class="page"> View/Adjust Billings(Orders/Items)</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -33,18 +33,77 @@
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
                             <li class="active">
-                                <a href="#view_adjust_billing" data-toggle="tab"> <i class="fa fa-eye"></i> View / Adjust Student Billings</a>
+                            <li class="{{ (session('order-tab') == 'view-order') ? 'active' : ((!session()->has('order-tab')) ? 'active' : '') }}">
+                                <a href="#view_order" data-toggle="tab"> <i class="fa fa-money"></i> View Orders</a>
+                            </li>
+                            <li class="{{ (session('order-tab') == 'adjust-order') ? 'active' : '' }}">
+                                <a href="#adjust_order_tab" data-toggle="tab"> <i class="fa fa-eye"></i> Adjust Order(Items)</a>
                             </li>
                         </ul>
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
-                            <div class="tab-pane active" id="view_adjust_billing">
-                                <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Reports</div>
+                            <div class="tab-pane {{ (session('order-tab') == 'view-order') ? 'active' : ((!session()->has('order-tab')) ? 'active' : '') }}" id="view_order">
+                                <div class="alert alert-info"> View <strong>Students Orders</strong> For a specific <strong> Academic Term</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',
                                         'class'=>'form-horizontal',
-                                        'id' => 'view_adjust_billing_form'
+                                        'id' => 'view_orders_form'
+                                    ])
+                                !!}
+                                <div class="form-body">
+                                    <div class="form-group">
+                                        <div class="col-md-4 col-md-offset-1">
+                                            <div class="form-group">
+                                                <label class="control-label">Academic Year <span class="text-danger">*</span></label>
+                                                <div>
+                                                    {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id,
+                                                        ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required'])
+                                                    !!}
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Academic Term <span class="text-danger">*</span></label>
+                                                {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
+                                                        ->orderBy('term_type_id')
+                                                        ->lists('academic_term', 'academic_term_id')
+                                                        ->prepend('- Academic Term -', ''),
+                                                    AcademicTerm::activeTerm()->academic_term_id,
+                                                    ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required'])
+                                                !!}
+                                            </div>
+                                            <div class="col-md-4 col-md-offset-1">
+                                                <div class="form-group">
+                                                    <label class="control-label">Class Level <small class="font-red">*</small></label>
+                                                    <div>
+                                                        {!! Form::select('classlevel_id', $classlevels, old('classlevel_id'),
+                                                            ['class'=>'form-control', 'id'=>'classlevel_id', 'required'=>'required'])
+                                                         !!}
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Class Room <small class="font-red">*</small></label>
+                                                    {!! Form::select('classroom_id', [], '',
+                                                        ['class'=>'form-control', 'id'=>'lassroom_id', 'required'=>'required'])
+                                                     !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-actions noborder">
+                                    <button type="submit" class="btn blue  col-md-2 col-md-offset-4">
+                                        <i class="fa fa-send"></i> Proceed
+                                    </button>
+                                </div>
+                                {!! Form::close() !!}
+                            </div>
+                            <div class="tab-pane {{ (session('order-tab') == 'adjust-order') ? 'active' : ((!session()->has('billing-tab')) ? 'active' : '') }}" id="adjust_order_tab">
+                                <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Orders for Adjustments</div>
+                                {!! Form::open([
+                                        'method'=>'POST',
+                                        'class'=>'form-horizontal',
+                                        'id' => 'adjust_order_form'
                                     ])
                                 !!}
                                 <div class="form-body">
@@ -96,7 +155,7 @@
                                     <div class="col-md-10">
                                         <div class="portlet-body">
                                             <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="view_adjust_student_datatable">
+                                                <table class="table table-striped table-bordered table-hover" id="adjust_order_datatable">
 
                                                 </table>
                                             </div>
@@ -129,10 +188,10 @@
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/orders/billings.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/orders/orders.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/billings/view"]');
+            setTabActive('[href="/orders"]');
         });
     </script>
 @endsection
