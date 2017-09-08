@@ -157,9 +157,9 @@
                                                                             <optgroup label="{{ $child->name }}">
                                                                                 @foreach($child->getImmediateDescendants() as $men)
                                                                                     @if($menu->parent_id == $men->menu_id)
-                                                                                        <option selected value="{{ $men->menu_id }}">{{ $men->name }}</option>
+                                                                                        <option selected value="{{ $men->menu_id }}">{{ $men->name }} ({!! ($menu->type==1) ? 'Admin' : 'Front' !!})</option>
                                                                                     @else
-                                                                                        <option value="{{ $men->menu_id }}">{{ $men->name }}</option>
+                                                                                        <option value="{{ $men->menu_id }}">{{ $men->name }} ({!! ($menu->type==1) ? 'Admin' : 'Front' !!})</option>
                                                                                     @endif
                                                                                 @endforeach
                                                                             </optgroup>

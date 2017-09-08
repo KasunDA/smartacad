@@ -38,18 +38,28 @@ class MenuController extends Controller
         $menu = '';
 
         if(!$encodeId || $encodeId == 'all' || $encodeId == '') {
-            $menus = ($no > 2) ? Menu::where('depth', $no - 2)->get() : Menu::roots()->get();
+            $menus = ($no > 2) ? Menu::where('depth', $no - 2)->get() : Menu::roots()->orderBy('name')->get();
         }else{
             $menu = Menu::find($this->decode($encodeId));
-            $menus = Menu::where('menu_id', $menu->menu_id)->get();
+            $menus = Menu::where('menu_id', $menu->menu_id)
+                ->orderBy('name')
+                ->get();
         }
 
         if($no == 2){
             $sub = Menu::whereNotNull('parent_id')->count();
-            $parents = Menu::roots()->get()->pluck('name', 'menu_id')->prepend('- Select Parent -', '');
+            $parents = Menu::roots()
+                ->orderBy('name')
+                ->get()
+                ->pluck('name', 'menu_id')
+                ->prepend('- Select Parent -', '');
         }else if($no > 2){
-            $filters = Menu::where('depth', $no - 2)->get();
-            $parents = Menu::where('depth', $no - 3)->get();
+            $filters = Menu::where('depth', $no - 2)
+                ->orderBy('name')
+                ->get();
+            $parents = Menu::where('depth', $no - 3)
+                ->orderBy('name')
+                ->get();
             $sub = Menu::where('depth', $no - 1)->count();
         }
 
@@ -80,7 +90,7 @@ class MenuController extends Controller
      * Delete a Menu from the list of Categories using a given menu id
      * @param $menu_id
      */
-    public function delete($menu_id)
+    public function getDelete($menu_id)
     {
         $menu = Menu::findOrFail($menu_id);
         //Delete The Menu Record
