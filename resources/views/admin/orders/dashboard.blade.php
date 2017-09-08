@@ -4,12 +4,26 @@
     <link href="../assets/global/plugins/morris/morris.css" rel="stylesheet" type="text/css" />
 @endsection
 
-@section('title', 'Admin Dashboard')
+@section('title', 'Orders Dashboard')
 
 @section('breadcrumb')
     <li>
-        <a href="/">Dashboard</a>
-        <i class="fa fa-circle"></i>
+        <i class="fa fa-home"></i>
+        <a href="{{ url('/dashboard') }}">Dashboard</a>
+    </li>
+    <li>
+        <i class="fa fa-chevron-right"></i>
+    </li>
+    <li>
+        <i class="fa fa-money"></i>
+        <a href="{{ url('/orders') }}">Orders</a>
+    </li>
+    <li>
+        <i class="fa fa-chevron-right"></i>
+    </li>
+    <li>
+        <i class="fa fa-dashboard"></i>
+        <a class="active" href="#">Dashboard</a>
     </li>
 @stop
 
