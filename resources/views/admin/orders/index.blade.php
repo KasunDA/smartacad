@@ -34,7 +34,7 @@
                         <ul class="nav nav-pills">
                             <li class="active">
                             <li class="{{ (session('order-tab') == 'view-order') ? 'active' : ((!session()->has('order-tab')) ? 'active' : '') }}">
-                                <a href="#view_order" data-toggle="tab"> <i class="fa fa-money"></i> View Orders</a>
+                                <a href="#view_order_tab" data-toggle="tab"> <i class="fa fa-money"></i> View Orders</a>
                             </li>
                             <li class="{{ (session('order-tab') == 'adjust-order') ? 'active' : '' }}">
                                 <a href="#adjust_order_tab" data-toggle="tab"> <i class="fa fa-eye"></i> Adjust Order(Items)</a>
@@ -109,7 +109,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane {{ (session('order-tab') == 'adjust-order') ? 'active' : ((!session()->has('billing-tab')) ? 'active' : '') }}" id="adjust_order_tab">
+                            <div class="tab-pane {{ (session('order-tab') == 'adjust-order') ? 'active' : '' }}" id="adjust_order_tab">
                                 <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Orders for Adjustments</div>
                                 {!! Form::open([
                                         'method'=>'POST',

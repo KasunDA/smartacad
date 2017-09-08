@@ -84,6 +84,12 @@
                                     <th> Status </th>
                                     <td> {{ strtoupper($order->status) }} </td>
                                 </tr>
+                                <tr>
+                                    <th> Total Amount </th>
+                                    <th>{{CurrencyHelper::NAIRA}} {{ $order->amount(true) }}</th>
+                                    <th> Item(s) </th>
+                                    <td> {{ count($items) }} </td>
+                                </tr>
                             @else
                                 <tr>
                                     <th colspan="2">No Order initiated yet for the Student</th>
@@ -137,7 +143,7 @@
                                                 </td>
                                                 <td>
                                                     <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$item->item->name}}" data-title="Delete Confirmation"
-                                                         data-action="/billings/delete-item/{{$item->id}}" class="btn btn-danger btn-xs btn-sm confirm-delete-btn">
+                                                         data-action="/orders/delete-item/{{$item->id}}" class="btn btn-danger btn-xs btn-sm confirm-delete-btn">
                                                         <span class="fa fa-trash-o"></span> Delete
                                                     </button>
                                                 </td>
@@ -147,8 +153,8 @@
                                     @endforeach
                                     <tr>
                                         <th></th>
-                                        <th>Sum Total ({{CurrencyHelper::NAIRA}}):</th>
-                                        <th>{{ number_format($total, 2) }}</th>
+                                        <th>Sum Total:</th>
+                                        <th>{{CurrencyHelper::NAIRA}} {{CurrencyHelper::format($total, 2) }}</th>
                                         @if(!$order->paid)
                                             <th></th>
                                             <th></th>
@@ -218,7 +224,7 @@
     <script src="{{ asset('assets/custom/js/orders/billings.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/billings/view"]');
+            setTabActive('[href="/orders"]');
         });
     </script>
 @endsection

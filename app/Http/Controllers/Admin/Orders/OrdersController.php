@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Orders;
 
+use App\Helpers\CurrencyHelper;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Accounts\Students\Student;
@@ -14,7 +15,10 @@ use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\Orders\Order;
 use App\Models\Admin\Orders\OrderItem;
+use App\Models\Admin\Orders\OrderLog;
+use App\Models\Admin\Orders\OrderView;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use stdClass;
 
 class OrdersController extends Controller
@@ -43,17 +47,18 @@ class OrdersController extends Controller
      */
     public function postSearch(Request $request)
     {
+        session()->put('order-tab', 'view-order');
         $inputs = $request->all();
         $output = [];
         $response['flag'] = 0;
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
 
         if(!empty($inputs['classroom_id'])){
-            $orders = Order::where('academic_term_id', $inputs['academic_term_id'])
+            $orders = OrderView::where('academic_term_id', $inputs['academic_term_id'])
                 ->where('classroom_id', $inputs['classroom_id'])
                 ->get();
         }else{
-            $orders = Order::where('academic_term_id', $inputs['academic_term_id'])
+            $orders = OrderView::where('academic_term_id', $inputs['academic_term_id'])
                 ->whereIn(
                     'classroom_id',
                     ClassRoom::where('classlevel_id', $inputs['classlevel_id'])
@@ -65,22 +70,21 @@ class OrdersController extends Controller
 
 
         if(!empty($orders)){
-            session()->put('order-tab', 'view-order');
             //All the students in the class room for the academic year
             foreach($orders as $order){
                 $object = new stdClass();
                 $status = ($order->paid) ? 'success' : 'danger';
                 
-                $object->student_id = $this->encode($order->student->student_id);
+                $object->student_id = $this->encode($order->student_id);
                 $object->term_id = $this->encode($term->academic_term_id);
-                $object->order_id = $order->id;
+                $object->order_id = $order->order_id;
                 $object->number = $order->number;
                 $object->status = '<span class="label label-'.$status.'">'.$order->status.'</span>';
-                $object->amount = $order->amount(true);
+                $object->amount = CurrencyHelper::format($order->amount);
                 $object->paid = $order->paid;
-                $object->student_no = $order->student->student_no;
-                $object->name = $order->student->fullNames();
-                $object->classroom = $order->classroom->classroom;
+                $object->student_no = $order->student_no;
+                $object->name = $order->fullname;
+                $object->classroom = $order->classroom;
                 $output[] = $object;
             }
             //Sort The Students by name
@@ -101,6 +105,7 @@ class OrdersController extends Controller
      */
     public function postSearchStudents(Request $request)
     {
+        session()->put('order-tab', 'adjust-order');
         $inputs = $request->all();
         $students = $output = [];
         $term = AcademicTerm::findOrFail($inputs['view_academic_term_id']);
@@ -116,7 +121,6 @@ class OrdersController extends Controller
         $response['flag'] = 0;
 
         if(!empty($students)){
-            session()->put('order-tab', 'adjust-order');
             //All the students in the class room for the academic year
             foreach($students as $student){
                 $object = new stdClass();
@@ -170,14 +174,11 @@ class OrdersController extends Controller
     {
         $orderItem = OrderItem::findOrFail($itemId);
 
-        //Delete The Role Record
         $delete = !empty($orderItem) ? $orderItem->delete() : false;
 
-        if ($delete) {
-            $this->setFlashMessage('  Deleted!!! ' . $orderItem->item->name . ' deleted from the student billings.', 1);
-        } else {
-            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
-        }
+        ($delete)
+            ? $this->setFlashMessage('  Deleted!!! ' . $orderItem->item->name . ' deleted from the student billings.', 1)
+            : $this->setFlashMessage('Error!!! Unable to delete record.', 2);
     }
 
     /**
@@ -208,12 +209,20 @@ class OrdersController extends Controller
     public function getStatus($orderId, $paid)
     {
         $order = Order::findOrFail($orderId);
-//        $order->paid = $paid;
-//        $order->status = Order::NOT_PAID;
-        //:: TODO update status and Log order
+        if(empty($paid)){
+            $order->paid = 1;
+            $order->backend = 1;
+            $order->status = Order::PAID;
+            $comment = 'Status changed from ' . Order::NOT_PAID . ' to ' . Order::PAID;
+        }else{
+            $order->paid = 0;
+            $order->status = Order::NOT_PAID;
+            $comment = 'Status changed from ' . Order::PAID . ' to ' . Order::NOT_PAID;
+        }
 
         if($order->save()){
-            $this->setFlashMessage('Updated!!! Status for Order No. ' . $order->number . ' Updated.', 1);
+            OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$order->id, 'comment'=>$comment]);
+            $this->setFlashMessage('Updated!!! ' . $comment, 1);
         } else {
             $this->setFlashMessage('Error!!! Unable to updating record.', 2);
         }

@@ -76,7 +76,7 @@ var UIBlockUI = function() {
                                     <th>Name</th>\
                                     <th>Class Room</th>\
                                     <th>Order No.</th>\
-                                    <th>Amount</th>\
+                                    <th>Amount (&#8358;)</th>\
                                     <th>Status</th>\
                                     <th>Details</th>\
                                     <th>Action</th>\
@@ -85,6 +85,7 @@ var UIBlockUI = function() {
                             <tbody>';
                     if(obj.flag == 1){
                         $.each(obj.Orders, function(key, order) {
+                            var label = (order.paid == 1) ? ' from Paid to Not-Paid' : ' from Not-Paid to Paid';
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
                                 '<td>'+order.student_no+'</td>' +
@@ -96,7 +97,7 @@ var UIBlockUI = function() {
                                 '<td><a target="_blank" href="/orders/items/'+order.student_id+'/'+ order.term_id + '"' +
                                 ' class="btn btn-xs btn-info"> <i class="fa fa-eye"></i> Details</a></td>' +
                                 '<td><button  data-name="'+order.name+'" data-title="Update Order Status"' +
-                                    'data-message="Are you sure you want to update <b>'+order.number+'?</b> status"' +
+                                    'data-message="Are you sure you want to update Order:<b>'+order.number+label+' ?</b> "' +
                                     'data-action="/orders/status/'+order.order_id+'/'+order.paid+'" ' +
                                     'data-confirm-text="Yes Update it"' +
                                     'data-status="Updated" data-status-text="Order Status Updated"' +
