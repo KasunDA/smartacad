@@ -16,13 +16,31 @@ use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\Orders\Order;
 use App\Models\Admin\Orders\OrderItem;
 use App\Models\Admin\Orders\OrderLog;
-use App\Models\Admin\Orders\OrderView;
+use App\Models\Admin\Views\ItemView;
+use App\Models\Admin\Views\OrderView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use stdClass;
 
 class OrdersController extends Controller
 {
+    protected $colors;
+    /**
+     * A list of colors for representing charts
+     */
+    public function __construct()
+    {
+        $this->colors = [
+            '#FF0F00', '#FF6600', '#FF9E01', '#FCD202', '#F8FF01', '#B0DE09', '#04D215', '#0D8ECF', '#0D52D1', '#2A0CD0', '#8A0CCF',
+            '#CD0D74', '#754DEB', '#DDDDDD', '#CCCCCC', '#999999', '#333333', '#000000',
+            '#FF0F00', '#FF6600', '#FF9E01', '#FCD202', '#F8FF01', '#B0DE09', '#04D215', '#0D8ECF', '#0D52D1', '#2A0CD0', '#8A0CCF',
+            '#CD0D74', '#754DEB', '#DDDDDD', '#CCCCCC', '#999999', '#333333', '#000000',
+        ];
+
+        parent::__construct();
+    }
+    
     /**
      * Display a listing of the Orders.
      *
@@ -229,5 +247,144 @@ class OrdersController extends Controller
 
         return response()->json($order);
     }
-    
+
+    /**
+     * Display a listing of the resource.
+     * @param Boolean $term
+     * @param Boolean $year
+     * @return Response
+     */
+    public function getDashboard($term=false, $year=false)
+    {
+        $academic_term = ($term) ? AcademicTerm::findOrFail($this->decode($term)) : AcademicTerm::activeTerm();
+        $academic_year = ($year) ? AcademicYear::findOrFail($this->decode($year)) : AcademicYear::activeYear();
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+
+        $pendingAmount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
+            ->notPaid()
+            ->activeStudent()
+            ->lists('amount')
+            ->sum();
+        $paidAmount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
+            ->paid()
+            ->activeStudent()
+            ->lists('amount')
+            ->sum();
+        $totalAmount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
+            ->activeStudent()
+            ->lists('amount')
+            ->sum();
+        $studentCount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
+            ->activeStudent()
+            ->lists('student_id')
+            ->count();
+
+        return view('admin.orders.dashboard',
+            compact(
+                'sponsors_count','staff_count', 'students_count', 'unmarked', 
+                'academic_years', 'academic_year', 'academic_term',
+                'pendingAmount', 'paidAmount', 'totalAmount', 'studentCount'
+            )
+        );
+    }
+
+    /**
+     * Gets Paid Items
+     *
+     * @param $termId
+     * @return Response
+     */
+    public function getPaidItems($termId)
+    {
+        $items = ItemView::where('academic_term_id', $termId)
+            ->select(DB::raw('SUM(amount) as amount, item_name'))
+            ->activeStudent()
+            ->paid()
+            ->notDeleted()
+            ->groupBy('item_id')
+            ->orderBy('item_name')
+            ->get(['amount', 'item_name']);
+
+        $response = [];
+        $color = 0;
+        foreach($items as $item){
+            $response[] = array(
+                'item'=>$item->item_name,
+                'amount'=>$item->amount,
+                'color'=>$this->colors[$color++]
+            );
+        }
+        return response()->json($response);
+    }
+
+    /**
+     * Gets Pending Items
+     *
+     * @param $termId
+     * @return Response
+     */
+    public function getPendingItems($termId)
+    {
+        $items = ItemView::where('academic_term_id', $termId)
+            ->select(DB::raw('SUM(amount) as amount, item_name'))
+            ->activeStudent()
+            ->notPaid()
+            ->notDeleted()
+            ->groupBy('item_id')
+            ->orderBy('item_name')
+            ->get(['amount', 'item_name']);
+
+        $response = [];
+        $color = 0;
+        foreach($items as $item){
+            $response[] = array(
+                'item'=>$item->item_name,
+                'amount'=>$item->amount,
+                'color'=>$this->colors[$color++]
+            );
+        }
+        return response()->json($response);
+    }
+
+    /**
+     * Gets Expected Items
+     *
+     * @param $termId
+     * @return Response
+     */
+    public function getExpectedItems($termId)
+    {
+        $items = ItemView::where('academic_term_id', $termId)
+            ->select(DB::raw('SUM(amount) as amount, item_name'))
+            ->activeStudent()
+            ->notDeleted()
+            ->groupBy('item_id')
+            ->orderBy('item_name')
+            ->get(['amount', 'item_name']);
+
+        $response = [];
+        $color = 0;
+        foreach($items as $item){
+            $response[] = array(
+                'item'=>$item->item_name,
+                'amount'=>$item->amount,
+                'color'=>$this->colors[$color++]
+            );
+        }
+        return response()->json($response);
+    }
+
+    /**
+     * Get The Orders Analytics Given the class term id
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postDashboard(Request $request)
+    {
+        $inputs = $request->all();
+        $year = $this->encode($inputs['academic_year_id']);
+        $term = $this->encode($inputs['academic_term_id']);
+        return redirect('/orders/dashboard/' . $term . '/' . $year);
+    }
+
 }

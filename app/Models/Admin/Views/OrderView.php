@@ -1,20 +1,44 @@
 <?php
 
-namespace App\Models\Admin\Orders;
+namespace App\Models\Admin\Views;
 
-use App\Helpers\CurrencyHelper;
 use App\Models\Admin\Accounts\Sponsor;
-use App\Models\Admin\Accounts\Students\Student;
-use App\Models\Admin\MasterRecords\AcademicTerm;
-use App\Models\Admin\MasterRecords\Classes\ClassRoom;
+use App\Models\Admin\Orders\OrderInitiate;
+use App\Models\Admin\Orders\OrderItem;
+use App\Models\Admin\Orders\OrderLog;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 
 class OrderView extends Model
 {
 
     protected $table = 'ordersviews';
+
+    /**
+     * Paid Orders From OrderView
+     *
+     * @param $query
+     */
+    public function scopePaid($query){
+        return $query->where('paid', 1);
+    }
+
+    /**
+     * Not Paid Orders From OrderView
+     *
+     * @param $query
+     */
+    public function scopeNotPaid($query){
+        return $query->where('paid', '<>', 1);
+    }
+
+    /**
+     * Active Students in Orders From OrderView
+     *
+     * @param $query
+     */
+    public function scopeActiveStudent($query){
+        return $query->where('student_status', 1);
+    }
 
     /**
      * An Order belongs to a Sponsor
