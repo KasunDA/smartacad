@@ -7,6 +7,48 @@ jQuery(document).ready(function() {
     getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
 });
 
+var ChartsOrderPercent = function() {
+
+    return {
+        //main function to initiate the module
+        initPieCharts: function(termId) {
+            if ($('#orders_percentage').size() !== 0) {
+                $.ajax({
+                    type: "GET",
+                    url: '/orders/percentage/' + termId,
+                    success: function (data) {
+                        $('#orders_percentage_stats_loading').hide();
+                        $('#orders_percentage_stats_content').show();
+
+                        $.plot($("#orders_percentage"), data, {
+                            series: {
+                                pie: {
+                                    show: true,
+                                    radius: 0.8,
+                                    label: {
+                                        show: true,
+                                        radius: 3 / 4,
+                                        formatter: function(label, series) {
+                                            return '<div style="font-size:12pt;text-align:center;padding:2px;color:white;">' + label + ' (' + series.value + ') <br/>' + Math.round(series.percent) + '%</div>';
+                                        },
+                                        background: {
+                                            opacity: 0.8,
+                                            color: '#000'
+                                        }
+                                    }
+                                }
+                            },
+                            legend: {
+                                show: false
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    };
+}();
+
 var ChartsPaidItems = function() {
 
     var initChartPaidItems = function(termId) {

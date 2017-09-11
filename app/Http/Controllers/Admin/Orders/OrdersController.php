@@ -26,6 +26,7 @@ use stdClass;
 class OrdersController extends Controller
 {
     protected $colors;
+
     /**
      * A list of colors for representing charts
      */
@@ -159,7 +160,6 @@ class OrdersController extends Controller
         }
         echo json_encode($response);
     }
-
 
     /**
      * Details of a student orders and items in an academic term
@@ -305,16 +305,7 @@ class OrdersController extends Controller
             ->orderBy('item_name')
             ->get(['amount', 'item_name']);
 
-        $response = [];
-        $color = 0;
-        foreach($items as $item){
-            $response[] = array(
-                'item'=>$item->item_name,
-                'amount'=>$item->amount,
-                'color'=>$this->colors[$color++]
-            );
-        }
-        return response()->json($response);
+        return $this->itemHelper($items);
     }
 
     /**
@@ -334,16 +325,7 @@ class OrdersController extends Controller
             ->orderBy('item_name')
             ->get(['amount', 'item_name']);
 
-        $response = [];
-        $color = 0;
-        foreach($items as $item){
-            $response[] = array(
-                'item'=>$item->item_name,
-                'amount'=>$item->amount,
-                'color'=>$this->colors[$color++]
-            );
-        }
-        return response()->json($response);
+        return $this->itemHelper($items);
     }
 
     /**
@@ -362,16 +344,7 @@ class OrdersController extends Controller
             ->orderBy('item_name')
             ->get(['amount', 'item_name']);
 
-        $response = [];
-        $color = 0;
-        foreach($items as $item){
-            $response[] = array(
-                'item'=>$item->item_name,
-                'amount'=>$item->amount,
-                'color'=>$this->colors[$color++]
-            );
-        }
-        return response()->json($response);
+        return $this->itemHelper($items);
     }
 
     /**
@@ -387,4 +360,99 @@ class OrdersController extends Controller
         return redirect('/orders/dashboard/' . $term . '/' . $year);
     }
 
+    /**
+     * @param $items
+     * @return mixed
+     */
+    private function itemHelper($items){
+        $response = [];
+        $color = 0;
+        foreach($items as $item){
+            $response[] = array(
+                'item'=>$item->item_name,
+                'amount'=>$item->amount,
+                'color'=>$this->colors[$color++]
+            );
+        }
+        return response()->json($response);
+    }
+
+    /**
+     * Gets Paid Transactions
+     *
+     * @param $termId
+     * @return Response
+     */
+    public function paid($termId=false)
+    {
+        $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
+        $orders = OrderView::where('academic_term_id', $term->academic_term_id)
+            ->paid()
+            ->activeStudent()
+            ->orderBy('fullname')
+            ->get();
+        $type = 'Paid';
+
+        return view('admin.orders.summary', compact('orders', 'term', 'type'));
+    }
+
+    /**
+     * Gets Not Paid Transactions
+     *
+     * @param $termId
+     * @return Response
+     */
+    public function notPaid($termId=false)
+    {
+        $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
+        $orders = OrderView::where('academic_term_id', $term->academic_term_id)
+            ->notPaid()
+            ->activeStudent()
+            ->orderBy('fullname')
+            ->get();
+        $type = 'Not-Paid';
+
+        return view('admin.orders.summary', compact('orders', 'term', 'type'));
+    }
+
+    /**
+     * Gets All Order Transactions
+     *
+     * @param $termId
+     * @return Response
+     */
+    public function allOrders($termId=false)
+    {
+        $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
+        $orders = OrderView::where('academic_term_id', $term->academic_term_id)
+            ->activeStudent()
+            ->orderBy('fullname')
+            ->get();
+        $type = 'All-Orders';
+
+        return view('admin.orders.summary', compact('orders', 'term', 'type'));
+    }
+
+    /**
+     * Gets Paid/Not Paid Orders based on percentage
+     * 
+     * @param $termId
+     * @return Response
+     */
+    public function percentage($termId=false)
+    {
+        $term = ($termId) ? AcademicTerm::findOrFail($termId) : AcademicTerm::activeTerm();
+        $notPaid = OrderView::where('academic_term_id', $term->academic_term_id)
+            ->notPaid()
+            ->activeStudent()
+            ->count();
+        $paid = OrderView::where('academic_term_id', $term->academic_term_id)
+            ->paid()
+            ->activeStudent()
+            ->count();
+        $response[] = ['label'=>'Paid', 'color'=>'#0F0', 'data'=>$paid, 'value'=>$paid];
+        $response[] = ['label'=>'Not-Paid', 'color'=>'#F00', 'data'=>$notPaid, 'value'=>$notPaid];
+
+        return response()->json($response);
+    }
 }
