@@ -78,9 +78,11 @@
                     </div>
                     <div class="details">
                         <div class="number">{{ CurrencyHelper::format($pendingAmount, 0, true) }}</div>
-                        <div class="desc">Pending Payments</div>
+                        <div class="desc">Pending Payments (Not Paid)</div>
                     </div>
-                    <a class="more" href="#">View more <i class="m-icon-swapright m-icon-white"></i></a>
+                    <a class="more" target="_blank" href="{{route('notPaidOrders', ['termId'=>$hashIds->encode($academic_term->academic_term_id)])}}">
+                        View more <i class="m-icon-swapright m-icon-white"></i>
+                    </a>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-3">
@@ -90,9 +92,11 @@
                     </div>
                     <div class="details">
                         <div class="number">{{ CurrencyHelper::format($totalAmount, 0, true) }}</div>
-                        <div class="desc">Expected Amount</div>
+                        <div class="desc">Expected Amount (All Orders)</div>
                     </div>
-                    <a class="more" href="#">View more <i class="m-icon-swapright m-icon-white"></i></a>
+                    <a class="more" target="_blank" href="{{route('allOrders', ['termId'=>$hashIds->encode($academic_term->academic_term_id)])}}">
+                        View more <i class="m-icon-swapright m-icon-white"></i>
+                    </a>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-3">
@@ -114,15 +118,65 @@
                     </div>
                     <div class="details">
                         <div class="number">{{ CurrencyHelper::format($paidAmount, 0, true) }}</div>
-                        <div class="desc">Total Income</div>
+                        <div class="desc">Total Income (Paid)</div>
                     </div>
-                    <a class="more" href="#">View more <i class="m-icon-swapright m-icon-white"></i></a>
+                    <a class="more" target="_blank" href="{{route('paidOrders', ['termId'=>$hashIds->encode($academic_term->academic_term_id)])}}">
+                        View more <i class="m-icon-swapright m-icon-white"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <!-- BEGIN CHART PORTLET-->
+            <div class="portlet light portlet-fit bordered">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="icon-bar-chart font-purple"></i>
+                        <span class="caption-subject bold uppercase font-purple">Expected Order Items</span>
+                        <span class="caption-helper">Listing for {{ $academic_term->academic_term }}</span>
+                    </div>
+                    <div class="tools">
+                        <a href="javascript:;" class="collapse"> </a>
+                        <a href="javascript:;" class="fullscreen"> </a>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div id="order_items_expected_stats_loading" class="text-center">
+                        <img src="/assets/global/img/loading.gif" alt="loading"/>
+                    </div>
+                    <div id="order_items_expected_stats_content" class="display-none">
+                        <div id="order_items_expected" class="chart" style="height: 350px;"> </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END CHART PORTLET-->
+        </div>
+        <div class="col-md-5">
+            <div class="portlet light portlet-fit bordered">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class=" icon-layers font-green"></i>
+                        <span class="caption-subject font-green bold uppercase">Orders</span>
+                        <span class="caption-helper">Percentage for {{ $academic_term->academic_term }}</span>
+                    </div>
+                    <div class="tools">
+                        <a href="javascript:;" class="collapse"> </a>
+                        <a href="javascript:;" class="fullscreen"> </a>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div id="orders_percentage_stats_loading" class="text-center">
+                        <img src="/assets/global/img/loading.gif" alt="loading"/>
+                    </div>
+                    <div id="orders_percentage_stats_content" class="display-none">
+                        <div id="orders_percentage" class="chart" style="height: 350px;"> </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
             <!-- BEGIN CHART PORTLET-->
-            <div class="portlet light bordered">
+            <div class="portlet light portlet-fit bordered">
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="icon-bar-chart font-green-haze"></i>
@@ -147,7 +201,7 @@
         </div>
         <div class="col-md-6">
             <!-- BEGIN CHART PORTLET-->
-            <div class="portlet light bordered">
+            <div class="portlet light portlet-fit bordered">
                 <div class="portlet-title">
                     <div class="caption">
                         <i class="icon-bar-chart font-red"></i>
@@ -165,31 +219,6 @@
                     </div>
                     <div id="order_items_pending_stats_content" class="display-none">
                         <div id="order_items_pending" class="chart" style="height: 350px;"> </div>
-                    </div>
-                </div>
-            </div>
-            <!-- END CHART PORTLET-->
-        </div>
-        <div class="col-md-8">
-            <!-- BEGIN CHART PORTLET-->
-            <div class="portlet light bordered">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <i class="icon-bar-chart font-purple"></i>
-                        <span class="caption-subject bold uppercase font-purple">Expected Order Items</span>
-                        <span class="caption-helper">Listing for {{ $academic_term->academic_term }}</span>
-                    </div>
-                    <div class="tools">
-                        <a href="javascript:;" class="collapse"> </a>
-                        <a href="javascript:;" class="fullscreen"> </a>
-                    </div>
-                </div>
-                <div class="portlet-body">
-                    <div id="order_items_expected_stats_loading" class="text-center">
-                        <img src="/assets/global/img/loading.gif" alt="loading"/>
-                    </div>
-                    <div id="order_items_expected_stats_content" class="display-none">
-                        <div id="order_items_expected" class="chart" style="height: 350px;"> </div>
                     </div>
                 </div>
             </div>
@@ -226,7 +255,7 @@
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
             setTabActive('[href="/orders/dashboard"]');
 
-
+            ChartsOrderPercent.initPieCharts('{{$academic_term->academic_term_id}}');
             ChartsPaidItems.init('{{$academic_term->academic_term_id}}');
             ChartsPendingItems.init('{{$academic_term->academic_term_id}}');
             ChartsExpectedItems.init('{{$academic_term->academic_term_id}}');

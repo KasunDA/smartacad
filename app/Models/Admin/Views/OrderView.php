@@ -2,10 +2,10 @@
 
 namespace App\Models\Admin\Views;
 
-use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Orders\OrderInitiate;
 use App\Models\Admin\Orders\OrderItem;
 use App\Models\Admin\Orders\OrderLog;
+use App\Models\Admin\Users\User;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderView extends Model
@@ -46,7 +46,7 @@ class OrderView extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function sponsor(){
-        return $this->belongsTo(Sponsor::class);
+        return $this->belongsTo(User::class, 'sponsor_id', 'user_id');
     }
 
     /**

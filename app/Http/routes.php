@@ -47,6 +47,13 @@ Route::group(['middleware' => ['web']], function () {
 
     Route::auth();
 
+    Route::group(['prefix'=>'orders/', 'namespace' => 'Admin\Orders'], function () {
+        Route::get('/paid/{termId?}', 'OrdersController@paid')->name('paidOrders');
+        Route::get('/not-paid/{termId?}', 'OrdersController@notPaid')->name('notPaidOrders');
+        Route::get('/all-orders/{termId?}', 'OrdersController@allOrders')->name('allOrders');
+        Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
+    });
+
     
     Route::controllers([
         'auth' => 'Auth\AuthController',

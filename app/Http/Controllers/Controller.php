@@ -61,7 +61,9 @@ class Controller extends BaseController
     }
     
     public function decode($hashed){
-        return !empty($hashed) ? $this->getHashIds()->decode($hashed)[0] : null;
+        return !empty($hashed)
+            ? ((!empty($this->getHashIds()->decode($hashed))) ? $this->getHashIds()->decode($hashed)[0] : null)
+            : null;
     }
 
     public function encode($raw){
