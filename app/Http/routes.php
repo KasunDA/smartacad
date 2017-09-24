@@ -47,6 +47,7 @@ Route::group(['middleware' => ['web']], function () {
 
     Route::auth();
 
+    //Fees Routes
     Route::group(['prefix'=>'orders/', 'namespace' => 'Admin\Orders'], function () {
         Route::get('/paid/{termId?}', 'OrdersController@paid')->name('paidOrders');
         Route::get('/not-paid/{termId?}', 'OrdersController@notPaid')->name('notPaidOrders');
