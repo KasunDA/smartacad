@@ -55,6 +55,10 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
     });
 
+    //Attendance Routes
+    Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {
+        Route::get('/', 'AttendancesController@index');
+    });
     
     Route::controllers([
         'auth' => 'Auth\AuthController',
