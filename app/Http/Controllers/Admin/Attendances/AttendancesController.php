@@ -25,7 +25,7 @@ class AttendancesController extends Controller
     {
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
-        $classrooms = $classes = ClassMaster::where('academic_year_id', AcademicYear::activeYear()->academic_year_id)
+        $classrooms = $classes = ClassMaster::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
             ->where(function($query){
                 if(!Auth::user()->hasRole([Role::DEVELOPER, Role::SUPER_ADMIN]))
                     $query->where('user_id', Auth::user()->user_id);
@@ -43,8 +43,13 @@ class AttendancesController extends Controller
     public function take($classId)
     {
         $classroom = ClassRoom::findOrFail($this->decode($classId));
-        $students = $classroom->studentClasses()->where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->get();
-
-        return view('admin.attendances.take', compact('students', 'classroom'));
+        $studentClasses = $classroom->studentClasses()
+            ->where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
+            ->get();
+        $classMaster = $classroom->classMasters()
+            ->where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
+            ->first();
+        
+        return view('admin.attendances.take', compact('studentClasses','classMaster'));
     }
 }
