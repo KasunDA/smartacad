@@ -27,6 +27,15 @@ class UserController extends Controller
     protected $redirectTo = '/users';
 
     /**
+     *
+     * Allow creating users even without complete setup
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data
