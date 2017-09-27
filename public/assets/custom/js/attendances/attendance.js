@@ -14,20 +14,12 @@ jQuery(document).ready(function() {
         var check_boxes = $('.check-one');
         // console.log(check_boxes);
         if($(this).is(':checked')){
-            // check_boxes.each(function(i, e){ //iterate all listed checkbox items
-            //     $(e).prop('checked', true);
-            //     console.log($(e).prop('checked'));
-            // });
             check_boxes.prop("checked", true);
             check_boxes.parents('tr').css({background : "#F5F5F5", color: "#29343F"});
         }else{
-            // check_boxes.each(function(i, e){ //iterate all listed checkbox items
-            //     $(e).prop('checked', false);
-            // });
             check_boxes.prop("checked", false);
             check_boxes.parents('tr').css({background : "#FFFFFF", color: "#434A54"});
         }
-        // check_boxes.prop('checked', $(this).prop('checked'));
     });
 
     //Each Check box click
