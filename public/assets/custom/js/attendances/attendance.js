@@ -4,47 +4,11 @@
 
 jQuery(document).ready(function() {
     // Ajax Get Academic Terms Based on the Academic Year
-    getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
-    getDependentListBox($('#classlevel_id'), $('#classroom_id'), '/list-box/classroom/');
+    // getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
+    // getDependentListBox($('#classlevel_id'), $('#classroom_id'), '/list-box/classroom/');
     getDependentListBox($('#view_academic_year_id'), $('#view_academic_term_id'), '/list-box/academic-term/');
     getDependentListBox($('#view_classlevel_id'), $('#view_classroom_id'), '/list-box/classroom/');
     
-    //Edit Order Item Amount
-    $(document.body).on('click', '.item-edit', function(){
-        $('#modal-title-text').html('Edit Item Amount on: <b>' + $(this).data('item') +'</b>');
-        $('#order_item_id').val($(this).data('id'));
-        $('#amount').val($(this).data('amount'));
-        $('#edit_item_modal').modal('show');
-    });
-
-    //Update Order Item Amount
-    $(document.body).on('submit', '#edit_item_form', function(){
-        var values = $(this).serialize();
-
-        App.blockUI({
-            target: '#edit_item_modal',
-            animate: true
-        });
-
-        $.ajax({
-            type: "POST",
-            url: '/orders/item-update-amount',
-            data: values,
-            success: function (data) {
-
-                window.location.reload();
-                window.setTimeout(function() {
-                    App.unblockUI('#edit_item_modal');
-                }, 2000);
-
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
-                App.unblockUI('#edit_item_modal');
-            }
-        });
-        return false;
-    });
     
 });
 

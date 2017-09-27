@@ -58,6 +58,7 @@ Route::group(['middleware' => ['web']], function () {
     //Attendance Routes
     Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {
         Route::get('/', 'AttendancesController@index');
+        Route::get('/take/{classId}', 'AttendancesController@take')->name('takeAttendance');
     });
     
     Route::controllers([

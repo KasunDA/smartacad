@@ -50,68 +50,53 @@
                     <div class="portlet-body form">
                         <div class="tab-content">
                             <div class="tab-pane {{ (session('attendance-tab') == 'take') ? 'active' : ((!session()->has('attendance-tab')) ? 'active' : '') }}" id="take_attendance_tab">
-                                <div class="alert alert-info"> View <strong>Students Orders</strong> For a specific <strong> Academic Term</strong></div>
-                                {!! Form::open([
-                                        'method'=>'POST',
-                                        'class'=>'form-horizontal',
-                                        'id' => 'view_order_form'
-                                    ])
-                                !!}
-                                <div class="form-body">
-                                    <div class="form-group">
-                                        <div class="col-md-4 col-md-offset-1">
-                                            <div class="form-group">
-                                                <label class="control-label">Academic Year <span class="text-danger">*</span></label>
-                                                <div>
-                                                    {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id,
-                                                        ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required'])
-                                                    !!}
+                                <div class="panel-body">
+                                    <div class="col-md-10">
+                                        <div class="alert alert-info"> Take/Initiate Attendance</div>
+                                        <div class="table-container">
+                                                <div class="table-actions-wrapper">
+                                                    <span> </span>
+                                                    Search: <input type="text" class="form-control input-inline input-small input-sm" id="search_param"/>
                                                 </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="control-label">Academic Term <span class="text-danger">*</span></label>
-                                                {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
-                                                        ->orderBy('term_type_id')
-                                                        ->lists('academic_term', 'academic_term_id')
-                                                        ->prepend('- Academic Term -', ''),
-                                                    AcademicTerm::activeTerm()->academic_term_id,
-                                                    ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required'])
-                                                !!}
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 col-md-offset-1">
-                                            <div class="form-group">
-                                                <label class="control-label">Class Level <small class="font-red">*</small></label>
-                                                <div>
-                                                    {!! Form::select('classlevel_id', $classlevels, old('classlevel_id'),
-                                                        ['class'=>'form-control', 'id'=>'classlevel_id', 'required'=>'required'])
-                                                     !!}
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="control-label">Class Room </label>
-                                                {!! Form::select('classroom_id', [], '',
-                                                    ['class'=>'form-control', 'id'=>'classroom_id'])
-                                                 !!}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-actions noborder">
-                                    <button type="submit" class="btn blue pull-right">
-                                        <i class="fa fa-search"></i> Search
-                                    </button>
-                                </div>
-                                {!! Form::close() !!}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="portlet-body">
-                                            <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="view_order_datatable">
+                                                <table class="table table-striped table-bordered table-hover" id="take_attendance_datatable">
+                                                    <thead>
+                                                    <tr role="row" class="heading">
+                                                        <th>#</th>
+                                                        <th>Class Name</th>
+                                                        <th>Academic Term</th>
+                                                        <th>Head Tutor</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tfoot>
+                                                    <tr role="row" class="heading">
+                                                        <th>#</th>
+                                                        <th>Class Name</th>
+                                                        <th>Academic Term</th>
+                                                        <th>Head Tutor</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                    </tfoot>
+                                                    <tbody>
+                                                    <?php $i=1; ?>
+                                                    @foreach($classrooms as $classroom)
+                                                        <tr role="row" class="heading">
+                                                            <td>{{ $i++ }}</td>
+                                                            <td>{{ $classroom->classroom->classroom }} :: {{$classroom->classroom->studentClasses->count()}} Student(s)</td>
+                                                            <td>{{ AcademicTerm::activeTerm()->academic_term }}</td>
+                                                            <td>{{ $classroom->user->simpleNameNSalutation() }}</td>
+                                                            <td>
+                                                                <a href="{{ route('takeAttendance', ['classId'=>$hashIds->encode($classroom->classroom_id)]) }}" class="btn btn-warning btn-xs mark_attend_btn">
+                                                                    <i class="fa fa-check-square-o"></i> Mark
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                    </tbody>
+
 
                                                 </table>
                                             </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -199,16 +184,16 @@
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
     <script src="{{ asset('assets/global/plugins/jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/scripts/app.min.js') }}" type="text/javascript"></script>
     <!-- END THEME GLOBAL SCRIPTS -->
     <!-- BEGIN THEME LAYOUT SCRIPTS -->
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/attendances/attendance.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/attendances"]');
+
+            setTableData($('#take_attendance_datatable')).init();
         });
     </script>
 @endsection
