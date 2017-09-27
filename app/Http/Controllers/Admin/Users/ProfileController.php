@@ -21,15 +21,6 @@ use Validator;
 class ProfileController extends Controller
 {
     /**
-     *
-     * Allow creating profile modification even without complete setup
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
-    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array $data
