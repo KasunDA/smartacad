@@ -62,7 +62,7 @@ class Attendance extends Model
         return self::where('attendance_date', ($date) ? $date : date('Y-m-d'))
             ->where('classroom_id', $class)
             ->where('academic_term_id', ($term) ? $term : AcademicTerm::activeTerm()->academic_term_id)
-            ->count();
+            ->count() > 0;
     }
 
 }

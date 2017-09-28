@@ -48,7 +48,7 @@
                         <div class="tab-content">
                             <div class="tab-pane {{ (session('attendance-tab') == 'initiate') ? 'active' : ((!session()->has('attendance-tab')) ? 'active' : '') }}" id="initiate_attendance_tab">
                                 <div class="panel-body">
-                                    <div class="col-md-11">
+                                    <div class="col-md-12">
                                         <div class="alert alert-info"> Take/Initiate Attendance</div>
                                         <div class="table-container">
                                                 <div class="table-actions-wrapper">
@@ -62,6 +62,7 @@
                                                         <th>Class Name</th>
                                                         <th>Academic Term</th>
                                                         <th>Head Tutor</th>
+                                                        <th>Taken</th>
                                                         <th>Initiate</th>
                                                         <th>Adjust</th>
                                                     </tr>
@@ -72,6 +73,7 @@
                                                         <th>Class Name</th>
                                                         <th>Academic Term</th>
                                                         <th>Head Tutor</th>
+                                                        <th>Taken</th>
                                                         <th>Initiate</th>
                                                         <th>Adjust</th>
                                                     </tr>
@@ -86,6 +88,7 @@
                                                             </td>
                                                             <td>{{ AcademicTerm::activeTerm()->academic_term }}</td>
                                                             <td>{{ $classroom->user->simpleNameNSalutation() }}</td>
+                                                            <td>{{ $classroom->classroom->attendances()->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->count() }}</td>
                                                             <td>
                                                                 <a href="{{ route('initiateAttendance', ['classId'=>$hashIds->encode($classroom->classroom_id)]) }}" class="btn btn-info btn-xs">
                                                                     <i class="fa fa-check-square-o"></i>

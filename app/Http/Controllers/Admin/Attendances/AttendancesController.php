@@ -57,7 +57,7 @@ class AttendancesController extends Controller
         
         return view('admin.attendances.take', compact('studentClasses','classMaster', 'attendances'));
     }
-    
+
     /**
      * Save records
      * @param Request $request
@@ -66,29 +66,31 @@ class AttendancesController extends Controller
     public function take(Request $request)
     {
         $inputs = $request->all();
+        $attendance = isset($inputs['attendance_id']) ? Attendance::findOrFail($this->decode($inputs['attendance_id'])) : false;
         $classroom_id = $this->decode($inputs['classroom_id']);
         $classroom = ClassRoom::findOrFail($classroom_id);
         $exist = Attendance::validateDate($classroom_id, $inputs['attendance_date']);
 
-        if(!empty($exist)) {
+        if(($exist && !$attendance) || ($attendance && $exist && $attendance->attendance_date != $inputs['attendance_date'] )){
             $this->setFlashMessage('Attendance for ' . $inputs['attendance_date'] . ' Has been taken, kindly edit for any necessary adjustments ', 2);
             return redirect()->back();
         }
+        
+        $attendance = ($attendance) ? $attendance : new Attendance();
+        $attendance->classroom_id = $classroom_id;
+        $attendance->academic_term_id = AcademicTerm::activeTerm()->academic_term_id;
+        $attendance->user_id = Auth::id();
+        $attendance->attendance_date = $inputs['attendance_date'];
 
-        $attendance = Attendance::create([
-            'classroom_id' => $classroom_id,
-            'academic_term_id' => AcademicTerm::activeTerm()->academic_term_id,
-            'user_id' => Auth::id(),
-            'attendance_date' => $inputs['attendance_date'],
-        ]);
-
-        for( $i=0; $i < count($inputs['students']); $i++ ){
-            $details = new AttendanceDetail();
-            $details->student_id = $inputs['students'][$i];
-            $details->status = isset($inputs['status'][$i]);
-            $details->reason = $inputs['reason'][$i] ?? null;
-            $details->attendance_id = $attendance->id;
-            $details->save();
+        if($attendance->save()){
+            for( $i=0; $i < count($inputs['students']); $i++ ){
+                $details = isset($inputs['details']) ? AttendanceDetail::find($inputs['details'][$i]) : new AttendanceDetail();
+                $details->student_id = $inputs['students'][$i];
+                $details->status = isset($inputs['status'][$i]);
+                $details->reason = $inputs['reason'][$i] ?? null;
+                $details->attendance_id = $attendance->id;
+                $details->save();
+            }
         }
 
         session()->put('attendance-tab', 'initiate');

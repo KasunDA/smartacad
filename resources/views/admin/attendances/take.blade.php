@@ -110,9 +110,14 @@
                                 <tbody>
                                     <?php $i=0; ?>
                                     @if($attendances)
+                                        {!! Form::hidden('attendance_id', $hashIds->encode($attendances->id)) !!}
                                         @foreach($attendances->details as $detail)
                                             <tr>
-                                                <td class="check-td">{{ $i + 1 }}{!! Form::hidden('students[]', $detail->student_id) !!}</td>
+                                                <td class="check-td">
+                                                    {{ $i + 1 }}
+                                                    {!! Form::hidden('students[]', $detail->student_id) !!}
+                                                    {!! Form::hidden('details[]', $detail->id) !!}
+                                                </td>
                                                 <td class="check-td">{{ $detail->student->fullNames() }}</td>
                                                 <td><input type="text" class="form-control reasons" value="{{$detail->reason}}" name="reason[{{$i}}]"
                                                            {{($detail->status) ? 'disabled' : ''}} placeholder="Reason for being absent if any"></td>
