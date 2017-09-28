@@ -4,7 +4,7 @@
     <link href="{{ asset('assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}" rel="stylesheet" type="text/css"/>
 @endsection
 
-@section('title', 'View Order Items')
+@section('title', 'Manage Attendances')
 
 @section('breadcrumb')
     <li>
@@ -45,13 +45,25 @@
                                 <th> Head Tutor </th>
                                 <td>{{ $classMaster->user->fullNames() }}</td>
                                 <th> Number of Students </th>
-                                <td>{{$classMaster->classroom->studentClasses->count()}}</td>
+                                <td>
+                                    {{$classMaster->classroom
+                                        ->studentClasses
+                                        ->where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
+                                        ->count()
+                                    }}
+                                </td>
                             </tr>
                             <tr>
                                 <th> Academic Term </th>
                                 <td>{{ AcademicTerm::activeTerm()->academic_term }}</td>
                                 <th> Class Room </th>
                                 <td> {{ $classMaster->classRoom->classroom }} </td>
+                            </tr>
+                            <tr>
+                                <th> Status </th>
+                                <td>{!! ($attendances) ? '<span class="label label-warning">Editing...</span>' : '<span class="label label-info">Initiating...</span>'!!}</td>
+                                <th>{{ ($attendances) ? $attendances->details()->present()->count() . ' Present' : '' }}</th>
+                                <th>{{ ($attendances) ? $attendances->details()->absent()->count() . ' Absent' : '' }}</th>
                             </tr>
                         </table>
                     </div>
@@ -74,7 +86,6 @@
                     {!! Form::open([
                             'method'=>'POST',
                             'class'=>'form-horizontal',
-                            'id' => 'take_attendance_form'
                         ])
                     !!}
                     <div class="form-body">
@@ -82,37 +93,63 @@
                             <table class="table table-striped table-bordered table-hover table-checkable">
                                 <thead>
                                     <tr role="row" class="heading">
-                                        <th><input type="checkbox" class="group-checkable check-all"> </th>
                                         <th>#</th>
                                         <th>Full Name</th>
                                         <th>Reason</th>
+                                        <th>Status <input type="checkbox" class="group-checkable check-all"> </th>
                                     </tr>
                                 </thead>
+                                <tfoot>
+                                    <tr role="row" class="heading">
+                                        <th>#</th>
+                                        <th>Full Name</th>
+                                        <th>Reason</th>
+                                        <th><input type="checkbox" class="group-checkable check-all"> Status</th>
+                                    </tr>
+                                </tfoot>
                                 <tbody>
-                                    <?php $i=1; ?>
-                                    @foreach($studentClasses as $studentClass)
-                                        <tr>
-                                            <td><input type="checkbox" class="check-one" name="student_id[]" value="{{$studentClass->student_id}}"></td>
-                                            <td>{{ $i++ }}</td>
-                                            <td>{{ $studentClass->student->fullNames() }}</td>
-                                            <td><input type="text" class="form-control" name="reason[]" placeholder="Reason for being absent if any"></td>
-                                        </tr>
-                                    @endforeach
+                                    <?php $i=0; ?>
+                                    @if($attendances)
+                                        @foreach($attendances->details as $detail)
+                                            <tr>
+                                                <td class="check-td">{{ $i + 1 }}{!! Form::hidden('students[]', $detail->student_id) !!}</td>
+                                                <td class="check-td">{{ $detail->student->fullNames() }}</td>
+                                                <td><input type="text" class="form-control reasons" value="{{$detail->reason}}" name="reason[{{$i}}]"
+                                                           {{($detail->status) ? 'disabled' : ''}} placeholder="Reason for being absent if any"></td>
+                                                <td><input type="checkbox" class="check-one" name="status[{{$i++}}]" value="1" {{($detail->status) ? 'checked' : ''}}></td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        @foreach($studentClasses as $studentClass)
+                                            <tr>
+                                                <td class="check-td">{{ $i + 1 }}{!! Form::hidden('students[]', $studentClass->student_id) !!}</td>
+                                                <td class="check-td">{{ $studentClass->student->fullNames() }}</td>
+                                                <td><input type="text" class="form-control reasons" name="reason[{{$i}}]" placeholder="Reason for being absent if any"></td>
+                                                <td><input type="checkbox" class="check-one" name="status[{{$i++}}]" value="1"></td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
                                 </tbody>
                             </table>
-                            <div class="col-md-4">
+                            <div class="col-md-8">
+                                {!! Form::hidden('classroom_id', $hashIds->encode($classMaster->classroom_id)) !!}
                                 <div class="form-group">
-                                    <label>Attendance Date:</label>
-                                    <div class="input-icon">
-                                        <i class="fa fa-calendar"></i>
-                                        <input type="text" class="form-control date-picker" data-date-format='yyyy-mm-dd'
-                                               placeholder="Attendance Date Taken" name="attendance_date" value="{{ date('Y-m-d') }}">
+                                    <div class="col-md-4">
+                                        <label>Attendance Date:</label>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="input-icon">
+                                            <i class="fa fa-calendar"></i>
+                                            <input type="text" class="form-control" id="attendance_date" data-date-format='yyyy-mm-dd'
+                                                   placeholder="Attendance Date Taken" name="attendance_date"
+                                                   value="{{ ($attendances) ? $attendances->attendance_date->format('Y-m-d') : date('Y-m-d') }}">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-actions noborder">
                                 <button type="submit" class="btn blue pull-right">
-                                    <i class="fa fa-send"></i> Submit
+                                    <i class="fa fa-send"></i> {!! ($attendances) ? 'Adjust' : 'Initiate' !!}
                                 </button>
                             </div>
                         </div>
@@ -140,7 +177,10 @@
     <script>
         jQuery(document).ready(function () {
 
-            $('.date-picker').datepicker();
+            $('#attendance_date').datepicker({
+                autoclose:true,
+                endDate: '+0d'
+            });
             setTabActive('[href="/attendances"]');
 
 //            setTableData($('#view_student_datatable')).init();

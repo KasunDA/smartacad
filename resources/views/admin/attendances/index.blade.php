@@ -27,7 +27,7 @@
 
 
 @section('content')
-    <h3 class="page"> Take/Adjust Attendance</h3>
+    <h3 class="page"> Attendance Management</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-12">
@@ -36,11 +36,8 @@
                     <div class="portlet-title tabbable-line">
                         <ul class="nav nav-pills">
                             <li class="active">
-                            <li class="{{ (session('attendance-tab') == 'take') ? 'active' : ((!session()->has('attendance-tab')) ? 'active' : '') }}">
-                                <a href="#take_attendance_tab" data-toggle="tab"> <i class="fa fa-check"></i> Initiate Attendance</a>
-                            </li>
-                            <li class="{{ (session('attendance-tab') == 'adjust') ? 'active' : '' }}">
-                                <a href="#adjust_attendance_tab" data-toggle="tab"> <i class="fa fa-edit"></i> Adjust Attendance</a>
+                            <li class="{{ (session('attendance-tab') == 'initiate') ? 'active' : ((!session()->has('attendance-tab')) ? 'active' : '') }}">
+                                <a href="#initiate_attendance_tab" data-toggle="tab"> <i class="fa fa-check"></i> Initiate / <i class="fa fa-edit"></i> Adjust Attendance</a>
                             </li>
                             <li class="{{ (session('attendance-tab') == 'summary') ? 'active' : '' }}">
                                 <a href="#summary_attendance_tab" data-toggle="tab"> <i class="fa fa-th"></i> Summary</a>
@@ -49,9 +46,9 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="tab-content">
-                            <div class="tab-pane {{ (session('attendance-tab') == 'take') ? 'active' : ((!session()->has('attendance-tab')) ? 'active' : '') }}" id="take_attendance_tab">
+                            <div class="tab-pane {{ (session('attendance-tab') == 'initiate') ? 'active' : ((!session()->has('attendance-tab')) ? 'active' : '') }}" id="initiate_attendance_tab">
                                 <div class="panel-body">
-                                    <div class="col-md-10">
+                                    <div class="col-md-11">
                                         <div class="alert alert-info"> Take/Initiate Attendance</div>
                                         <div class="table-container">
                                                 <div class="table-actions-wrapper">
@@ -65,7 +62,8 @@
                                                         <th>Class Name</th>
                                                         <th>Academic Term</th>
                                                         <th>Head Tutor</th>
-                                                        <th>Action</th>
+                                                        <th>Initiate</th>
+                                                        <th>Adjust</th>
                                                     </tr>
                                                     </thead>
                                                     <tfoot>
@@ -74,7 +72,8 @@
                                                         <th>Class Name</th>
                                                         <th>Academic Term</th>
                                                         <th>Head Tutor</th>
-                                                        <th>Action</th>
+                                                        <th>Initiate</th>
+                                                        <th>Adjust</th>
                                                     </tr>
                                                     </tfoot>
                                                     <tbody>
@@ -82,12 +81,19 @@
                                                     @foreach($classrooms as $classroom)
                                                         <tr role="row" class="heading">
                                                             <td>{{ $i++ }}</td>
-                                                            <td>{{ $classroom->classroom->classroom }} :: {{$classroom->classroom->studentClasses->count()}} Student(s)</td>
+                                                            <td>{{ $classroom->classroom->classroom }} ::
+                                                                {{$classroom->classroom->studentClasses->where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->count()}} Student(s)
+                                                            </td>
                                                             <td>{{ AcademicTerm::activeTerm()->academic_term }}</td>
                                                             <td>{{ $classroom->user->simpleNameNSalutation() }}</td>
                                                             <td>
-                                                                <a href="{{ route('takeAttendance', ['classId'=>$hashIds->encode($classroom->classroom_id)]) }}" class="btn btn-warning btn-xs mark_attend_btn">
-                                                                    <i class="fa fa-check-square-o"></i> Mark
+                                                                <a href="{{ route('initiateAttendance', ['classId'=>$hashIds->encode($classroom->classroom_id)]) }}" class="btn btn-info btn-xs">
+                                                                    <i class="fa fa-check-square-o"></i>
+                                                                </a>
+                                                            </td>
+                                                            <td>
+                                                                <a href="{{ route('adjustAttendance', ['classId'=>$hashIds->encode($classroom->classroom_id)]) }}" class="btn btn-warning btn-xs">
+                                                                    <i class="fa fa-edit"></i>
                                                                 </a>
                                                             </td>
                                                         </tr>
@@ -100,7 +106,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane {{ (session('attendance-tab') == 'adjust') ? 'active' : '' }}" id="adjust_attendance_tab">
+                            <div class="tab-pane {{ (session('attendance-tab') == 'summary') ? 'active' : '' }}" id="summary_attendance_tab">
                                 <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Orders for Adjustments</div>
                                 {!! Form::open([
                                         'method'=>'POST',
