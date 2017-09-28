@@ -75,7 +75,7 @@ class AttendancesController extends Controller
             $this->setFlashMessage('Attendance for ' . $inputs['attendance_date'] . ' Has been taken, kindly edit for any necessary adjustments ', 2);
             return redirect()->back();
         }
-        
+
         $attendance = ($attendance) ? $attendance : new Attendance();
         $attendance->classroom_id = $classroom_id;
         $attendance->academic_term_id = AcademicTerm::activeTerm()->academic_term_id;
@@ -116,5 +116,60 @@ class AttendancesController extends Controller
             ->get();
 
         return view('admin.attendances.adjust', compact('attendances', 'classMaster'));
+    }
+
+    /**
+     * Display summary search
+     * @param Request $request
+     * @return \Illuminate\View\View
+     */
+    public function summary(Request $request)
+    {
+        session()->put('attendance-tab', 'summary');
+        $inputs = $request->all();
+        $attendances = [];
+        $response['flag'] = 0;
+
+        if(!empty($inputs['classroom_id']) && !empty($inputs['academic_term_id'])){
+            $attendances = Attendance::where('classroom_id', $inputs['classroom_id'])
+                ->where('academic_term_id', $inputs['academic_term_id'])
+                ->where(function($query){
+                    if(!Auth::user()->hasRole([Role::DEVELOPER, Role::SUPER_ADMIN]))
+                        $query->where('user_id', Auth::user()->user_id);
+                })
+                ->orderBy('attendance_date', 'DESC')
+                ->get();
+        }
+
+        if(!empty($attendances)){
+            //All the students in the class room for the academic year
+            foreach($attendances as $attendance){
+                $output[] = [
+                    'id' => $this->encode($attendance->id),
+                    'tutor' => $attendance->classMaster->fullNames(),
+                    'classroom' => $attendance->classroom->classroom,
+                    'term' => $attendance->academicTerm->academic_term,
+                    'present' => $attendance->details()->where('status', 1)->count(),
+                    'absent' => $attendance->details()->where('status', 0)->count(),
+                    'date_taken' => $attendance->attendance_date->format('D jS, M Y')
+                ];
+            }
+            //Sort The Students by name
+            $response['flag'] = 1;
+            $response['Attendance'] = $output ?? [];
+        }
+        echo json_encode($response);
+    }
+
+    /**
+     * Get details on attendance
+     * @param String $attendId
+     * @return \Illuminate\View\View
+     */
+    public function details($attendId)
+    {
+        $attendance = Attendance::findOrFail($this->decode($attendId));
+
+        return view('admin.attendances.details', compact('attendance'));
     }
 }

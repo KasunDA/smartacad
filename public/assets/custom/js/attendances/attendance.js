@@ -4,10 +4,8 @@
 
 jQuery(document).ready(function() {
     // Ajax Get Academic Terms Based on the Academic Year
-    // getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
-    // getDependentListBox($('#classlevel_id'), $('#classroom_id'), '/list-box/classroom/');
-    // getDependentListBox($('#view_academic_year_id'), $('#view_academic_term_id'), '/list-box/academic-term/');
-    // getDependentListBox($('#view_classlevel_id'), $('#view_classroom_id'), '/list-box/classroom/');
+    getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
+    getDependentListBox($('#classlevel_id'), $('#classroom_id'), '/list-box/classroom/');
 
     //Check All button click
     $(document.body).on('change', '.check-all', function () {
@@ -58,4 +56,85 @@ jQuery(document).ready(function() {
             $(this).parent().css({background : "#1BA39C", color: "#29343F"});
         }
     });
+});
+
+var UIBlockUI = function() {
+
+    var handleSample1 = function() {
+
+        //When the search button is clicked
+        $(document.body).on('submit', '#attendance_summary_form', function(){
+            var values = $(this).serialize();
+
+            App.blockUI({
+                target: '#attendance_summary_tab',
+                animate: true
+            });
+
+            $.ajax({
+                type: "POST",
+                url: '/attendances/summary',
+                data: values,
+                success: function (data) {
+
+                    var obj = $.parseJSON(data);
+                    var assign = '<thead>\
+                                <tr role="row" class="heading">\
+                                    <th>#</th>\
+                                    <th>Head Tutor</th>\
+                                    <th>Class Room</th>\
+                                    <th>Date Taken</th>\
+                                    <th>Present</th>\
+                                    <th>Absent</th>\
+                                    <th>Details</th>\
+                                </tr>\
+                            </thead>\
+                            <tbody>';
+                    if(obj.flag == 1){
+                        $.each(obj.Attendance, function(key, attend) {
+                            assign += '<tr>' +
+                                '<td>'+(key + 1)+'</td>' +
+                                '<td>'+attend.tutor+'</td>' +
+                                '<td>'+attend.classroom+'</td>' +
+                                '<td>'+attend.date_taken+'</td>' +
+                                '<td>'+attend.present+'</td>' +
+                                '<td>'+attend.absent+'</td>' +
+                                '<td><a target="_blank" href="/attendances/details/'+attend.id + '"' +
+                                ' class="btn btn-xs btn-info"> <i class="fa fa-eye"></i> View</a></td>'+
+                                '</tr>';
+                        });
+                    }
+                    assign += '</tbody>';
+
+                    $('#attendance_summary_datatable').html(assign);
+                    setTableData($('#attendance_summary_datatable')).refresh();
+                    setTableData($('#attendance_summary_datatable')).init();
+
+                    window.setTimeout(function() {
+                        App.unblockUI('#attendance_summary_tab');
+                    }, 2000);
+                    //Scroll To Div
+                    scroll2Div($('#attendance_summary_datatable'));
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+                    App.unblockUI('#attendance_summary_tab');
+                }
+            });
+            return false;
+        });
+    };
+
+    return {
+        //main function to initiate the module
+        init: function() {
+
+            handleSample1();
+        }
+    };
+}();
+
+jQuery(document).ready(function() {
+    UIBlockUI.init();
+
 });
