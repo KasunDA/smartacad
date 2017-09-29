@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\Accounts\Students;
 
+use App\Models\Admin\Attendances\AttendanceDetail;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -221,6 +222,14 @@ class Student extends Model
      */
     public function domainAssessment(){
         return $this->hasMany('App\Models\Admin\Assessments\Domains\DomainAssessment', 'student_id');
+    }
+
+    /**
+     * A Student Has Many Attendance Details
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function attendanceDetails(){
+        return $this->hasMany(AttendanceDetail::class, 'student_id');
     }
 
 }

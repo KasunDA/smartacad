@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\MasterRecords\Classes;
 
+use App\Models\Admin\Attendances\Attendance;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -63,5 +64,13 @@ class ClassRoom extends Model
      */
     public function classMasters(){
         return $this->hasMany('App\Models\Admin\MasterRecords\Classes\ClassMaster', 'classroom_id');
+    }
+
+    /**
+     * A Class Room has many Attendance
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function attendances(){
+        return $this->hasMany(Attendance::class, 'classroom_id');
     }
 }

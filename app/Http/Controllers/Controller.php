@@ -53,11 +53,12 @@ class Controller extends BaseController
 
     /**
      * Set The HashIds Secret Key, Length and Possible Characters Combinations
+     * @param $charLength
      * @return Hashids
      */
-    public function getHashIds()
+    public function getHashIds($charLength=20)
     {
-        return new Hashids(env('APP_KEY'), 20, env('APP_CHAR'));
+        return new Hashids(env('APP_KEY'), $charLength, env('APP_CHAR'));
     }
     
     public function decode($hashed){

@@ -47,6 +47,7 @@ Route::group(['middleware' => ['web']], function () {
 
     Route::auth();
 
+    //Fees Routes
     Route::group(['prefix'=>'orders/', 'namespace' => 'Admin\Orders'], function () {
         Route::get('/paid/{termId?}', 'OrdersController@paid')->name('paidOrders');
         Route::get('/not-paid/{termId?}', 'OrdersController@notPaid')->name('notPaidOrders');
@@ -54,6 +55,17 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
     });
 
+    //Attendance Routes
+    Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {
+        Route::get('/', 'AttendancesController@index');
+        Route::get('/initiate/{classId}/{attendId?}', 'AttendancesController@initiate')->name('initiateAttendance');
+        Route::post('/initiate/{classId}/{attendId?}', 'AttendancesController@take');
+        Route::get('/adjust/{classId}', 'AttendancesController@adjust')->name('adjustAttendance');
+        Route::post('/classroom', 'AttendancesController@classroom');
+        Route::get('/classroom-details/{attendId}', 'AttendancesController@classroomDetails');
+        Route::post('/student', 'AttendancesController@student');
+        Route::get('/student-details/{studentClassId}/{termId}', 'AttendancesController@studentDetails');
+    });
     
     Route::controllers([
         'auth' => 'Auth\AuthController',
