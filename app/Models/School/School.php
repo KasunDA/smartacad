@@ -77,7 +77,7 @@ class School extends Model
      * School Logo full path
      */
     public function getLogoPath(){
-        return ($this->logo) ? DIRECTORY_SEPARATOR . $this->logo_path . $this->logo : false;
+        return ($this->logo) ? DIRECTORY_SEPARATOR . $this->logo_path . $this->logo : 'assets/pages/img/logo.png';
     }
 
     /**
