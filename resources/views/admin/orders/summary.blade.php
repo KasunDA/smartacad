@@ -58,11 +58,11 @@
                                     <th width="12%">Order No.</th>
                                     <th width="10%">Amount</th>
                                     <th width="4%">Status</th>
-                                    <th width="22%">Student</th>
-                                    <th width="22%">Sponsor</th>
+                                    <th width="25%">Student</th>
                                     <th width="10%">Sex</th>
-                                    <th width="15%">Class Room</th>
-                                    <th width="4%">Backend</th>
+                                    <th width="20%">Class Room</th>
+                                    <th width="13%">Action</th>
+                                    <th width="5%">Backend</th>
                                 </tr>
                             </thead>
                             <tfoot>
@@ -71,11 +71,11 @@
                                     <th width="12%">Order No.</th>
                                     <th width="10%">Amount</th>
                                     <th width="4%">Status</th>
-                                    <th width="22%">Student</th>
-                                    <th width="22%">Sponsor</th>
+                                    <th width="25%">Student</th>
                                     <th width="10%">Sex</th>
-                                    <th width="15%">Class Room</th>
-                                    <th width="4%">Backend</th>
+                                    <th width="20%">Class Room</th>
+                                    <th width="13%">Action</th>
+                                    <th width="5%">Backend</th>
                                 </tr>
                             </tfoot>
                             <tbody>
@@ -96,13 +96,19 @@
                                             <span style="font-size: 14px">{{ $order->fullname }}</span>
                                         </a>
                                     </td>
-                                    <td>
-                                        <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($order->sponsor_id)) }}" class="btn btn-link btn-xs sbold">
-                                            <span style="font-size: 14px">{{ $order->sponsor->simpleName() }}</span>
-                                        </a>
-                                    </td>
                                     <td>{{ $order->gender }}</td>
                                     <td>{{ $order->classroom }}</td>
+                                    <td>
+                                        <a target="_blank" href="{{ url('/invoices/order/'.$hashIds->encode($order->order_id)) }}" class="btn btn-default btn-xs">
+                                            <i class="fa fa-print"></i> Print
+                                        </a>
+                                        {{--<a target="_blank" href="{{ url('/invoices/pdf/'.$hashIds->encode($order->id)) }}" class="btn btn-info btn-xs">--}}
+                                            {{--<i class="fa fa-file"></i> PDF--}}
+                                        {{--</a>--}}
+                                        <a target="_blank" href="{{ url('/invoices/download/'.$hashIds->encode($order->order_id)) }}" class="btn btn-primary btn-xs">
+                                            <i class="fa fa-download"></i> Download
+                                        </a>
+                                    </td>
                                     <td>
                                         {!! ($order->backend==1)
                                             ? '<span class="label label-sm label-success">Yes</span>'

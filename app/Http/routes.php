@@ -58,8 +58,8 @@ Route::group(['middleware' => ['web']], function () {
     //Invoice Routes
     Route::group(['prefix'=>'invoices/', 'namespace' => 'Admin\Orders'], function () {
         Route::get('/order/{orderId}', 'InvoicesController@order');
-        Route::get('/print-pdf/{orderId}', 'InvoicesController@printPDF');
-        Route::get('/view-pdf/{orderId}', 'InvoicesController@viewPDF');
+        Route::get('/download/{orderId}', 'InvoicesController@download');
+        Route::get('/pdf/{orderId}', 'InvoicesController@pdf');
     });
 
     

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin\Orders;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Orders\Order;
-use Barryvdh\DomPDF\PDF;
+use PDF;
 
 class InvoicesController extends Controller
 {
@@ -29,13 +29,12 @@ class InvoicesController extends Controller
      * @param String $orderId
      * @return Response
      */
-    public function printPDF($orderId){
+    public function download($orderId){
         $order = Order::findOrFail($this->decode($orderId));
-//            $invoice_items_total=$invoice->items()->selectRaw('sum(price*quantity) as grand_total')->value('grand_total');
-//            $invoice_items_total=$invoice_items_total > 0 ? $invoice_items_total: '';
-//
-//            $pdf = PDF::loadView('invoice_pages.invoice_in_pdf', compact('invoice','invoice_items_total'));
-//            return $pdf->download('invoice_'.$invoice->invoice_number.'.pdf');
+        $items = !empty($order) ? $order->orderItems()->get() : false;
+        $pdf = PDF::loadView('admin.orders.invoices.pdf', compact('order', 'items'));
+        
+        return $pdf->download('invoice_'.$order->number.'.pdf');
     }
 
     /**
@@ -44,12 +43,11 @@ class InvoicesController extends Controller
      * @param String $orderId
      * @return Response
      */
-    public function viewPDF($orderId){
+    public function pdf($orderId){
         $order = Order::findOrFail($this->decode($orderId));
-//            $invoice_items_total=$invoice->items()->selectRaw('sum(price*quantity) as grand_total')->value('grand_total');
-//            $invoice_items_total=$invoice_items_total > 0 ? $invoice_items_total: '';
-//
-//            $pdf = PDF::loadView('invoice_pages.invoice_in_pdf', compact('invoice','invoice_items_total'));
-//            return $pdf->stream('invoice_'.$invoice->invoice_number.'.pdf');
+        $items = !empty($order) ? $order->orderItems()->get() : false;
+        $pdf = PDF::loadView('admin.orders.invoices.pdf', compact('order', 'items'));
+        
+        return $pdf->stream('invoice_'.$order->number.'.pdf');
     }
 }

@@ -5,13 +5,15 @@
     <title>Invoice for {{$order->student->fullNames()}} in {{ $order->academicTerm->academic_term }}</title>
     <link href="{{ asset('assets/global/plugins/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/custom/css/invoice.css') }}" rel="stylesheet" type="text/css" media="all" />
+
+    <link rel="shortcut icon" href="{{ $mySchool->getLogoPath() }}" />
 </head>
 
 <body>
 <div class="text-center" style="margin-bottom: 20px; margin-top: 20px">
     <a class="btn btn-default print-button">Print</a>
-    <a class="btn btn-danger" href="{{ url('/invoices/print-pdf/'.$hashIds->encode($order->id)) }}">Print in PDF</a>
-    <a class="btn btn-primary" href="{{ url('/invoices/view-pdf/'.$hashIds->encode($order->id)) }}">View in PDF</a>
+    <a class="btn btn-danger" href="{{ url('/invoices/download/'.$hashIds->encode($order->id)) }}">Download</a>
+    <a class="btn btn-primary" href="{{ url('/invoices/pdf/'.$hashIds->encode($order->id)) }}">View in PDF</a>
     <a class="btn btn-success" href="{{ url('/invoices/send-pdf/'.$hashIds->encode($order->id)) }}">Send to {{$order->student->sponsor->simpleName()}}</a>
 </div>
 @if(session()->has('message'))
@@ -41,7 +43,7 @@
                             {!! ($mySchool->website) ? '<small>'.$mySchool->website.'</small>' : '' !!}
                         </td>
                     </tr>
-                </table>
+                </table><br>
             </td>
         </tr>
 
@@ -63,23 +65,23 @@
                         </td>
 
                     </tr>
-                </table>
+                </table><br>
             </td>
         </tr>
         <tr class="heading">
-            <td width="5%">#</td>
-            <td width="30%">Item</td>
+            <td width="1%">#</td>
+            <td width="27%">Item</td>
             <td width="50%">Item Description</td>
-            <td width="15%">&#8358; Amount</td>
+            <td width="22%">&#8358; Amount</td>
         </tr>
         <?php $total = 0; $i = 1; ?>
         @if($items)
             @foreach($items as $item)
                 <tr>
-                    <td width="5%">{{ $i++ }}</td>
-                    <td width="30%">{{ $item->item->name }}</td>
+                    <td width="1%">{{ $i++ }}</td>
+                    <td width="27%">{{ $item->item->name }}</td>
                     <td width="50%">{{ $item->item->description }}</td>
-                    <td width="15%">{{ CurrencyHelper::format($item->amount)  }}</td>
+                    <td width="22%">{{ CurrencyHelper::format($item->amount)  }}</td>
                 </tr>
                 <?php $total += $item->amount; ?>
             @endforeach
@@ -97,8 +99,8 @@
 </div>
 <div class="text-center" style="margin-bottom: 20px; margin-top: 20px">
     <a class="btn btn-default print-button">Print</a>
-    <a class="btn btn-danger" href="{{ url('/invoices/print-pdf/'.$hashIds->encode($order->id)) }}">Print in PDF</a>
-    <a class="btn btn-primary" href="{{ url('/invoices/view-pdf/'.$hashIds->encode($order->id)) }}">View in PDF</a>
+    <a class="btn btn-danger" href="{{ url('/invoices/download/'.$hashIds->encode($order->id)) }}">Download</a>
+    <a class="btn btn-primary" href="{{ url('/invoices/pdf/'.$hashIds->encode($order->id)) }}">View in PDF</a>
     <a class="btn btn-success" href="{{ url('/invoices/send-pdf/'.$hashIds->encode($order->id)) }}">Send to {{$order->student->sponsor->simpleName()}}</a>
 </div>
 
