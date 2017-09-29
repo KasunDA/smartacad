@@ -60,7 +60,7 @@
                                     <th width="4%">Status</th>
                                     <th width="22%">Student</th>
                                     <th width="22%">Sponsor</th>
-                                    <th width="10%">Gender</th>
+                                    <th width="10%">Sex</th>
                                     <th width="15%">Class Room</th>
                                     <th width="4%">Backend</th>
                                 </tr>
@@ -73,7 +73,7 @@
                                     <th width="4%">Status</th>
                                     <th width="22%">Student</th>
                                     <th width="22%">Sponsor</th>
-                                    <th width="10%">Gender</th>
+                                    <th width="10%">Sex</th>
                                     <th width="15%">Class Room</th>
                                     <th width="4%">Backend</th>
                                 </tr>
