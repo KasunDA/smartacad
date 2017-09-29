@@ -55,6 +55,14 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
     });
 
+    //Invoice Routes
+    Route::group(['prefix'=>'invoices/', 'namespace' => 'Admin\Orders'], function () {
+        Route::get('/order/{orderId}', 'InvoicesController@order');
+        Route::get('/download/{orderId}', 'InvoicesController@download');
+        Route::get('/pdf/{orderId}', 'InvoicesController@pdf');
+    });
+
+    
     //Attendance Routes
     Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {
         Route::get('/', 'AttendancesController@index');

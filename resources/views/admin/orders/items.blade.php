@@ -111,6 +111,17 @@
                             Order Billings By Items.
                         </span>
                     </div>
+                    <div class="pull-right">
+                        <a target="_blank" href="{{ url('/invoices/order/'.$hashIds->encode($order->id)) }}" class="btn btn-default btn-xs sbold">
+                            <i class="fa fa-print"></i> View / Print
+                        </a>
+                        <a target="_blank" href="{{ url('/invoices/pdf/'.$hashIds->encode($order->id)) }}" class="btn btn-info btn-xs sbold">
+                            <i class="fa fa-file"></i> PDF
+                        </a>
+                        <a target="_blank" href="{{ url('/invoices/download/'.$hashIds->encode($order->id)) }}" class="btn btn-primary btn-xs sbold">
+                            <i class="fa fa-download"></i> Download
+                        </a>
+                    </div>
                 </div>
                 <div class="portlet-body">
                     <div class="table-responsive">
