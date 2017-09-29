@@ -61,8 +61,10 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/initiate/{classId}/{attendId?}', 'AttendancesController@initiate')->name('initiateAttendance');
         Route::post('/initiate/{classId}/{attendId?}', 'AttendancesController@take');
         Route::get('/adjust/{classId}', 'AttendancesController@adjust')->name('adjustAttendance');
-        Route::post('/summary', 'AttendancesController@summary');
-        Route::get('/details/{attendId}', 'AttendancesController@details');
+        Route::post('/classroom', 'AttendancesController@classroom');
+        Route::get('/classroom-details/{attendId}', 'AttendancesController@classroomDetails');
+        Route::post('/student', 'AttendancesController@student');
+        Route::get('/student-details/{studentClassId}/{termId}', 'AttendancesController@studentDetails');
     });
     
     Route::controllers([

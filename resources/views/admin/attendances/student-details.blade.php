@@ -5,7 +5,7 @@
     <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
-@section('title', 'Attendances Details')
+@section('title', 'Attendances Student Details')
 
 @section('breadcrumb')
     <li>
@@ -26,7 +26,7 @@
 
 
 @section('content')
-    <h3 class="page"> Attendance Details</h3>
+    <h3 class="page"> Attendance Student Details</h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-8 margin-bottom-10">
@@ -43,22 +43,46 @@
                     <div class="table-scrollable">
                         <table class="table table-hover table-striped">
                             <tr>
-                                <th> Head Tutor </th>
-                                <td>{{ $attendance->classMaster->fullNames() }}</td>
-                                <th> Number of Students </th>
-                                <td>{{$attendance->details->count()}}</td>
+                                <th> Student Name </th>
+                                <td>
+                                    <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($studentClass->student_id)) }}" class="btn btn-link btn-xs sbold">
+                                        <span style="font-size: 16px">{{ $studentClass->student->fullNames() }}</span>
+                                    </a>
+                                </td>
+                                <th> Age. </th>
+                                <td>{!! ($studentClass->student->dob) ? $studentClass->student->dob->age . ' Year(s)' : 'N/A' !!}</td>
+                            </tr>
+                            <tr>
+                                <th> Student No. </th>
+                                <td>
+                                    <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($studentClass->student_id)) }}" class="btn btn-link btn-xs sbold">
+                                        <span style="font-size: 16px">{{ $studentClass->student->student_no }}</span>
+                                    </a>
+                                </td>
+                                <th> Gender </th>
+                                <td> {{ $studentClass->student->gender }} </td>
+                            </tr>
+                            <tr>
+                                <th> Student Status </th>
+                                <td>
+                                    @if($studentClass->student->status_id)
+                                        <label class="label label-sm label-{{$studentClass->student->status()->first()->label}}">{{ $studentClass->student->status()->first()->status }}</label>
+                                    @else
+                                        <label class="label label-danger label-sm">nil</label>
+                                    @endif
+                                </td>
+                                <th> Sponsor </th>
+                                <td>
+                                    <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($studentClass->student->sponsor_id)) }}" class="btn btn-link btn-xs sbold">
+                                        <span style="font-size: 16px">{{ $studentClass->student->sponsor->fullNames() }}</span>
+                                    </a>
+                                </td>
                             </tr>
                             <tr>
                                 <th> Academic Term </th>
-                                <td>{{ $attendance->academicTerm->academic_term }}</td>
+                                <td>{{ $term->academic_term }}</td>
                                 <th> Class Room </th>
-                                <td> {{ $attendance->classRoom->classroom }} </td>
-                            </tr>
-                            <tr>
-                                <th> Present </th>
-                                <td>{{ $attendance->details()->present()->count() }}</td>
-                                <th> Absent </th>
-                                <td>{{ $attendance->details()->absent()->count() }}</td>
+                                <td> {{ $studentClass->classRoom->classroom }} </td>
                             </tr>
                         </table>
                     </div>
@@ -66,7 +90,7 @@
             </div>
             <!-- END SAMPLE TABLE PORTLET-->
         </div>
-        <div class="col-md-8 margin-bottom-10">
+        <div class="col-md-7 margin-bottom-10">
             <!-- BEGIN SAMPLE TABLE PORTLET-->
             <div class="portlet light bordered">
                 <div class="portlet-title">
@@ -83,30 +107,36 @@
                             <thead>
                                 <tr role="row" class="heading">
                                     <th>#</th>
-                                    <th>Full Name</th>
-                                    <th>Reason</th>
+                                    <th>Date</th>
                                     <th>Status</th>
+                                    <th>Reason</th>
                                 </tr>
                             </thead>
-                            <tfoot>
-                                <tr role="row" class="heading">
-                                    <th>#</th>
-                                    <th>Full Name</th>
-                                    <th>Reason</th>
-                                    <th>Status</th>
-                                </tr>
-                            </tfoot>
                             <tbody>
-                                <?php $i=1; ?>
-                                @foreach($attendance->details as $detail)
+                                <?php $i = 1; $present = 0;?>
+                                @foreach( $attendances as $attendance )
                                     <tr>
                                         <td>{{ $i++ }}</td>
-                                        <td>{{ $detail->student->fullNames() }}</td>
-                                        <td>{{ $detail->reason }}</td>
-                                        <td>{!! ($detail->status) ? '<span class="label label-success">Present</span>' : '<span class="label label-danger">Absent</span>' !!}</td>
+                                        <td>{{ $attendance->attendance_date->format( 'D jS, M Y' ) }}</td>
+                                        <td>
+                                            @if( $attendance->details[0]->status )
+                                                <span class="label label-success label-sm">Present</span>
+                                                <?php $present++; ?>
+                                            @else
+                                                <span class="label label-danger label-sm">Absent</span>
+                                            @endif
+                                        <td>{{ $attendance->details[0]->reason }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th>Present(Total): {{ $present }}</th>
+                                    <td></td>
+                                    <th>Absent(Total): {{ count($attendances) - $present }}</th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>

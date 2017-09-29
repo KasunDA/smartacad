@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Attendances;
 
+use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\Attendances\Attendance;
 use App\Models\Admin\Attendances\AttendanceDetail;
 use App\Models\Admin\MasterRecords\AcademicTerm;
@@ -119,13 +120,13 @@ class AttendancesController extends Controller
     }
 
     /**
-     * Display summary search
+     * Display summary search based on classroom
      * @param Request $request
      * @return \Illuminate\View\View
      */
-    public function summary(Request $request)
+    public function classroom(Request $request)
     {
-        session()->put('attendance-tab', 'summary');
+        session()->put('attendance-tab', 'classroom');
         $inputs = $request->all();
         $attendances = [];
         $response['flag'] = 0;
@@ -162,14 +163,94 @@ class AttendancesController extends Controller
     }
 
     /**
-     * Get details on attendance
+     * Get details on attendance based on class room
      * @param String $attendId
      * @return \Illuminate\View\View
      */
-    public function details($attendId)
+    public function classroomDetails($attendId)
     {
         $attendance = Attendance::findOrFail($this->decode($attendId));
+        $details = $attendance->details()
+            ->with('student')
+            ->get()
+            ->sortBy('student.first_name');
 
-        return view('admin.attendances.details', compact('attendance'));
+        return view('admin.attendances.classroom-details', compact('attendance', 'details'));
+    }
+
+    /**
+     * Display summary search based on student
+     * @param Request $request
+     * @return \Illuminate\View\View
+     */
+    public function student(Request $request)
+    {
+        session()->put('attendance-tab', 'student');
+        $inputs = $request->all();
+        $response['flag'] = 0;
+        $term = AcademicTerm::find($inputs['view_academic_term_id']);
+
+        if(!empty($inputs['view_classroom_id']) && !empty($inputs['view_academic_term_id'])){
+            $studentClasses = StudentClass::with('student')
+                ->where('classroom_id', $inputs['view_classroom_id'])
+                ->where('academic_year_id', $term->academic_year_id)
+                ->get()
+                ->sortBy('student.first_name');
+
+            //All the students in the class room for the academic year
+            foreach($studentClasses as $studentClass){
+                $output[] = [
+                    'studClassId' => $this->encode($studentClass->student_class_id),
+                    'termId' => $this->encode($term->academic_term_id),
+                    'student' => $studentClass->student->simpleName(),
+                    'studentNo' => $studentClass->student->student_no,
+                    'classroom' => $studentClass->classroom->classroom,
+                    'present' => $studentClass->student
+                        ->attendanceDetails()
+                        ->present()
+                        ->whereIn('attendance_id',
+                            Attendance::where('classroom_id', $inputs['view_classroom_id'])
+                                ->where('academic_term_id', $term->academic_term_id)
+                                ->lists('id')
+                                ->toArray()
+                        )
+                        ->count(),
+                    'absent' => $studentClass->student
+                        ->attendanceDetails()
+                        ->absent()
+                        ->whereIn('attendance_id',
+                            Attendance::where('classroom_id', $inputs['view_classroom_id'])
+                                ->where('academic_term_id', $term->academic_term_id)
+                                ->lists('id')
+                                ->toArray()
+                        )
+                        ->count(),
+                ];
+            }
+            $response['flag'] = 1;
+            $response['Students'] = $output ?? [];
+        }
+        echo json_encode($response);
+    }
+
+    /**
+     * Get details on attendance based on students
+     * @param String $studentClassId
+     * @param String $termId
+     * @return \Illuminate\View\View
+     */
+    public function studentDetails($studentClassId, $termId)
+    {
+        $studentClass = StudentClass::findOrFail($this->decode($studentClassId));
+        $term = AcademicTerm::find($this->decode($termId));
+
+        $attendances = Attendance::with(['details' => function($query) use($studentClass){
+                $query->where('student_id', $studentClass->student_id);
+            }])
+            ->where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $studentClass->classroom_id)
+            ->get()
+            ->sortByDesc('attendance_date');
+        return view('admin.attendances.student-details', compact('studentClass', 'term', 'attendances'));
     }
 }

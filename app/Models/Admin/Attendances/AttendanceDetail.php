@@ -13,6 +13,10 @@ class AttendanceDetail extends Model
         'reason',
         'attendance_id'
     ];
+
+    protected $casts = [
+        'status' => 'boolean',
+    ];
     
     /**
      * An Attendance Details belongs to a Student

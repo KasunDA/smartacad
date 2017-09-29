@@ -39,8 +39,11 @@
                             <li class="{{ (session('attendance-tab') == 'initiate') ? 'active' : ((!session()->has('attendance-tab')) ? 'active' : '') }}">
                                 <a href="#initiate_attendance_tab" data-toggle="tab"> <i class="fa fa-check"></i> Initiate / <i class="fa fa-edit"></i> Adjust Attendance</a>
                             </li>
-                            <li class="{{ (session('attendance-tab') == 'summary') ? 'active' : '' }}">
-                                <a href="#attendance_summary_tab" data-toggle="tab"> <i class="fa fa-th"></i> View Attendance Summary</a>
+                            <li class="{{ (session('attendance-tab') == 'classroom') ? 'active' : '' }}">
+                                <a href="#classroom_summary_tab" data-toggle="tab"> <i class="fa fa-th"></i> View Summary (By Class)</a>
+                            </li>
+                            <li class="{{ (session('attendance-tab') == 'student') ? 'active' : '' }}">
+                                <a href="#student_summary_tab" data-toggle="tab"> <i class="fa fa-users"></i> View Summary (By Student)</a>
                             </li>
                         </ul>
                     </div>
@@ -109,12 +112,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane {{ (session('attendance-tab') == 'summary') ? 'active' : '' }}" id="attendance_summary_tab">
-                                <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room</strong> To View Adjustments</div>
+                            <div class="tab-pane {{ (session('attendance-tab') == 'classroom') ? 'active' : '' }}" id="classroom_summary_tab">
+                                <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room To View Class Summary</strong></div>
                                 {!! Form::open([
                                         'method'=>'POST',
                                         'class'=>'form-horizontal',
-                                        'id' => 'attendance_summary_form'
+                                        'id' => 'classroom_summary_form'
                                     ])
                                 !!}
                                 <div class="form-body">
@@ -166,7 +169,72 @@
                                     <div class="col-md-10">
                                         <div class="portlet-body">
                                             <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="attendance_summary_datatable">
+                                                <table class="table table-striped table-bordered table-hover" id="classroom_summary_datatable">
+
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane {{ (session('attendance-tab') == 'student') ? 'active' : '' }}" id="student_summary_tab">
+                                <div class="alert alert-info"> Search by <strong>Academic Term</strong> and <strong>Class Room To View Student Summary</strong></div>
+                                {!! Form::open([
+                                        'method'=>'POST',
+                                        'class'=>'form-horizontal',
+                                        'id' => 'student_summary_form'
+                                    ])
+                                !!}
+                                <div class="form-body">
+                                    <div class="form-group">
+                                        <div class="col-md-4 col-md-offset-1">
+                                            <div class="form-group">
+                                                <label class="control-label">Academic Year <small class="font-red">*</small></label>
+                                                <div>
+                                                    {!! Form::select('view_academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id,
+                                                        ['class'=>'form-control', 'id'=>'view_academic_year_id', 'required'=>'required'])
+                                                     !!}
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Academic Term <small class="font-red">*</small></label>
+                                                {!! Form::select('view_academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
+                                                    ->lists('academic_term', 'academic_term_id')
+                                                    ->prepend('- Academic Term -', ''),
+                                                    AcademicTerm::activeTerm()->academic_term_id,
+                                                    ['class'=>'form-control', 'id'=>'view_academic_term_id', 'required'=>'required'])
+                                                 !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-md-offset-1">
+                                            <div class="form-group">
+                                                <label class="control-label">Class Level <small class="font-red">*</small></label>
+                                                <div>
+                                                    {!! Form::select('view_classlevel_id', $classlevels, old('classlevel_id'),
+                                                        ['class'=>'form-control', 'id'=>'view_classlevel_id', 'required'=>'required'])
+                                                     !!}
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Class Room <small class="font-red">*</small></label>
+                                                {!! Form::select('view_classroom_id', [], '',
+                                                    ['class'=>'form-control', 'id'=>'view_classroom_id', 'required'=>'required'])
+                                                 !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-actions noborder">
+                                    <button type="submit" class="btn blue pull-right">
+                                        <i class="fa fa-search"></i> Search
+                                    </button>
+                                </div>
+                                {!! Form::close() !!}
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <div class="portlet-body">
+                                            <div class="row">
+                                                <table class="table table-striped table-bordered table-hover" id="student_summary_datatable">
 
                                                 </table>
                                             </div>

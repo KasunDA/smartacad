@@ -6,6 +6,8 @@ jQuery(document).ready(function() {
     // Ajax Get Academic Terms Based on the Academic Year
     getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
     getDependentListBox($('#classlevel_id'), $('#classroom_id'), '/list-box/classroom/');
+    getDependentListBox($('#view_academic_year_id'), $('#view_academic_term_id'), '/list-box/academic-term/');
+    getDependentListBox($('#view_classlevel_id'), $('#view_classroom_id'), '/list-box/classroom/');
 
     //Check All button click
     $(document.body).on('change', '.check-all', function () {
@@ -63,17 +65,17 @@ var UIBlockUI = function() {
     var handleSample1 = function() {
 
         //When the search button is clicked
-        $(document.body).on('submit', '#attendance_summary_form', function(){
+        $(document.body).on('submit', '#classroom_summary_form', function(){
             var values = $(this).serialize();
 
             App.blockUI({
-                target: '#attendance_summary_tab',
+                target: '#classroom_summary_tab',
                 animate: true
             });
 
             $.ajax({
                 type: "POST",
-                url: '/attendances/summary',
+                url: '/attendances/classroom',
                 data: values,
                 success: function (data) {
 
@@ -99,26 +101,91 @@ var UIBlockUI = function() {
                                 '<td>'+attend.date_taken+'</td>' +
                                 '<td>'+attend.present+'</td>' +
                                 '<td>'+attend.absent+'</td>' +
-                                '<td><a target="_blank" href="/attendances/details/'+attend.id + '"' +
+                                '<td><a target="_blank" href="/attendances/classroom-details/'+attend.id + '"' +
                                 ' class="btn btn-xs btn-info"> <i class="fa fa-eye"></i> View</a></td>'+
                                 '</tr>';
                         });
                     }
                     assign += '</tbody>';
 
-                    $('#attendance_summary_datatable').html(assign);
-                    setTableData($('#attendance_summary_datatable')).refresh();
-                    setTableData($('#attendance_summary_datatable')).init();
+                    $('#classroom_summary_datatable').html(assign);
+                    setTableData($('#classroom_summary_datatable')).refresh();
+                    setTableData($('#classroom_summary_datatable')).init();
 
                     window.setTimeout(function() {
-                        App.unblockUI('#attendance_summary_tab');
+                        App.unblockUI('#classroom_summary_tab');
                     }, 2000);
                     //Scroll To Div
-                    scroll2Div($('#attendance_summary_datatable'));
+                    scroll2Div($('#classroom_summary_datatable'));
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
-                    App.unblockUI('#attendance_summary_tab');
+                    App.unblockUI('#classroom_summary_tab');
+                }
+            });
+            return false;
+        });
+    };
+
+    var handleSample2 = function() {
+
+        //When the search button is clicked
+        $(document.body).on('submit', '#student_summary_form', function(){
+            var values = $(this).serialize();
+
+            App.blockUI({
+                target: '#student_summary_tab',
+                animate: true
+            });
+
+            $.ajax({
+                type: "POST",
+                url: '/attendances/student',
+                data: values,
+                success: function (data) {
+
+                    var obj = $.parseJSON(data);
+                    var assign = '<thead>\
+                                <tr role="row" class="heading">\
+                                    <th>#</th>\
+                                    <th>Student</th>\
+                                    <th>No.</th>\
+                                    <th>Class Room</th>\
+                                    <th>Present</th>\
+                                    <th>Absent</th>\
+                                    <th>Details</th>\
+                                </tr>\
+                            </thead>\
+                            <tbody>';
+                    if(obj.flag == 1){
+                        $.each(obj.Students, function(key, student) {
+                            assign += '<tr>' +
+                                '<td>'+(key + 1)+'</td>' +
+                                '<td>'+student.student+'</td>' +
+                                '<td>'+student.studentNo+'</td>' +
+                                '<td>'+student.classroom+'</td>' +
+                                '<td>'+student.present+'</td>' +
+                                '<td>'+student.absent+'</td>' +
+                                '<td><a target="_blank" href="/attendances/student-details/'+student.studClassId + '/'+student.termId+'"' +
+                                ' class="btn btn-xs btn-info"> <i class="fa fa-eye"></i> View</a></td>'+
+                                '</tr>';
+                        });
+                    }
+                    assign += '</tbody>';
+
+                    $('#student_summary_datatable').html(assign);
+                    setTableData($('#student_summary_datatable')).refresh();
+                    setTableData($('#student_summary_datatable')).init();
+
+                    window.setTimeout(function() {
+                        App.unblockUI('#student_summary_tab');
+                    }, 2000);
+                    //Scroll To Div
+                    scroll2Div($('#student_summary_datatable'));
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+                    App.unblockUI('#student_summary_tab');
                 }
             });
             return false;
@@ -130,6 +197,7 @@ var UIBlockUI = function() {
         init: function() {
 
             handleSample1();
+            handleSample2();
         }
     };
 }();
