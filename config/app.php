@@ -222,6 +222,7 @@ return [
         'Role' => App\Models\Admin\RolesAndPermissions\Role::class,
 
         'CurrencyHelper' => App\Helpers\CurrencyHelper::class,
+        'LabelHelper' => App\Helpers\LabelHelper::class,
 
     ],
 

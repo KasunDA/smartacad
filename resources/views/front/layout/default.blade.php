@@ -44,7 +44,7 @@ License: You must have a valid license purchased only from themeforest(the above
     <link href="{{ asset('assets/layouts/layout3/css/themes/default.css') }}" rel="stylesheet" type="text/css" id="style_color" />
     <link href="{{ asset('assets/layouts/layout3/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- END THEME LAYOUT STYLES -->
-    <link rel="shortcut icon" href="{{ asset('assets/pages/img/favicon.png') }}" /> </head>
+    <link rel="shortcut icon" href="{{ (!empty($mySchool->getLogoPath())) ? $mySchool->getLogoPath() : asset('assets/pages/img/favicon.png') }}" />
 
     @yield('layout-style')
 <!-- END HEAD -->
