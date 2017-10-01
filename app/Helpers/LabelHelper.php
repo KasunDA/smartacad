@@ -28,6 +28,11 @@ class LabelHelper
         return self::label('info', $value);
     }
 
+    public static function warning(String $value=self::VALUE)
+    {
+        return self::label('warning', $value);
+    }
+
     public static function label(String $class, String $value=self::VALUE)
     {
         return "<span class='label label-{$class} label-sm'>{$value}</span>";

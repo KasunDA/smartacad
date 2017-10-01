@@ -38,7 +38,7 @@
                 <!-- SIDEBAR USER TITLE -->
                 <div class="profile-usertitle">
                     <div class="profile-usertitle-name"> {{ $student->fullNames() }} </div>
-                    <div class="profile-usertitle-job"> Student </div>
+                    <div class="profile-usertitle-job"> {{ $student->student_no }} </div>
                 </div>
                 <!-- END SIDEBAR USER TITLE -->
                 <!-- SIDEBAR BUTTONS -->
@@ -59,6 +59,16 @@
                         <li>
                             <a href="{{ url('/wards/edit/'.$hashIds->encode($student->student_id)) }}">
                                 <i class="fa fa-edit"></i> Edit Record </a>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url('/wards/view/'.$hashIds->encode($student->student_id)) }}">
+                                <i class="fa fa-industry"></i> Assessments</a>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url('/wards/view/'.$hashIds->encode($student->student_id)) }}">
+                                <i class="fa fa-bookmark"></i> Exams </a>
                             </a>
                         </li>
                         <li>
@@ -86,48 +96,61 @@
                         <div class="portlet-title tabbable-line">
                             <div class="caption caption-md">
                                 <i class="icon-globe theme-font hide"></i>
-                                <span class="caption-subject font-blue-madison bold uppercase">Student Profile Account</span>
+                                <span class="caption-subject font-blue-madison bold uppercase">Student Details</span>
                             </div>
                         </div>
                         <div class="portlet-body">
                             <div class="portlet sale-summary">
-                                <div class="portlet-title">
-                                    <div class="caption font-red sbold"> Student Information </div>
-                                </div>
                                 <div class="portlet-body">
                                     <table class="table table-stripped table-bordered">
                                         <tr>
-                                            <td>First Name</td>
+                                            <th>First Name</th>
                                             <td>{{ $student->first_name }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Last Name</td>
+                                            <th>Last Name</th>
                                             <td>{{ $student->last_name }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Middle Name</td>
-                                            <td>{!! ($student->middle_name) ? $student->middle_name : '<span class="label label-danger label-sm">N/A</span>' !!}</td>
+                                            <th>Middle Name</th>
+                                            <td>{!! ($student->middle_name) ? $student->middle_name : LabelHelper::danger()!!}</td>
                                         </tr>
                                         <tr>
-                                            <td>Current Class</td>
+                                            <th>Student No</th>
+                                            <td>{{ $student->student_no }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Sponsor</th>
+                                            <td>
+                                                @if(($student->sponsor_id))
+                                                    <a target="_blank" href="{{ url('/profiles') }}">
+                                                        {{$student->sponsor()->first()->fullNames()}}
+                                                    </a>
+                                                @else
+                                                    <span class="label label-danger">nil</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Current Class</th>
                                             <td>{!! ($student->currentClass(AcademicYear::activeYear()->academic_year_id))
                                                             ? $student->currentClass(AcademicYear::activeYear()->academic_year_id)->classroom
-                                                            : '<span class="label label-danger label-sm">N/A</span>' !!}</td>
+                                                            : LabelHelper::danger() !!}</td>
                                         </tr>
                                         <tr>
-                                            <td>Gender</td>
-                                            <td>{!! ($student->gender) ? $student->gender : '<span class="label label-danger label-sm">N/A</span>' !!}</td>
+                                            <th>Gender</th>
+                                            <td>{!! ($student->gender) ? $student->gender : LabelHelper::danger() !!}</td>
                                         </tr>
                                         <tr>
-                                            <td>Date Of Birth</td>
-                                            <td>{!! ($student->dob) ? $student->dob->format('jS M, Y') : '<span class="label label-danger label-sm">N/A</span>' !!}</td>
+                                            <th>Date Of Birth</th>
+                                            <td>{!! ($student->dob) ? $student->dob->format('jS M, Y') : LabelHelper::danger() !!}</td>
                                         </tr>
                                         <tr>
-                                            <td>Age</td>
-                                            <td>{!! ($student->dob) ? $student->dob->age . ' Years' : '<span class="label label-danger label-sm">N/A</span>' !!}</td>
+                                            <th>Age</th>
+                                            <td>{!! ($student->dob) ? $student->dob->age . ' Years' : LabelHelper::danger() !!}</td>
                                         </tr>
                                         <tr>
-                                            <td>Status</td>
+                                            <th>Status</th>
                                             <td>
                                                 @if($student->status_id)
                                                     <label class="label label-{{$student->status()->first()->label}}">{{ $student->status()->first()->status }}</label>
@@ -138,21 +161,21 @@
                                         </tr>
                                         @if($student->lga)
                                             <tr>
-                                                <td>State</td>
+                                                <th>State</th>
                                                 <td>{{ $student->lga()->first()->state()->first()->state }}</td>
                                             </tr>
                                             <tr>
-                                                <td>L.G.A.</td>
+                                                <th>L.G.A.</th>
                                                 <td>{{ $student->lga()->first()->lga }}</td>
                                             </tr>
                                         @endif
                                         <tr>
-                                            <td>Address.</td>
-                                            <td>{!! ($student->address) ? $student->address : '<span class="label label-danger label-xm">N/A</span>' !!}</td>
+                                            <th>Address.</th>
+                                            <td>{!! ($student->address) ? $student->address : LabelHelper::danger() !!}</td>
                                         </tr>
                                         <tr>
-                                            <td>Term Admitted</td>
-                                            <td>{!! ($student->admitted_term_id) ? $student->termAdmitted()->first()->academic_term : '<span class="label label-danger label-sm">N/A</span>' !!}</td>
+                                            <th>Term Admitted</th>
+                                            <td>{!! ($student->admitted_term_id) ? $student->termAdmitted()->first()->academic_term : LabelHelper::danger() !!}</td>
                                         </tr>
                                     </table>
                                 </div>
@@ -163,125 +186,6 @@
             </div>
         </div>
         <!-- END PROFILE CONTENT -->
-    </div>
-    <div class="col-md-12">
-        <div class="profile">
-            <div class="tabbable-line tabbable-full-width">
-                <ul class="nav nav-tabs">
-                    <li class="active">
-                        <a href="#tab_1_1" data-toggle="tab"> Overview </a>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane active" id="tab_1_1">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <ul class="list-unstyled profile-nav">
-                                    <li>
-                                        @if(!$student->avatar)
-                                            <img src="{{ asset('/uploads/no-image.jpg') }}" class="img-responsive pic-bordered" alt="{{ $student->fullNames() }}"/>
-                                        @else
-                                            <img src="{{ $student->getAvatarPath() }}" class="img-responsive pic-bordered" alt="{{ $student->fullNames() }}"/>
-                                        @endif
-                                        <a href="{{ url('/wards/edit/'.$hashIds->encode($student->student_id)) }}" class="profile-edit"> edit </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="col-md-9">
-                                <div class="row">
-                                    <div class="col-md-8 profile-info">
-                                        <h1 class="font-green sbold uppercase">{{ $student->fullNames() }}</h1>
-                                        <ul class="list-inline">
-                                            <li>
-                                                <i class="fa fa-user"></i> Student No: {{ $student->student_no }}
-                                            </li>
-                                            <li>
-                                                <i class="fa fa-user-plus"></i> Sponsor:
-                                                @if(($student->sponsor_id))
-                                                    <a target="_blank" href="{{ url('/profiles') }}" class="btn btn-info btn-link btn-lg">
-                                                        {{$student->sponsor()->first()->fullNames()}}
-                                                    </a>
-                                                @else
-                                                    <span class="label label-danger">nil</span>
-                                                @endif
-                                            </li>
-                                        </ul>
-
-                                        <div class="portlet sale-summary">
-                                            <div class="portlet-title">
-                                                <div class="caption font-red sbold"> Student Information </div>
-                                            </div>
-                                            <div class="portlet-body">
-                                                <table class="table table-stripped table-bordered">
-                                                    <tr>
-                                                        <td>First Name</td>
-                                                        <td>{{ $student->first_name }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Last Name</td>
-                                                        <td>{{ $student->last_name }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Middle Name</td>
-                                                        <td>{!! ($student->middle_name) ? $student->middle_name : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Current Class</td>
-                                                        <td>{!! ($student->currentClass(AcademicYear::activeYear()->academic_year_id))
-                                                            ? $student->currentClass(AcademicYear::activeYear()->academic_year_id)->classroom
-                                                            : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Gender</td>
-                                                        <td>{!! ($student->gender) ? $student->gender : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Date Of Birth</td>
-                                                        <td>{!! ($student->dob) ? $student->dob->format('jS M, Y') : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Age</td>
-                                                        <td>{!! ($student->dob) ? $student->dob->age . ' Years' : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Status</td>
-                                                        <td>
-                                                            @if($student->status_id)
-                                                                <label class="label label-{{$student->status()->first()->label}}">{{ $student->status()->first()->status }}</label>
-                                                            @else
-                                                                <label class="label label-danger">nil</label>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                    @if($student->lga)
-                                                        <tr>
-                                                            <td>State</td>
-                                                            <td>{{ $student->lga()->first()->state()->first()->state }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>L.G.A.</td>
-                                                            <td>{{ $student->lga()->first()->lga }}</td>
-                                                        </tr>
-                                                    @endif
-                                                    <tr>
-                                                        <td>Address.</td>
-                                                        <td>{!! ($student->address) ? $student->address : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Term Admitted</td>
-                                                        <td>{!! ($student->admitted_term_id) ? $student->termAdmitted()->first()->academic_term : '<span class="label label-danger">nil</span>' !!}</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 @endsection
 
