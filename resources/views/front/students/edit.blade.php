@@ -19,15 +19,19 @@
 @section('breadcrumb')
     <li>
         <a href="{{ url('/home') }}">Home</a>
-        <i class="fa fa-home"></i>
+        <i class="fa fa-dashboard"></i>
     </li>
     <li>
-        <span>Update Student</span>
+        <a href="{{ url('/wards') }}">Students</a>
+        <i class="fa fa-users"></i>
+    </li>
+    <li>
+        <span>Editing</span>
     </li>
 @stop
 
 @section('page-title')
-    <h1> Student Profile | Account</h1>
+    <h1> Student Profile | Edit</h1>
 @endsection
 
 @section('content')
@@ -47,15 +51,15 @@
                             </div>
                         </div>
                         <div class="portlet-body form">
-                            @include('errors.errors')
-                            {!! Form::open([
-                                    'method'=>'POST',
-                                    'class'=>'form',
-                                    'role'=>'form'
-                                ])
-                            !!}
-                                {!! Form::hidden('student_id', $student->student_id) !!}
-                                <div class="form-body">
+                            <div class="form-body">
+                                @include('errors.errors')
+                                {!! Form::open([
+                                        'method'=>'POST',
+                                        'class'=>'form',
+                                        'role'=>'form'
+                                    ])
+                                !!}
+                                    {!! Form::hidden('student_id', $student->student_id) !!}
                                     <div class="form-group">
                                         <label class="control-label">First Name <span class="text-danger">*</span></label>
                                         {!! Form::text('first_name', $student->first_name, ['placeholder'=>'First Name', 'class'=>'form-control', 'required'=>'required']) !!}
@@ -103,8 +107,8 @@
                                     <div class="margin-top-10">
                                         <button class="btn green pull-right"> Update Info </button>
                                     </div>
-                                </div>
-                            {!! Form::close() !!}
+                                {!! Form::close() !!}
+                            </div>
                         </div>
                     </div>
                 </div>

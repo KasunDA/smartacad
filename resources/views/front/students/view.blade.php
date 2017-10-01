@@ -14,13 +14,17 @@
         <i class="fa fa-dashboard"></i>
     </li>
     <li>
-        <span>Student Profile</span>
+        <a href="{{ url('/wards') }}">Students</a>
+        <i class="fa fa-users"></i>
+    </li>
+    <li>
+        <span>View</span>
     </li>
 @stop
 
 
 @section('page-title')
-    <h1> Student Profile | Account</h1>
+    <h1> Student Profile | Information</h1>
 @endsection
 
 @section('content')
