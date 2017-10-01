@@ -82,7 +82,7 @@
                                                     <td>{{ Attendance::where('academic_term_id', $attendance->academic_term_id)->where('classroom_id', $attendance->classroom_id)->count() }}</td>
                                                     <td>
                                                         <a href="{{ url('/wards-attendances/details/'.$hashIds->encode($student->student_id)).'/'.$hashIds->encode($attendance->id) }}"
-                                                           target="_blank" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                                                            class="btn btn-warning btn-rounded btn-condensed btn-xs">
                                                             <span class="fa fa-eye"></span> Details
                                                         </a>
                                                     </td>

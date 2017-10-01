@@ -7,10 +7,22 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Attendances\Attendance;
 use App\Models\Admin\Attendances\AttendanceDetail;
+use Illuminate\Support\Facades\Auth;
 
 class AttendancesController extends Controller
 {
-    
+
+    /**
+     * Displays the Students of the sponsor
+     * @return \Illuminate\View\View
+     */
+    public function getIndex()
+    {
+        $students = Auth::user()->students()->get();
+
+        return view('front.attendances.index', compact('students'));
+    }
+
     /**
      * Displays the Student attendance header
      * @param String $encodeId
