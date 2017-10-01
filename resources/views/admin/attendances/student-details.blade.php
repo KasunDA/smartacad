@@ -119,13 +119,13 @@
                                         <td>{{ $i++ }}</td>
                                         <td>{{ $attendance->attendance_date->format( 'D jS, M Y' ) }}</td>
                                         <td>
-                                            @if( $attendance->details[0]->status )
-                                                <span class="label label-success label-sm">Present</span>
+                                            @if( isset($attendance->details[0]) && $attendance->details[0]->status )
+                                                {!! LabelHelper::success('Present')  !!}
                                                 <?php $present++; ?>
                                             @else
-                                                <span class="label label-danger label-sm">Absent</span>
+                                                {!! LabelHelper::danger('Absent')  !!}
                                             @endif
-                                        <td>{{ $attendance->details[0]->reason }}</td>
+                                        <td>{!! (isset($attendance->details[0])) ? $attendance->details[0]->reason : '' !!}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
