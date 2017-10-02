@@ -50,9 +50,6 @@
                     <li class="menu-dropdown classic-menu-dropdown active">
                         <a href="{{ url('/home') }}"><i class="fa fa-dashboard"></i>  HOME</a>
                     </li>
-                    <li class="menu-dropdown classic-menu-dropdown">
-                        <a href="{{ url('/wards') }}"><i class="fa fa-users"></i>  STUDENT(S)</a>
-                    </li>
                     <?php
                         $roles_menu_ids = [];
                         $displayed_menu = [];
