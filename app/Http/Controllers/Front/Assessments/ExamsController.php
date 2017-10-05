@@ -9,7 +9,6 @@ use App\Models\Admin\Exams\ExamDetailView;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Subjects\CustomSubject;
-use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use App\Models\Admin\PinNumbers\PinNumber;
 use App\Models\Admin\PinNumbers\ResultChecker;
 use Illuminate\Http\Request;
