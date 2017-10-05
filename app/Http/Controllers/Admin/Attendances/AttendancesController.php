@@ -72,8 +72,9 @@ class AttendancesController extends Controller
         $classroom = ClassRoom::findOrFail($classroom_id);
         $exist = Attendance::validateDate($classroom_id, $inputs['attendance_date']);
 
-        if(($exist && !$attendance) || ($attendance && $exist && $attendance->attendance_date != $inputs['attendance_date'] )){
-            $this->setFlashMessage('Attendance for ' . $inputs['attendance_date'] . ' Has been taken, kindly edit for any necessary adjustments ', 2);
+
+        if($exist && (!$attendance || ($attendance && $attendance->attendance_date->format('Y-m-d') != $inputs['attendance_date']))){
+            $this->setFlashMessage('Attendance for 1 ' . $inputs['attendance_date'] . ' Has been taken, kindly edit for any necessary adjustments ', 2);
             return redirect()->back();
         }
 

@@ -2,7 +2,7 @@
 
 @section('page-level-css')
 <!-- BEGIN PAGE LEVEL STYLES -->
-<link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css"/>
+<link href="{{ asset('assets/pages/css/profile.min.css') }}" rel="stylesheet" type="text/css"/>
 <link href="{{ asset('assets/global/plugins/morris/morris.css') }}" rel="stylesheet" type="text/css"/>
 <!-- END PAGE LEVEL STYLES -->
 @endsection
@@ -248,9 +248,6 @@
 
     <script src="{{ asset('assets/global/plugins/counterup/jquery.waypoints.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/counterup/jquery.counterup.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/front/exam.js') }}" type="text/javascript"></script>
 
     <script>
