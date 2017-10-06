@@ -209,7 +209,6 @@
 @section('layout-script')
     <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/pages/scripts/components-date-time-pickers.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/accounts/students.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {

@@ -146,9 +146,12 @@
     <!-- END PAGE HEADER-->
 @endsection
 
-@section('layout-script')
+@section('page-level-js')
     <script src="{{ asset('assets/pages/scripts/profile.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
+@endsection
+
+@section('layout-script')
+    <script src="{{ asset('assets/custom/js/accounts/students.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/students"]');

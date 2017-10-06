@@ -74,6 +74,9 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/classroom-details/{attendId}', 'AttendancesController@classroomDetails');
         Route::post('/student', 'AttendancesController@student');
         Route::get('/student-details/{studentClassId}/{termId}', 'AttendancesController@studentDetails');
+        //Student
+        Route::get('/view/{studentId}', 'AttendancesController@viewStudent');
+        Route::get('/details/{studentId}/{attendId}', 'AttendancesController@viewDetails');
     });
     
     Route::controllers([
