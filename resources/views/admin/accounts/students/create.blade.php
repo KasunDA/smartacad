@@ -33,7 +33,7 @@
     <h3 class="page-title">New Student Record</h3>
 
     <div class="row">
-        <div class="col-md-offset-2 col-md-8">
+        <div class="col-md-offset-2 col-md-6">
             <!-- BEGIN SAMPLE FORM PORTLET-->
             <div class="portlet light bordered">
                 <div class="portlet-title">
@@ -81,7 +81,7 @@
                                 {!! Form::select('classroom_id', [], '', ['class'=>'form-control', 'id'=>'classroom_id', 'required'=>'required']) !!}
                             </div>
                             <div class="margiv-top-10">
-                                <button class="btn green pull-right btn-lg"> Save Record </button>
+                                <button class="btn green pull-right"> Save Record </button>
                             </div>
                             {!! Form::close() !!}
                         </div>
@@ -102,8 +102,6 @@
 
 @section('layout-script')
     <script src="{{ asset('assets/pages/scripts/components-date-time-pickers.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/accounts/students.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {

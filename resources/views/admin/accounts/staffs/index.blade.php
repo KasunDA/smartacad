@@ -86,11 +86,8 @@
 
 @section('layout-script')
     <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/scripts/app.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/pages/scripts/ui-bootbox.min.js') }}" type="text/javascript"></script>
 
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/accounts/staffs.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {

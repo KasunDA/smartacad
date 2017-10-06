@@ -1,11 +1,6 @@
 @extends('admin.layout.default')
 
 @section('layout-style')
-        <!-- BEGIN PAGE LEVEL PLUGINS -->
-<link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet" type="text/css" />
-<!-- END PAGE LEVEL PLUGINS -->
-<!-- BEGIN THEME GLOBAL STYLES -->
-<!-- BEGIN PAGE LEVEL STYLES -->
 <link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css" />
 <!-- END PAGE LEVEL STYLES -->
 @endsection
@@ -121,12 +116,7 @@
 @endsection
 
 @section('layout-script')
-    <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}" type="text/javascript"></script>
-    <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/gmaps/gmaps.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
+    {{--<script src="{{ asset('assets/pages/scripts/profile.min.js') }}" type="text/javascript"></script>--}}
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/sponsors"]');

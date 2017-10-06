@@ -226,9 +226,6 @@
 @section('layout-script')
     <script src="{{ asset('assets/pages/scripts/components-date-time-pickers.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/users/profile.js') }}" type="text/javascript"></script>
     <!-- BEGIN PAGE LEVEL SCRIPTS -->
     <!-- END PAGE LEVEL SCRIPTS -->

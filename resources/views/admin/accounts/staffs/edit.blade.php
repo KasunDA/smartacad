@@ -32,7 +32,7 @@
     <h3 class="page-title"> Modify Staff Record</h3>
 
     <div class="row">
-        <div class="col-md-offset-2 col-md-8">
+        <div class="col-md-offset-2 col-md-6">
             <!-- BEGIN SAMPLE FORM PORTLET-->
             <div class="portlet light bordered">
                 <div class="portlet-title">
@@ -115,7 +115,7 @@
                                 {{--<textarea class="form-control" rows="3" required placeholder="Contact Address" name="address">{{ $staff->address }}</textarea>--}}
                             {{--</div>--}}
                             <div class="margiv-top-10">
-                                <button class="btn green pull-right btn-lg"> Update Info </button>
+                                <button class="btn green pull-right"> Update Info </button>
                             </div>
                             {!! Form::close() !!}
                         </div>
@@ -135,8 +135,6 @@
 
 @section('layout-script')
     <script src="{{ asset('assets/pages/scripts/components-date-time-pickers.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/accounts/staffs.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {

@@ -32,7 +32,7 @@
     <h3 class="page-title"> Modify Sponsor Record</h3>
 
     <div class="row">
-        <div class="col-md-offset-2 col-md-8">
+        <div class="col-md-offset-2 col-md-6">
             <!-- BEGIN SAMPLE FORM PORTLET-->
             <div class="portlet light bordered">
                 <div class="portlet-title">
@@ -111,7 +111,7 @@
                                 {{--<textarea class="form-control" rows="3" required placeholder="Contact Address" name="address">{{ $sponsor->address }}</textarea>--}}
                             {{--</div>--}}
                             <div class="margiv-top-10">
-                                <button class="btn green pull-right btn-lg"> Update Info </button>
+                                <button class="btn green pull-right"> Update Info </button>
                             </div>
                             {!! Form::close() !!}
                         </div>
@@ -127,12 +127,11 @@
 @section('page-level-js')
     <script src="{{ asset('assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/global/plugins/bootstrap-select/js/bootstrap-select.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/pages/scripts/profile.min.js') }}" type="text/javascript"></script>
 @endsection
 
 @section('layout-script')
     <script src="{{ asset('assets/pages/scripts/components-date-time-pickers.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/accounts/sponsors.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {

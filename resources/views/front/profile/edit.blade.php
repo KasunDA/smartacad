@@ -223,9 +223,6 @@
 @endsection
 
 @section('layout-script')
-    <script src="{{ asset('assets/layouts/layout3/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout3/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/custom/js/users/profile.js') }}" type="text/javascript"></script>
     <!-- BEGIN PAGE LEVEL SCRIPTS -->
     <!-- END PAGE LEVEL SCRIPTS -->
