@@ -49,8 +49,10 @@ class OrdersController extends Controller
      */
     public function getIndex()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
+            ->prepend('- Academic Year -', '');
+        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+            ->prepend('- Class Level -', '');
         $items = Item::where('status', 1)
             ->where('item_type_id', '<>', ItemType::UNIVERSAL)
             ->lists('name', 'id')
@@ -87,7 +89,6 @@ class OrdersController extends Controller
                 ->get();
         }
 
-
         if(!empty($orders)){
             //All the students in the class room for the academic year
             foreach($orders as $order){
@@ -111,9 +112,11 @@ class OrdersController extends Controller
             {
                 return strcmp($a->name, $b->name);
             });
+
             $response['flag'] = 1;
             $response['Orders'] = $output;
         }
+
         echo json_encode($response);
     }
 
@@ -155,9 +158,11 @@ class OrdersController extends Controller
             {
                 return strcmp($a->name, $b->name);
             });
+
             $response['flag'] = 1;
             $response['Students'] = $output;
         }
+
         echo json_encode($response);
     }
 
@@ -446,6 +451,7 @@ class OrdersController extends Controller
             ->notPaid()
             ->activeStudent()
             ->count();
+
         $paid = OrderView::where('academic_term_id', $term->academic_term_id)
             ->paid()
             ->activeStudent()

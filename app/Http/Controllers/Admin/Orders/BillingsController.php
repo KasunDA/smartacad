@@ -15,6 +15,7 @@ use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\Orders\Order;
 use App\Models\Admin\Orders\OrderInitiate;
 use App\Models\Admin\Orders\OrderItem;
+use App\Models\Admin\Views\OrderView;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -226,5 +227,36 @@ class BillingsController extends Controller
             ->first();
 
         echo json_encode($quote->amount);
+    }
+
+    /**
+     * Displays the Student billings header
+     * @param String $encodeId
+     * @return \Illuminate\View\View
+     */
+    public function view($encodeId)
+    {
+        $student = Student::findOrFail($this->decode($encodeId));
+        $orders = OrderView::where('student_id', $student->student_id)
+            ->groupBy(['academic_term_id'])
+            ->orderBy('academic_term_id', 'DESC')
+            ->get();
+        
+        return view('admin.accounts.students.billing.view', compact('student', 'orders'));
+    }
+
+    /**
+     * Displays the Student billings details
+     * @param String $encodeStud
+     * @param String $encodeOrder
+     * @return \Illuminate\View\View
+     */
+    public function details($encodeStud, $encodeOrder)
+    {
+        $student = Student::findOrFail($this->decode($encodeStud));
+        $order = Order::where('id', $this->decode($encodeOrder))->first();
+        $items = !empty($order) ? $order->orderItems()->get() : false;
+
+        return view('admin.accounts.students.billing.details', compact('order', 'student', 'items'));
     }
 }

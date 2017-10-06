@@ -261,7 +261,7 @@ class AttendancesController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function viewStudent($encodeId)
+    public function view($encodeId)
     {
         $student = Student::findOrFail($this->decode($encodeId));
         $attendances = Attendance::whereIn('id', AttendanceDetail::where('student_id', $student->student_id)
@@ -280,7 +280,7 @@ class AttendancesController extends Controller
      * @param String $attendId
      * @return \Illuminate\View\View
      */
-    public function viewDetails($studId, $attendId)
+    public function details($studId, $attendId)
     {
         $student = Student::findOrFail($this->decode($studId));
         $attendance = Attendance::findOrFail($this->decode($attendId));

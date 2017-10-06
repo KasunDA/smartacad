@@ -76,6 +76,12 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/details/{studentId}/{termId}', 'ExamsController@details');
     });
 
+    //Billings Routes
+    Route::group(['prefix'=>'billings/', 'namespace' => 'Admin\Orders'], function () {
+        Route::get('/view/{studentId}', 'BillingsController@view');
+        Route::get('/details/{studentId}/{orderId}', 'BillingsController@details');
+    });
+
     
     //Attendance Routes
     Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {
@@ -88,8 +94,8 @@ Route::group(['middleware' => ['web']], function () {
         Route::post('/student', 'AttendancesController@student');
         Route::get('/student-details/{studentClassId}/{termId}', 'AttendancesController@studentDetails');
         //Student
-        Route::get('/view/{studentId}', 'AttendancesController@viewStudent');
-        Route::get('/details/{studentId}/{attendId}', 'AttendancesController@viewDetails');
+        Route::get('/view/{studentId}', 'AttendancesController@view');
+        Route::get('/details/{studentId}/{attendId}', 'AttendancesController@details');
     });
     
     Route::controllers([

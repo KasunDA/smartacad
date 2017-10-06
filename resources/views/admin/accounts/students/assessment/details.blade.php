@@ -74,7 +74,7 @@
                                             @if($student->status_id)
                                                 <label class="label label-{{$student->status()->first()->label}}">{{ $student->status()->first()->status }}</label>
                                             @else
-                                                <label class="label label-danger">nil</label>
+                                                {{ LabelHelper::danger() }}
                                             @endif
                                         </td>
                                     </tr>

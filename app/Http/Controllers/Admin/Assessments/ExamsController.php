@@ -477,7 +477,7 @@ class ExamsController extends Controller
         $exams = ExamDetailView::orderBy('exam_id', 'desc')
             ->where('student_id', $student->student_id)
             ->where('marked', 1)
-            ->groupBy(['student_id', 'classroom', 'academic_term'])
+            ->groupBy(['student_id', 'academic_term'])
             ->get();
         
         return view('admin.accounts.students.exam.view', compact('student', 'exams'));
