@@ -324,8 +324,13 @@ class StudentController extends Controller
         session()->put('active', 'avatar');
         
         if ($request->file('avatar')) {
-            
+
             $file = $request->file('avatar');
+            if($file->getClientSize() > 200000) {
+                $this->setFlashMessage('Passport file size exceeds the required 200KB.', 2);
+                return redirect()->back();
+            }
+            
             $filename = $file->getClientOriginalName();
             $img_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
@@ -335,6 +340,7 @@ class StudentController extends Controller
 
             $student->save();
             $this->setFlashMessage($student->fullNames() . '  passport has been successfully uploaded.', 1);
+            
             return redirect('/students/view/'.$this->getHashIds()->encode($inputs['student_id']));
         }
     }

@@ -35,9 +35,25 @@
         <!-- BEGIN PROFILE CONTENT -->
         <div class="profile-content">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-9">
                     <div class="portlet light ">
                         <div class="portlet-title tabbable-line">
+                            <h1 class="font-green sbold uppercase">{{ $student->fullNames() }}</h1>
+                            <ul class="list-inline">
+                                <li>
+                                    <i class="fa fa-user"></i> Student No: {{ $student->student_no }}
+                                </li>
+                                <li>
+                                    <i class="fa fa-user-plus"></i> Sponsor:
+                                    @if(($student->sponsor_id))
+                                        <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($student->sponsor()->first()->user_id)) }}" class="btn btn-info btn-link btn-lg">
+                                            {{$student->sponsor()->first()->fullNames()}}
+                                        </a>
+                                    @else
+                                        <span class="label label-danger">nil</span>
+                                    @endif
+                                </li>
+                            </ul>
                             <div class="caption caption-md">
                                 <i class="icon-globe theme-font hide"></i>
                                 <span class="caption-subject font-blue-madison bold uppercase">Student Details</span>
@@ -134,13 +150,10 @@
 @endsection
 
 @section('page-level-js')
-    <script src="{{ asset('assets/global/plugins/jquery.sparkline.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/pages/scripts/profile.min.js') }}" type="text/javascript"></script>
 @endsection
 @section('layout-script')
     <script src="{{ asset('assets/layouts/layout/scripts/layout.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/layout/scripts/demo.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/layouts/global/scripts/quick-sidebar.min.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/wards"]');

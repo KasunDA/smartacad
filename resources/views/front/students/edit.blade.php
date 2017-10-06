@@ -42,7 +42,7 @@
         <!-- BEGIN PROFILE CONTENT -->
         <div class="profile-content">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-8">
                     <div class="portlet light ">
                         <div class="portlet-title tabbable-line">
                             <div class="caption caption-md">
@@ -100,10 +100,10 @@
                                             @endif
                                         </div>
                                     </div>
-                                    {{--<div class="form-group">--}}
-                                    {{--<label>Contact Address</label>--}}
-                                    {{--<textarea class="form-control" rows="3" required placeholder="Contact Address" name="address">{{ $student->address }}</textarea>--}}
-                                    {{--</div>--}}
+                                    <div class="form-group">
+                                        <label>Contact Address</label>
+                                        <textarea class="form-control" rows="3" required placeholder="Contact Address" name="address">{{ $student->address }}</textarea>
+                                    </div>
                                     <div class="margin-top-10">
                                         <button class="btn green pull-right"> Update Info </button>
                                     </div>
