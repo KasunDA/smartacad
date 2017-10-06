@@ -63,6 +63,13 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/pdf/{orderId}', 'InvoicesController@pdf');
     });
 
+
+    //Assessment Routes
+    Route::group(['prefix'=>'assessments/', 'namespace' => 'Admin\Assessments'], function () {
+        Route::get('/view/{studentId}', 'AssessmentsController@view');
+        Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
+    });
+
     
     //Attendance Routes
     Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {

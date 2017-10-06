@@ -28,17 +28,17 @@
                     </a>
                 </li>
                 <li class="{!! ($active == 'assessment') ? 'active' : ''  !!}">
-                    <a href="{{ url('/wards/view/'.$hashIds->encode($student->student_id)) }}">
+                    <a href="{{ url('/assessments/view/'.$hashIds->encode($student->student_id)) }}">
                         <i class="fa fa-book"></i> Assessments</a>
                     </a>
                 </li>
                 <li class="{!! ($active == 'exam') ? 'active' : ''  !!}">
-                    <a href="{{ url('/wards/view/'.$hashIds->encode($student->student_id)) }}">
+                    <a href="{{ url('/exams/view/'.$hashIds->encode($student->student_id)) }}">
                         <i class="fa fa-industry"></i> Exams </a>
                     </a>
                 </li>
                 <li class="{!! ($active == 'billing') ? 'active' : ''  !!}">
-                    <a href="{{ url('/wards/view/'.$hashIds->encode($student->student_id)) }}">
+                    <a href="{{ url('/billings/view/'.$hashIds->encode($student->student_id)) }}">
                         <i class="fa fa-money"></i> Billings </a>
                     </a>
                 </li>

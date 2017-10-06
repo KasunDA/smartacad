@@ -29,10 +29,13 @@
                         <i class="fa fa-book font-green"></i>
                         <span class="caption-subject font-green bold uppercase">
                             Student Details
-                            <a target="_blank" href="{{ url('/assessments/print-report/'.$hashIds->encode($student->student_id).
-                                '/'.$hashIds->encode($term->academic_term_id)) }}" class="btn btn-link btn-xs">
-                                <span class="fa fa-print fa-3x"></span> Print
-                            </a>
+                            @if($setup_details)
+                                <a target="_blank" href="{{ url('/assessments/print-report/'.$hashIds->encode($student->student_id).
+                                    '/'.$hashIds->encode($term->academic_term_id)) }}" class="btn btn-link btn-xs">
+                                    <span class="fa fa-print fa-2x"></span> Print
+                                </a>
+                            @endif
+                        </span>
                     </div>
                 </div>
                 <div class="portlet-body">
@@ -68,7 +71,7 @@
                             </tr>
                             <tr>
                                 <th> Assessments </th>
-                                <td> {{ $setup_details->count() }} </td>
+                                <td> {{ ($setup_details) ? $setup_details->count() : 0 }} </td>
                                 <th> Class Level </th>
                                 <td> {{ $classroom->classLevel()->first()->classlevel }} </td>
                             </tr>
@@ -81,20 +84,21 @@
         <div class="col-md-10 margin-bottom-10">
             <!-- BEGIN SAMPLE TABLE PORTLET-->
             <div class="portlet light bordered">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <i class="fa fa-gears font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">
-                            Assessments Details By Subject.
-                            <a target="_blank" href="{{ url('/assessments/print-report/'.$hashIds->encode($student->student_id).
-                                '/'.$hashIds->encode($term->academic_term_id)) }}" class="btn btn-link btn-xs">
-                                <span class="fa fa-print fa-3x"></span> Print
-                            </a>
-                        </span>
+                @if($setup_details)
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <i class="fa fa-gears font-green"></i>
+                            <span class="caption-subject font-green bold uppercase">
+                                Assessments Details By Subject.
+                                <a target="_blank" href="{{ url('/assessments/print-report/'.$hashIds->encode($student->student_id).
+                                    '/'.$hashIds->encode($term->academic_term_id)) }}" class="btn btn-link btn-xs">
+                                    <span class="fa fa-print fa-2x"></span> Print
+                                </a>
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div id="error-div"></div>
-                <div class="portlet-body">
+                    <div id="error-div"></div>
+                    <div class="portlet-body">
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered table-striped">
                             <thead>
@@ -159,6 +163,16 @@
                         </table>
                     </div>
                 </div>
+                @else
+                    <div class="portlet-title tabbable-line">
+                        <div class="caption caption-md">
+                            <i class="icon-globe theme-font hide"></i>
+                            <span class="caption-subject font-red bold uppercase">
+                                No Assessment taken for {{ $term->academic_term }}
+                            </span>
+                        </div>
+                    </div>
+                @endif
             </div>
             <!-- END SAMPLE TABLE PORTLET-->
         </div>

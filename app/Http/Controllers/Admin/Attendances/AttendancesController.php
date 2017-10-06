@@ -271,7 +271,7 @@ class AttendancesController extends Controller
             ->orderBy('attendance_date', 'DESC')
             ->get();
 
-        return view('admin.attendances.view', compact('student', 'attendances'));
+        return view('admin.accounts.students.attendance.view', compact('student', 'attendances'));
     }
 
     /**
@@ -293,6 +293,6 @@ class AttendancesController extends Controller
             ->get()
             ->sortByDesc('attendance_date');
 
-        return view('admin.attendances.details', compact('student', 'attendances'));
+        return view('admin.accounts.students.attendance.details', compact('student', 'attendances'));
     }
 }

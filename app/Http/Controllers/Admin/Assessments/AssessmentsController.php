@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Assessments;
 
+use App\Helpers\LabelHelper;
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\Assessments\Assessment;
@@ -19,7 +20,6 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use phpDocumentor\Reflection\Types\Boolean;
 use stdClass;
 
 class AssessmentsController extends Controller
@@ -31,8 +31,11 @@ class AssessmentsController extends Controller
      */
     public function getIndex()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
+            ->prepend('Select Academic Year', '');
+        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+            ->prepend('Select Class Level', '');
+
         return view('admin.assessments.index', compact('academic_years', 'classlevels'));
     }
 
@@ -58,6 +61,7 @@ class AssessmentsController extends Controller
                         $query->where('tutor_id', $user_id);
                 })->get();
         }else{
+
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
                 ->where(function ($query) use ($user_id) {
                     //If its not a developer admin filter by the logged in user else return all records in the class room
@@ -65,21 +69,23 @@ class AssessmentsController extends Controller
                         $query->where('tutor_id', $user_id);
                 })->get();
         }
+
         //format the record sets as json readable
         if(isset($class_subjects)){
             foreach($class_subjects as $class_subject){
                 $res[] = array(
-                    "classroom"=> ($class_subject->classroom()->first()) ? $class_subject->classroom()->first()->classroom : '<span class="label label-danger">nil</span>',
-                    "subject"=> ($class_subject->subject()->first()) ? $class_subject->subject()->first()->subject : '<span class="label label-danger">nil</span>',
+                    "classroom"=> ($class_subject->classroom()->first()) ? $class_subject->classroom()->first()->classroom : LabelHelper::danger(),
+                    "subject"=> ($class_subject->subject()->first()) ? $class_subject->subject()->first()->subject : LabelHelper::danger(),
                     "subject_classroom_id"=>$class_subject->subject_classroom_id,
                     "hashed_id"=>$this->getHashIds()->encode($class_subject->subject_classroom_id),
                     "academic_term"=>$class_subject->academicTerm()->first()->academic_term,
-                    "tutor"=>($class_subject->tutor()->first()) ? $class_subject->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>',
+                    "tutor"=>($class_subject->tutor()->first()) ? $class_subject->tutor()->first()->fullNames() : LabelHelper::danger(),
                 );
             }
             $response['flag'] = 1;
             $response['ClassSubjects'] = isset($res) ? $res : [];
         }
+
         echo json_encode($response);
     }
 
@@ -90,10 +96,10 @@ class AssessmentsController extends Controller
      */
     public function getSubjectDetails($encodeId)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
-        $subject = (empty($decodeId)) ? abort(305) : SubjectClassRoom::findOrFail($decodeId[0]);
+        $subject = SubjectClassRoom::findOrFail($this->decode($encodeId));
         $assessment_setup = AssessmentSetup::where('academic_term_id', $subject->academic_term_id)
-            ->where('classgroup_id', $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->classgroup_id)->first();
+            ->where('classgroup_id', $subject->classRoom()->first()->classLevel()->first()->classGroup()->first()->classgroup_id)
+            ->first();
 
         return view('admin.assessments.subject-details', compact('subject', 'assessment_setup'));
     }
@@ -111,7 +117,9 @@ class AssessmentsController extends Controller
         $subject_classroom_id = $this->getHashIds()->decode($subject_id)[0];
         $subject = SubjectClassRoom::findOrFail($subject_classroom_id);
         $setup_detail = AssessmentSetupDetail::findOrFail($setup_detail_id);
-        $assessment = Assessment::where('assessment_setup_detail_id', $setup_detail_id)->where('subject_classroom_id', $subject_classroom_id)->first();
+        $assessment = Assessment::where('assessment_setup_detail_id', $setup_detail_id)
+            ->where('subject_classroom_id', $subject_classroom_id)
+            ->first();
 
         if(!$view){
             if(empty($assessment)){
@@ -169,7 +177,10 @@ class AssessmentsController extends Controller
     {
         $inputs = $request->all();
         $students = (isset($inputs['view_classroom_id']))
-            ? StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])->where('classroom_id', $inputs['view_classroom_id'])->get() : [];
+            ? StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])
+                ->where('classroom_id', $inputs['view_classroom_id'])
+                ->get()
+            : [];
 
         $response = array();
         $response['flag'] = 0;
@@ -192,9 +203,11 @@ class AssessmentsController extends Controller
             {
                 return strcmp($a->name, $b->name);
             });
+
             $response['flag'] = 1;
             $response['Students'] = $output;
         }
+
         echo json_encode($response);
     }
 
@@ -206,17 +219,27 @@ class AssessmentsController extends Controller
      */
     public function getReportDetails($encodeStud, $encodeTerm)
     {
-        $decodeStud = $this->getHashIds()->decode($encodeStud);
-        $decodeTerm = $this->getHashIds()->decode($encodeTerm);
-        $student = (empty($decodeStud)) ? abort(305) : Student::findOrFail($decodeStud[0]);
-        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
+        $student = Student::findOrFail($this->decode($encodeStud));
+        $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
         $classroom = $student->currentClass($term->academicYear->academic_year_id);
-        $assessments = AssessmentDetailView::orderBy('subject_classroom_id')->where('student_id', $student->student_id)
-            ->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->get();
-        $subjectClasses = AssessmentDetailView::orderBy('subject_classroom_id')->where('student_id', $student->student_id)
-            ->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->distinct()->get(['subject_classroom_id']);
-        $setup = AssessmentSetup::where('academic_term_id', $term->academic_term_id)->where('classgroup_id', $classroom->classLevel()->first()->classgroup_id)->first();
-        $setup_details = $setup->assessmentSetupDetails()->orderBy('number');
+
+        $assessments = AssessmentDetailView::orderBy('subject_classroom_id')
+            ->where('student_id', $student->student_id)
+            ->where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)
+            ->get();
+        $subjectClasses = AssessmentDetailView::orderBy('subject_classroom_id')
+            ->where('student_id', $student->student_id)
+            ->where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)
+            ->distinct()
+            ->get(['subject_classroom_id']);
+
+        $setup = AssessmentSetup::where('academic_term_id', $term->academic_term_id)
+            ->where('classgroup_id', $classroom->classLevel()->first()->classgroup_id)
+            ->first();
+        
+        $setup_details = ($setup) ? $setup->assessmentSetupDetails()->orderBy('number') : false;
 
 //        $filtered = array_filter($assessments, function($key){
 //            return in_array($key, ['subject_classroom_id', 'number']);
@@ -233,17 +256,82 @@ class AssessmentsController extends Controller
      */
     public function getPrintReport($encodeStud, $encodeTerm)
     {
-        $decodeStud = $this->getHashIds()->decode($encodeStud);
-        $decodeTerm = $this->getHashIds()->decode($encodeTerm);
-        $student = (empty($decodeStud)) ? abort(305) : Student::findOrFail($decodeStud[0]);
-        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
+        $student = Student::findOrFail($this->decode($encodeStud));
+        $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
         $classroom = $student->currentClass($term->academicYear->academic_year_id);
-        $assessments = AssessmentDetailView::orderBy('subject_classroom_id')->where('student_id', $student->student_id)
-            ->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->get();
-        $subjectClasses = AssessmentDetailView::orderBy('subject_classroom_id')->where('student_id', $student->student_id)
-            ->where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)->distinct()->get(['subject_classroom_id']);
-        $setup = AssessmentSetup::where('academic_term_id', $term->academic_term_id)->where('classgroup_id', $classroom->classLevel()->first()->classgroup_id)->first();
+
+        $assessments = AssessmentDetailView::orderBy('subject_classroom_id')
+            ->where('student_id', $student->student_id)
+            ->where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)
+            ->get();
+        $subjectClasses = AssessmentDetailView::orderBy('subject_classroom_id')
+            ->where('student_id', $student->student_id)
+            ->where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)
+            ->distinct()
+            ->get(['subject_classroom_id']);
+
+        $setup = AssessmentSetup::where('academic_term_id', $term->academic_term_id)
+            ->where('classgroup_id', $classroom->classLevel()->first()->classgroup_id)
+            ->first();
         $setup_details = $setup->assessmentSetupDetails()->orderBy('number');
+
         return view('admin.assessments.print-report', compact('student', 'assessments', 'term', 'classroom', 'setup_details', 'subjectClasses'));
     }
+
+    /**
+     * Displays the summary of students assessments ever taken
+     * @param String $encodeStud
+     * @return \Illuminate\View\View
+     */
+    public function view($encodeStud)
+    {
+        $student = Student::findOrFail($this->decode($encodeStud));
+        $assessments = AssessmentDetailView::orderBy('subject_classroom_id')
+            ->where('student_id', $student->student_id)
+            ->groupBy(['student_id', 'classroom', 'academic_term', 'ca_weight_point'])
+            ->get()
+            ->sortByDesc('assessment_id');
+
+        return view('admin.accounts.students.assessment.view', compact('student', 'assessments'));
+    }
+
+    /**
+     * Displays the details of students assessments based on class and term
+     * @param String $encodeStud
+     * @param String $encodeTerm
+     * @return \Illuminate\View\View
+     */
+    public function details($encodeStud, $encodeTerm)
+    {
+        $student = Student::findOrFail($this->decode($encodeStud));
+        $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
+        $classroom = $student->currentClass($term->academicYear->academic_year_id);
+
+        $assessments = AssessmentDetailView::orderBy('subject_classroom_id')
+            ->where('student_id', $student->student_id)
+            ->where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)
+            ->get();
+        $subjectClasses = AssessmentDetailView::orderBy('subject_classroom_id')
+            ->where('student_id', $student->student_id)
+            ->where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)
+            ->distinct()
+            ->get(['subject_classroom_id']);
+
+        $setup = AssessmentSetup::where('academic_term_id', $term->academic_term_id)
+            ->where('classgroup_id', $classroom->classLevel()->first()->classgroup_id)
+            ->first();
+
+        $setup_details = ($setup) ? $setup->assessmentSetupDetails()->orderBy('number') : false;
+
+        return view('admin.accounts.students.assessment.details',
+            compact('student', 'assessments', 'term', 'classroom', 'setup_details', 'subjectClasses')
+        );
+    }
+
+
 }
+
