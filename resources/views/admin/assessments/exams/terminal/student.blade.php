@@ -38,7 +38,7 @@
                             Student Details
                             <a target="_blank" href="{{ url('/exams/print-student-terminal-result/'.$hashIds->encode($student->student_id).
                                 '/'.$hashIds->encode($term->academic_term_id)) }}" class="btn btn-link btn-xs">
-                                <span class="fa fa-print fa-3x"></span> Print
+                                <span class="fa fa-print fa-2x"></span> Print
                             </a>
                     </div>
                 </div>
@@ -138,7 +138,7 @@
                             Assessments Details By Subject.
                             <a target="_blank" href="{{ url('/exams/print-student-terminal-result/'.$hashIds->encode($student->student_id).
                                 '/'.$hashIds->encode($term->academic_term_id)) }}" class="btn btn-link btn-xs">
-                                <span class="fa fa-print fa-3x"></span> Print
+                                <span class="fa fa-print fa-2x"></span> Print
                             </a>
                         </span>
                     </div>

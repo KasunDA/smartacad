@@ -288,11 +288,10 @@ class AssessmentsController extends Controller
     public function view($encodeStud)
     {
         $student = Student::findOrFail($this->decode($encodeStud));
-        $assessments = AssessmentDetailView::orderBy('subject_classroom_id')
+        $assessments = AssessmentDetailView::orderBy('assessment_id', 'desc')
             ->where('student_id', $student->student_id)
             ->groupBy(['student_id', 'classroom', 'academic_term', 'ca_weight_point'])
-            ->get()
-            ->sortByDesc('assessment_id');
+            ->get();
 
         return view('admin.accounts.students.assessment.view', compact('student', 'assessments'));
     }

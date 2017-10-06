@@ -70,6 +70,12 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
     });
 
+    //Exams Routes
+    Route::group(['prefix'=>'exams/', 'namespace' => 'Admin\Assessments'], function () {
+        Route::get('/view/{studentId}', 'ExamsController@view');
+        Route::get('/details/{studentId}/{termId}', 'ExamsController@details');
+    });
+
     
     //Attendance Routes
     Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {

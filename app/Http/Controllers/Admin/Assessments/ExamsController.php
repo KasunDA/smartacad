@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Assessments;
 
+use App\Helpers\LabelHelper;
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\Exams\Exam;
@@ -35,9 +36,12 @@ class ExamsController extends Controller
      */
     public function getIndex()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
+            ->prepend('Select Academic Year', '');
+        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+            ->prepend('Select Class Level', '');
 
+        return view('admin.assessments.exams.index', compact('academic_years', 'classlevels'));
         //Keep track of selected tab
 //        $exam_details = ExamDetail::all();
 //        foreach($exam_details as $exam){
@@ -47,7 +51,6 @@ class ExamsController extends Controller
 //            $exam->exam = ($exam->exam > 10) ? $exam->exam : $ex;
 //            $exam->save();
 //        }
-        return view('admin.assessments.exams.index', compact('academic_years', 'classlevels'));
     }
 
     /**
@@ -56,7 +59,9 @@ class ExamsController extends Controller
      */
     public function getSetup()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
+            ->prepend('Select Academic Year', '');
+
         return view('admin.assessments.exams.setup', compact('academic_years', 'classlevels', 'tutors'));
     }
 
@@ -71,9 +76,10 @@ class ExamsController extends Controller
         $response = [];
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
         $view = SubjectAssessmentView::where('academic_term_id', $term->academic_term_id)
-                                        ->where(function ($query) {
-                                            $query->whereNull('marked')->orWhere('marked', '<>', '1');
-                                        })->count();
+            ->where(function ($query) {
+                $query->whereNull('marked')->orWhere('marked', '<>', '1');
+            })
+            ->count();
         if ($view > 0 ) {
             $output = '<h4>Make sure all assessments has been inputted before setting up an exam . <strong>Do You Want To Continue anyway?</strong></h4>';
             $response['flag'] = 2;
@@ -84,6 +90,7 @@ class ExamsController extends Controller
 
         $response['output'] = isset($output) ? $output : [];
         $response['term'] = $inputs['academic_term_id'];
+
         return response()->json($response);
     }
 
@@ -96,6 +103,7 @@ class ExamsController extends Controller
     {
         $inputs = $request->all();
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
+
         if($term){
             //Update
             Exam::processExams($term->academic_term_id);
@@ -119,46 +127,57 @@ class ExamsController extends Controller
         $user_id = (Auth::user()->user_type_id == User::DEVELOPER) ? null : Auth::user()->user_id;
 
         if($inputs['classlevel_id'] > 0){
+
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['classlevel_id'])->lists('classroom_id')->toArray())
+                ->whereIn('classroom_id',
+                    ClassRoom::where('classlevel_id', $inputs['classlevel_id'])
+                        ->lists('classroom_id')
+                        ->toArray()
+                )
                 ->where(function ($query) use ($user_id) {
                     //If its not a developer admin filter by the logged in user else return all records in the class level
-                    if($user_id)
-                        $query->where('tutor_id', $user_id);
-                })->lists('subject_classroom_id')->toArray();
+                    if($user_id) $query->where('tutor_id', $user_id);
+                })
+                ->lists('subject_classroom_id')
+                ->toArray();
+
         }else{
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
                 ->where(function ($query) use ($user_id) {
                     //If its not a developer admin filter by the logged in user else return all records in the class room
-                    if($user_id)
-                        $query->where('tutor_id', $user_id);
-                })->lists('subject_classroom_id')->toArray();
+                    if($user_id) $query->where('tutor_id', $user_id);
+                })
+                ->lists('subject_classroom_id')
+                ->toArray();
         }
+
         if(isset($class_subjects)){
             //Get all the exams that are ready (assessments that have been marked completely before exams will be enable for score input)
             $exams = Exam::whereIn('subject_classroom_id', $class_subjects)->get();
+
             //format the record sets as json readable
             foreach($exams as $exam){
                 $subClass = ($exam->subjectClassroom()->first()) ? $exam->subjectClassroom()->first() : false;
                 $res[] = array(
                     "ca_wp"=> ($subClass)
                         ? $subClass->classRoom()->first()->classLevel()->first()->classGroup()->first()->ca_weight_point
-                        : '<span class="label label-danger">nil</span>',
+                        : LabelHelper::danger(),
                     "exam_wp"=>($subClass)
                         ? $subClass->classRoom()->first()->classLevel()->first()->classGroup()->first()->exam_weight_point
-                        : '<span class="label label-danger">nil</span>',
-                    "classroom"=>($subClass) ? $subClass->classRoom()->first()->classroom : '<span class="label label-danger">nil</span>',
-                    "subject"=>($subClass && $subClass->subject()->first()) ? $subClass->subject()->first()->subject : '<span class="label label-danger">nil</span>',
+                        : LabelHelper::danger(),
+                    "classroom"=>($subClass) ? $subClass->classRoom()->first()->classroom : LabelHelper::danger(),
+                    "subject"=>($subClass && $subClass->subject()->first()) ? $subClass->subject()->first()->subject : LabelHelper::danger(),
                     "exam_id"=>$exam->exam_id,
                     "hashed_id"=>$this->getHashIds()->encode($exam->exam_id),
-                    "academic_term"=>($subClass) ? $subClass->academicTerm()->first()->academic_term : '<span class="label label-danger">nil</span>',
+                    "academic_term"=>($subClass) ? $subClass->academicTerm()->first()->academic_term : LabelHelper::danger(),
 //                    "tutor"=>($exam->subjectClassroom()->first()->tutor()->first()) ? $exam->subjectClassroom()->first()->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>',
-                    "marked"=>($exam->marked == 1) ? '<span class="label label-success">Marked</span>' : '<span class="label label-danger">Not Marked</span>',
+                    "marked"=>($exam->marked == 1) ? LabelHelper::success('Marked') : LabelHelper::danger('Not Marked'),
                 );
             }
             $response['flag'] = 1;
             $response['Exam'] = isset($res) ? $res : [];
         }
+
         echo json_encode($response);
     }
 
@@ -169,8 +188,7 @@ class ExamsController extends Controller
      */
     public function getInputScores($encodeId)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
-        $exam = (empty($decodeId)) ? abort(305) : Exam::findOrFail($decodeId[0]);
+        $exam = Exam::findOrFail($this->decode($encodeId));
         $subject = ($exam) ? $exam->subjectClassroom()->first() : null;
 
         $now = Carbon::now('Africa/Lagos');
@@ -184,7 +202,6 @@ class ExamsController extends Controller
             return redirect('/exams/view-scores/'.$this->getHashIds()->encode($exam->exam_id));
         }
 
-
         return view('admin.assessments.exams.input-scores', compact('exam', 'subject'));
     }
 
@@ -195,8 +212,7 @@ class ExamsController extends Controller
      */
     public function getViewScores($encodeId)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
-        $exam = (empty($decodeId)) ? abort(305) : Exam::findOrFail($decodeId[0]);
+        $exam = Exam::findOrFail($this->decode($encodeId));
         $subject = ($exam) ? $exam->subjectClassroom()->first() : null;
 
         return view('admin.assessments.exams.view-scores', compact('exam', 'subject'));
@@ -220,7 +236,7 @@ class ExamsController extends Controller
                 $count = $count+1;
             }
         }
-        // Set the flash message
+
         if($count > 0){
             $exam->marked = 1;
             $exam->save();
@@ -228,7 +244,6 @@ class ExamsController extends Controller
             $this->setFlashMessage($count . ' Students Scores has been successfully inputted.', 1);
         }
 
-        // redirect to the create a new inmate page
         return redirect('/exams/view-scores/'.$this->getHashIds()->encode($exam->exam_id));
     }
 
@@ -241,10 +256,15 @@ class ExamsController extends Controller
     {
         $inputs = $request->all();
 
-        $students = (isset($inputs['view_classroom_id']))
-            ? StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])->where('classroom_id', $inputs['view_classroom_id'])->get() : [];
-        $classrooms = (empty($inputs['view_classroom_id'])) ? ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->get() : [];
         $term = AcademicTerm::findOrFail($inputs['view_academic_term_id']);
+        $students = (isset($inputs['view_classroom_id']))
+            ? StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])
+                ->where('classroom_id', $inputs['view_classroom_id'])
+                ->get()
+            : [];
+        $classrooms = (empty($inputs['view_classroom_id']))
+            ? ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->get()
+            : [];
 
         $response = array();
         $response['flag'] = 0;
@@ -267,6 +287,7 @@ class ExamsController extends Controller
             {
                 return strcmp($a->name, $b->name);
             });
+
             $response['flag'] = 1;
             $response['Students'] = $output;
         }
@@ -282,9 +303,11 @@ class ExamsController extends Controller
                     "student_count"=>$classroom->studentClasses()->where('academic_year_id', $inputs['view_academic_year_id'])->count()
                 );
             }
+
             $response['flag'] = 2;
             $response['Classrooms'] = isset($res) ? $res : [];
         }
+
         echo json_encode($response);
     }
 
@@ -296,20 +319,25 @@ class ExamsController extends Controller
      */
     public function getStudentTerminalResult($encodeStud, $encodeTerm)
     {
-        $decodeStud = $this->getHashIds()->decode($encodeStud);
-        $decodeTerm = $this->getHashIds()->decode($encodeTerm);
-        $student = (empty($decodeStud)) ? abort(305) : Student::findOrFail($decodeStud[0]);
-        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
+        $student = Student::findOrFail($this->decode($encodeStud));
+        $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
         $classroom = $student->currentClass($term->academicYear->academic_year_id);
 
         $position = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id, $student->student_id);
         $position = (object) array_shift($position);
 
-        $exams = ExamDetailView::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)
-            ->where('student_id', $student->student_id)->where('marked', 1)->get();
-        $groups = CustomSubject::roots()->where('classgroup_id', $classroom->classlevel->classgroup_id)->get();
+        $exams = ExamDetailView::where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)
+            ->where('student_id', $student->student_id)
+            ->where('marked', 1)
+            ->get();
+        $groups = CustomSubject::roots()
+            ->where('classgroup_id', $classroom->classlevel->classgroup_id)
+            ->get();
 
-        return view('admin.assessments.exams.terminal.student', compact('student', 'term', 'position', 'classroom', 'groups', 'exams'));
+        return view('admin.assessments.exams.terminal.student',
+            compact('student', 'term', 'position', 'classroom', 'groups', 'exams')
+        );
     }
 
     /**
@@ -320,10 +348,8 @@ class ExamsController extends Controller
      */
     public function getClassroomTerminalResult($encodeClass, $encodeTerm)
     {
-        $decodeClass = $this->getHashIds()->decode($encodeClass);
-        $decodeTerm = $this->getHashIds()->decode($encodeTerm);
-        $classroom = (empty($decodeClass)) ? abort(305) : ClassRoom::findOrFail($decodeClass[0]);
-        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
+        $classroom = ClassRoom::findOrFail($this->decode($encodeClass));
+        $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
 
         $results = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id);
         $exam = (empty($results)) ? null : $results[0];
@@ -342,20 +368,24 @@ class ExamsController extends Controller
         $inputs = $request->all();
         $response = [];
         $term = AcademicTerm::findOrFail($inputs['setup_academic_term_id']);
-        $view = SubjectAssessmentView::where('academic_term_id', $term->academic_term_id)->where('tutor_id', Auth::user()->user_id)
-                                        ->where(function ($query) {
-                                            $query->whereNull('marked')->orWhere('marked', '<>', '1');
-                                        })->count();
+        $view = SubjectAssessmentView::where('academic_term_id', $term->academic_term_id)
+            ->where('tutor_id', Auth::user()->user_id)
+            ->where(function ($query) {
+                $query->whereNull('marked')->orWhere('marked', '<>', '1');
+            })
+            ->count();
 
         if ($view > 0 ) {
+            $response['flag'] = 2;
             $output = ' <strong> ' . $view  . ' Assessment(s) for ' . $term->academic_term .
                 ' are yet to be marked? </strong>Kindly input the C.A assessment before you can setup your exams';
-            $response['flag'] = 2;
         }else{
             $response['flag'] = 1;
             $response['term'] = $term;
         }
+
         $response['output'] = isset($output) ? $output : [];
+
         return response()->json($response);
     }
 
@@ -367,21 +397,25 @@ class ExamsController extends Controller
     {
         $response = [];
         $term = AcademicTerm::activeTerm();
-        $view = SubjectAssessmentView::where('academic_term_id', $term->academic_term_id)->where('tutor_id', Auth::user()->user_id)
+        $view = SubjectAssessmentView::where('academic_term_id', $term->academic_term_id)
+            ->where('tutor_id', Auth::user()->user_id)
             ->where(function ($query) {
                 $query->whereNull('marked')->orWhere('marked', '<>', '1');
-            })->count();
+            })
+            ->count();
 
         if ($view > 0 ) {
             $output = ' <strong> ' . $view  . ' Assessment(s) for ' . $term->academic_term .
                 ' are yet to be marked? </strong>Kindly input the C.A assessment before they can be computed for exams';
             $this->setFlashMessage($output, 2);
         }else{
+
             //Compute C.A
             Exam::processAssessmentCA($term->academic_term_id, Auth::user()->user_id);
             $this->setFlashMessage('The C.A has been Computed and Updated accordingly...Proceed with Exams', 1);
             $response['term'] = $term;
         }
+
         return response()->json($response);
     }
 
@@ -394,12 +428,14 @@ class ExamsController extends Controller
     {
         $inputs = $request->all();
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
+
         if($term){
             //Process Only my exams so as to input scores
             Exam::processExams($term->academic_term_id, Auth::user()->user_id);
             session()->put('exams-tab', 'setup-exam');
             $this->setFlashMessage('Your Exams for ' . $term->academic_term . ' Academic Year has been successfully setup.', 1);
         }
+
         return response()->json($term);
     }
 
@@ -411,25 +447,69 @@ class ExamsController extends Controller
      */
     public function getPrintStudentTerminalResult($encodeStud, $encodeTerm)
     {
-        $decodeStud = $this->getHashIds()->decode($encodeStud);
-        $decodeTerm = $this->getHashIds()->decode($encodeTerm);
-        $student = (empty($decodeStud)) ? abort(305) : Student::findOrFail($decodeStud[0]);
-        $term = (empty($decodeTerm)) ? abort(305) : AcademicTerm::findOrFail($decodeTerm[0]);
+        $student = Student::findOrFail($this->decode($encodeStud));
+        $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
         $classroom = $student->currentClass($term->academicYear->academic_year_id);
 
         $position = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id, $student->student_id);
         $position = (object) array_shift($position);
-        $exams = ExamDetailView::where('academic_term_id', $term->academic_term_id)->where('classroom_id', $classroom->classroom_id)
-            ->where('student_id', $student->student_id)->where('marked', 1)->get();
+        $exams = ExamDetailView::where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)
+            ->where('student_id', $student->student_id)
+            ->where('marked', 1)
+            ->get();
+
         $groups = CustomSubject::roots()->where('classgroup_id', $classroom->classlevel->classgroup_id)->get();
 
-//        $pdf = App::make('dompdf.wrapper');
-//        $pdf->loadHTML('<h1>Test Oh</h1>');
-//        $pdf->loadView('admin.assessments.exams.terminal.print2', $student, $term);
-//        $pdf->loadView('admin.assessments.exams.terminal.print2', compact('student', 'term'));
-//        $pdf->loadView('admin.assessments.exams.terminal.print', compact('student', 'groups', 'exams', 'term', 'position', 'classroom'));
-//        return $pdf->download('resultChecker.pdf');
-        
-        return view('admin.assessments.exams.terminal.print', compact('student', 'groups', 'exams', 'term', 'position', 'classroom'));
+        return view('admin.assessments.exams.terminal.print',
+            compact('student', 'groups', 'exams', 'term', 'position', 'classroom')
+        );
     }
+
+    /**
+     * Displays the summary of students terminal exams results
+     * @param String $encodeStud
+     * @return \Illuminate\View\View
+     */
+    public function view($encodeStud)
+    {
+        $student = Student::findOrFail($this->decode($encodeStud));
+        $exams = ExamDetailView::orderBy('exam_id', 'desc')
+            ->where('student_id', $student->student_id)
+            ->where('marked', 1)
+            ->groupBy(['student_id', 'classroom', 'academic_term'])
+            ->get();
+        
+        return view('admin.accounts.students.exam.view', compact('student', 'exams'));
+    }
+
+    /**
+     * Displays the details of students terminal exams based on class and term
+     * @param String $encodeStud
+     * @param String $encodeTerm
+     * @return \Illuminate\View\View
+     */
+    public function details($encodeStud, $encodeTerm)
+    {
+        $student = Student::findOrFail($this->decode($encodeStud));
+        $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
+        $classroom = $student->currentClass($term->academicYear->academic_year_id);
+
+        $position = Exam::terminalClassPosition($term->academic_term_id, $classroom->classroom_id, $student->student_id);
+        $position = (object) array_shift($position);
+
+        $exams = ExamDetailView::where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)
+            ->where('student_id', $student->student_id)
+            ->where('marked', 1)
+            ->get();
+        $groups = CustomSubject::roots()
+            ->where('classgroup_id', $classroom->classlevel->classgroup_id)
+            ->get();
+
+        return view('admin.accounts.students.exam.details',
+            compact('student', 'term', 'position', 'classroom', 'groups', 'exams')
+        );
+    }
+
 }

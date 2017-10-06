@@ -178,7 +178,7 @@
                                 <div class="caption caption-md">
                                     <i class="icon-globe theme-font hide"></i>
                                     <span class="caption-subject font-red bold uppercase">
-                                        No Assessment taken for {{ $term->academic_term }}
+                                        No Assessment result found for {{ $term->academic_term }}
                                     </span>
                                 </div>
                             </div>
