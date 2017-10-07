@@ -44,8 +44,8 @@
                             <thead>
                                 <tr role="row" class="heading">
                                     <th width="1%">#</th>
-                                    <th width="5%">I.D</th>
                                     <th width="33%">Full Name</th>
+                                    <th width="5%">I.D</th>
                                     <th width="16%">Sponsor</th>
                                     <th width="12%">Current Class</th>
                                     <th width="10%">Gender</th>
@@ -60,7 +60,7 @@
                                         {!! Form::select('classroom_id', $classrooms, '', ['class'=>'form-control input-inline input-sm search-params', 'id'=>'classroom_id']) !!}
                                     </td>
                                     <td>
-                                        {!! Form::select('gender', [''=>'Gender', 'Male'=>'Male', 'Female'=>'Female'], '',
+                                        {!! Form::select('gender', [''=>'- Gender -', 'Male'=>'Male', 'Female'=>'Female'], '',
                                         ['id'=>'gender', 'class'=>'form-control input-inline input-xsmall input-sm search-params']) !!}
                                     </td>
                                     <td>
@@ -74,8 +74,8 @@
                             <tfoot>
                                 <tr role="row" class="heading">
                                     <th width="1%">#</th>
-                                    <th width="5%">I.D</th>
                                     <th width="33%">Full Name</th>
+                                    <th width="5%">I.D</th>
                                     <th width="16%">Sponsor</th>
                                     <th width="12%">Current Class</th>
                                     <th width="10%">Gender</th>

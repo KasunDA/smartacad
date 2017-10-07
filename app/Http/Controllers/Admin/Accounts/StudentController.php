@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Accounts;
 
+use App\Helpers\LabelHelper;
 use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\Accounts\Students\StudentClass;
@@ -56,9 +57,12 @@ class StudentController extends Controller
      */
     public function getIndex()
     {
-//        $students = Student::orderBy('first_name')->get();
-        $classrooms = ClassRoom::orderBy('classroom')->lists('classroom', 'classroom_id')->prepend('Class Room', '');
-        $status = Status::orderBy('status')->lists('status', 'status_id')->prepend('Status', '');
+        $classrooms = ClassRoom::orderBy('classroom')
+            ->lists('classroom', 'classroom_id')
+            ->prepend('- Class Room -', '');
+        $status = Status::orderBy('status')
+            ->lists('status', 'status_id')
+            ->prepend('- Status -', '');
 
         return view('admin.accounts.students.index', compact('classrooms', 'status'));
     }
@@ -82,29 +86,35 @@ class StudentController extends Controller
 
         //Filter by sponsor name
         $sponsors = (!empty($q))
-             ? User::where('user_type_id', Sponsor::USER_TYPE)->where(function ($query) use ($q) {
-                $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%');
-            })->lists('user_id')->toArray() : [];
+             ? User::where('user_type_id', Sponsor::USER_TYPE)
+                ->where(function ($query) use ($q) {
+                    $query->orWhere('first_name', 'like', '%'.$q.'%')
+                        ->orWhere('last_name', 'like', '%'.$q.'%');
+                })
+                ->lists('user_id')
+                ->toArray()
+            : [];
 
         //List of Students
-        $students = Student::orderBy('first_name')->where(function ($query) use ($q, $gender, $status_id, $classroom_id, $sponsors) {
-            //Filter by name
-            if (!empty($q)) {
-                $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%')->orWhere('student_no', 'like', '%'.$q.'%');
-                if(count($sponsors) > 0)
-                    $query->orWhereIn('sponsor_id', $sponsors);
-            }
-            //Filter by gender
-            if (!empty($gender))
-                $query->where('gender', $gender);
-            //Filter by status
-            if (!empty($status_id))
-                $query->where('status_id', $status_id);
-            //Filter by class room
-            if (!empty($classroom_id))
-                $query->where('classroom_id', $classroom_id);
+        $students = Student::orderBy('first_name')
+            ->where(function ($query) use ($q, $gender, $status_id, $classroom_id, $sponsors) {
+                //Filter by name
+                if (!empty($q)) {
+                    $query->orWhere('first_name', 'like', '%'.$q.'%')
+                        ->orWhere('last_name', 'like', '%'.$q.'%')
+                        ->orWhere('student_no', 'like', '%'.$q.'%');
 
-        });
+                    if(count($sponsors) > 0) $query->orWhereIn('sponsor_id', $sponsors);
+                }
+
+                //Filter by gender
+                if (!empty($gender)) $query->where('gender', $gender);
+                //Filter by status
+                if (!empty($status_id)) $query->where('status_id', $status_id);
+                //Filter by class room
+                if (!empty($classroom_id)) $query->where('classroom_id', $classroom_id);
+            });
+
         // iTotalDisplayRecords = filtered result count
         $iTotalDisplayRecords = $students->count();
         $records = array();
@@ -112,31 +122,37 @@ class StudentController extends Controller
 
         $end = $iDisplayStart + $iDisplayLength;
         $end = $end > $iTotalRecords ? $iTotalRecords : $end;
-
         $i = $iDisplayStart;
-        $allStudents = $students->skip($iDisplayStart)->take($iDisplayLength)->get();
+        $allStudents = $students->skip($iDisplayStart)
+            ->take($iDisplayLength)
+            ->get();
+
         foreach ($allStudents as $student){
             $status = (isset($student->status_id))
-                ? '<label class="label label-'.$student->status()->first()->label.'">'.$student->status()->first()->status.'</label>'
-                : '<label class="label label-danger">nil</label>';
+                ? '<label class="label label-sm label-'.$student->status()->first()->label.'">'.$student->status()->first()->status.'</label>'
+                : LabelHelper::danger();
+
             $sponsor = ($student->sponsor_id)
-                ? '<a target="_blank" href="/sponsors/view/'.$this->getHashIds()->encode($student->sponsor()->first()->user_id).'" class="btn btn-info btn-link btn-sm">
+                ? '<a target="_blank" href="/sponsors/view/'.$this->encode($student->sponsor()->first()->user_id).'" class="btn btn-info btn-link btn-sm">
                     <span class="fa fa-eye-slash"></span> '.$student->sponsor()->first()->simpleName().'</a>'
-                : '<span class="label label-danger">nil</span>';
+                : LabelHelper::danger();
+
+            $classroom = ($student->currentClass(AcademicYear::activeYear()->academic_year_id))
+                ? $student->currentClass(AcademicYear::activeYear()->academic_year_id)->classroom
+                : LabelHelper::danger();
 
             $records["data"][] = array(
                 ($i++ + 1),
+                '<a target="_blank" href="/students/view/'.$this->encode($student->student_id).'" class="btn btn-primary btn-link">'.$student->simpleName().'</a>',
                 $student->student_no,
-                $student->simpleName(),
                 $sponsor,
-                ($student->currentClass(AcademicYear::activeYear()->academic_year_id))
-                    ? $student->currentClass(AcademicYear::activeYear()->academic_year_id)->classroom : '<span class="label label-danger">nil</span>',
-                ($student->gender) ? $student->gender : '<span class="label label-danger">nil</span>',
+                $classroom,
+                ($student->gender) ? $student->gender : LabelHelper::danger(),
                 $status,
-                '<a target="_blank" href="/students/view/'.$this->getHashIds()->encode($student->student_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                '<a target="_blank" href="/students/view/'.$this->encode($student->student_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
                      <span class="fa fa-eye-slash"></span>
                  </a>',
-                '<a target="_blank" href="/students/edit/'.$this->getHashIds()->encode($student->student_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                '<a target="_blank" href="/students/edit/'.$this->encode($student->student_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
                      <span class="fa fa-edit"></span>
                  </a>',
                 '<button class="btn btn-danger btn-rounded btn-xs delete_student" value="'.$student->student_id.'">
@@ -159,8 +175,7 @@ class StudentController extends Controller
      */
     public function getView($encodeId)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
-        $student = (empty($decodeId)) ? abort(305) : Student::findOrFail($decodeId[0]);
+        $student = Student::findOrFail($this->decode($encodeId));
         return view('admin.accounts.students.view', compact('student'));
     }
 
@@ -170,7 +185,9 @@ class StudentController extends Controller
      */
     public function getCreate()
     {
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
+        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+            ->prepend('- Class Level -', '');
+
         return view('admin.accounts.students.create', compact('classlevels'));
     }
 
@@ -186,20 +203,32 @@ class StudentController extends Controller
         if ($this->validator($input)->fails())
         {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/students/create')->withErrors($this->validator($input))->withInput();
+
+            return redirect('/students/create')
+                ->withErrors($this->validator($input))
+                ->withInput();
         }
 
         if($input['sponsor_id'] < 1){
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/students/create')->withErrors(['Choose Student Sponsor From The List of Suggested Sponsors!'])->withInput();;
+
+            return redirect('/students/create')
+                ->withErrors(['Choose Student Sponsor From The List of Suggested Sponsors!'])
+                ->withInput();
         }
 
         //Validate if the student already exist in the system
-        $check = Student::where('sponsor_id', $input['sponsor_id'])->where('first_name', trim($input['first_name']))
-            ->where('last_name', trim($input['last_name']))->count();
+        $check = Student::where('sponsor_id', $input['sponsor_id'])
+            ->where('first_name', trim($input['first_name']))
+            ->where('last_name', trim($input['last_name']))
+            ->count();
+
         if($check > 0){
             $this->setFlashMessage('Warning!!! You have error(s) while filling the form.', 2);
-            return redirect('/students/create')->withErrors(['message'=>'The Student '.$input['first_name'].' ' .$input['last_name'].' Already Exist.'])->withInput();
+
+            return redirect('/students/create')
+                ->withErrors(['message'=>'The Student '.$input['first_name'].' ' .$input['last_name'].' Already Exist.'])
+                ->withInput();
         }else {
 
             // Store the Record...
@@ -217,7 +246,7 @@ class StudentController extends Controller
                 // Set the flash message
                 $this->setFlashMessage('Saved!!! ' . $student->fullNames() . ' have successfully been saved', 1);
             }
-            // redirect to the create new warder page
+
             return redirect('/students');
         }
     }
@@ -229,19 +258,32 @@ class StudentController extends Controller
      */
     public function getEdit($encodeId)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
+        $student = Student::findOrFail($this->decode($encodeId));
+        $status = Status::lists('status', 'status_id')
+            ->prepend('- Select Status -', '');
 
-        $student = (empty($decodeId)) ? abort(305) : Student::findOrFail($decodeId[0]);
-        $status = Status::lists('status', 'status_id')->prepend('Select Status', '');
-        $states = State::orderBy('state')->lists('state', 'state_id');
+        $states = State::orderBy('state')
+            ->lists('state', 'state_id')
+            ->prepend('- Select State -', '');
         $lga = ($student->lga()->first()) ? $student->lga()->first() : null;
-        $lgas = ($student->lga_id > 0) ? Lga::where('state_id', $student->lga()->first()->state_id)->lists('lga', 'lga_id')->prepend('Select L.G.A', '') : null;
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
-        $classroom = ($student->classroom_id) ? $student->classRoom()->first() : null;
-        $classrooms = ($student->classroom_id > 0) ? ClassRoom::where('classlevel_id', $classroom->classlevel_id)
-                ->lists('classroom', 'classroom_id')->prepend('Select Class Room', '') : null;
+        $lgas = ($student->lga_id > 0)
+            ? Lga::where('state_id', $student->lga()->first()->state_id)
+                ->lists('lga', 'lga_id')
+                ->prepend('- Select L.G.A -', '')
+            : null;
 
-        return view('admin.accounts.students.edit', compact('student', 'states', 'lga', 'lgas', 'status', 'classlevels', 'classroom', 'classrooms'));
+        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+            ->prepend('- Select Class Level -', '');
+        $classroom = ($student->classroom_id) ? $student->classRoom()->first() : null;
+        $classrooms = ($student->classroom_id > 0)
+            ? ClassRoom::where('classlevel_id', $classroom->classlevel_id)
+                ->lists('classroom', 'classroom_id')
+                ->prepend('- Select Class Room -', '')
+            : null;
+
+        return view('admin.accounts.students.edit',
+            compact('student', 'states', 'lga', 'lgas', 'status', 'classlevels', 'classroom', 'classrooms')
+        );
     }
 
     /**
@@ -260,18 +302,24 @@ class StudentController extends Controller
         if ($this->validator($inputs)->fails())
         {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/students/edit/'.$this->getHashIds()->encode($inputs['student_id']))->withErrors($this->validator($inputs))->withInput();
+            
+            return redirect('/students/edit/'.$this->encode($inputs['student_id']))
+                ->withErrors($this->validator($inputs))
+                ->withInput();
         }
 
         if($inputs['sponsor_id'] < 1){
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/students/edit/'.$this->getHashIds()->encode($inputs['student_id']))->withErrors(['Choose Student Sponsor From The List of Suggested Sponsors!'])->withInput();;
+            
+            return redirect('/students/edit/'.$this->encode($inputs['student_id']))
+                ->withErrors(['Choose Student Sponsor From The List of Suggested Sponsors!'])
+                ->withInput();;
         }
 
         $student->update($inputs);
         $this->setFlashMessage('Student ' . $student->fullNames() . ', Information has been successfully updated.', 1);
 
-        return redirect('/students/view/'.$this->getHashIds()->encode($student->student_id));
+        return redirect('/students/view/'.$this->encode($student->student_id));
     }
 
     /**
@@ -295,9 +343,12 @@ class StudentController extends Controller
      */
     public function getSponsors()
     {
-        $inputs = Input::get('term');
-        $sponsors = User::where('user_type_id', Sponsor::USER_TYPE)->where('first_name', 'like', $inputs.'%')->get();
         $response = array();
+        $inputs = Input::get('term');
+        $sponsors = User::where('user_type_id', Sponsor::USER_TYPE)
+            ->where('first_name', 'like', $inputs.'%')
+            ->get();
+        
         if($sponsors->count() > 0){
             foreach($sponsors as $sponsor){
                 $response[] = array(
@@ -309,6 +360,7 @@ class StudentController extends Controller
             $response[0]['id'] = -1;
             $response[0]['value'] = 'No Record Found';
         }
+        
         echo json_encode($response);
     }
 
@@ -341,7 +393,7 @@ class StudentController extends Controller
             $student->save();
             $this->setFlashMessage($student->fullNames() . '  passport has been successfully uploaded.', 1);
             
-            return redirect('/students/view/'.$this->getHashIds()->encode($inputs['student_id']));
+            return redirect('/students/view/'.$this->encode($inputs['student_id']));
         }
     }
 }
