@@ -30,7 +30,7 @@
                         <div class="portlet-title">
                             <div class="caption">
                                 <i class="icon-user"> </i>
-                                <span class="caption-subject font-white bold uppercase">Available Students</span>
+                                <span class="caption-subject font-white bold uppercase">Available Students (Attendance)</span>
                             </div>
                             <div class="tools">
                                 <a href="javascript:;" class="collapse"> </a>
@@ -54,7 +54,7 @@
                                                 <a class="accordion-toggle accordion-toggle-styled" data-toggle="collapse" data-parent="#accordion1" href="#collapse_1_{{$i}}">
                                                     ({{$i}}) {{ $student->fullNames() }}
                                                     {{ ($student->currentClass(AcademicTerm::activeTerm()->academic_year_id)) ? 'in:' . $student->currentClass(AcademicTerm::activeTerm()->academic_year_id)->classroom : '' }}
-                                                    {{ ' || Attendance Taken' }}
+                                                    {{ ' || Attendance Records' }}
                                                 </a>
                                             </h4>
                                         </div>

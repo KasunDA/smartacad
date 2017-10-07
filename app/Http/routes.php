@@ -44,6 +44,7 @@ Route::group(['middleware' => ['web']], function () {
         'wards-exams' => 'Front\Assessments\ExamsController',
         'wards-assessments' => 'Front\Assessments\AssessmentsController',
         'wards-attendances' => 'Front\Students\AttendancesController',
+        'wards-billings' => 'Front\Orders\BillingsController',
     ]);
 
     Route::auth();

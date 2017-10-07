@@ -222,6 +222,7 @@ return [
         'Role' => App\Models\Admin\RolesAndPermissions\Role::class,
         'Attendance' => App\Models\Admin\Attendances\Attendance::class,
         'AssessmentDetailView' => App\Models\Admin\Assessments\AssessmentDetailView::class,
+        'OrderView' => App\Models\Admin\Views\OrderView::class,
 
         'CurrencyHelper' => App\Helpers\CurrencyHelper::class,
         'LabelHelper' => App\Helpers\LabelHelper::class,
