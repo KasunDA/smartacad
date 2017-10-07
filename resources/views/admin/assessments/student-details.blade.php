@@ -162,7 +162,6 @@
                             </tfoot>
                         </table>
                     </div>
-                </div>
                 @else
                     <div class="portlet-title tabbable-line">
                         <div class="caption caption-md">

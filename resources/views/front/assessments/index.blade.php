@@ -1,128 +1,139 @@
 @extends('front.layout.default')
 
-@section('layout-style')
-    <link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/global/plugins/jquery-multi-select/css/multi-select.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/global/plugins/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/global/plugins/select2/css/select2-bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/css/bootstrap-editable.css') }}" rel="stylesheet" type="text/css" />
-@endsection
-
-@section('title', 'Wards Assessments')
+@section('title', 'Students Assessments')
 
 @section('breadcrumb')
     <li>
-        <i class="fa fa-dashboard"></i>
         <a href="{{ url('/home') }}">Home</a>
+        <i class="fa fa-dashboard"></i>
     </li>
     <li>
-        <i class="fa fa-chevron-right"></i>
+        <a href="{{ url('/wards') }}">Students</a>
+        <i class="fa fa-users"></i>
+    </li>
+    <li>
+        <span>Assessments</span>
     </li>
 @stop
 
 @section('page-title')
-    <h1> My Wards Assessment </h1>
+    <h1> Assessments Summary</h1>
 @endsection
 
-
 @section('content')
-    <!-- END PAGE HEADER-->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="portlet light bordered">
-                <div class="portlet light bordered">
-                    <div class="portlet-title tabbable-line">
-                        <ul class="nav nav-pills">
-                            <li class="active">
-                                <a href="#assessment" data-toggle="tab"><i class="fa fa-book"></i> Terminal Assessment Result</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="portlet-body form">
-                        <div class="tab-content">
-                            <div id="error-box"></div>
-                            <div class="tab-pane active" id="assessment">
-                                <div class="alert alert-info"> Search by <strong>Academic Term</strong> To View Assessment Details</div>
-                                {!! Form::open([
-                                        'method'=>'POST',
-                                        'class'=>'form-horizontal',
-                                        'id' => 'view_student_form'
-                                    ])
-                                !!}
-                                    <div class="form-body">
-                                        <div class="form-group">
-                                            <div class="col-md-4 col-md-offset-1">
-                                                <div class="form-group">
-                                                    <label class="control-label">Academic Year <span class="text-danger">*</span></label>
-                                                    <div>
-                                                        {!! Form::select('academic_year_id', $academic_years,  AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required']) !!}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 col-md-offset-1">
-                                                <div class="form-group">
-                                                    <label class="control-label">Academic Term <span class="text-danger">*</span></label>
-                                                    {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
-                                                    ->orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
-                                                    AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required']) !!}
+    <div class="row widget-row" style="margin-top: 20px;">
+        @if(count($students) > 0)
+            <div class="row">
+                <div class="col-md-10">
+                    <!-- BEGIN ACCORDION PORTLET-->
+                    <div class="portlet box blue">
+                        <div class="portlet-title">
+                            <div class="caption">
+                                <i class="icon-user"> </i>
+                                <span class="caption-subject font-white bold uppercase">Available Students</span>
+                            </div>
+                            <div class="tools">
+                                <a href="javascript:;" class="collapse"> </a>
+                            </div>
+                        </div>
+                        <div class="portlet-body">
+                            <div class="panel-group accordion scrollable" id="accordion1">
+                                <?php $i = 1;?>
+                                @foreach($students as $student)
+                                    <?php $collapse = ($i == 1) ? 'in' : 'collapse'; ?>
+                                    <?php
+                                        $j = 1;
+                                        $assessments = AssessmentDetailView::orderBy('assessment_id', 'desc')
+                                                ->where('student_id', $student->student_id)
+                                                ->groupBy(['student_id', 'academic_term'])
+                                                ->get();
+                                    ?>
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a class="accordion-toggle accordion-toggle-styled" data-toggle="collapse" data-parent="#accordion1" href="#collapse_1_{{$i}}">
+                                                    ({{$i}}) {{ $student->fullNames() }}
+                                                    {{ ($student->currentClass(AcademicTerm::activeTerm()->academic_year_id))
+                                                        ? 'in: ' . $student->currentClass(AcademicTerm::activeTerm()->academic_year_id)->classroom : ''
+                                                    }}
+                                                    {{ ' || Assessment Taken' }}
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapse_1_{{$i++}}" class="panel-collapse {{ $collapse }}">
+                                            <div class="panel-body" style="height:300px; overflow-y:auto;">
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover table-bordered table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Academic Term</th>
+                                                                <th>Class Room</th>
+                                                                <th>Weight Point</th>
+                                                                <th>Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tfoot>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Academic Term</th>
+                                                                <th>Class Room</th>
+                                                                <th>Weight Point</th>
+                                                                <th>Action</th>
+                                                            </tr>
+                                                        </tfoot>
+                                                        <tbody>
+                                                            @foreach($assessments as $assessment)
+                                                                <tr>
+                                                                    <td>{{$j++}} </td>
+                                                                    <td>{{ $assessment->academic_term }}</td>
+                                                                    <td>{{ $assessment->classroom }}</td>
+                                                                    <td>{{ $assessment->ca_weight_point }}</td>
+                                                                    <td>
+                                                                        <a href="{{ url('/wards-assessments/details/'.
+                                                                        $hashIds->encode($student->student_id)).'/'.$hashIds->encode($assessment->academic_term_id) }}"
+                                                                           target="_blank" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                                                                            <span class="fa fa-eye"></span> Details
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                            @if(empty($assessments))
+                                                                <tr>
+                                                                    <th colspan="5">No Record Found</th>
+                                                                </tr>
+                                                            @endif
+                                                        </tbody>
+                                                    </table>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-actions noborder">
-                                        <button type="submit" class="btn blue pull-right">
-                                            <i class="fa fa-search"></i> Search
-                                        </button>
-                                    </div>
-                                {!! Form::close() !!}
-                                <div class="row">
-                                    <div class="col-md-10 col-md-offset-1">
-                                        <div class="portlet-body">
-                                            <div class="row">
-                                                <table class="table table-striped table-bordered table-hover" id="view_student_datatable">
-
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
+                    <!-- END ACCORDION PORTLET-->
                 </div>
             </div>
-        </div>
+        @else
+            <div class="col-md-6 col-md-offset-5">
+                <h2>No Record</h2>
+            </div>
+        @endif
     </div>
-    <!-- END CONTENT BODY -->
-    @endsection
+<!-- END CONTENT BODY -->
+@endsection
 
+@section('page-level-js')
 
-    @section('layout-script')
-    <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <script src="{{ asset('assets/global/scripts/datatable.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/datatables/datatables.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/jquery-multi-select/js/jquery.multi-select.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/select2/js/select2.full.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/bootstrap-tabdrop/js/bootstrap-tabdrop.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/jquery.mockjax.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/bootstrap-editable/bootstrap-editable/js/bootstrap-editable.js') }}" type="text/javascript" ></script>
-    <!-- END PAGE LEVEL PLUGINS -->
+@endsection
+
+@section('layout-script')
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
-    <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>
-    <!-- END THEME GLOBAL SCRIPTS -->
-    <!-- BEGIN THEME LAYOUT SCRIPTS -->
-    <script src="{{ asset('assets/pages/scripts/ui-bootbox.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/front/assessment.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/wards-assessments"]');
-
-            $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
         });
     </script>
 @endsection
