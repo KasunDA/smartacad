@@ -72,7 +72,6 @@ var UIBlockUI = function() {
                     var assign = '<thead>\
                                 <tr role="row" class="heading">\
                                     <th>#</th>\
-                                    <th>Student ID</th>\
                                     <th>Name</th>\
                                     <th>Class Room</th>\
                                     <th>Order No.</th>\
@@ -80,15 +79,28 @@ var UIBlockUI = function() {
                                     <th>Status</th>\
                                     <th>Details</th>\
                                     <th>Action</th>\
+                                    <th>Source</th>\
                                 </tr>\
                             </thead>\
                             <tbody>';
                     if(obj.flag == 1){
                         $.each(obj.Orders, function(key, order) {
-                            var label = (order.paid == 1) ? ' from Paid to Not-Paid' : ' from Not-Paid to Paid';
+                            var button = '<button  data-confirm-text="Yes, Confirm Payment" data-name="'+order.name+'" data-title="Order Status Update Confirmation" ' +
+                            'data-message="Are you sure Order: <b>'+order.number+'</b> meant for <b>'+order.fullname+' has being PAID, for '+order.term+'?</b>" ' +
+                            'data-statusText="'+order.number+' Order status updated to PAID" data-confirm-button="#44b6ae" data-status="Updated" ' +
+                            'data-action="/orders/status/'+order.order_id+'" data-status="Updated" ' +
+                            'class="btn btn-success btn-xs btn-sm confirm-delete-btn"><span class="fa fa-save"></span> Update</button>';
+
+                            if(order.paid == 1) {
+                                button = '<button  data-confirm-text="Yes, Undo Payment" data-name="'+order.name+'" data-title="Order Status Update Confirmation" ' +
+                                'data-message="Are you sure Order: <b>'+order.number+'</b> meant for <b>'+order.fullname+' has NOT being PAID, for '+order.term+'?</b>" ' +
+                                'data-statusText="'+order.number+' Order status updated to NOT-PAID" data-confirm-button="#44b6ae" data-status="Updated" ' +
+                                'data-action="/orders/status/'+order.order_id+'" data-status="Updated" ' +
+                                'class="btn btn-warning btn-xs btn-sm confirm-delete-btn"><span class="fa fa-undo"></span> Undo</button>';
+                            }
+                            
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
-                                '<td>'+order.student_no+'</td>' +
                                 '<td>'+order.name+'</td>' +
                                 '<td>'+order.classroom+'</td>' +
                                 '<td>'+order.number+'</td>' +
@@ -96,15 +108,9 @@ var UIBlockUI = function() {
                                 '<td>'+order.status+'</td>' +
                                 '<td><a target="_blank" href="/orders/items/'+order.student_id+'/'+ order.term_id + '"' +
                                 ' class="btn btn-xs btn-info"> <i class="fa fa-eye"></i> Details</a></td>' +
-                                '<td><button  data-name="'+order.name+'" data-title="Update Order Status"' +
-                                    'data-message="Are you sure you want to update Order:<b>'+order.number+label+' ?</b> "' +
-                                    'data-action="/orders/status/'+order.order_id+'/'+order.paid+'" ' +
-                                    'data-confirm-text="Yes Update it"' +
-                                    'data-status="Updated" data-status-text="Order Status Updated"' +
-                                    'class="btn btn-warning btn-xs confirm-delete-btn">' +
-                                        '<span class="fa fa-edit"></span> Edit' +
-                                    '</button></td>' +
-                                '</tr>';
+                                '<td>'+button+'</td>' +
+                                '<td>'+order.backend+'</td>' +
+                            '</tr>';
                         });
                     }
                     assign += '</tbody>';

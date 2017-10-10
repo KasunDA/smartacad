@@ -14,7 +14,7 @@
     <a class="btn btn-default print-button">Print</a>
     <a class="btn btn-danger" href="{{ url('/invoices/download/'.$hashIds->encode($order->id)) }}">Download</a>
     <a class="btn btn-primary" href="{{ url('/invoices/pdf/'.$hashIds->encode($order->id)) }}">View in PDF</a>
-    <a class="btn btn-success" href="{{ url('/invoices/send-pdf/'.$hashIds->encode($order->id)) }}">Send to {{$order->student->sponsor->simpleName()}}</a>
+    {{--<a class="btn btn-success" href="{{ url('/invoices/send-pdf/'.$hashIds->encode($order->id)) }}">Send to {{$order->student->sponsor->simpleName()}}</a>--}}
 </div>
 @if(session()->has('message'))
     <div class="text-center alert alert-success alert-dismissible">
@@ -101,7 +101,7 @@
     <a class="btn btn-default print-button">Print</a>
     <a class="btn btn-danger" href="{{ url('/invoices/download/'.$hashIds->encode($order->id)) }}">Download</a>
     <a class="btn btn-primary" href="{{ url('/invoices/pdf/'.$hashIds->encode($order->id)) }}">View in PDF</a>
-    <a class="btn btn-success" href="{{ url('/invoices/send-pdf/'.$hashIds->encode($order->id)) }}">Send to {{$order->student->sponsor->simpleName()}}</a>
+    {{--<a class="btn btn-success" href="{{ url('/invoices/send-pdf/'.$hashIds->encode($order->id)) }}">Send to {{$order->student->sponsor->simpleName()}}</a>--}}
 </div>
 
 <script src="{{ asset('assets/global/plugins/jquery.min.js')}}" type="text/javascript"></script>

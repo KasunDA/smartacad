@@ -56,26 +56,28 @@
                                 <tr role="row" class="heading">
                                     <th width="1%">#</th>
                                     <th width="12%">Order No.</th>
-                                    <th width="10%">Amount</th>
-                                    <th width="4%">Status</th>
+                                    <th width="8%">Amount</th>
+                                    <th width="3%">Status</th>
                                     <th width="25%">Student</th>
-                                    <th width="10%">Sex</th>
-                                    <th width="20%">Class Room</th>
-                                    <th width="13%">Action</th>
-                                    <th width="5%">Backend</th>
+                                    <th width="10%">M / F</th>
+                                    <th width="18%">Class Room</th>
+                                    <th width="10%">Action</th>
+                                    <th width="8%">Update</th>
+                                    <th width="5%">Source</th>
                                 </tr>
                             </thead>
                             <tfoot>
                                 <tr role="row" class="heading">
                                     <th width="1%">#</th>
                                     <th width="12%">Order No.</th>
-                                    <th width="10%">Amount</th>
-                                    <th width="4%">Status</th>
+                                    <th width="8%">Amount</th>
+                                    <th width="3%">Status</th>
                                     <th width="25%">Student</th>
-                                    <th width="10%">Sex</th>
-                                    <th width="20%">Class Room</th>
-                                    <th width="13%">Action</th>
-                                    <th width="5%">Backend</th>
+                                    <th width="10%">M / F</th>
+                                    <th width="18%">Class Room</th>
+                                    <th width="10%">Action</th>
+                                    <th width="8%">Update</th>
+                                    <th width="5%">Source</th>
                                 </tr>
                             </tfoot>
                             <tbody>
@@ -84,7 +86,7 @@
                                 <tr role="row" class="heading">
                                     <td>{{ $i++ }}</td>
                                     <td>
-                                        <a target="_blank" href="{{ action('Admin\Orders\OrdersController@getItems',
+                                        <a href="{{ action('Admin\Orders\OrdersController@getItems',
                                         ['studentId' => $hashIds->encode($order->student_id), 'termId' => $hashIds->encode($term->academic_term_id)]) }}"
                                            class="btn btn-link btn-xs sbold"><span style="font-size: 14px">{{ $order->number }}</span>
                                         </a>
@@ -110,10 +112,30 @@
                                         </a>
                                     </td>
                                     <td>
-                                        {!! ($order->backend==1)
-                                            ? '<span class="label label-sm label-success">Yes</span>'
-                                            : '<span class="label label-sm label-danger">No</span>'
-                                        !!}
+                                        @if(!$order->paid)
+                                            <button  data-confirm-text="Yes, Confirm Payment" data-name="{{$order->number}}" data-title="Order Status Update Confirmation"
+                                                 data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$order->fullname}} has being PAID, for {{$term->academic_term}}?</b>"
+                                                 data-statusText="{{$order->number}} Order status updated to PAID" data-confirm-button="#44b6ae"
+                                                 data-action="/orders/status/{{$order->order_id}}" data-status="Updated"
+                                                 class="btn btn-success btn-xs btn-sm confirm-delete-btn">
+                                                <span class="fa fa-save"></span> Update
+                                            </button>
+                                        @else
+                                            <button  data-confirm-text="Yes, Undo Payment" data-name="{{$order->number}}" data-title="Order Status Update Confirmation"
+                                                     data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$order->fullname}} has NOT being PAID, for {{$term->academic_term}}?</b>"
+                                                     data-statusText="{{$order->number}} Order status updated to NOT-PAID"
+                                                     data-action="/orders/status/{{$order->order_id}}" data-status="Updated"
+                                                     class="btn btn-warning btn-xs btn-sm confirm-delete-btn">
+                                                <span class="fa fa-undo"></span> Undo
+                                            </button>
+                                        @endif
+                                        <a class="btn btn-info btn-xs" href="{{ action('Admin\Orders\OrdersController@getItems',
+                                            ['studentId' => $hashIds->encode($order->student_id), 'termId' => $hashIds->encode($term->academic_term_id)]) }}">
+                                            <i class="fa fa-eye"></i> View
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {!! ($order->backend) ? LabelHelper::info('Admin') : LabelHelper::default('Sponsor') !!}
                                     </td>
                                 </tr>
                             @endforeach

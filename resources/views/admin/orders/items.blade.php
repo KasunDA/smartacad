@@ -82,13 +82,37 @@
                                     <th> Order No. </th>
                                     <td> {{ $order->number }} </td>
                                     <th> Status </th>
-                                    <td> {{ strtoupper($order->status) }} </td>
+                                    <td>{!! ($order->paid) ? LabelHelper::success(strtoupper($order->status)) : LabelHelper::danger(strtoupper($order->status))!!}</td>
                                 </tr>
                                 <tr>
                                     <th> Total Amount </th>
                                     <th>{{CurrencyHelper::NAIRA}} {{ $order->amount(true) }}</th>
                                     <th> Item(s) </th>
                                     <td> {{ count($items) }} </td>
+                                </tr>
+                                <tr>
+                                    <th>Update Status</th>
+                                    <td>
+                                        @if(!$order->paid)
+                                            <button  data-confirm-text="Yes, Confirm Payment" data-name="{{$order->number}}" data-title="Order Status Update Confirmation"
+                                                     data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$student->simpleName()}} has being PAID, for {{$term->academic_term}}?</b>"
+                                                     data-statusText="{{$order->number}} Order status updated to PAID" data-confirm-button="#44b6ae"
+                                                     data-action="/orders/status/{{$order->id}}" data-status="Updated"
+                                                     class="btn btn-success btn-xs confirm-delete-btn">
+                                                <span class="fa fa-save"></span> Update
+                                            </button>
+                                        @else
+                                            <button  data-confirm-text="Yes, Undo Payment" data-name="{{$order->number}}" data-title="Order Status Update Confirmation"
+                                                     data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$student->simpleName()}} has NOT being PAID, for {{$term->academic_term}}?</b>"
+                                                     data-statusText="{{$order->number}} Order status updated to NOT-PAID"
+                                                     data-action="/orders/status/{{$order->id}}" data-status="Updated"
+                                                     class="btn btn-warning btn-xs confirm-delete-btn">
+                                                <span class="fa fa-undo"></span> Undo
+                                            </button>
+                                        @endif
+                                    </td>
+                                    <th>Source</th>
+                                    <td>{!! ($order->backend) ? LabelHelper::info('Admin') : LabelHelper::default('Sponsor') !!}</td>
                                 </tr>
                             @else
                                 <tr>

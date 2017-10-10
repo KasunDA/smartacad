@@ -20,6 +20,9 @@ $(function () {
 
         var confirmText = $.trim($(this).data('confirm-text'));
         confirmText = (confirmText.length) ? confirmText : 'Yes, delete it!';
+        
+        var confirmButton = $.trim($(this).data('confirm-button'));
+        confirmButton = (confirmButton.length) ? confirmButton : '#DD6B55';
 
         var status = $.trim($(this).data('status'));
         status = (status.length) ? status : 'Deleted!';
@@ -36,7 +39,7 @@ $(function () {
                 text: message,
                 type: type,
                 showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
+                confirmButtonColor: confirmButton,
                 confirmButtonText: confirmText,
                 closeOnConfirm: false,
                 html: true

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Orders;
 
 use App\Helpers\CurrencyHelper;
+use App\Helpers\LabelHelper;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Accounts\Students\Student;
@@ -97,13 +98,16 @@ class OrdersController extends Controller
                 
                 $object->student_id = $this->encode($order->student_id);
                 $object->term_id = $this->encode($term->academic_term_id);
+                $object->term = $term->academic_term;
                 $object->order_id = $order->order_id;
+                $object->fullname = $order->fullname;
                 $object->number = $order->number;
                 $object->status = '<span class="label label-'.$status.'">'.$order->status.'</span>';
                 $object->amount = CurrencyHelper::format($order->amount);
                 $object->paid = $order->paid;
                 $object->student_no = $order->student_no;
                 $object->name = $order->fullname;
+                $object->backend = ($order->backend) ? LabelHelper::info('Admin') : LabelHelper::default('Sponsor') ;
                 $object->classroom = $order->classroom;
                 $output[] = $object;
             }
@@ -229,25 +233,27 @@ class OrdersController extends Controller
      * @param Int $paid
      * @return Response
      */
-    public function getStatus($orderId, $paid)
+    public function getStatus($orderId)
     {
         $order = Order::findOrFail($orderId);
-        if(empty($paid)){
-            $order->paid = 1;
-            $order->backend = 1;
-            $order->status = Order::PAID;
-            $comment = 'Status changed from ' . Order::NOT_PAID . ' to ' . Order::PAID;
-        }else{
-            $order->paid = 0;
-            $order->status = Order::NOT_PAID;
-            $comment = 'Status changed from ' . Order::PAID . ' to ' . Order::NOT_PAID;
+        if(!$order->backend && $order->paid){
+            $this->setFlashMessage('Warning!!! Order: '.$order->number.' status cannot be updated, kindly contact systems admin.', 2);
+
+            return response()->json($order);
         }
+
+        $paid = $order->paid;
+        $stat = !$paid ? Order::NOT_PAID . ' to ' . Order::PAID : Order::PAID . ' to ' . Order::NOT_PAID;
+        $order->paid = !$paid;
+        $order->backend = 1;
+        $order->status = !$paid ? Order::PAID : Order::NOT_PAID;
+        $comment = 'Order: ' . $order->number . ' Status changed from ' . strtoupper($stat);
 
         if($order->save()){
             OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$order->id, 'comment'=>$comment]);
             $this->setFlashMessage('Updated!!! ' . $comment, 1);
         } else {
-            $this->setFlashMessage('Error!!! Unable to updating record.', 2);
+            $this->setFlashMessage('Error!!! Unable to update record status.', 2);
         }
 
         return response()->json($order);
