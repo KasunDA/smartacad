@@ -39,8 +39,9 @@
                                 {{ strtoupper($mySchool->full_name) }}
                             </div>
                             {!! ($mySchool->address) ? '<div style="font-size: 12px; font-weight: bold;">'.$mySchool->address.'</div>' : '' !!}
-                            {!! ($mySchool->email) ? '<small>'.$mySchool->email.'</small>' : '' !!}<br>
-                            {!! ($mySchool->website) ? '<small>'.$mySchool->website.'</small>' : '' !!}
+                            {!! ($mySchool->email) ? '<small>email: '.$mySchool->email.'</small>' : '' !!}
+                            {!! ($mySchool->website) ? '<small>website: '.$mySchool->website.'</small>' : '' !!}<br>
+                            {!! ($mySchool->phone_no) ? '<small>phone no.: ' . $mySchool->phone_no . ', ' . $mySchool->phone_no2 ?? '' . '</small>' : '' !!}
                         </td>
                     </tr>
                 </table><br>
