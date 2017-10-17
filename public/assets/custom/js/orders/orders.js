@@ -106,7 +106,7 @@ var UIBlockUI = function() {
                                 '<td>'+order.number+'</td>' +
                                 '<td>'+order.amount+'</td>' +
                                 '<td>'+order.status+'</td>' +
-                                '<td><a target="_blank" href="/orders/items/'+order.student_id+'/'+ order.term_id + '"' +
+                                '<td><a href="/orders/items/'+order.student_id+'/'+ order.term_id + '"' +
                                 ' class="btn btn-xs btn-info"> <i class="fa fa-eye"></i> Details</a></td>' +
                                 '<td>'+button+'</td>' +
                                 '<td>'+order.backend+'</td>' +
@@ -170,7 +170,7 @@ var UIBlockUI = function() {
                                 '<td>'+student.student_no+'</td>' +
                                 '<td>'+student.name+'</td>' +
                                 '<td>'+student.gender+'</td>' +
-                                '<td><a target="_blank" href="/orders/items/'+student.student_id+'/'+ student.term_id + '"' +
+                                '<td><a href="/orders/items/'+student.student_id+'/'+ student.term_id + '"' +
                                 ' class="btn btn-xs btn-info"> <i class="fa fa-send"></i> Proceed</a></td>' +
                             '</tr>';
                         });

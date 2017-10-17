@@ -146,7 +146,7 @@
         <?php $total = 0; $i = 1; ?>
         @if($items)
             @foreach($items as $item)
-                <tr>
+                <tr class="item">
                     <td width="1%">{{ $i++ }}</td>
                     <td width="30%">{{ $item->item->name }}</td>
                     <td width="44%">{{ $item->item->description }}</td>
