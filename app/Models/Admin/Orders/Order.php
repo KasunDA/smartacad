@@ -22,6 +22,8 @@ class Order extends Model
         'paid',
         'backend',
         'amount',
+        'total_amount',
+        'discount',
         'tax',
         'student_id',
         'sponsor_id',

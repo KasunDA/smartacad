@@ -36,7 +36,7 @@ class BillingsController extends Controller
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
         $items = Item::where('status', 1)
-            ->where('item_type_id', '<>', ItemType::UNIVERSAL)
+            ->where('item_type_id', '<>', ItemType::TERMLY)
             ->lists('name', 'id')
             ->prepend('- Select Item -', '');
 
@@ -98,7 +98,7 @@ class BillingsController extends Controller
                 ->where('academic_year_id', $term->academic_year_id)
                 ->whereIn('item_id', 
                     Item::where('status', 1)
-                        ->where('item_type_id', '<>', ItemType::UNIVERSAL)
+                        ->where('item_type_id', '<>', ItemType::TERMLY)
                         ->lists('id')
                         ->toArray()
                 )
@@ -108,6 +108,7 @@ class BillingsController extends Controller
             $items[] = array(
                 "id"=>$quote->item_id,
                 "name"=>$quote->item->name,
+                "description"=>$quote->item->description,
                 "amount"=>$quote->amount
             );
         }

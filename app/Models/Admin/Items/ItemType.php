@@ -12,9 +12,9 @@ class ItemType extends Model
 
     public $timestamps = false;
     
-    const UNIVERSAL = 1;
-    const VARIABLE = 2;
-    const ELECTIVE = 3;
+    const TERMLY = 1;
+    const ANNUALLY = 2;
+    const OPTIONAL = 3;
 
     protected $fillable = [
         'item_type'

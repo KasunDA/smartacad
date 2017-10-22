@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\MasterRecords\Classes;
 
+use App\Models\Admin\Items\ItemQuote;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -46,6 +47,15 @@ class ClassGroup extends Model
 
     public function classLevels(){
         return $this->hasMany(ClassLevel::class, 'classgroup_id');
+    }
+
+    /**
+     * A Class Group Has Many Class Level
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function itemQuotes(){
+        return $this->hasMany(ItemQuote::class, 'classgroup_id');
     }
 
     /**
