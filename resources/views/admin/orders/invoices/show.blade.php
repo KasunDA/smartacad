@@ -39,8 +39,9 @@
                                 {{ strtoupper($mySchool->full_name) }}
                             </div>
                             {!! ($mySchool->address) ? '<div style="font-size: 12px; font-weight: bold;">'.$mySchool->address.'</div>' : '' !!}
-                            {!! ($mySchool->email) ? '<small>'.$mySchool->email.'</small>' : '' !!}<br>
-                            {!! ($mySchool->website) ? '<small>'.$mySchool->website.'</small>' : '' !!}
+                            {!! ($mySchool->email) ? '<small>email: '.$mySchool->email.'</small>' : '' !!}
+                            {!! ($mySchool->website) ? '<small>website: '.$mySchool->website.'</small>' : '' !!}<br>
+                            {!! ($mySchool->phone_no) ? '<small>phone no.: ' . $mySchool->phone_no . ', ' . $mySchool->phone_no2 ?? '' . '</small>' : '' !!}
                         </td>
                     </tr>
                 </table><br>
@@ -77,7 +78,7 @@
         <?php $total = 0; $i = 1; ?>
         @if($items)
             @foreach($items as $item)
-                <tr>
+                <tr class="item">
                     <td width="1%">{{ $i++ }}</td>
                     <td width="27%">{{ $item->item->name }}</td>
                     <td width="50%">{{ $item->item->description }}</td>

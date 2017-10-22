@@ -6,6 +6,7 @@ use App\Models\Admin\Items\Item;
 use App\Models\Admin\Items\ItemQuote;
 use App\Models\Admin\Items\ItemType;
 use App\Models\Admin\MasterRecords\AcademicYear;
+use App\Models\Admin\MasterRecords\Classes\ClassGroup;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use Illuminate\Http\Request;
 
@@ -42,11 +43,12 @@ class ItemQuotesController extends Controller
                 : $item_quotes;
         }
 
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
+//        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
+        $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('- Class Group -', '');
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         
         return view('admin.master-records.items.item-quotes',
-            compact('items', 'item_quotes', 'classlevels', 'academic_year', 'item', 'academic_years')
+            compact('items', 'item_quotes', 'classgroups', 'academic_year', 'item', 'academic_years')
         );
     }
 
@@ -64,7 +66,7 @@ class ItemQuotesController extends Controller
             $item_quote = ($inputs['id'][$i] > 0) ? ItemQuote::find($inputs['id'][$i]) : new ItemQuote();
             $item_quote->item_id = $inputs['item_id'][$i];
             $item_quote->amount = $inputs['amount'][$i];
-            $item_quote->classlevel_id = $inputs['classlevel_id'][$i];
+            $item_quote->classgroup_id = $inputs['classgroup_id'][$i];
             $item_quote->academic_year_id = $inputs['academic_year_id'][$i];
             $count = ($item_quote->save()) ? $count+1 : '';
         }
@@ -74,6 +76,7 @@ class ItemQuotesController extends Controller
         // redirect to the create a new inmate page
         return redirect('/item-quotes');
     }
+
 
     /**
      * Delete a item from the list of items using a given id
