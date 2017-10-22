@@ -42,7 +42,8 @@ class CreateItemsTable extends Migration
             $table->increments('id');
             $table->decimal('amount', 10, 2)->index();
             $table->integer('item_id', false, true)->index();
-            $table->integer('classlevel_id', false, true)->index();
+            $table->integer('classlevel_id', false, true)->index()->nullable();
+            $table->integer('classgroup_id', false, true)->index();
             $table->integer('academic_year_id', false, true)->index();
             $table->timestamps();
 

@@ -103,7 +103,7 @@
                                         <th style="width: 5%;">s/no</th>
                                         <th style="width: 25%;">Item <small class="font-red-thunderbird">*</small></th>
                                         <th style="width: 20%;">Amount <small class="font-red-thunderbird">*</small></th>
-                                        <th style="width: 20%;">Class Level <small class="font-red-thunderbird">*</small></th>
+                                        <th style="width: 20%;">Class Group <small class="font-red-thunderbird">*</small></th>
                                         <th style="width: 20%;">Academic Year <small class="font-red-thunderbird">*</small></th>
                                         <th style="width: 10%;">Actions</th>
                                     </tr>
@@ -113,7 +113,7 @@
                                         <th style="width: 5%;">s/no</th>
                                         <th style="width: 25%;">Item <small class="font-red-thunderbird">*</small></th>
                                         <th style="width: 20%;">Amount <small class="font-red-thunderbird">*</small></th>
-                                        <th style="width: 20%;">Class Level <small class="font-red-thunderbird">*</small></th>
+                                        <th style="width: 20%;">Class Group <small class="font-red-thunderbird">*</small></th>
                                         <th style="width: 20%;">Academic Year <small class="font-red-thunderbird">*</small></th>
                                         <th style="width: 10%;">Actions</th>
                                     </tr>
@@ -129,7 +129,7 @@
                                                     {!! Form::hidden('id[]', $item_quote->id, ['class'=>'form-control']) !!}
                                                 </td>
                                                 <td>{!! Form::text('amount[]', $item_quote->amount, ['placeholder'=>'Price (0.00)', 'class'=>'form-control']) !!}</td>
-                                                <td>{!! Form::select('classlevel_id[]', $classlevels, $item_quote->classlevel_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                <td>{!! Form::select('classgroup_id[]', $classgroups, $item_quote->classgroup_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>{!! Form::select('academic_year_id[]', $academic_years, $item_quote->academic_year_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>
                                                     <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$item_quote->item->name}}" data-title="Delete Confirmation"
@@ -149,7 +149,7 @@
                                                 {!! Form::hidden('id[]', '-1', ['class'=>'form-control']) !!}
                                             </td>
                                             <td>{!! Form::number('amount[]', '', ['placeholder'=>'Price (0.00)', 'class'=>'form-control']) !!}</td>
-                                            <td>{!! Form::select('classlevel_id[]', $classlevels, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                            <td>{!! Form::select('classgroup_id[]', $classgroups, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                             <td>{!! Form::select('academic_year_id[]', $academic_years, AcademicYear::activeYear()->academic_year_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                             <td>
                                                 <button class="btn btn-danger btn-xs btn-condensed btn-sm">

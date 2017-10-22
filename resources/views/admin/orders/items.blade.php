@@ -251,7 +251,7 @@
     <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
     <!-- END PAGE LEVEL PLUGINS -->
     <!-- BEGIN THEME GLOBAL SCRIPTS -->
-    <script src="{{ asset('assets/custom/js/orders/billings.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/custom/js/orders/orders.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/orders"]');

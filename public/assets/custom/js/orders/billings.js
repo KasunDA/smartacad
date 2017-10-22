@@ -36,10 +36,12 @@ jQuery(document).ready(function() {
     //Each item on change
     $(document.body).on('change', '.each-item', function () {
         var amount = $(this).children('option:selected').data('amount');
+        var description = $(this).children('option:selected').data('description');
         var td = $(this).parent('td').next();
         amount = (typeof amount == "undefined") ? ' ' : amount;
+        description = (typeof description == "undefined") ? ' ' : description;
         td.html('<b> '+amount+'</b>');
-        // alert(amount);
+        td.next().html(description);
     });
 
     $(document.body).on('click', '.billing-items', function(){
@@ -214,7 +216,7 @@ var UIBlockUI = function() {
                     var option = '<option value="">- Select Item -</option>';
                     //Set items
                     $.each(obj.Items, function(key, item) {
-                        option += '<option data-amount="'+item.amount+'" value="'+item.id+'">'+item.name+'</option>';
+                        option += '<option data-amount="'+item.amount+'" data-description="'+item.description+'" value="'+item.id+'">'+item.name+'</option>';
                     });
                     $('#all_item_id').html(option);
 

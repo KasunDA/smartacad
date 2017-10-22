@@ -3,6 +3,7 @@
 namespace App\Models\Admin\Items;
 
 use App\Models\Admin\MasterRecords\AcademicYear;
+use App\Models\Admin\MasterRecords\Classes\ClassGroup;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,6 +13,7 @@ class ItemQuote extends Model
         'price',
         'item_id',
         'classlevel_id',
+        'classgroup_id',
         'academic_year_id',
     ];
 
@@ -31,6 +33,15 @@ class ItemQuote extends Model
      */
     public function classLevel(){
         return $this->belongsTo(ClassLevel::class);
+    }
+
+    /**
+     * An Item Quote belongs to a class level
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function classGroup(){
+        return $this->belongsTo(ClassGroup::class);
     }
     
     /**

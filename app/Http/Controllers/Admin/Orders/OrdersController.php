@@ -55,7 +55,7 @@ class OrdersController extends Controller
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
             ->prepend('- Class Level -', '');
         $items = Item::where('status', 1)
-            ->where('item_type_id', '<>', ItemType::UNIVERSAL)
+            ->where('item_type_id', '<>', ItemType::TERMLY)
             ->lists('name', 'id')
             ->prepend('- Select Item -', '');
 

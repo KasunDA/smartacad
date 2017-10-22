@@ -161,7 +161,7 @@
 
     <!-- modal -->
     <div id="billing_form" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog"  style="width: 760px;">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
@@ -186,20 +186,13 @@
                                     <table class="table table-bordered table-striped table-actions" id="item_table">
                                         <thead>
                                         <tr>
-                                            <th style="width: 5%;">#</th>
-                                            <th style="width: 55%;">Item</th>
-                                            <th style="width: 30%;">Amount (&#8358;)</th>
-                                            <th style="width: 10%;">Actions</th>
+                                            <th style="width: 1%;">#</th>
+                                            <th style="width: 28%;">Item</th>
+                                            <th style="width: 18%;">Amount (&#8358;)</th>
+                                            <th style="width: 45%;">Description</th>
+                                            <th style="width: 9%;">Actions</th>
                                         </tr>
                                         </thead>
-                                        <tfoot>
-                                        <tr>
-                                            <th style="width: 5%;">#</th>
-                                            <th style="width: 55%;">Item</th>
-                                            <th style="width: 30%;">Amount (&#8358;)</th>
-                                            <th style="width: 10%;">Actions</th>
-                                        </tr>
-                                        </tfoot>
                                         <tbody>
                                             <tr>
                                                 <td class="text-center">1</td>
@@ -208,6 +201,7 @@
                                                         ['class'=>'form-control each-item', 'id'=>'all_item_id', 'required'=>'required'])
                                                      !!}
                                                 </td>
+                                                <td></td>
                                                 <td></td>
                                                 <td>
                                                     <button class="btn btn-danger btn-xs btn-condensed btn-sm">
@@ -255,6 +249,7 @@
     <script src="{{ asset('assets/custom/js/orders/billings.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
+            setTabActive('[href="/billings"]');
 
             $('.add_item').click(function(e){
                 e.preventDefault();
@@ -265,14 +260,13 @@
                 clone_row.children(':nth-child(1)').html( parseInt(clone_row.children(':nth-child(1)').html())+1);
                 clone_row.children(':nth-child(2)').children('select').val('');
                 clone_row.children(':nth-child(3)').children().html('');
+                clone_row.children(':nth-child(4)').html("");
                 clone_row.children(':last-child').html('<button class="btn btn-danger btn-xs btn-condensed btn-xs remove_item"><span class="fa fa-times"></span> Remove</button>');
             });
 
             $(document.body).on('click','.remove_item',function(){
                 $(this).parent().parent().remove();
             });
-
-            setTabActive('[href="/billings"]');
         });
     </script>
 @endsection
