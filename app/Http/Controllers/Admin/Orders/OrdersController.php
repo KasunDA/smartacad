@@ -200,12 +200,14 @@ class OrdersController extends Controller
     public function getDeleteItem($itemId)
     {
         $orderItem = OrderItem::findOrFail($itemId);
-
         $delete = !empty($orderItem) ? $orderItem->delete() : false;
 
-        ($delete)
-            ? $this->setFlashMessage('  Deleted!!! ' . $orderItem->item->name . ' deleted from the student billings.', 1)
-            : $this->setFlashMessage('Error!!! Unable to delete record.', 2);
+        if($delete){
+            $orderItem->order->updateAmount();
+            $this->setFlashMessage('  Deleted!!! ' . $orderItem->item->name . ' deleted from the student billings.', 1);
+        }else{
+            $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
+        }
     }
 
     /**

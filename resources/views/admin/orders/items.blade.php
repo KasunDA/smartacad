@@ -150,12 +150,12 @@
                                     </td>
                                     <th>Modify Order</th>
                                     <td>
-                                        <button  data-confirm-text="Yes, Undo Payment" data-name="{{$order->number}}" data-title="Order Status Update Confirmation"
-                                                 data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$student->simpleName()}} has NOT being PAID, for {{$term->academic_term}}?</b>"
-                                                 data-statusText="{{$order->number}} Order status updated to NOT-PAID"
-                                                 data-action="/orders/status/{{$order->id}}" data-status="Updated"
-                                                 class="btn btn-warning btn-xs confirm-delete-btn">
-                                            <span class="fa fa-edit"></span> Edit
+                                        {{--<button  data-confirm-text="Yes, Undo Payment" data-name="{{$order->number}}" data-title="Order Status Update Confirmation"--}}
+                                                 {{--data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$student->simpleName()}} has NOT being PAID, for {{$term->academic_term}}?</b>"--}}
+                                                 {{--data-statusText="{{$order->number}} Order status updated to NOT-PAID"--}}
+                                                 {{--data-action="/orders/status/{{$order->id}}" data-status="Updated"--}}
+                                                 {{--class="btn btn-warning btn-xs confirm-delete-btn">--}}
+                                            {{--<span class="fa fa-edit"></span> Edit--}}
                                     </td>
                                 </tr>
                             @else
@@ -170,7 +170,7 @@
             <!-- END SAMPLE TABLE PORTLET-->
         </div>
 
-        <div class="col-md-10 margin-bottom-10">
+        <div class="col-md-12 margin-bottom-10">
             <!-- BEGIN SAMPLE TABLE PORTLET-->
             <div class="portlet light bordered">
                 @if($order)
@@ -201,8 +201,8 @@
                                         <th width="2%">#</th>
                                         <th width="25%">Name</th>
                                         <th width="40%">Description</th>
-                                        <th width="15%">Amount</th>
-                                        <th width="17%">Discounted Item</th>
+                                        <th width="15%">Amount {{CurrencyHelper::NAIRA}}</th>
+                                        <th width="17%">Discounted Item {{CurrencyHelper::NAIRA}}</th>
                                         @if(!$order->paid)
                                             <th width="5%">Edit</th>
                                             <th width="5%">Delete</th>
