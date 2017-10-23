@@ -23,13 +23,16 @@ class Order extends Model
         'backend',
         'amount',
         'total_amount',
+        'amount_paid',
         'discount',
         'tax',
+        'item_count',
         'student_id',
         'sponsor_id',
         'classroom_id',
         'academic_term_id',
-        'order_initiate_id'
+        'order_initiate_id',
+        'is_part_payment'
     ];
 
     const PAID = 'paid';
@@ -171,5 +174,14 @@ class Order extends Model
 
     public function orderLogs(){
         return $this->hasMany(OrderLog::class);
+    }
+
+    /**
+     * An Order May have many Part Payments
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function partPayments(){
+        return $this->hasMany(PartPayment::class);
     }
 }
