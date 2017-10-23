@@ -17,4 +17,13 @@ class CurrencyHelper
     {
         return ($symbol) ? self::NAIRA . ' '. number_format($number, $decimal) : number_format($number, $decimal);
     }
+
+    public static function discount(Float $number, Int $percent)
+    {
+        if($percent == 0){
+            return $number;
+        }
+        
+        return  ($number - (($percent / 100) * $number));
+    }
 }

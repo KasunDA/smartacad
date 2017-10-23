@@ -58,7 +58,7 @@ class OrdersController extends Controller
             ->where('item_type_id', '<>', ItemType::TERMLY)
             ->lists('name', 'id')
             ->prepend('- Select Item -', '');
-
+        
         return view('admin.orders.index', compact('academic_years', 'classlevels', 'items'));
     }
 

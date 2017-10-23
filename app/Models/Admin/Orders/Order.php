@@ -10,6 +10,7 @@ use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use phpDocumentor\Reflection\Types\Float_;
 
 class Order extends Model
 {
@@ -183,5 +184,44 @@ class Order extends Model
 
     public function partPayments(){
         return $this->hasMany(PartPayment::class);
+    }
+
+    /**
+     * Compute Order Amount discounts
+     *
+     * @return Float_
+     */
+    public function getDiscountedAmount(){
+        return ($this->discount == 0) ? $this->amount : CurrencyHelper::discount($this->total_amount, (int) $this->discount);
+    }
+
+    /**
+     * ReCompute the Order Amount
+     *
+     * @param $id
+     * @return self
+     */
+    public static function reComputeAmount($id){
+        $order = self::find($id);
+        foreach ($order->orderItems as $item){
+            $item->amount = $item->getDiscountedAmount();
+            $item->save();
+        }
+
+        $order->updateAmount();
+        return $order;
+    }
+
+    /**
+     * Update the Order Amount from Order Items also consider discounts
+     *
+     * @return self
+     */
+    public function updateAmount(){
+        $this->amount = $this->total_amount = $this->orderItems()->lists('amount')->sum();
+        $this->amount = $this->getDiscountedAmount();
+        $this->item_count = count($this->orderItems);
+
+        $this->save();
     }
 }

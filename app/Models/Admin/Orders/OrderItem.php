@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\Orders;
 
+use App\Helpers\CurrencyHelper;
 use App\Models\Admin\Items\Item;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -36,5 +37,9 @@ class OrderItem extends Model
      */
     public function item(){
         return $this->belongsTo(Item::class);
+    }
+
+    public function getDiscountedAmount(){
+        return ($this->discount == 0) ? $this->item_amount : CurrencyHelper::discount($this->item_amount, (int) $this->discount);
     }
 }

@@ -18,6 +18,7 @@ class CreatePartPaymentsTable extends Migration
             $table->integer('order_id', false, true)->index();
             $table->integer('user_id', false, true)->index();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
