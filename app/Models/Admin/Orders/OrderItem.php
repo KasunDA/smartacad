@@ -40,6 +40,6 @@ class OrderItem extends Model
     }
 
     public function getDiscountedAmount(){
-        return ($this->discount == 0) ? $this->item_amount : CurrencyHelper::discount($this->item_amount, (int) $this->discount);
+        return ($this->discount == 0) ? $this->item_amount : CurrencyHelper::discountedAmount($this->item_amount, (int) $this->discount);
     }
 }

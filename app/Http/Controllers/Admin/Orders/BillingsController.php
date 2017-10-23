@@ -37,7 +37,7 @@ class BillingsController extends Controller
         $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
         $items = Item::where('status', 1)
             ->where('item_type_id', '<>', ItemType::TERMLY)
-            ->lists('name', 'id')
+            ->pluck('name', 'id')
             ->prepend('- Select Item -', '');
 
         return view('admin.orders.billings', compact('academic_years', 'classlevels', 'items'));
@@ -84,6 +84,7 @@ class BillingsController extends Controller
         $inputs = $request->all();
         $students = $classrooms = $output = $items = [];
         $term = AcademicTerm::findOrFail($inputs['view_academic_term_id']);
+        $classlevel = ClassLevel::find($inputs['view_classlevel_id']);
 
         if(!empty($inputs['view_classroom_id'])){
             $students = StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])
@@ -94,7 +95,7 @@ class BillingsController extends Controller
             $classrooms = ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->get();
         }
 
-        $quotes = ItemQuote::where('classlevel_id', $inputs['view_classlevel_id'])
+        $quotes = ItemQuote::where('classgroup_id', $classlevel->classgroup_id)
                 ->where('academic_year_id', $term->academic_year_id)
                 ->whereIn('item_id', 
                     Item::where('status', 1)
@@ -116,7 +117,7 @@ class BillingsController extends Controller
         $response = array();
         $response['flag'] = 0;
         $response['term_id'] = $term->academic_term_id;
-            $response['Items'] = $items;
+        $response['Items'] = $items;
 
         if(!empty($students)){
             //All the students in the class room for the academic year
@@ -208,7 +209,7 @@ class BillingsController extends Controller
 
             Order::processItemVariables($variableIds);
             session()->put('billing-tab', 'student');
-            $this->setFlashMessage('Item Billings for ' . $term->academic_term . ' has been successfully ' . $stat, 1);
+            $this->setFlashMessage('Custom Item Billings for ' . $term->academic_term . ' has been successfully ' . $stat, 1);
         }
         
         return response()->json($term);

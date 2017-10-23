@@ -197,7 +197,7 @@
                                             <tr>
                                                 <td class="text-center">1</td>
                                                 <td>
-                                                    {!! Form::select('item_id[]', $items, old('item_id'),
+                                                    {!! Form::select('item_id[]', $items, '',
                                                         ['class'=>'form-control each-item', 'id'=>'all_item_id', 'required'=>'required'])
                                                      !!}
                                                 </td>

@@ -14,6 +14,7 @@ jQuery(document).ready(function() {
         $('#modal-title-text').html('Edit Item Amount on: <b>' + $(this).data('item') +'</b>');
         $('#order_item_id').val($(this).data('id'));
         $('#amount').val($(this).data('amount'));
+        $('#discount').val($(this).data('discount'));
         $('#edit_item_modal').modal('show');
     });
 

@@ -58,7 +58,7 @@ class OrdersController extends Controller
             ->where('item_type_id', '<>', ItemType::TERMLY)
             ->lists('name', 'id')
             ->prepend('- Select Item -', '');
-        
+
         return view('admin.orders.index', compact('academic_years', 'classlevels', 'items'));
     }
 
@@ -217,11 +217,16 @@ class OrdersController extends Controller
     {
         $inputs = $request->all();
         $item = OrderItem::findOrFail($inputs['order_item_id']);
-        $item->amount = $inputs['amount'];
+        $item->discount = $inputs['discount'];
+        $item->amount = $item->item_amount = $inputs['amount'];
+        $item->amount = $item->getDiscountedAmount();
 
-        ($item->save())
-            ? $this->setFlashMessage('  Updated!!! ' . $item->item->name . ' Amount successfully updated.', 1)
-            : $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
+        if($item->save()){
+            $item->order->updateAmount();
+            $this->setFlashMessage('  Updated!!! ' . $item->item->name . ' Amount successfully updated.', 1);
+        }else{
+            $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
+        }
 
         echo json_encode($item);
     }
@@ -230,7 +235,6 @@ class OrdersController extends Controller
      * Update Order Status
      *
      * @param Int $orderId
-     * @param Int $paid
      * @return Response
      */
     public function getStatus($orderId)

@@ -192,7 +192,7 @@ class Order extends Model
      * @return Float_
      */
     public function getDiscountedAmount(){
-        return ($this->discount == 0) ? $this->amount : CurrencyHelper::discount($this->total_amount, (int) $this->discount);
+        return ($this->discount == 0) ? $this->amount : CurrencyHelper::discountedAmount($this->total_amount, (int) $this->discount);
     }
 
     /**
