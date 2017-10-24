@@ -38,6 +38,11 @@ class LabelHelper
         return self::label('default', $value);
     }
 
+    public static function primary(String $value=self::VALUE)
+    {
+        return self::label('primary', $value);
+    }
+
     public static function label(String $class, String $value=self::VALUE)
     {
         return "<span class='label label-{$class} label-sm'>{$value}</span>";

@@ -200,10 +200,13 @@ class OrdersController extends Controller
     public function getDeleteItem($itemId)
     {
         $orderItem = OrderItem::findOrFail($itemId);
+        $comment = 'Order Item: ' . $orderItem->id . ' Deleted on ' . date('Y-m-d h:i:s');
         $delete = !empty($orderItem) ? $orderItem->delete() : false;
 
         if($delete){
             $orderItem->order->updateAmount();
+            OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$orderItem->order_id, 'comment'=>$comment]);
+
             $this->setFlashMessage('  Deleted!!! ' . $orderItem->item->name . ' deleted from the student billings.', 1);
         }else{
             $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
@@ -219,12 +222,15 @@ class OrdersController extends Controller
     {
         $inputs = $request->all();
         $item = OrderItem::findOrFail($inputs['order_item_id']);
+        $comment = 'Order Item: ' . $item->id . ' Amount changed from ' . $item->item_amount . ' to ' . $inputs['amount'];
         $item->discount = $inputs['discount'];
         $item->amount = $item->item_amount = $inputs['amount'];
         $item->amount = $item->getDiscountedAmount();
 
         if($item->save()){
             $item->order->updateAmount();
+            OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$item->order_id, 'comment'=>$comment]);
+
             $this->setFlashMessage('  Updated!!! ' . $item->item->name . ' Amount successfully updated.', 1);
         }else{
             $this->setFlashMessage('Error!!! Unable to adjust record.', 2);

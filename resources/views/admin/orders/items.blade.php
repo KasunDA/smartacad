@@ -123,7 +123,7 @@
                                 </tr>
                                 <tr>
                                     <th>Payment Type</th>
-                                    <td>{!! ($order->is_part_payment) ? LabelHelper::warning('Part Payments') : LabelHelper::info('Full Payment') !!}</td>
+                                    <td>{!! ($order->is_part_payment) ? LabelHelper::primary(PartPayment::PAYMENT_TYPES[$order->is_part_payment]) : LabelHelper::success(PartPayment::PAYMENT_TYPES[$order->is_part_payment]) !!}</td>
                                     <th>Source</th>
                                     <td>{!! ($order->backend) ? LabelHelper::info('Admin') : LabelHelper::default('Sponsor') !!}</td>
                                 </tr>
@@ -135,7 +135,7 @@
                                                      data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$student->simpleName()}} has being PAID, for {{$term->academic_term}}?</b>"
                                                      data-statusText="{{$order->number}} Order status updated to PAID" data-confirm-button="#44b6ae"
                                                      data-action="/orders/status/{{$order->id}}" data-status="Updated"
-                                                     class="btn btn-success btn-xs confirm-delete-btn">
+                                                     class="btn btn-info btn-xs confirm-delete-btn">
                                                 <span class="fa fa-save"></span> Update
                                             </button>
                                         @else
@@ -150,12 +150,10 @@
                                     </td>
                                     <th>Modify Order</th>
                                     <td>
-                                        {{--<button  data-confirm-text="Yes, Undo Payment" data-name="{{$order->number}}" data-title="Order Status Update Confirmation"--}}
-                                                 {{--data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$student->simpleName()}} has NOT being PAID, for {{$term->academic_term}}?</b>"--}}
-                                                 {{--data-statusText="{{$order->number}} Order status updated to NOT-PAID"--}}
-                                                 {{--data-action="/orders/status/{{$order->id}}" data-status="Updated"--}}
-                                                 {{--class="btn btn-warning btn-xs confirm-delete-btn">--}}
-                                            {{--<span class="fa fa-edit"></span> Edit--}}
+                                        <a href="#" data-id="{{$order->id}}" data-number="{{$order->number}}" data-discount="{{ intval($order->discount) }}"
+                                           data-amount="{{ intval($order->amount) }}" data-is-part-payment="{{ intval($order->is_part_payment) }}" class="btn btn-warning btn-xs order-edit">
+                                            <span class="fa fa-edit"></span> Edit
+                                        </a>
                                     </td>
                                 </tr>
                             @else
@@ -274,7 +272,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title text-center text-primary" id="modal-title-text">Edit Item Amount Form</h4>
+                    <h4 class="modal-title text-center text-primary" id="modal-title-text-item">Edit Item Amount/Discount Form</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -300,6 +298,98 @@
                                                 @for($i = 0; $i <= 100; $i+=5)
                                                     <option value="{{$i}}">{{ $i }}%</option>
                                                 @endfor
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="control-label">Amount ({{CurrencyHelper::NAIRA}}): <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-money"></i></span>
+                                            {!! Form::text('amount', '', ['id'=>'amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'required'=>true]) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="control-label">Payment Type: <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-money"></i></span>
+                                            <select class="form-control" name="discount" id="discount" required>
+                                                @for($i = 0; $i <= 100; $i+=5)
+                                                    <option value="{{$i}}">{{ $i }}%</option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close</button>
+                                    <button type="submit" class="btn green">Submit</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.modal -->
+    <!-- modal -->
+    <div id="edit_order_modal" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title text-center text-primary" id="modal-title-text-order">Edit Order Form</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-10 col-sm-12 col-md-offset-1">
+                            <form method="POST" action="#" class="form" role="form" id="edit_order_form">
+                                {!! csrf_field() !!}
+                                {!! Form::hidden('order_id', '', ['id'=>'order_id']) !!}
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="control-label">Amount ({{CurrencyHelper::NAIRA}}): <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-money"></i></span>
+                                            {!! Form::text('amount', '', ['id'=>'order_amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'required'=>true]) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="control-label">Discount: <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-money"></i></span>
+                                            <select class="form-control" name="discount" id="order_discount" required>
+                                                @for($i = 0; $i <= 100; $i+=5)
+                                                    <option value="{{$i}}">{{ $i }}%</option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{--<div class="col-md-6">--}}
+                                    {{--<div class="form-group">--}}
+                                        {{--<label class="control-label">Amount ({{CurrencyHelper::NAIRA}}): <span class="text-danger">*</span></label>--}}
+                                        {{--<div class="input-group">--}}
+                                            {{--<span class="input-group-addon"><i class="fa fa-money"></i></span>--}}
+                                            {{--{!! Form::text('amount', '', ['id'=>'order_amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'required'=>true]) !!}--}}
+                                        {{--</div>--}}
+                                    {{--</div>--}}
+                                {{--</div>--}}
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="control-label">Payment Type: <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-money"></i></span>
+                                            <select class="form-control" name="is_part_payment" id="is_part_payment" required>
+                                                @foreach(PartPayment::PAYMENT_TYPES as $key => $value)
+                                                    <option value="{{$key}}">{{ $value }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                     </div>

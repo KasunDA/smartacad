@@ -9,13 +9,23 @@ jQuery(document).ready(function() {
     getDependentListBox($('#view_academic_year_id'), $('#view_academic_term_id'), '/list-box/academic-term/');
     getDependentListBox($('#view_classlevel_id'), $('#view_classroom_id'), '/list-box/classroom/');
     
-    //Edit Order Item Amount
+    //Edit Order Item
     $(document.body).on('click', '.item-edit', function(){
-        $('#modal-title-text').html('Edit Item Amount on: <b>' + $(this).data('item') +'</b>');
+        $('#modal-title-text-item').html('Edit Item Amount/Discount on: <b>' + $(this).data('item') +'</b>');
         $('#order_item_id').val($(this).data('id'));
         $('#amount').val($(this).data('amount'));
         $('#discount').val($(this).data('discount'));
         $('#edit_item_modal').modal('show');
+    });
+
+    //Edit Order
+    $(document.body).on('click', '.order-edit', function(){
+        $('#modal-title-text-order').html('Edit Order No.: <b>' + $(this).data('number') +'</b>');
+        $('#order_id').val($(this).data('id'));
+        $('#order_amount').val($(this).data('amount'));
+        $('#order_discount').val($(this).data('discount'));
+        $('#is_part_payment').val($(this).data('is-part-payment'));
+        $('#edit_order_modal').modal('show');
     });
 
     //Update Order Item Amount

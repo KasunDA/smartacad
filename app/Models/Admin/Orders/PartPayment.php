@@ -17,6 +17,10 @@ class PartPayment extends Model
         'user_id'
     ];
 
+    const PART_PAYMENT = 1;
+    const FULL_PAYMENT = 0;
+    const PAYMENT_TYPES = [self::FULL_PAYMENT => 'Full Payment', self::PART_PAYMENT => 'Part Payment'];
+    
     /**
      * An Order Item belongs to a Order
      *
