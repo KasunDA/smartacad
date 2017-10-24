@@ -107,7 +107,7 @@
                                     <th> Order No. </th>
                                     <td> {{ $order->number }} </td>
                                     <th> Status </th>
-                                    <td>{!! ($order->paid) ? LabelHelper::success(strtoupper($order->status)) : LabelHelper::danger(strtoupper($order->status))!!}</td>
+                                    <td>{!! LabelHelper::label(Order::STATUSES[$order->paid]['label'], Order::STATUSES[$order->paid]['title']) !!}</td>
                                 </tr>
                                 <tr>
                                     <th> Discount </th>
@@ -130,7 +130,7 @@
                                 <tr>
                                     <th>Update Order</th>
                                     <td>
-                                        @if(!$order->paid)
+                                        @if($order->paid != Order::PAID)
                                             <button  data-confirm-text="Yes, Confirm Payment" data-name="{{$order->number}}" data-title="Order Status Update Confirmation"
                                                      data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$student->simpleName()}} has being PAID, for {{$term->academic_term}}?</b>"
                                                      data-statusText="{{$order->number}} Order status updated to PAID" data-confirm-button="#44b6ae"
@@ -151,7 +151,8 @@
                                     <th>Modify Order</th>
                                     <td>
                                         <a href="#" data-id="{{$order->id}}" data-number="{{$order->number}}" data-discount="{{ intval($order->discount) }}"
-                                           data-amount="{{ intval($order->amount) }}" data-is-part-payment="{{ intval($order->is_part_payment) }}" class="btn btn-warning btn-xs order-edit">
+                                           data-amount="{{ intval($order->amount) }}" data-is-part-payment="{{ intval($order->is_part_payment) }}"
+                                           data-paid="{{ intval($order->paid) }}" class="btn btn-warning btn-xs order-edit">
                                             <span class="fa fa-edit"></span> Edit
                                         </a>
                                     </td>
@@ -355,7 +356,8 @@
                                         <label class="control-label">Amount ({{CurrencyHelper::NAIRA}}): <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="fa fa-money"></i></span>
-                                            {!! Form::text('amount', '', ['id'=>'order_amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'required'=>true]) !!}
+                                            {{--<span class="label label-default" id="order_amount"></span>--}}
+                                            {!! Form::text('amount', '', ['id'=>'order_amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'disabled'=>true]) !!}
                                         </div>
                                     </div>
                                 </div>
@@ -372,20 +374,24 @@
                                         </div>
                                     </div>
                                 </div>
-                                {{--<div class="col-md-6">--}}
-                                    {{--<div class="form-group">--}}
-                                        {{--<label class="control-label">Amount ({{CurrencyHelper::NAIRA}}): <span class="text-danger">*</span></label>--}}
-                                        {{--<div class="input-group">--}}
-                                            {{--<span class="input-group-addon"><i class="fa fa-money"></i></span>--}}
-                                            {{--{!! Form::text('amount', '', ['id'=>'order_amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'required'=>true]) !!}--}}
-                                        {{--</div>--}}
-                                    {{--</div>--}}
-                                {{--</div>--}}
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="control-label">Status: <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-eyedropper"></i></span>
+                                            <select class="form-control" name="paid" id="paid" required>
+                                                @foreach(Order::ORDER_STATUSES as $key => $value)
+                                                    <option value="{{$key}}">{{ $value }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="control-label">Payment Type: <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <span class="input-group-addon"><i class="fa fa-money"></i></span>
+                                            <span class="input-group-addon"><i class="fa fa-th-large"></i></span>
                                             <select class="form-control" name="is_part_payment" id="is_part_payment" required>
                                                 @foreach(PartPayment::PAYMENT_TYPES as $key => $value)
                                                     <option value="{{$key}}">{{ $value }}</option>

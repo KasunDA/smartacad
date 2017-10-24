@@ -17,6 +17,7 @@ use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\Orders\Order;
 use App\Models\Admin\Orders\OrderItem;
 use App\Models\Admin\Orders\OrderLog;
+use App\Models\Admin\Orders\PartPayment;
 use App\Models\Admin\Views\ItemView;
 use App\Models\Admin\Views\OrderView;
 use Illuminate\Http\Request;
@@ -171,6 +172,57 @@ class OrdersController extends Controller
     }
 
     /**
+     * Update an order
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postOrderUpdate(Request $request)
+    {
+        $discount = $paid = $is_part_payment = null;
+        $inputs = $request->all();
+        $order = Order::findOrFail($inputs['order_id']);
+
+        if($order->backend == Order::FRONTEND && $order->paid == Order::PAID){
+            $this->setFlashMessage('Warning!!! Order: '.$order->number.' status cannot be updated, kindly contact systems admin.', 2);
+
+            return response()->json($order);
+        }
+
+        if($order->paid != intval($inputs['paid'])){
+            $paid = ' Status changed from ' . Order::ORDER_STATUSES[$order->paid] . ' to ' . Order::ORDER_STATUSES[$inputs['paid']] . ', ';
+            $order->paid = $inputs['paid'];
+            $order->status = Order::ORDER_STATUSES[intval($inputs['paid'])];
+            $order->backend = ($order->paid == Order::PAID) ? Order::BACKEND : Order::FRONTEND;
+        }
+
+        if($order->is_part_payment != intval($inputs['is_part_payment'])){
+            $is_part_payment = ' Payment Type changed from ' . PartPayment::PAYMENT_TYPES[$order->is_part_payment] . ' to ' . PartPayment::PAYMENT_TYPES[$order->is_part_payment];
+            $order->is_part_payment = $inputs['is_part_payment'];
+        }
+
+        if($order->discount != intval($inputs['discount'])){
+            var_dump($order->amount);
+            $discount = ' Discount changed from ' . $order->discount . '% to ' . $inputs['discount'] . '%, ';
+            $order->discount = intval($inputs['discount']);
+//            $order->amount = $order->total_amount = intval($inputs['amount']);
+            $order->amount = $order->getDiscountedAmount();
+        }
+
+        if($order->save()){
+            $order->updateAmount();
+
+            if($discount !== null || $paid !== null || $is_part_payment !== null)
+                OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$order->id, 'comment'=>($discount . $paid . $is_part_payment)]);
+
+            $this->setFlashMessage('  Updated!!! ' . $order->number . ' successfully modified.', 1);
+        }else{
+            $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
+        }
+
+        echo json_encode($order);
+    }
+
+    /**
      * Details of a student orders and items in an academic term
      *
      * @param String $studentId
@@ -214,7 +266,7 @@ class OrdersController extends Controller
     }
 
     /**
-     * Update an order item amount
+     * Update an order item amount/discount
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
@@ -222,16 +274,19 @@ class OrdersController extends Controller
     {
         $inputs = $request->all();
         $item = OrderItem::findOrFail($inputs['order_item_id']);
-        $comment = 'Order Item: ' . $item->id . ' Amount changed from ' . $item->item_amount . ' to ' . $inputs['amount'];
+        $amount = ($item->item_amount != intval($inputs['amount'])) ? 'Item: ' . $item->id . ' Amount changed from ' . $item->item_amount . ' to ' . $inputs['amount'] : null;
+        $discount = ($item->discount != intval($inputs['discount'])) ? ' Item: ' . $item->id . ' Discount changed from ' . $item->discount . ' to ' . $inputs['discount'] : null;
         $item->discount = $inputs['discount'];
-        $item->amount = $item->item_amount = $inputs['amount'];
+        $item->amount = $item->item_amount = intval($inputs['amount']);
         $item->amount = $item->getDiscountedAmount();
 
         if($item->save()){
             $item->order->updateAmount();
-            OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$item->order_id, 'comment'=>$comment]);
+            $this->setFlashMessage('  Updated!!! ' . $item->item->name . ' successfully updated.', 1);
 
-            $this->setFlashMessage('  Updated!!! ' . $item->item->name . ' Amount successfully updated.', 1);
+            if($amount != null || $discount != null)
+                OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$item->order_id, 'comment'=>($amount . $discount)]);
+
         }else{
             $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
         }
@@ -248,18 +303,18 @@ class OrdersController extends Controller
     public function getStatus($orderId)
     {
         $order = Order::findOrFail($orderId);
-        if(!$order->backend && $order->paid){
+        if($order->backend == Order::FRONTEND && $order->paid == Order::PAID){
             $this->setFlashMessage('Warning!!! Order: '.$order->number.' status cannot be updated, kindly contact systems admin.', 2);
 
             return response()->json($order);
         }
 
         $paid = $order->paid;
-        $stat = !$paid ? Order::NOT_PAID . ' to ' . Order::PAID : Order::PAID . ' to ' . Order::NOT_PAID;
+        $stat = !$paid ? Order::notPaid() . ' to ' . Order::paid() : Order::paid() . ' to ' . Order::notPaid();
         $order->paid = !$paid;
-        $order->backend = 1;
-        $order->status = !$paid ? Order::PAID : Order::NOT_PAID;
-        $comment = 'Order: ' . $order->number . ' Status changed from ' . strtoupper($stat);
+        $order->backend = ($order->paid == Order::PAID) ? Order::BACKEND : Order::FRONTEND;
+        $order->status = !$paid ? Order::paid() : Order::notPaid();
+        $comment = 'Order: ' . $order->number . ' Status changed from ' . $stat;
 
         if($order->save()){
             OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$order->id, 'comment'=>$comment]);

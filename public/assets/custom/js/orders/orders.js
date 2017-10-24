@@ -24,11 +24,41 @@ jQuery(document).ready(function() {
         $('#order_id').val($(this).data('id'));
         $('#order_amount').val($(this).data('amount'));
         $('#order_discount').val($(this).data('discount'));
+        $('#paid').val($(this).data('paid'));
         $('#is_part_payment').val($(this).data('is-part-payment'));
         $('#edit_order_modal').modal('show');
     });
 
-    //Update Order Item Amount
+    //Update Order
+    $(document.body).on('submit', '#edit_order_form', function(){
+        var values = $(this).serialize();
+
+        App.blockUI({
+            target: '#edit_order_modal',
+            animate: true
+        });
+
+        $.ajax({
+            type: "POST",
+            url: '/orders/order-update',
+            data: values,
+            success: function (data) {
+
+                window.location.reload();
+                window.setTimeout(function() {
+                    App.unblockUI('#edit_order_modal');
+                }, 2000);
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+                App.unblockUI('#edit_order_modal');
+            }
+        });
+        return false;
+    });
+
+    //Update Order Item
     $(document.body).on('submit', '#edit_item_form', function(){
         var values = $(this).serialize();
 

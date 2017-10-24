@@ -224,6 +224,7 @@ return [
         'AssessmentDetailView' => App\Models\Admin\Assessments\AssessmentDetailView::class,
         'OrderView' => App\Models\Admin\Views\OrderView::class,
         'PartPayment' => App\Models\Admin\Orders\PartPayment::class,
+        'Order' => App\Models\Admin\Orders\Order::class,
 
         'CurrencyHelper' => App\Helpers\CurrencyHelper::class,
         'LabelHelper' => App\Helpers\LabelHelper::class,

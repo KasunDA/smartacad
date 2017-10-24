@@ -35,22 +35,26 @@ class Order extends Model
         'order_initiate_id',
         'is_part_payment'
     ];
+    
+    const FRONTEND = 0;
+    const BACKEND = 1;
 
-    const PAID = 'paid';
-    const NOT_PAID = 'not-paid';
-    const CANCELLED = 'cancelled';
+    const NOT_PAID = 0;
+    const PAID = 1;
+    const CANCELLED = 2;
+    const ORDER_STATUSES = [self::NOT_PAID => 'Not-Paid', self::PAID => 'Paid', self::CANCELLED => 'Cancelled'];
 
     const STATUSES =  [
+        self::NOT_PAID => [
+            'title' => 'Not-Paid',
+            'label' => 'danger',
+            'paid' => false,
+            'cancelled' => false,
+        ],
         self::PAID => [
             'title' => 'Paid',
             'label' => 'success',
             'paid' => true,
-            'cancelled' => false,
-        ],
-        self::NOT_PAID => [
-            'title' => 'Not Paid',
-            'label' => 'danger',
-            'paid' => false,
             'cancelled' => false,
         ],
         self::CANCELLED => [
@@ -60,29 +64,38 @@ class Order extends Model
             'cancelled' => true,
         ],
     ];
-
-
-    public static function paidStatuses()
-    {
-        return array_filter(self::STATUSES, function($status) {
-            return $status['paid'];
-        });
-    }
-
+    
     public static function notPaidStatuses()
     {
         return array_filter(self::STATUSES, function($status) {
-            return $status['not-paid'];
+            return $status[self::NOT_PAID];
+        });
+    }
+    
+    public static function paidStatuses()
+    {
+        return array_filter(self::STATUSES, function($status) {
+            return $status[self::PAID];
         });
     }
 
     public static function cancelledStatuses()
     {
         return array_filter(self::STATUSES, function($status) {
-            return $status['cancelled'];
+            return $status[self::CANCELLED];
         });
     }
 
+    public static function paid(){
+        return self::ORDER_STATUSES[self::PAID];
+    }
+    public static function notPaid(){
+        return self::ORDER_STATUSES[self::NOT_PAID];
+    }
+    public static function cancelled(){
+        return self::ORDER_STATUSES[self::CANCELLED];
+    }
+    
     /**
      *  Initiate Billings for all active students in an academic term
      * @param Int $item_initiate_id
@@ -105,14 +118,14 @@ class Order extends Model
      * @param $format
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function amount($format=false){
-        return (!empty($this->orderItems()->lists('amount'))) 
-            ? ( ($format) 
-                ? CurrencyHelper::format($this->orderItems()->lists('amount')->sum()) 
-                : $this->orderItems()->lists('amount')->sum()
-            ) 
-            : 0;
-    }
+//    public function amount($format=false){
+//        return (!empty($this->orderItems()->lists('amount'))) 
+//            ? ( ($format) 
+//                ? CurrencyHelper::format($this->orderItems()->lists('amount')->sum()) 
+//                : $this->orderItems()->lists('amount')->sum()
+//            ) 
+//            : 0;
+//    }
 
     /**
      * An Order belongs to a Student

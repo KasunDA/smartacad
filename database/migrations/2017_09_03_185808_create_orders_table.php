@@ -24,7 +24,7 @@ class CreateOrdersTable extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->increments('id');
             $table->string('number', 20)->nullable();
-            $table->string('status', 20)->default('not-paid');
+            $table->string('status', 20)->default('Not-Paid');
             $table->boolean('paid')->default(0);
             $table->boolean('backend')->default(0);
             $table->decimal('amount', 10, 2)->index()->default(0);
