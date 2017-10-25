@@ -165,7 +165,7 @@ class UserController extends Controller
 
         //Set the verification code to any random 40 characters and password to random 8 characters
         $verification_code = str_random(40);
-        $password = $password = strtoupper(str_random(6));
+        $password = 'password';//strtoupper(str_random(6));
         $input['verification_code'] = $verification_code;
         $input['password'] = $password;
         $temp = '.';

@@ -62,7 +62,7 @@ class Handler extends ExceptionHandler
             return response()->view('errors.custom', [
                 'code'=>'304.1',
                 'header'=>'Invalid Record Request',
-                'message'=>'The Record You Are Looking For Does Not Exist'
+                'message'=>'The Record You Are Looking For Does Not Exist <a href="/">Return Back home </a><br/>'
             ]);
         }
         //File For Download Not Found Exception
@@ -70,7 +70,7 @@ class Handler extends ExceptionHandler
             return response()->view('errors.custom', [
                 'code'=>'501.4',
                 'header'=>'File Not Found',
-                'message'=>'The File You Are Looking For Or Trying To Download Does Not Exist On Our Server'
+                'message'=>'The File You Are Looking For Or Trying To Download Does Not Exist On Our Server <a href="/">Return Back home </a><br/>'
             ]);
         }
         //File For Download Not Found Exception
@@ -78,7 +78,7 @@ class Handler extends ExceptionHandler
             return response()->view('errors.custom', [
                 'code'=>'503',
                 'header'=>'Fatal Error',
-                'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again<br>' . $e->getMessage()
+                'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again<br>' . $e->getMessage() . '<a href="/">Return Back home </a><br/>'
             ]);
         }
 
@@ -87,7 +87,7 @@ class Handler extends ExceptionHandler
             return response()->view('errors.custom', [
                 'code'=>'207',
                 'header'=>'Unexpected data found',
-                'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again.<br>' . $e->getMessage()
+                'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again.<br>' . $e->getMessage() . '<a href="/">Return Back home </a><br/>'
             ]);
         }
         //Query Exception
@@ -95,7 +95,7 @@ class Handler extends ExceptionHandler
             return response()->view('errors.custom', [
                 'code'=>'207',
                 'header'=>'Query Exception',
-                'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again<br>' . $e->getMessage()
+                'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again<br>' . $e->getMessage() . '<a href="/">Return Back home </a><br/>'
             ]);
         }
         //Logical Error Exception
@@ -103,7 +103,7 @@ class Handler extends ExceptionHandler
             return response()->view('errors.custom', [
                 'code'=>'504.3',
                 'header'=>'Critical Error',
-                'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again<br>' . $e->getMessage()
+                'message'=>'<strong>Whoops!!!</strong> Something went wrong kindly retry again<br>' . $e->getMessage() . '<a href="/">Return Back home </a><br/>'
             ]);
         }
         // Bad Network Issues Method NotAllowed HttpException
@@ -112,7 +112,7 @@ class Handler extends ExceptionHandler
                 'code'=>'507.3',
                 'header'=>'Bad or Poor Network Issues',
                 'message'=>'<strong>Whoops!!!</strong> Something went wrong with your network kindly retry again and 
-                    <strong>allow the page to load completely</strong><br>' . $e->getMessage()
+                    <strong>allow the page to load completely</strong><br>' . $e->getMessage() . '<a href="/">Return Back home </a><br/>'
             ]);
         }
         // Bad Method Call Exception
@@ -121,7 +121,7 @@ class Handler extends ExceptionHandler
                 'code'=>'502.3',
                 'header'=>'Bad Method Call',
                 'message'=>'<strong>Whoops!!!</strong> Something went wrong with your network kindly retry again and 
-                    <strong>allow the page to load completely</strong><br>' . $e->getMessage()
+                    <strong>allow the page to load completely</strong><br>' . $e->getMessage() . '<a href="/">Return Back home </a><br/>'
             ]);
         }
         
@@ -131,7 +131,7 @@ class Handler extends ExceptionHandler
                 'code'=>'509',
                 'header'=>'Error establishing a database connection',
                 'message'=>'<strong>Whoops!!!</strong> Something went wrong with your our server kindly retry few minutes later or 
-                    <strong> Contact your systems administrator</strong><br>' . $e->getMessage()
+                    <strong> Contact your systems administrator</strong><br>' . $e->getMessage() . '<a href="/">Return Back home </a><br/>'
             ]);
         }
         //If Token Mismatch Exception Occur i.e csrf error
