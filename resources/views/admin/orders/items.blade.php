@@ -32,65 +32,9 @@
             <div class="portlet light bordered">
                 <div class="portlet-title">
                     <div class="caption">
-                        <i class="fa fa-user font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">
-                            Student Information
-                    </div>
-                </div>
-                <div class="portlet-body">
-                    <div class="table-scrollable">
-                        <table class="table table-hover table-striped">
-                            <tr>
-                                <th> Name </th>
-                                <td>
-                                    <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-link btn-xs sbold">
-                                        <span style="font-size: 16px">{{ $student->fullNames() }}</span>
-                                    </a>
-                                </td>
-                                <th> Term </th>
-                                <td> {{ $term->academic_term }} </td>
-                            </tr>
-                            <tr>
-                                <th> I.D </th>
-                                <td>
-                                    <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-link btn-xs sbold">
-                                        <span style="font-size: 15px">{{ $student->student_no }}</span>
-                                    </a>
-                                </td>
-                                <th> Gender </th>
-                                <td> {{ $student->gender }} </td>
-                            </tr>
-                            <tr>
-                                <th> Status </th>
-                                <td>
-                                    @if($student->status_id)
-                                        <label class="label label-{{$student->status()->first()->label}}">{{ $student->status()->first()->status }}</label>
-                                    @else
-                                        <label class="label label-danger">nil</label>
-                                    @endif
-                                </td>
-                                <th> Sponsor </th>
-                                <td>
-                                    <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($student->sponsor_id)) }}" class="btn btn-link btn-xs sbold">
-                                        <span style="font-size: 15px">{{ $student->sponsor->fullNames() }}</span>
-                                    </a>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <!-- END SAMPLE TABLE PORTLET-->
-        </div>
-
-        <div class="col-md-6 margin-bottom-10">
-            <!-- BEGIN SAMPLE TABLE PORTLET-->
-            <div class="portlet light bordered">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <i class="fa fa-cart-plus font-green"></i>
-                        <span class="caption-subject font-green bold uppercase">
-                            Order Information
+                        <i class="fa fa-cart-plus font-blue"></i>
+                        <span class="caption-subject font-blue bold uppercase">
+                            Order Billing Information
                     </div>
                 </div>
                 <div class="portlet-body">
@@ -152,7 +96,7 @@
                                     <td>
                                         <a href="#" data-id="{{$order->id}}" data-number="{{$order->number}}" data-discount="{{ intval($order->discount) }}"
                                            data-amount="{{ intval($order->amount) }}" data-is-part-payment="{{ intval($order->is_part_payment) }}"
-                                           data-paid="{{ intval($order->paid) }}" class="btn btn-warning btn-xs order-edit">
+                                           data-total-amount="{{ intval($order->total_amount) }}" data-paid="{{ intval($order->paid) }}" class="btn btn-warning btn-xs order-edit">
                                             <span class="fa fa-edit"></span> Edit
                                         </a>
                                     </td>
@@ -169,15 +113,129 @@
             <!-- END SAMPLE TABLE PORTLET-->
         </div>
 
+        <div class="col-md-6 margin-bottom-10">
+            <!-- BEGIN SAMPLE TABLE PORTLET-->
+            <div class="portlet light bordered">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-user font-blue"></i>
+                        <span class="caption-subject font-blue bold uppercase">
+                            Student Information
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="table-scrollable">
+                        <table class="table table-hover table-striped">
+                            <tr>
+                                <th> Name </th>
+                                <td>
+                                    <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-link btn-xs sbold">
+                                        <span style="font-size: 16px">{{ $student->fullNames() }}</span>
+                                    </a>
+                                </td>
+                                <th> Term </th>
+                                <td> {{ $term->academic_term }} </td>
+                            </tr>
+                            <tr>
+                                <th> I.D </th>
+                                <td>
+                                    <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($student->student_id)) }}" class="btn btn-link btn-xs sbold">
+                                        <span style="font-size: 15px">{{ $student->student_no }}</span>
+                                    </a>
+                                </td>
+                                <th> Gender </th>
+                                <td> {{ $student->gender }} </td>
+                            </tr>
+                            <tr>
+                                <th> Status </th>
+                                <td>
+                                    @if($student->status_id)
+                                        <label class="label label-{{$student->status()->first()->label}}">{{ $student->status()->first()->status }}</label>
+                                    @else
+                                        <label class="label label-danger">nil</label>
+                                    @endif
+                                </td>
+                                <th> Sponsor </th>
+                                <td>
+                                    <a target="_blank" href="{{ url('/sponsors/view/'.$hashIds->encode($student->sponsor_id)) }}" class="btn btn-link btn-xs sbold">
+                                        <span style="font-size: 15px">{{ $student->sponsor->fullNames() }}</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- END SAMPLE TABLE PORTLET-->
+        </div>
+
+        @if(!empty($order) && $order->is_part_payment)
+            <div class="col-md-6 margin-bottom-10">
+            <!-- BEGIN SAMPLE TABLE PORTLET-->
+            <div class="portlet light bordered">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-user font-blue"></i>
+                        <span class="caption-subject font-blue bold uppercase">
+                            Part Payments Details
+                    </div>
+                      <div class="pull-right">
+                          <a href="#part_payment_modal" data-target="#part_payment_modal" data-toggle="modal" class="btn btn-success">
+                              <span class="fa fa-plus"></span>Add
+                          </a>
+                      </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="table-scrollable">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Amount ({{CurrencyHelper::NAIRA}})</th>
+                                    <th>Date Created</th>
+                                    <th>Edit</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <?php $i=1; ?>
+                            @foreach($order->partPayments as $part)
+                                <tr>
+                                    <td>{{ $i++ }}</td>
+                                    <td>{{ CurrencyHelper::format($part->amount, 1) }}</td>
+                                    <td>{{ $part->created_at->format('Y-m-d') }}</td>
+                                    <td>
+                                        <a href="{{ url('/sponsors/view/'.$hashIds->encode($part->id)) }}" class="btn btn-link btn-xs sbold">
+                                            <span class="fa fa-edit"></span> Edit
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <button  data-confirm-text="Yes, Confirm Payment" data-name="{{$order->number}}" data-title="Order Status Update Confirmation"
+                                                 data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$student->simpleName()}} has being PAID, for {{$term->academic_term}}?</b>"
+                                                 data-statusText="{{$order->number}} Order status updated to PAID" data-confirm-button="#44b6ae"
+                                                 data-action="/orders/part-remove/{{$part->id}}" data-status="Updated"
+                                                 class="btn btn-info btn-xs confirm-delete-btn">
+                                            <span class="fa fa-trash"></span> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                           @endforeach
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- END SAMPLE TABLE PORTLET-->
+        </div>
+        @endif
+
         <div class="col-md-12 margin-bottom-10">
             <!-- BEGIN SAMPLE TABLE PORTLET-->
             <div class="portlet light bordered">
                 @if($order)
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-money font-green"></i>
-                            <span class="caption-subject font-green bold uppercase">
-                                Order Billings By Items.
+                            <i class="fa fa-money font-blue"></i>
+                            <span class="caption-subject font-blue bold uppercase">
+                                Items Billing Details.
                             </span>
                         </div>
                         <div class="pull-right">
@@ -221,7 +279,7 @@
                                                 @if(!$order->paid)
                                                     <td>
                                                         <a href="#" data-id="{{$item->id}}" data-item="{{$item->item->name}}" data-discount="{{ intval($item->discount) }}"
-                                                           data-amount="{{ intval($item->amount) }}" class="btn btn-warning btn-xs item-edit">
+                                                           data-amount="{{ intval($item->amount) }}" data-item-amount="{{ intval($item->item_amount) }}" class="btn btn-warning btn-xs item-edit">
                                                             <span class="fa fa-edit"></span> Edit
                                                         </a>
                                                     </td>
@@ -267,7 +325,7 @@
     </div>
     <!-- END CONTENT BODY -->
 
-    <!-- modal -->
+    <!-- edit item modal  -->
     <div id="edit_item_modal" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -283,38 +341,16 @@
                                 {!! Form::hidden('order_item_id', '', ['id'=>'order_item_id']) !!}
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="control-label">Amount ({{CurrencyHelper::NAIRA}}): <span class="text-danger">*</span></label>
+                                        <label class="control-label">Amount ({{CurrencyHelper::NAIRA}}): <span class="sbold" id="item_amount"></span></label>
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="fa fa-money"></i></span>
-                                            {!! Form::text('amount', '', ['id'=>'amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'required'=>true]) !!}
+                                            {!! Form::text('amount', '', ['id'=>'amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'disabled'=>true]) !!}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="control-label">Discount: <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-addon"><i class="fa fa-money"></i></span>
-                                            <select class="form-control" name="discount" id="discount" required>
-                                                @for($i = 0; $i <= 100; $i+=5)
-                                                    <option value="{{$i}}">{{ $i }}%</option>
-                                                @endfor
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="control-label">Amount ({{CurrencyHelper::NAIRA}}): <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-addon"><i class="fa fa-money"></i></span>
-                                            {!! Form::text('amount', '', ['id'=>'amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'required'=>true]) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="control-label">Payment Type: <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="fa fa-money"></i></span>
                                             <select class="form-control" name="discount" id="discount" required>
@@ -336,68 +372,28 @@
             </div>
         </div>
     </div>
-    <!-- /.modal -->
-    <!-- modal -->
-    <div id="edit_order_modal" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
+    <!-- /.edit item modal  -->
+
+    <!-- part payment modal  -->
+    <div id="part_payment_modal" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title text-center text-primary" id="modal-title-text-order">Edit Order Form</h4>
+                    <h4 class="modal-title text-center text-primary" id="modal-title-text-item">Add/Edit Part Payments Amount Form</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-10 col-sm-12 col-md-offset-1">
-                            <form method="POST" action="#" class="form" role="form" id="edit_order_form">
+                            <form method="POST" action="#" class="form" role="form" id="part_payment_form">
                                 {!! csrf_field() !!}
-                                {!! Form::hidden('order_id', '', ['id'=>'order_id']) !!}
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="control-label">Amount ({{CurrencyHelper::NAIRA}}): <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-addon"><i class="fa fa-money"></i></span>
-                                            {{--<span class="label label-default" id="order_amount"></span>--}}
-                                            {!! Form::text('amount', '', ['id'=>'order_amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'disabled'=>true]) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="control-label">Discount: <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-addon"><i class="fa fa-money"></i></span>
-                                            <select class="form-control" name="discount" id="order_discount" required>
-                                                @for($i = 0; $i <= 100; $i+=5)
-                                                    <option value="{{$i}}">{{ $i }}%</option>
-                                                @endfor
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="control-label">Status: <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-addon"><i class="fa fa-eyedropper"></i></span>
-                                            <select class="form-control" name="paid" id="paid" required>
-                                                @foreach(Order::ORDER_STATUSES as $key => $value)
-                                                    <option value="{{$key}}">{{ $value }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="control-label">Payment Type: <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-addon"><i class="fa fa-th-large"></i></span>
-                                            <select class="form-control" name="is_part_payment" id="is_part_payment" required>
-                                                @foreach(PartPayment::PAYMENT_TYPES as $key => $value)
-                                                    <option value="{{$key}}">{{ $value }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                {!! Form::hidden('part_id', '', ['id'=>'part_id']) !!}
+                                {!! Form::hidden('order_id', !empty($order) ? $order->id : '') !!}
+                                <div class="form-group">
+                                    <label class="control-label">Amount ({{CurrencyHelper::NAIRA}}): <span class="text-danger">*</span></label>
+                                    <div class="input-group col-md-6">
+                                        <span class="input-group-addon"><i class="fa fa-money"></i></span>
+                                        {!! Form::text('amount', '', ['id'=>'part_payment_amount', 'placeholder'=>'Amount', 'class'=>'form-control', 'required'=>true]) !!}
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -411,7 +407,11 @@
             </div>
         </div>
     </div>
-    <!-- /.modal -->
+    <!-- /.part payment modal  -->
+
+    <!-- edit order modal -->
+    @include('admin.partials.orders.edit')
+    <!-- /.edit order modal  -->
 @endsection
 
 

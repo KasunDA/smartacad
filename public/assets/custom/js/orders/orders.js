@@ -14,6 +14,7 @@ jQuery(document).ready(function() {
         $('#modal-title-text-item').html('Edit Item Amount/Discount on: <b>' + $(this).data('item') +'</b>');
         $('#order_item_id').val($(this).data('id'));
         $('#amount').val($(this).data('amount'));
+        $('#item_amount').html($(this).data('item-amount'));
         $('#discount').val($(this).data('discount'));
         $('#edit_item_modal').modal('show');
     });
@@ -23,6 +24,7 @@ jQuery(document).ready(function() {
         $('#modal-title-text-order').html('Edit Order No.: <b>' + $(this).data('number') +'</b>');
         $('#order_id').val($(this).data('id'));
         $('#order_amount').val($(this).data('amount'));
+        $('#total_amount').html($(this).data('total-amount'));
         $('#order_discount').val($(this).data('discount'));
         $('#paid').val($(this).data('paid'));
         $('#is_part_payment').val($(this).data('is-part-payment'));
@@ -76,6 +78,35 @@ jQuery(document).ready(function() {
                 window.location.reload();
                 window.setTimeout(function() {
                     App.unblockUI('#edit_item_modal');
+                }, 2000);
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                set_msg_box($('#msg_box'), 'Error...Kindly Try Again', 2)
+                App.unblockUI('#edit_item_modal');
+            }
+        });
+        return false;
+    });
+    
+    //Add/Edit Part Payments
+    $(document.body).on('submit', '#part_payment_form', function(){
+        var values = $(this).serialize();
+
+        App.blockUI({
+            target: '#part_payment_modal',
+            animate: true
+        });
+
+        $.ajax({
+            type: "POST",
+            url: '/orders/part-payments',
+            data: values,
+            success: function (data) {
+
+                window.location.reload();
+                window.setTimeout(function() {
+                    App.unblockUI('#part_payment_modal');
                 }, 2000);
 
             },

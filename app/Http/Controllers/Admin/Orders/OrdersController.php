@@ -204,7 +204,6 @@ class OrdersController extends Controller
             var_dump($order->amount);
             $discount = ' Discount changed from ' . $order->discount . '% to ' . $inputs['discount'] . '%, ';
             $order->discount = intval($inputs['discount']);
-//            $order->amount = $order->total_amount = intval($inputs['amount']);
             $order->amount = $order->getDiscountedAmount();
         }
 
@@ -274,24 +273,50 @@ class OrdersController extends Controller
     {
         $inputs = $request->all();
         $item = OrderItem::findOrFail($inputs['order_item_id']);
-        $amount = ($item->item_amount != intval($inputs['amount'])) ? 'Item: ' . $item->id . ' Amount changed from ' . $item->item_amount . ' to ' . $inputs['amount'] : null;
         $discount = ($item->discount != intval($inputs['discount'])) ? ' Item: ' . $item->id . ' Discount changed from ' . $item->discount . ' to ' . $inputs['discount'] : null;
         $item->discount = $inputs['discount'];
-        $item->amount = $item->item_amount = intval($inputs['amount']);
         $item->amount = $item->getDiscountedAmount();
 
         if($item->save()){
             $item->order->updateAmount();
-            $this->setFlashMessage('  Updated!!! ' . $item->item->name . ' successfully updated.', 1);
+            $this->setFlashMessage('  Updated!!! ' . $item->item->name . ' successfully modified.', 1);
 
-            if($amount != null || $discount != null)
-                OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$item->order_id, 'comment'=>($amount . $discount)]);
+            if($discount != null)
+                OrderLog::create(['user_id' => Auth::id(), 'order_id' => $item->order_id, 'comment' => $discount]);
 
         }else{
             $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
         }
 
         echo json_encode($item);
+    }
+
+    /**
+     * Add/Edit Part Payments
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postPartPayments(Request $request)
+    {
+        $inputs = $request->all();
+
+        $part = (!empty($inputs['part_id']) || $inputs['part_id'] != '') ? PartPayment::find($inputs['part_id']) : new PartPayment();
+        $part->amount = $inputs['amount'];
+        $part->order_id = $inputs['order_id'];
+        $part->user_id = Auth::id();
+//
+        if($part->save()){
+//            $item->order->updateAmount();
+            $this->setFlashMessage(" Updated!!! {$part->amount} Added on to Order: {$part->order->number} successfully.", 1);
+
+//            if($discount != null)
+//                OrderLog::create(['user_id' => Auth::id(), 'order_id' => $item->order_id, 'comment' => $discount]);
+
+        }else{
+            $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
+        }
+
+        echo json_encode($part);
     }
 
     /**
