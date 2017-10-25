@@ -31,6 +31,22 @@ jQuery(document).ready(function() {
         $('#edit_order_modal').modal('show');
     });
 
+    //Edit Part Payments
+    $(document.body).on('click', '.edit-part-payment', function(){
+        $('#modal-title-text-part').html('Edit Part Payment for Order : <b>' + $(this).data('number') +'</b>');
+        $('#part_id').val($(this).val());
+        $('#part_payment_amount').val($(this).data('amount'));
+        $('#part_payment_modal').modal('show');
+    });
+
+    //Add Part Payments
+    $(document.body).on('click', '.add-part-payment', function(){
+        $('#modal-title-text-part').html('Add Part Payments Amount Form');
+        $('#part_id').val('');
+        $('#part_payment_amount').val('');
+        $('#part_payment_modal').modal('show');
+    });
+
     //Update Order
     $(document.body).on('submit', '#edit_order_form', function(){
         var values = $(this).serialize();

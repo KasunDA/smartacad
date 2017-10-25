@@ -231,7 +231,11 @@ class Order extends Model
      * @return self
      */
     public function updateAmount(){
-        $this->amount = $this->total_amount = $this->orderItems()->lists('amount')->sum();
+        $sum = $this->orderItems()->lists('amount')->sum();
+        if($this->paid == self::PAID && $this->is_part_payment != PartPayment::FULL_PAYMENT){
+            $this->amount_paid = $sum;   
+        };
+        $this->amount = $this->total_amount = $sum;
         $this->amount = $this->getDiscountedAmount();
         $this->item_count = count($this->orderItems);
 

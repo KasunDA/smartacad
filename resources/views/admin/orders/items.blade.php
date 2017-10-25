@@ -61,15 +61,9 @@
                                 </tr>
                                 <tr>
                                     <th> Total Amount </th>
-                                    <th>{{CurrencyHelper::NAIRA}} {{ CurrencyHelper::format($order->total_amount, 2) }}</th>
+                                    <th>{{ CurrencyHelper::format($order->total_amount, 2, true) }}</th>
                                     <th> Amount Payable </th>
-                                    <th>{{CurrencyHelper::NAIRA}} {{ CurrencyHelper::format($order->amount, 2) }}</th>
-                                </tr>
-                                <tr>
-                                    <th>Payment Type</th>
-                                    <td>{!! ($order->is_part_payment) ? LabelHelper::primary(PartPayment::PAYMENT_TYPES[$order->is_part_payment]) : LabelHelper::success(PartPayment::PAYMENT_TYPES[$order->is_part_payment]) !!}</td>
-                                    <th>Source</th>
-                                    <td>{!! ($order->backend) ? LabelHelper::info('Admin') : LabelHelper::default('Sponsor') !!}</td>
+                                    <th>{{ CurrencyHelper::format($order->amount, 2, true) }}</th>
                                 </tr>
                                 <tr>
                                     <th>Update Order</th>
@@ -101,6 +95,33 @@
                                         </a>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <th>Payment Type</th>
+                                    <td>
+                                        @if($order->is_part_payment)
+                                            {!! LabelHelper::primary(PartPayment::PAYMENT_TYPES[$order->is_part_payment]) !!}
+                                        @else
+                                            {!! LabelHelper::success(PartPayment::PAYMENT_TYPES[$order->is_part_payment]) !!}
+                                        @endif
+                                    </td>
+                                    <th>Source</th>
+                                    <td>{!! ($order->backend) ? LabelHelper::info('Admin') : LabelHelper::default('Sponsor') !!}</td>
+                                </tr>
+                                @if($order->is_part_payment)
+                                    <tr><th colspan="4" class="text-center">Part Payments Summary</th></tr>
+                                    <tr>
+                                        <th>Installment(s)</th>
+                                        <td>{{ $order->partPayments->count() }}</td>
+                                        <th>Add Amount</th>
+                                        <td><button class="btn btn-success btn-xs add-part-payment"><span class="fa fa-plus"></span> Add</button></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Amount Paid: </th>
+                                        <td>{{ CurrencyHelper::format($order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                                        <th>Outstanding: </th>
+                                        <td>{{ CurrencyHelper::format($order->amount -$order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                                    </tr>
+                                @endif
                             @else
                                 <tr>
                                     <th colspan="2">No Order initiated yet for the Student</th>
@@ -180,9 +201,9 @@
                             Part Payments Details
                     </div>
                       <div class="pull-right">
-                          <a href="#part_payment_modal" data-target="#part_payment_modal" data-toggle="modal" class="btn btn-success">
-                              <span class="fa fa-plus"></span>Add
-                          </a>
+                          <button class="btn btn-success btn-sm add-part-payment">
+                              <span class="fa fa-plus"></span> Add
+                          </button>
                       </div>
                 </div>
                 <div class="portlet-body">
@@ -191,34 +212,44 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Amount ({{CurrencyHelper::NAIRA}})</th>
                                     <th>Date Created</th>
+                                    <th>Amount ({{CurrencyHelper::NAIRA}})</th>
                                     <th>Edit</th>
                                     <th>Delete</th>
                                 </tr>
                             </thead>
+                            <tbody>
                             <?php $i=1; ?>
                             @foreach($order->partPayments as $part)
                                 <tr>
                                     <td>{{ $i++ }}</td>
-                                    <td>{{ CurrencyHelper::format($part->amount, 1) }}</td>
-                                    <td>{{ $part->created_at->format('Y-m-d') }}</td>
+                                    <td>{{ $part->created_at->format('Y-m-d \@ h:i:A') }}</td>
+                                    <td>{{ CurrencyHelper::format($part->amount) }}</td>
                                     <td>
-                                        <a href="{{ url('/sponsors/view/'.$hashIds->encode($part->id)) }}" class="btn btn-link btn-xs sbold">
+                                        <button value="{{ $part->id }}" data-amount="{{ intval($part->amount) }}" data-number="{{$order->number}}"
+                                                class="btn btn-link btn-xs sbold edit-part-payment">
                                             <span class="fa fa-edit"></span> Edit
-                                        </a>
+                                        </button>
                                     </td>
                                     <td>
-                                        <button  data-confirm-text="Yes, Confirm Payment" data-name="{{$order->number}}" data-title="Order Status Update Confirmation"
-                                                 data-message="Are you sure Order: <b>{{$order->number}}</b> meant for <b>{{$student->simpleName()}} has being PAID, for {{$term->academic_term}}?</b>"
-                                                 data-statusText="{{$order->number}} Order status updated to PAID" data-confirm-button="#44b6ae"
-                                                 data-action="/orders/part-remove/{{$part->id}}" data-status="Updated"
-                                                 class="btn btn-info btn-xs confirm-delete-btn">
-                                            <span class="fa fa-trash"></span> Delete
+                                        <button data-confirm-text="Yes, Delete it!!!" data-name="{{$part->order->number}}" data-title="Delete Confirmation"
+                                                data-message="Are you sure Order: <b>{{$order->number}}</b> you want to delete part payment with amount <b>{{number_format($part->amount)}}?</b>"
+                                                 data-action="/orders/delete-part-payment/{{$part->id}}" class="btn btn-danger btn-xs btn-sm confirm-delete-btn">
+                                            <span class="fa fa-trash-o"></span> Delete
                                         </button>
                                     </td>
                                 </tr>
                            @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>{{ CurrencyHelper::format($order->partPayments()->lists('amount')->sum(), 0, true) }}</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -380,7 +411,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title text-center text-primary" id="modal-title-text-item">Add/Edit Part Payments Amount Form</h4>
+                    <h4 class="modal-title text-center text-primary" id="modal-title-text-part">Add Part Payments Amount Form</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">

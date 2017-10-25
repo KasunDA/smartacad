@@ -301,22 +301,55 @@ class OrdersController extends Controller
         $inputs = $request->all();
 
         $part = (!empty($inputs['part_id']) || $inputs['part_id'] != '') ? PartPayment::find($inputs['part_id']) : new PartPayment();
+        if($part->amount != intval($inputs['amount']) && !empty($inputs['part_id']) || $inputs['part_id'] != ''){
+            $comment =  'Part Payment: ' . $part->id . ' Amount changed from ' . $part->amount . ' to ' . $inputs['amount'];
+        }
         $part->amount = $inputs['amount'];
         $part->order_id = $inputs['order_id'];
         $part->user_id = Auth::id();
-//
+
         if($part->save()){
-//            $item->order->updateAmount();
+            $part->order->amount_paid = $part->order->partPayments()->lists('amount')->sum();
+            $part->order->paid = Order::PAID;
+            $part->order->status = Order::paid();
+            $part->order->updateAmount();
             $this->setFlashMessage(" Updated!!! {$part->amount} Added on to Order: {$part->order->number} successfully.", 1);
 
-//            if($discount != null)
-//                OrderLog::create(['user_id' => Auth::id(), 'order_id' => $item->order_id, 'comment' => $discount]);
+            if(isset($comment))
+                OrderLog::create(['user_id' => Auth::id(), 'order_id' => $part->order_id, 'comment' => $comment]);
 
         }else{
             $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
         }
 
         echo json_encode($part);
+    }
+
+    /**
+     * Soft Delete an order part payment
+     *
+     * @param Int $id
+     * @return Response
+     */
+    public function getDeletePartPayment($id)
+    {
+        $part = PartPayment::findOrFail($id);
+        $comment =  'Part Payment: ' . $part->id . ' Deleted on ' . date('Y-m-d h:i:s');
+        $delete = !empty($part) ? $part->delete() : false;
+
+        if($delete){
+            $part->order->amount_paid = $part->order->partPayments()->lists('amount')->sum();
+            if($part->order->partPayments->count() == 0){
+                $part->order->paid = Order::NOT_PAID;
+                $part->order->status = Order::notPaid();
+            }
+            $part->order->updateAmount();
+            OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$part->order_id, 'comment'=>$comment]);
+
+            $this->setFlashMessage(" Deleted!!! ' . $part->amount . ' deleted from Order: {$part->order->number} successfully", 1);
+        }else{
+            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
+        }
     }
 
     /**
