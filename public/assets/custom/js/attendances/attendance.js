@@ -96,7 +96,7 @@ var UIBlockUI = function() {
                         $.each(obj.Attendance, function(key, attend) {
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
-                                '<td>'+attend.tutor+'</td>' +
+                                '<td>'+attend.taken_by+'</td>' +
                                 '<td>'+attend.classroom+'</td>' +
                                 '<td>'+attend.date_taken+'</td>' +
                                 '<td>'+attend.present+'</td>' +

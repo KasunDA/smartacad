@@ -149,7 +149,7 @@ class AttendancesController extends Controller
             foreach($attendances as $attendance){
                 $output[] = [
                     'id' => $this->encode($attendance->id),
-                    'tutor' => $attendance->takenBy->fullNames(),
+                    'taken_by' => $attendance->takenBy->fullNames(),
                     'classroom' => $attendance->classroom->classroom,
                     'term' => $attendance->academicTerm->academic_term,
                     'present' => $attendance->details()->where('status', 1)->count(),
