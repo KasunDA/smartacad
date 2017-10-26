@@ -125,6 +125,7 @@ Route::group(['middleware' => ['web']], function () {
         //setup records
         'salutations' => 'School\Setups\SalutationController',
         'marital-statuses' => 'School\Setups\MaritalStatusController',
+        'school-banks' => 'School\Setups\BanksController',
 
         'accounts' => 'Admin\Accounts\AccountsController',
         'sponsors' => 'Admin\Accounts\SponsorController',

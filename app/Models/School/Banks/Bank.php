@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Banks;
+namespace App\Models\School\Banks;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,6 +39,9 @@ class Bank extends Model
     public function schoolBanks(){
         return $this->hasMany(SchoolBank::class, 'bank_id');
     }
-    
+
+    public function scopeActive($query){
+        return $query->where('active', self::ACTIVE);
+    }
     
 }

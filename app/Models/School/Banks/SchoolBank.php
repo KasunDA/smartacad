@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Banks;
+namespace App\Models\School\Banks;
 
 use App\Models\Admin\MasterRecords\Classes\ClassGroup;
 use App\Models\School\School;
