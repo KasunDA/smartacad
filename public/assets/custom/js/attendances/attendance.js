@@ -83,7 +83,7 @@ var UIBlockUI = function() {
                     var assign = '<thead>\
                                 <tr role="row" class="heading">\
                                     <th>#</th>\
-                                    <th>Head Tutor</th>\
+                                    <th>Taken By</th>\
                                     <th>Class Room</th>\
                                     <th>Date Taken</th>\
                                     <th>Present</th>\

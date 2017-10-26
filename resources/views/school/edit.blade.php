@@ -115,7 +115,7 @@
                                                 @if($school->admin_id == $admin->user_id)
                                                     <option selected value="{{ $admin->user_id}}">{{$admin->fullNames() }}</option>
                                                 @else
-                                                    <option value="{{ $admin->user_id}}">{{$admin->email }}</option>
+                                                    <option value="{{ $admin->user_id}}">{{$admin->fullNames() }}</option>
                                                 @endif
                                             @endforeach
                                         </select>

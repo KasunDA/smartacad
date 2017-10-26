@@ -44,7 +44,7 @@ class Attendance extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function classMaster(){
+    public function takenBy(){
         return $this->belongsTo(User::class, 'user_id');
     }
 
