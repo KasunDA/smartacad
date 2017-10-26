@@ -19,8 +19,10 @@ class InvoicesController extends Controller
     {
         $order = Order::findOrFail($this->decode($orderId));
         $items = !empty($order) ? $order->orderItems()->get() : false;
+        $group_id = !empty($order) ? $order->classRoom->classLevel->classgroup_id : false;
+        $accounts = $this->school_profile->schoolBanks()->where('classgroup_id', $group_id)->active()->get();
 
-        return view('admin.orders.invoices.show', compact('order', 'items'));
+        return view('admin.orders.invoices.show', compact('order', 'items', 'accounts'));
     }
 
     /**

@@ -153,6 +153,7 @@
         </tr>
     </table><br>
     <!-- stamp logo (Paid/Not-Paid) -->
+    <!-- TODO $accounts display account ->
     <div class="row">
         <div class="col-md-6 col-md-offset-4">
             <img alt="{{ $order->status }}" src="/assets/custom/img/{{strtolower($order->status)}}.png" style="height:100px; width:100px" />

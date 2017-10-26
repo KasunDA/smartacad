@@ -34,6 +34,10 @@ class SchoolBank extends Model
         'school_id'
     ];
 
+    public function scopeActive($query){
+        return $query->where('active', 1);
+    }
+    
     /**
      * A School Bank belongs to a School
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
