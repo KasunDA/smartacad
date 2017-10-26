@@ -10,16 +10,18 @@
         .invoice-box{
             max-width:800px;
             margin:auto;
-            padding:2px;
+            padding:30px;
             border:1px solid #eee;
             box-shadow:0 0 10px rgba(0, 0, 0, .15);
-            font-size:16px;
+            font-size:15px;
+            line-height:20px;
             font-family:'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
             color:#555;
         }
 
         .invoice-box table{
             width:100%;
+            line-height:inherit;
             text-align:left;
         }
 
@@ -33,43 +35,52 @@
         }
 
         .invoice-box table tr.top table td{
-            padding-bottom:5px;
+            padding-bottom:0px;
         }
 
         .invoice-box table tr.top table td.title{
-            font-size:45px;
+            font-size:35px;
+            line-height:40px;
             color:#333;
         }
 
         .invoice-box table tr.information table td{
-            padding-bottom:2px;
+            padding-bottom:0px;
         }
 
         .invoice-box table tr.heading td{
             background:#eee;
+            font-size:14px;
             border-bottom:1px solid #ddd;
             font-weight:bold;
         }
 
         .invoice-box table tr.details td{
-            padding-bottom:2px;
+            padding-bottom:20px;
         }
 
         .invoice-box table tr.item td{
             border-bottom:1px solid #eee;
+            font-size:12px;
+        }
+
+        .invoice-box table tr.item td:last-child{
+            text-align: right;
+            font-size:13px;
         }
 
         .invoice-box table tr.item.last td{
             border-bottom:none;
         }
 
-        .invoice-box table tr.total td:nth-child(2){
+        .invoice-box table tr.total td{
             border-top:2px solid #eee;
             font-weight:bold;
+            font-size:14px;
         }
 
-        .page-break {
-            page-break-after: always;
+        .invoice-box table tr.total td:last-child{
+            text-align: right;
         }
 
         @media only screen and (max-width: 600px) {
@@ -88,6 +99,10 @@
         .invoice-right{
             text-align:right !important;
         }
+
+        .page-break {
+            page-break-after: always;
+        }
     </style>
 
 </head>
@@ -95,12 +110,13 @@
 <body>
 <div class="invoice-box">
     <table cellpadding="0" cellspacing="0">
+        <!-- School Details-->
         <tr class="top">
             <td colspan="5">
                 <table>
                     <tr>
                         <td class="title">
-                            <img src="{{public_path($mySchool->getLogoPath())}}" style="max-width:100px; max-height:100px;">
+                            <img src="{{$mySchool->getLogoPath()}}" style="max-width:100px; max-height:100px;">
                         </td>
 
                         <td class="invoice-right">
@@ -108,14 +124,17 @@
                                 {{ strtoupper($mySchool->full_name) }}
                             </div>
                             {!! ($mySchool->address) ? '<div style="font-size: 12px; font-weight: bold;">'.$mySchool->address.'</div>' : '' !!}
-                            {!! ($mySchool->email) ? '<small>'.$mySchool->email.'</small>' : '' !!}<br>
-                            {!! ($mySchool->website) ? '<small>'.$mySchool->website.'</small>' : '' !!}
+                            {!! ($mySchool->email) ? '<small>email: '.$mySchool->email.'</small>' : '' !!}
+                            {!! ($mySchool->website) ? '<small>website: '.$mySchool->website.'</small>' : '' !!}<br>
+                            {!! ($mySchool->phone_no) ? '<small>phone no.: ' . $mySchool->phone_no . ', ' . $mySchool->phone_no2 ?? '' . '</small>' : '' !!}
                         </td>
                     </tr>
-                </table><br>
+                </table>
             </td>
         </tr>
+        <!-- / School Details-->
 
+        <!-- Order Details-->
         <tr class="information">
             <td colspan="5">
                 <table>
@@ -134,38 +153,96 @@
                         </td>
 
                     </tr>
-                </table><br>
+                </table>
             </td>
         </tr>
+        <!-- / Order Details-->
+        <!-- Items Details-->
         <tr class="heading">
             <td width="1%">#</td>
-            <td width="30%">Item</td>
-            <td width="44%">Item Description</td>
-            <td width="25%">Amount</td>
+            <td width="22%">Item</td>
+            <td width="62%">Item Description</td>
+            <td width="15%" style="text-align: right">&#8358; Amount</td>
         </tr>
         <?php $total = 0; $i = 1; ?>
         @if($items)
             @foreach($items as $item)
                 <tr class="item">
                     <td width="1%">{{ $i++ }}</td>
-                    <td width="30%">{{ $item->item->name }}</td>
-                    <td width="44%">{{ $item->item->description }}</td>
-                    <td width="25%">{{ CurrencyHelper::format($item->amount)  }}</td>
+                    <td width="22%">{{ $item->item->name }}</td>
+                    <td width="62%">{{ $item->item->description }}</td>
+                    <td width="15%">{{ CurrencyHelper::format($item->amount)  }}</td>
                 </tr>
                 <?php $total += $item->amount; ?>
             @endforeach
         @endif
         <tr class="total">
             <td colspan="3"><strong>Total</strong></td>
-            <th>N {{ CurrencyHelper::format($total, 0)  }}</th>
+            <td>{{ CurrencyHelper::format($total, 0, true)  }}</td>
         </tr>
-    </table><br><br>
+        <!-- / Items Details-->
+        <tr>
+            <!-- Part Payment-->
+            @if($order->is_part_payment)
+                <td colspan="2">
+                    <table>
+                        <tr class="heading">
+                            <td colspan="2" style="text-align: center">Part Payments</td>
+                        </tr>
+                        <?php $total2 = 0; $j = 1; ?>
+                        @foreach($order->partPayments as $part)
+                            <tr class="item">
+                                <td>{{ $j++ }}</td>
+                                <td style="text-align: right">{{ CurrencyHelper::format($part->amount, 0) }}</td>
+                            </tr>
+                            <?php $total2 += $part->amount; ?>
+                        @endforeach
+                        <tr class="total">
+                            <td><strong>Total</strong></td>
+                            <td>{{ CurrencyHelper::format($total2, 0, true)  }}</td>
+                        </tr>
+                    </table>
+                </td>
+                @endif
+                        <!-- /Part Payment-->
+                <!-- Payment Summary-->
+                <td colspan="{{ ($order->is_part_payment) ? 2 : 3}}">
+                    <table>
+                        <tr class="heading">
+                            <td colspan="4" style="text-align: center">Payments Details</td>
+                        </tr>
+                        <tr class="total">
+                            <td>Total Amount</td>
+                            <td class="amount">{{ CurrencyHelper::format($order->total_amount, 2, true) }}</th>
+                            <td>Amount Payable </td>
+                            <td class="amount">{{ CurrencyHelper::format($order->amount, 2, true) }}</th>
+                        </tr>
+                        <tr class="total">
+                            <td>Discount</td>
+                            <td class="amount">{{CurrencyHelper::format($order->total_amount - $order->amount, 1)}} ({{$order->discount}}%)</td>
+                            <td>Amount Paid</td>
+                            <td class="amount">{{ CurrencyHelper::format($order->amount_paid, 2, true) }}</th>
+                        </tr>
+                        @if($order->is_part_payment)
+                            <tr class="total">
+                                <td>Installments</td>
+                                <td>{{ $order->partPayments->count() }}</td>
+                                <td>Outstanding: </td>
+                                <td class="amount">{{ CurrencyHelper::format($order->amount -$order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                            </tr>
+                        @endif
+                    </table>
+                </td>
+                <!-- / Payment Summary-->
+        </tr>
+    </table><br>
+    <!-- stamp logo (Paid/Not-Paid) -->
     <div class="row">
         <div class="col-md-6 col-md-offset-4">
-            <img alt="{{ $order->status }}" src="{{public_path('/assets/custom/img/' . strtolower($order->status))}}.png"
-                 style="height:160px; width:160px" />
+            <img alt="{{ $order->status }}" src="/assets/custom/img/{{strtolower($order->status)}}.png" style="height:100px; width:100px" />
         </div>
     </div>
+    <!-- / stamp logo (Paid/Not-Paid) -->
 </div>
 </body>
 </html>

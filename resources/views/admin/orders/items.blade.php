@@ -24,7 +24,14 @@
 
 
 @section('content')
-    <h3 class="page">Student Order Items Billings</h3>
+    <h3 class="page">
+        Student Order Items Billings
+        @if($order)
+            <!-- view / export pdf links -->
+                @include('admin.partials.orders.pdf', ['type'=>'page'])
+            <!-- /.view / export pdf links  -->
+        @endif
+    </h3>
     <!-- END PAGE HEADER-->
     <div class="row">
         <div class="col-md-6 margin-bottom-10">
@@ -269,17 +276,9 @@
                                 Items Billing Details.
                             </span>
                         </div>
-                        <div class="pull-right">
-                            <a target="_blank" href="{{ url('/invoices/order/'.$hashIds->encode($order->id)) }}" class="btn btn-default btn-xs sbold">
-                                <i class="fa fa-print"></i> View / Print
-                            </a>
-                            <a target="_blank" href="{{ url('/invoices/pdf/'.$hashIds->encode($order->id)) }}" class="btn btn-info btn-xs sbold">
-                                <i class="fa fa-file"></i> PDF
-                            </a>
-                            <a target="_blank" href="{{ url('/invoices/download/'.$hashIds->encode($order->id)) }}" class="btn btn-primary btn-xs sbold">
-                                <i class="fa fa-download"></i> Download
-                            </a>
-                        </div>
+                        <!-- view / export pdf links -->
+                            @include('admin.partials.orders.pdf', ['type'=>'page'])
+                        <!-- /.view / export pdf links  -->
                     </div>
                     <div class="portlet-body">
                         <div class="table-responsive">

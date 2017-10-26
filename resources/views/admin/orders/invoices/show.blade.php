@@ -10,12 +10,12 @@
 </head>
 
 <body>
+<!-- export button -->
 <div class="text-center" style="margin-bottom: 20px; margin-top: 20px">
-    <a class="btn btn-default print-button">Print</a>
-    <a class="btn btn-danger" href="{{ url('/invoices/download/'.$hashIds->encode($order->id)) }}">Download</a>
-    <a class="btn btn-primary" href="{{ url('/invoices/pdf/'.$hashIds->encode($order->id)) }}">View in PDF</a>
-    {{--<a class="btn btn-success" href="{{ url('/invoices/send-pdf/'.$hashIds->encode($order->id)) }}">Send to {{$order->student->sponsor->simpleName()}}</a>--}}
+    @include('admin.partials.orders.pdf', ['type'=>'print'])
 </div>
+<!-- / export button -->
+
 @if(session()->has('message'))
     <div class="text-center alert alert-success alert-dismissible">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -26,6 +26,7 @@
 @endif
 <div class="invoice-box">
     <table cellpadding="0" cellspacing="0">
+        <!-- School Details-->
         <tr class="top">
             <td colspan="5">
                 <table>
@@ -44,10 +45,12 @@
                             {!! ($mySchool->phone_no) ? '<small>phone no.: ' . $mySchool->phone_no . ', ' . $mySchool->phone_no2 ?? '' . '</small>' : '' !!}
                         </td>
                     </tr>
-                </table><br>
+                </table>
             </td>
         </tr>
+        <!-- / School Details-->
 
+        <!-- Order Details-->
         <tr class="information">
             <td colspan="5">
                 <table>
@@ -66,23 +69,25 @@
                         </td>
 
                     </tr>
-                </table><br>
+                </table>
             </td>
         </tr>
+        <!-- / Order Details-->
+        <!-- Items Details-->
         <tr class="heading">
             <td width="1%">#</td>
-            <td width="27%">Item</td>
-            <td width="50%">Item Description</td>
-            <td width="22%">&#8358; Amount</td>
+            <td width="22%">Item</td>
+            <td width="62%">Item Description</td>
+            <td width="15%" style="text-align: right">&#8358; Amount</td>
         </tr>
         <?php $total = 0; $i = 1; ?>
         @if($items)
             @foreach($items as $item)
                 <tr class="item">
                     <td width="1%">{{ $i++ }}</td>
-                    <td width="27%">{{ $item->item->name }}</td>
-                    <td width="50%">{{ $item->item->description }}</td>
-                    <td width="22%">{{ CurrencyHelper::format($item->amount)  }}</td>
+                    <td width="22%">{{ $item->item->name }}</td>
+                    <td width="62%">{{ $item->item->description }}</td>
+                    <td width="15%">{{ CurrencyHelper::format($item->amount)  }}</td>
                 </tr>
                 <?php $total += $item->amount; ?>
             @endforeach
@@ -91,20 +96,70 @@
             <td colspan="3"><strong>Total</strong></td>
             <td>{{ CurrencyHelper::format($total, 0, true)  }}</td>
         </tr>
-    </table><br><br>
+        <!-- / Items Details-->
+        <tr>
+            <!-- Part Payment-->
+            @if($order->is_part_payment)
+                <td colspan="2">
+                    <table>
+                        <tr class="heading">
+                            <td colspan="2" style="text-align: center">Part Payments</td>
+                        </tr>
+                        <?php $total2 = 0; $j = 1; ?>
+                            @foreach($order->partPayments as $part)
+                                <tr class="item">
+                                    <td>{{ $j++ }}</td>
+                                    <td style="text-align: right">{{ CurrencyHelper::format($part->amount, 0) }}</td>
+                                </tr>
+                                <?php $total2 += $part->amount; ?>
+                            @endforeach
+                            <tr class="total">
+                                <td><strong>Total</strong></td>
+                                <td>{{ CurrencyHelper::format($total2, 0, true)  }}</td>
+                            </tr>
+                    </table>
+                </td>
+            @endif
+            <!-- /Part Payment-->
+            <!-- Payment Summary-->
+            <td colspan="{{ ($order->is_part_payment) ? 2 : 3}}">
+                <table>
+                    <tr class="heading">
+                        <td colspan="4" style="text-align: center">Payments Details</td>
+                    </tr>
+                    <tr class="total">
+                        <td>Total Amount</td>
+                        <td class="amount">{{ CurrencyHelper::format($order->total_amount, 2, true) }}</th>
+                        <td>Amount Payable </td>
+                        <td class="amount">{{ CurrencyHelper::format($order->amount, 2, true) }}</th>
+                    </tr>
+                    <tr class="total">
+                        <td>Discount</td>
+                        <td class="amount">{{CurrencyHelper::format($order->total_amount - $order->amount, 1)}} ({{$order->discount}}%)</td>
+                        <td>Amount Paid</td>
+                        <td class="amount">{{ CurrencyHelper::format($order->amount_paid, 2, true) }}</th>
+                    </tr>
+                    @if($order->is_part_payment)
+                        <tr class="total">
+                            <td>Installments</td>
+                            <td>{{ $order->partPayments->count() }}</td>
+                            <td>Outstanding: </td>
+                            <td class="amount">{{ CurrencyHelper::format($order->amount -$order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                        </tr>
+                    @endif
+                </table>
+            </td>
+            <!-- / Payment Summary-->
+        </tr>
+    </table><br>
+    <!-- stamp logo (Paid/Not-Paid) -->
     <div class="row">
         <div class="col-md-6 col-md-offset-4">
-            <img alt="{{ $order->status }}" src="/assets/custom/img/{{strtolower($order->status)}}.png" style="height:160px; width:160px" />
+            <img alt="{{ $order->status }}" src="/assets/custom/img/{{strtolower($order->status)}}.png" style="height:100px; width:100px" />
         </div>
     </div>
+    <!-- / stamp logo (Paid/Not-Paid) -->
 </div>
-<div class="text-center" style="margin-bottom: 20px; margin-top: 20px">
-    <a class="btn btn-default print-button">Print</a>
-    <a class="btn btn-danger" href="{{ url('/invoices/download/'.$hashIds->encode($order->id)) }}">Download</a>
-    <a class="btn btn-primary" href="{{ url('/invoices/pdf/'.$hashIds->encode($order->id)) }}">View in PDF</a>
-    {{--<a class="btn btn-success" href="{{ url('/invoices/send-pdf/'.$hashIds->encode($order->id)) }}">Send to {{$order->student->sponsor->simpleName()}}</a>--}}
-</div>
-
 <script src="{{ asset('assets/global/plugins/jquery.min.js')}}" type="text/javascript"></script>
 <script src="{{ asset('assets/global/plugins/bootstrap/js/bootstrap.min.js')}}" type="text/javascript"></script>
 <script src="{{ asset('assets/global/scripts/jquery.PrintArea.js')}}" type="text/javascript"></script>
