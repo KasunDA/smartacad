@@ -83,6 +83,15 @@
             text-align: right;
         }
 
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .invoice-box * {
+                visibility: visible;
+            }
+        }
+
         @media only screen and (max-width: 600px) {
             .invoice-box table tr.top table td{
                 width:100%;
@@ -203,46 +212,74 @@
                         </tr>
                     </table>
                 </td>
-                @endif
-                        <!-- /Part Payment-->
-                <!-- Payment Summary-->
-                <td colspan="{{ ($order->is_part_payment) ? 2 : 3}}">
-                    <table>
-                        <tr class="heading">
-                            <td colspan="4" style="text-align: center">Payments Details</td>
-                        </tr>
+            @endif
+            <!-- /Part Payment-->
+            <!-- Payment Summary-->
+            <td colspan="{{ ($order->is_part_payment) ? 2 : 3}}">
+                <table>
+                    <tr class="heading">
+                        <td colspan="4" style="text-align: center">Payments Details</td>
+                    </tr>
+                    <tr class="total">
+                        <td>Total Amount</td>
+                        <td class="amount">{{ CurrencyHelper::format($order->total_amount, 2, true) }}</th>
+                        <td>Amount Payable </td>
+                        <td class="amount">{{ CurrencyHelper::format($order->amount, 2, true) }}</th>
+                    </tr>
+                    <tr class="total">
+                        <td>Discount</td>
+                        <td class="amount">{{CurrencyHelper::format($order->total_amount - $order->amount, 1)}} ({{$order->discount}}%)</td>
+                        <td>Amount Paid</td>
+                        <td class="amount">{{ CurrencyHelper::format($order->amount_paid, 2, true) }}</th>
+                    </tr>
+                    @if($order->is_part_payment)
                         <tr class="total">
-                            <td>Total Amount</td>
-                            <td class="amount">{{ CurrencyHelper::format($order->total_amount, 2, true) }}</th>
-                            <td>Amount Payable </td>
-                            <td class="amount">{{ CurrencyHelper::format($order->amount, 2, true) }}</th>
+                            <td>Installments</td>
+                            <td>{{ $order->partPayments->count() }}</td>
+                            <td>Outstanding: </td>
+                            <td class="amount">{{ CurrencyHelper::format($order->amount -$order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
                         </tr>
-                        <tr class="total">
-                            <td>Discount</td>
-                            <td class="amount">{{CurrencyHelper::format($order->total_amount - $order->amount, 1)}} ({{$order->discount}}%)</td>
-                            <td>Amount Paid</td>
-                            <td class="amount">{{ CurrencyHelper::format($order->amount_paid, 2, true) }}</th>
-                        </tr>
-                        @if($order->is_part_payment)
-                            <tr class="total">
-                                <td>Installments</td>
-                                <td>{{ $order->partPayments->count() }}</td>
-                                <td>Outstanding: </td>
-                                <td class="amount">{{ CurrencyHelper::format($order->amount -$order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
-                            </tr>
-                        @endif
-                    </table>
-                </td>
-                <!-- / Payment Summary-->
+                    @endif
+                </table>
+            </td>
+            <!-- / Payment Summary-->
         </tr>
-    </table><br>
-    <!-- stamp logo (Paid/Not-Paid) -->
-    <div class="row">
-        <div class="col-md-6 col-md-offset-4">
-            <img alt="{{ $order->status }}" src="/assets/custom/img/{{strtolower($order->status)}}.png" style="height:100px; width:100px" />
-        </div>
-    </div>
-    <!-- / stamp logo (Paid/Not-Paid) -->
+        <tr>
+            <!-- School Accounts -->
+            <td colspan="3">
+                <table>
+                    <tr class="heading">
+                        <td colspan="4" style="text-align: center">
+                            School Account ({{ (!empty($accounts[0]) && !empty($accounts[0]->classGroup)) ? $accounts[0]->classGroup->classgroup : 's' }})
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>Account Name</th>
+                        <th>Account Number</th>
+                        <th>Bank</th>
+                    </tr>
+                    <?php $k = 1; ?>
+                    @foreach($accounts as $account)
+                        <tr>
+                            <td>{{ $k++ }}</td>
+                            <td>{{ $account->account_name }}</td>
+                            <td>{{ $account->account_number }}</td>
+                            <td>{{ $account->bank->name }}</td>
+                        </tr>
+                    @endforeach
+                </table>
+            </td>
+            <td colspan="1">
+                <!-- stamp logo (Paid/Not-Paid) -->
+                <div class="col-md-6 col-md-offset-1">
+                    <img alt="{{ $order->status }}" src="/assets/custom/img/{{strtolower(Order::ORDER_STATUSES[$order->paid])}}.png" style="height:100px; width:100px" />
+                </div>
+                <!-- / stamp logo (Paid/Not-Paid) -->
+            </td>
+            <!-- / School Accounts -->
+        </tr>
+    </table>
 </div>
 </body>
 </html>

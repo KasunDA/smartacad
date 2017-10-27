@@ -74,6 +74,15 @@
     text-align: right;
 }
 
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .invoice-box * {
+        visibility: visible;
+    }
+}
+
 @media only screen and (max-width: 600px) {
     .invoice-box table tr.top table td{
         width:100%;

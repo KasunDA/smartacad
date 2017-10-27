@@ -55,6 +55,7 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/not-paid/{termId?}', 'OrdersController@notPaid')->name('notPaidOrders');
         Route::get('/all-orders/{termId?}', 'OrdersController@allOrders')->name('allOrders');
         Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
+        Route::post('/all-data', 'OrdersController@data');
     });
 
     //Invoice Routes

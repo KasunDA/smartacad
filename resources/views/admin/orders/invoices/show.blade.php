@@ -11,7 +11,7 @@
 
 <body>
 <!-- export button -->
-<div class="text-center" style="margin-bottom: 20px; margin-top: 20px">
+<div class="text-center">
     @include('admin.partials.orders.pdf', ['type'=>'print'])
 </div>
 <!-- / export button -->
@@ -151,16 +151,49 @@
             </td>
             <!-- / Payment Summary-->
         </tr>
-    </table><br>
-    <!-- stamp logo (Paid/Not-Paid) -->
-    <!-- TODO $accounts display account ->
-    <div class="row">
-        <div class="col-md-6 col-md-offset-4">
-            <img alt="{{ $order->status }}" src="/assets/custom/img/{{strtolower($order->status)}}.png" style="height:100px; width:100px" />
-        </div>
-    </div>
-    <!-- / stamp logo (Paid/Not-Paid) -->
+        <tr>
+            <!-- School Accounts -->
+            <td colspan="3">
+                <table>
+                    <tr class="heading">
+                        <td colspan="4" style="text-align: center">
+                            School Account ({{ (!empty($accounts[0]) && !empty($accounts[0]->classGroup)) ? $accounts[0]->classGroup->classgroup : 's' }})
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>Account Name</th>
+                        <th>Account Number</th>
+                        <th>Bank</th>
+                    </tr>
+                    <?php $k = 1; ?>
+                    @foreach($accounts as $account)
+                        <tr>
+                            <td>{{ $k++ }}</td>
+                            <td>{{ $account->account_name }}</td>
+                            <td>{{ $account->account_number }}</td>
+                            <td>{{ $account->bank->name }}</td>
+                        </tr>
+                    @endforeach
+                </table>
+            </td>
+            <td>
+                <!-- stamp logo (Paid/Not-Paid) -->
+                <div class="col-md-6 col-md-offset-1">
+                    <img alt="{{ $order->status }}" src="/assets/custom/img/{{strtolower(Order::ORDER_STATUSES[$order->paid])}}.png" style="height:100px; width:100px" />
+                </div>
+                <!-- / stamp logo (Paid/Not-Paid) -->
+            </td>
+            <!-- / School Accounts -->
+        </tr>
+    </table>
 </div>
+<!-- export button -->
+<div class="text-center">
+    @include('admin.partials.orders.pdf', ['type'=>'print'])
+</div>
+<!-- / export button -->
+
 <script src="{{ asset('assets/global/plugins/jquery.min.js')}}" type="text/javascript"></script>
 <script src="{{ asset('assets/global/plugins/bootstrap/js/bootstrap.min.js')}}" type="text/javascript"></script>
 <script src="{{ asset('assets/global/scripts/jquery.PrintArea.js')}}" type="text/javascript"></script>

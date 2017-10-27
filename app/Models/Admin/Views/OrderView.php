@@ -2,6 +2,8 @@
 
 namespace App\Models\Admin\Views;
 
+use App\Helpers\LabelHelper;
+use App\Models\Admin\Orders\Order;
 use App\Models\Admin\Orders\OrderInitiate;
 use App\Models\Admin\Orders\OrderItem;
 use App\Models\Admin\Orders\OrderLog;
@@ -41,6 +43,15 @@ class OrderView extends Model
     }
 
     /**
+     * An Order View belongs to a Sponsor
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function order(){
+        return $this->belongsTo(Order::class, 'order_id');
+    }
+    
+    /**
      * An Order belongs to a Sponsor
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -74,5 +85,15 @@ class OrderView extends Model
 
     public function orderLogs(){
         return $this->hasMany(OrderLog::class);
+    }
+
+    public function getStatusLabel()
+    {
+        if($this->paid == Order::PAID)
+            return LabelHelper::success(Order::paid());
+        else if($this->paid == Order::NOT_PAID)
+            return LabelHelper::danger(Order::notPaid());
+
+        return LabelHelper::warning(Order::cancelled());
     }
 }

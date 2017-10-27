@@ -3,6 +3,7 @@
 namespace App\Models\Admin\Orders;
 
 use App\Helpers\CurrencyHelper;
+use App\Helpers\LabelHelper;
 use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\MasterRecords\AcademicTerm;
@@ -65,25 +66,14 @@ class Order extends Model
         ],
     ];
     
-    public static function notPaidStatuses()
+    public function getStatusLabel()
     {
-        return array_filter(self::STATUSES, function($status) {
-            return $status[self::NOT_PAID];
-        });
-    }
-    
-    public static function paidStatuses()
-    {
-        return array_filter(self::STATUSES, function($status) {
-            return $status[self::PAID];
-        });
-    }
-
-    public static function cancelledStatuses()
-    {
-        return array_filter(self::STATUSES, function($status) {
-            return $status[self::CANCELLED];
-        });
+        if($this->paid == self::PAID)
+            return LabelHelper::success(self::paid());
+        else if($this->paid == self::NOT_PAID)
+            return LabelHelper::danger(self::notPaid());
+        
+        return LabelHelper::warning(self::cancelled());
     }
 
     public static function paid(){
@@ -111,21 +101,6 @@ class Order extends Model
     public static function processItemVariables($variableIds){
         return DB::statement('call sp_processItemVariables("' . $variableIds . '")');
     }
-
-    /**
-     * Compute Order Amount from Order Items
-     *
-     * @param $format
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-//    public function amount($format=false){
-//        return (!empty($this->orderItems()->lists('amount'))) 
-//            ? ( ($format) 
-//                ? CurrencyHelper::format($this->orderItems()->lists('amount')->sum()) 
-//                : $this->orderItems()->lists('amount')->sum()
-//            ) 
-//            : 0;
-//    }
 
     /**
      * An Order belongs to a Student
@@ -231,13 +206,15 @@ class Order extends Model
      * @return self
      */
     public function updateAmount(){
-        $sum = $this->orderItems()->lists('amount')->sum();
-        if($this->paid == self::PAID && $this->is_part_payment != PartPayment::FULL_PAYMENT){
-            $this->amount_paid = $sum;   
-        };
-        $this->amount = $this->total_amount = $sum;
+        $this->amount = $this->total_amount = $this->orderItems()->lists('amount')->sum();
         $this->amount = $this->getDiscountedAmount();
         $this->item_count = count($this->orderItems);
+
+        if($this->paid == self::PAID){
+            $this->amount_paid = ($this->is_part_payment == PartPayment::PART_PAYMENT)
+                ? $this->partPayments()->lists('amount')->sum()
+                : $this->amount;
+        }
 
         $this->save();
     }

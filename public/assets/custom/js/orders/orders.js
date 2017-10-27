@@ -163,24 +163,25 @@ var UIBlockUI = function() {
                                     <th>Name</th>\
                                     <th>Class Room</th>\
                                     <th>Order No.</th>\
-                                    <th>Amount (&#8358;)</th>\
+                                    <th>Charges (&#8358;)</th>\
+                                    <th>Paid (&#8358;)</th>\
+                                    <th>Type</th>\
                                     <th>Status</th>\
                                     <th>Details</th>\
                                     <th>Action</th>\
-                                    <th>Source</th>\
                                 </tr>\
                             </thead>\
                             <tbody>';
                     if(obj.flag == 1){
                         $.each(obj.Orders, function(key, order) {
-                            var button = '<button  data-confirm-text="Yes, Confirm Payment" data-name="'+order.name+'" data-title="Order Status Update Confirmation" ' +
+                            var button = '<button  data-confirm-text="Yes, Confirm Payment" data-name="'+order.fullname+'" data-title="Order Status Update Confirmation" ' +
                             'data-message="Are you sure Order: <b>'+order.number+'</b> meant for <b>'+order.fullname+' has being PAID, for '+order.term+'?</b>" ' +
                             'data-statusText="'+order.number+' Order status updated to PAID" data-confirm-button="#44b6ae" data-status="Updated" ' +
-                            'data-action="/orders/status/'+order.order_id+'" data-status="Updated" ' +
+                            'data-action="/orders/status/'+order.order_id+'" data-status="Updated" data-confirm-button="#44b6ae"' +
                             'class="btn btn-success btn-xs btn-sm confirm-delete-btn"><span class="fa fa-save"></span> Update</button>';
 
                             if(order.paid == 1) {
-                                button = '<button  data-confirm-text="Yes, Undo Payment" data-name="'+order.name+'" data-title="Order Status Update Confirmation" ' +
+                                button = '<button  data-confirm-text="Yes, Undo Payment" data-name="'+order.fullname+'" data-title="Order Status Update Confirmation" ' +
                                 'data-message="Are you sure Order: <b>'+order.number+'</b> meant for <b>'+order.fullname+' has NOT being PAID, for '+order.term+'?</b>" ' +
                                 'data-statusText="'+order.number+' Order status updated to NOT-PAID" data-confirm-button="#44b6ae" data-status="Updated" ' +
                                 'data-action="/orders/status/'+order.order_id+'" data-status="Updated" ' +
@@ -189,15 +190,16 @@ var UIBlockUI = function() {
                             
                             assign += '<tr>' +
                                 '<td>'+(key + 1)+'</td>' +
-                                '<td>'+order.name+'</td>' +
+                                '<td>'+order.fullname+'</td>' +
                                 '<td>'+order.classroom+'</td>' +
                                 '<td>'+order.number+'</td>' +
-                                '<td>'+order.amount+'</td>' +
+                                '<td>'+order.total_amount+'</td>' +
+                                '<td>'+order.amount_paid+'</td>' +
+                                '<td>'+order.is_part_payment+'</td>' +
                                 '<td>'+order.status+'</td>' +
                                 '<td><a href="/orders/items/'+order.student_id+'/'+ order.term_id + '"' +
                                 ' class="btn btn-xs btn-info"> <i class="fa fa-eye"></i> Details</a></td>' +
                                 '<td>'+button+'</td>' +
-                                '<td>'+order.backend+'</td>' +
                             '</tr>';
                         });
                     }

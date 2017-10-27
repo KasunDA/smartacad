@@ -126,7 +126,14 @@
                                         <th>Amount Paid: </th>
                                         <td>{{ CurrencyHelper::format($order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
                                         <th>Outstanding: </th>
-                                        <td>{{ CurrencyHelper::format($order->amount -$order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                                        <td>{{ CurrencyHelper::format($order->amount - $order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                                    </tr>
+                                @else
+                                    <tr>
+                                        <th>Amount Paid: </th>
+                                        <td>{{ CurrencyHelper::format($order->amount_paid, 2, true) }}</td>
+                                        <th>Outstanding: </th>
+                                        <td>{{ CurrencyHelper::format($order->amount - $order->amount_paid, 2, true) }}</td>
                                     </tr>
                                 @endif
                             @else

@@ -103,19 +103,19 @@ class OrdersController extends Controller
                 $object->order_id = $order->order_id;
                 $object->fullname = $order->fullname;
                 $object->number = $order->number;
-                $object->status = '<span class="label label-'.$status.'">'.$order->status.'</span>';
-                $object->amount = CurrencyHelper::format($order->amount);
+                $object->status = '<span class="label label-sm label-'.$status.'">'.$order->status.'</span>';
+                $object->total_amount = CurrencyHelper::format((float) $order->total_amount);
+                $object->amount_paid = CurrencyHelper::format((float) $order->amount_paid);
+//                $object->outstanding = CurrencyHelper::format((float) ($order->amount - $order->amount_paid));
                 $object->paid = $order->paid;
-                $object->student_no = $order->student_no;
-                $object->name = $order->fullname;
-                $object->backend = ($order->backend) ? LabelHelper::info('Admin') : LabelHelper::default('Sponsor') ;
+                $object->is_part_payment = ($order->is_part_payment) ? LabelHelper::info('Part') : LabelHelper::default('Full') ;
                 $object->classroom = $order->classroom;
                 $output[] = $object;
             }
             //Sort The Students by name
             usort($output, function($a, $b)
             {
-                return strcmp($a->name, $b->name);
+                return strcmp($a->fullname, $b->fullname);
             });
 
             $response['flag'] = 1;
@@ -309,7 +309,6 @@ class OrdersController extends Controller
         $part->user_id = Auth::id();
 
         if($part->save()){
-            $part->order->amount_paid = $part->order->partPayments()->lists('amount')->sum();
             $part->order->paid = Order::PAID;
             $part->order->status = Order::paid();
             $part->order->updateAmount();
@@ -338,7 +337,6 @@ class OrdersController extends Controller
         $delete = !empty($part) ? $part->delete() : false;
 
         if($delete){
-            $part->order->amount_paid = $part->order->partPayments()->lists('amount')->sum();
             if($part->order->partPayments->count() == 0){
                 $part->order->paid = Order::NOT_PAID;
                 $part->order->status = Order::notPaid();
@@ -372,6 +370,7 @@ class OrdersController extends Controller
         $order->paid = !$paid;
         $order->backend = ($order->paid == Order::PAID) ? Order::BACKEND : Order::FRONTEND;
         $order->status = !$paid ? Order::paid() : Order::notPaid();
+        $order->amount_paid = $order->paid == Order::PAID ? $order->amount : 0;
         $comment = 'Order: ' . $order->number . ' Status changed from ' . $stat;
 
         if($order->save()){
@@ -591,5 +590,97 @@ class OrdersController extends Controller
         $response[] = ['label'=>'Not-Paid', 'color'=>'#F00', 'data'=>$notPaid, 'value'=>$notPaid];
 
         return response()->json($response);
+    }
+
+    /**
+     * Display a listing of the Users using Ajax Datatable.
+     * @param $termId
+     * @return Response
+     */
+    public function data($termId=false)
+    {
+        $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
+        $type = 'All-Orders';
+
+
+        $iTotalRecords = OrderView::where('academic_term_id', $term->academic_term_id)->activeStudent()->count();
+        $iDisplayLength = intval($_REQUEST['length']);
+        $iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength;
+        $iDisplayStart = intval($_REQUEST['start']);
+        $sEcho = intval($_REQUEST['draw']);
+
+        $q = @$_REQUEST['sSearch'];
+
+        $orders = OrderView::where('academic_term_id', $term->academic_term_id)
+            ->activeStudent()
+            ->orderBy('fullname')
+            ->where(function ($query) use ($q) {
+                //Filter by either number, name, no, classroom
+                if (!empty($q))
+                    $query->orWhere('fullname', 'like', '%'.$q.'%')
+                        ->orWhere('number', 'like', '%'.$q.'%')
+                        ->orWhere('status', 'like', '%'.$q.'%')
+                        ->orWhere('student_no', 'like', '%'.$q.'%')
+                        ->orWhere('gender', 'like', '%'.$q.'%')
+                        ->orWhere('classroom', 'like', '%'.$q.'%');
+            });
+        // iTotalDisplayRecords = filtered result count
+        $iTotalDisplayRecords = $orders->count();
+
+
+        $records = array();
+        $records["data"] = array();
+
+        $end = $iDisplayStart + $iDisplayLength;
+        $end = $end > $iTotalRecords ? $iTotalRecords : $end;
+
+        $i = $iDisplayStart;
+        $allOrders = $orders->skip($iDisplayStart)->take($iDisplayLength)->get();
+        foreach ($allOrders as $order){
+            $number = '<a href="/order/items/'.$this->encode($order->student_id).'/'.$this->encode($term->academic_term_id).'"
+                           class="btn btn-link btn-xs sbold"><span style="font-size: 14px">'.$order->number.'</span>
+                        </a>';
+            $name = '<a href="/students/view/'.$this->encode($order->student_id).'"
+                           class="btn btn-link btn-xs sbold"><span style="font-size: 14px">'.$order->fullname.'</span>
+                        </a>';
+            $print = '<a target="_blank" href="/invoices/order/'.$this->encode($order->order_id).'" class="btn btn-default btn-xs">
+                            <i class="fa fa-print"></i> Print
+                        </a>
+                      <a target="_blank" href="/invoices/download/'.$this->encode($order->order_id).'" class="btn btn-primary btn-xs">
+                            <i class="fa fa-download"></i> Download
+                        </a>';
+            $action = '<button  data-confirm-text="Yes, Undo Payment" data-name="'.$order->number.'" data-title="Order Status Update Confirmation"
+                             data-message="Are you sure Order: <b>'.$order->number.'</b> meant for <b>'.$order->fullname.' has NOT being PAID, for '.$term->academic_term.'?</b>"
+                             data-statusText="'.$order->number.'Order status updated to NOT-PAID" data-action="/orders/status/'.$order->order_id.'" data-status="Updated"
+                             class="btn btn-warning btn-xs btn-sm confirm-delete-btn"> <span class="fa fa-undo"></span> Undo
+                        </button>';
+            if(!$order->paid)
+                $action = '<button  data-confirm-text="Yes, Confirm Payment" data-name="'.$order->number.'" data-title="Order Status Update Confirmation"
+                             data-message="Are you sure Order: <b>'.$order->number.'</b> meant for <b>'.$order->fullname.' has being PAID, for '.$term->academic_term.'?</b>"
+                             data-statusText="'.$order->number.' Order status updated to PAID" data-confirm-button="#44b6ae" data-action="/orders/status/'.$order->order_id.'" data-status="Updated"
+                             class="btn btn-success btn-xs btn-sm confirm-delete-btn"> <span class="fa fa-save"></span> Update
+                        </button>';
+            $action .= '<a href="/order/items/'.$this->encode($order->student_id).'/'.$this->encode($term->academic_term_id).'"
+                           class="btn btn-info btn-xs sbold"><i class="fa fa-eye"></i> View
+                        </a>';
+            $records["data"][] = array(
+                ($i++ + 1),
+                $number,
+                CurrencyHelper::format($order->total_amount, 0, true),
+                CurrencyHelper::format($order->amount_paid, 0, true),
+                ($order->is_part_payment) ? LabelHelper::info('Part') : LabelHelper::default('Full'),
+                $order->getStatusLabel(),
+                $name,
+                $order->classroom,
+                $print,
+                $action
+            );
+        }
+
+        $records["draw"] = $sEcho;
+        $records["recordsTotal"] = $iTotalRecords;
+        $records["recordsFiltered"] = isset($iTotalDisplayRecords) ? $iTotalDisplayRecords :$iTotalRecords;
+
+        echo json_encode($records);
     }
 }

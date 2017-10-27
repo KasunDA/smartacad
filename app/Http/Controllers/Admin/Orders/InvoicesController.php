@@ -34,7 +34,9 @@ class InvoicesController extends Controller
     public function download($orderId){
         $order = Order::findOrFail($this->decode($orderId));
         $items = !empty($order) ? $order->orderItems()->get() : false;
-        $pdf = PDF::loadView('admin.orders.invoices.pdf', compact('order', 'items'));
+        $group_id = !empty($order) ? $order->classRoom->classLevel->classgroup_id : false;
+        $accounts = $this->school_profile->schoolBanks()->where('classgroup_id', $group_id)->active()->get();
+        $pdf = PDF::loadView('admin.orders.invoices.pdf', compact('order', 'items', 'accounts'));
         
         return $pdf->download('invoice_'.$order->number.'.pdf');
     }
@@ -48,7 +50,9 @@ class InvoicesController extends Controller
     public function pdf($orderId){
         $order = Order::findOrFail($this->decode($orderId));
         $items = !empty($order) ? $order->orderItems()->get() : false;
-        $pdf = PDF::loadView('admin.orders.invoices.pdf', compact('order', 'items'));
+        $group_id = !empty($order) ? $order->classRoom->classLevel->classgroup_id : false;
+        $accounts = $this->school_profile->schoolBanks()->where('classgroup_id', $group_id)->active()->get();
+        $pdf = PDF::loadView('admin.orders.invoices.pdf', compact('order', 'items', 'accounts'));
         
         return $pdf->stream('invoice_'.$order->number.'.pdf');
     }
