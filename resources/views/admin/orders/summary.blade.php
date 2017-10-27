@@ -35,6 +35,47 @@
     <h3 class="page-title"> Orders Payments Details</h3>
 
     <div class="row">
+        <div class="col-md-10 col-md-offset-1 margin-bottom-10">
+            <form method="post" action="/orders/summary" role="form" class="form-horizontal">
+                {!! csrf_field() !!}
+                <input type="hidden" name="order_type" value="{{strtolower($type)}}">
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <label class="col-md-2 control-label">Academic Year</label>
+                        <div class="col-md-4">
+                            <div class="col-md-10">
+                                {!! Form::select('academic_year_id', $academic_years,  $term->academic_year_id,
+                                    ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required'])
+                                !!}
+                            </div>
+                        </div>
+                        <label class="col-md-2 control-label">Academic Term</label>
+                        <div class="col-md-4">
+                            <div class="col-md-10">
+                                {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', $term->academic_year_id)
+                                        ->orderBy('term_type_id')
+                                        ->lists('academic_term', 'academic_term_id')
+                                        ->prepend('- Academic Term -', ''),
+                                    $term->academic_term_id,
+                                    ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required'])
+                                !!}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-8">
+                        <h4 class="text-center">{{$type}} Orders:
+                            <span class="text-danger">{{ ($term) ? $term->academic_term : 'All' }}</span> Academic Year
+                        </h4>
+                    </div>
+                    <div class="col-md-2 pull left">
+                        <button class="btn btn-primary pull-right" type="submit">Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
         <div class="col-md-12">
             <div class="portlet light bordered">
                 <div class="portlet-title">
@@ -99,10 +140,12 @@
 @section('layout-script')
     <script>
         jQuery(document).ready(function () {
+            getDependentListBox($('#academic_year_id'), $('#academic_term_id'), '/list-box/academic-term/');
+
             setTabActive('[href="/orders/{{strtolower($type)}}"]');
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
-            var url = '/orders/all-data?<?= $conditions ?>';
 
+            var url = '/orders/all-data?<?= $conditions ?>';
             setTableDatatablesAjax($('#orders_datatable'), url).init();
         });
     </script>

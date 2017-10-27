@@ -38,7 +38,7 @@
                         <label class="col-md-2 control-label">Academic Year</label>
                         <div class="col-md-4">
                             <div class="col-md-10">
-                                {!! Form::select('academic_year_id', $academic_years,  $academic_year->academic_year_id,
+                                {!! Form::select('academic_year_id', $academic_years,  $academic_term->academic_year_id,
                                     ['class'=>'form-control', 'id'=>'academic_year_id', 'required'=>'required'])
                                 !!}
                             </div>

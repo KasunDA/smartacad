@@ -386,13 +386,11 @@ class OrdersController extends Controller
     /**
      * Display a listing of the resource.
      * @param Boolean $term
-     * @param Boolean $year
      * @return Response
      */
-    public function getDashboard($term=false, $year=false)
+    public function getDashboard($term=false)
     {
         $academic_term = ($term) ? AcademicTerm::findOrFail($this->decode($term)) : AcademicTerm::activeTerm();
-        $academic_year = ($year) ? AcademicYear::findOrFail($this->decode($year)) : AcademicYear::activeYear();
         $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
 
         $pendingAmount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
@@ -416,9 +414,8 @@ class OrdersController extends Controller
 
         return view('admin.orders.dashboard',
             compact(
-                'sponsors_count','staff_count', 'students_count', 'unmarked', 
-                'academic_years', 'academic_year', 'academic_term',
-                'pendingAmount', 'paidAmount', 'totalAmount', 'studentCount'
+                'sponsors_count','staff_count', 'students_count', 'unmarked', 'academic_years',
+                'academic_term', 'pendingAmount', 'paidAmount', 'totalAmount', 'studentCount'
             )
         );
     }
@@ -490,9 +487,8 @@ class OrdersController extends Controller
     public function postDashboard(Request $request)
     {
         $inputs = $request->all();
-        $year = $this->encode($inputs['academic_year_id']);
         $term = $this->encode($inputs['academic_term_id']);
-        return redirect('/orders/dashboard/' . $term . '/' . $year);
+        return redirect('/orders/dashboard/' . $term );
     }
 
     /**
@@ -559,6 +555,17 @@ class OrdersController extends Controller
     }
 
     /**
+     * Gets Not Paid Transactions
+     *
+     * @param $termId
+     * @return Response
+     */
+    public function cancelled($termId=false)
+    {
+        return $this->all($termId, 'Cancelled', Order::CANCELLED);
+    }
+
+    /**
      * Gets All Order Transactions
      *
      * @param $termId
@@ -567,6 +574,14 @@ class OrdersController extends Controller
     public function allOrders($termId=false)
     {
         return $this->all($termId);
+    }
+
+    public function postSummary(Request $request)
+    {
+        $inputs = $request->all();
+        $type =$inputs['order_type'];
+        $term = $this->encode($inputs['academic_term_id']);
+        return redirect("/orders/{$type}/{$term}");
     }
 
     /**
@@ -580,9 +595,10 @@ class OrdersController extends Controller
     private function all($termId=false, $type='All-Orders', $condition=-1)
     {
         $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
+        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         $conditions = "term=".$term->academic_term_id."&status=".$condition;
 
-        return view('admin.orders.summary', compact('orders', 'term', 'type', 'conditions'));
+        return view('admin.orders.summary', compact('academic_years', 'term', 'type', 'conditions'));
     }
 
     /**

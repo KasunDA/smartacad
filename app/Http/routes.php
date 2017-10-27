@@ -53,8 +53,11 @@ Route::group(['middleware' => ['web']], function () {
     Route::group(['prefix'=>'orders/', 'namespace' => 'Admin\Orders'], function () {
         Route::get('/paid/{termId?}', 'OrdersController@paid')->name('paidOrders');
         Route::get('/not-paid/{termId?}', 'OrdersController@notPaid')->name('notPaidOrders');
+        Route::get('/cancelled/{termId?}', 'OrdersController@cancelled')->name('cancelledOrders');
         Route::get('/all-orders/{termId?}', 'OrdersController@allOrders')->name('allOrders');
         Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
+        
+        Route::post('/summary', 'OrdersController@postSummary');
         Route::post('/all-data', 'OrdersController@data');
     });
 
