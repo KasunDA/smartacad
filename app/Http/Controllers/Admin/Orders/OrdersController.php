@@ -513,64 +513,8 @@ class OrdersController extends Controller
     }
 
     /**
-     * Gets Paid Transactions
-     *
-     * @param $termId
-     * @return Response
-     */
-    public function paid($termId=false)
-    {
-        $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
-        $orders = OrderView::where('academic_term_id', $term->academic_term_id)
-            ->paid()
-            ->activeStudent()
-            ->orderBy('fullname')
-            ->get();
-        $type = 'Paid';
-
-        return view('admin.orders.summary', compact('orders', 'term', 'type'));
-    }
-
-    /**
-     * Gets Not Paid Transactions
-     *
-     * @param $termId
-     * @return Response
-     */
-    public function notPaid($termId=false)
-    {
-        $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
-        $orders = OrderView::where('academic_term_id', $term->academic_term_id)
-            ->notPaid()
-            ->activeStudent()
-            ->orderBy('fullname')
-            ->get();
-        $type = 'Not-Paid';
-
-        return view('admin.orders.summary', compact('orders', 'term', 'type'));
-    }
-
-    /**
-     * Gets All Order Transactions
-     *
-     * @param $termId
-     * @return Response
-     */
-    public function allOrders($termId=false)
-    {
-        $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
-        $orders = OrderView::where('academic_term_id', $term->academic_term_id)
-            ->activeStudent()
-            ->orderBy('fullname')
-            ->get();
-        $type = 'All-Orders';
-
-        return view('admin.orders.summary', compact('orders', 'term', 'type'));
-    }
-
-    /**
      * Gets Paid/Not Paid Orders based on percentage
-     * 
+     *
      * @param $termId
      * @return Response
      */
@@ -593,17 +537,66 @@ class OrdersController extends Controller
     }
 
     /**
-     * Display a listing of the Users using Ajax Datatable.
+     * Gets Paid Transactions
+     *
      * @param $termId
      * @return Response
      */
-    public function data($termId=false)
+    public function paid($termId=false)
+    {
+        return $this->all($termId, 'Paid', Order::PAID);
+    }
+
+    /**
+     * Gets Not Paid Transactions
+     *
+     * @param $termId
+     * @return Response
+     */
+    public function notPaid($termId=false)
+    {
+        return $this->all($termId, 'Not-Paid', Order::NOT_PAID);
+    }
+
+    /**
+     * Gets All Order Transactions
+     *
+     * @param $termId
+     * @return Response
+     */
+    public function allOrders($termId=false)
+    {
+        return $this->all($termId);
+    }
+
+    /**
+     * Gets All Order Transactions
+     *
+     * @param $type
+     * @param $condition
+     * @param $termId
+     * @return Response
+     */
+    private function all($termId=false, $type='All-Orders', $condition=-1)
     {
         $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
-        $type = 'All-Orders';
+        $conditions = "term=".$term->academic_term_id."&status=".$condition;
 
+        return view('admin.orders.summary', compact('orders', 'term', 'type', 'conditions'));
+    }
 
-        $iTotalRecords = OrderView::where('academic_term_id', $term->academic_term_id)->activeStudent()->count();
+    /**
+     * Display a listing of the Users using Ajax Datatable.
+     * @param Request $request
+     * @return Response
+     */
+    public function data(Request $request)
+    {
+        $termId = $request->input('term');
+        $condition = $request->input('status');
+        $term = (!empty($termId)) ? AcademicTerm::findOrFail($termId) : AcademicTerm::activeTerm();
+
+        $iTotalRecords = OrderView::where('academic_term_id', $termId)->count();
         $iDisplayLength = intval($_REQUEST['length']);
         $iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength;
         $iDisplayStart = intval($_REQUEST['start']);
@@ -611,10 +604,12 @@ class OrdersController extends Controller
 
         $q = @$_REQUEST['sSearch'];
 
-        $orders = OrderView::where('academic_term_id', $term->academic_term_id)
-            ->activeStudent()
+        $orders = OrderView::where('academic_term_id', $termId)
             ->orderBy('fullname')
-            ->where(function ($query) use ($q) {
+            ->where(function ($query) use ($q, $condition) {
+                if($condition != -1){
+                    $query->where('paid', $condition);
+                }
                 //Filter by either number, name, no, classroom
                 if (!empty($q))
                     $query->orWhere('fullname', 'like', '%'.$q.'%')
@@ -626,7 +621,6 @@ class OrdersController extends Controller
             });
         // iTotalDisplayRecords = filtered result count
         $iTotalDisplayRecords = $orders->count();
-
 
         $records = array();
         $records["data"] = array();

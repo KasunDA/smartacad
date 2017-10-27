@@ -97,13 +97,13 @@
 @endsection
 
 @section('layout-script')
-    <script src="{{ asset('assets/custom/js/orders/summary.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/orders/{{strtolower($type)}}"]');
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
+            var url = '/orders/all-data?<?= $conditions ?>';
 
-            TableDatatablesAjax.init();
+            setTableDatatablesAjax($('#orders_datatable'), url).init();
         });
     </script>
 @endsection
