@@ -12,7 +12,7 @@ class CreateBanksAccountTable extends Migration
      */
     public function up()
     {
-        if (Schema::connection('admin_mysql')->hasTable('banks')) {
+        if (!Schema::connection('admin_mysql')->hasTable('banks')) {
             Schema::connection('admin_mysql')->create('banks', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('name');
@@ -23,7 +23,7 @@ class CreateBanksAccountTable extends Migration
             });
         }
 
-        if (Schema::connection('admin_mysql')->hasTable('school_banks')) {
+        if (!Schema::connection('admin_mysql')->hasTable('school_banks')) {
             Schema::connection('admin_mysql')->create('school_banks', function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('account_name');
