@@ -20,7 +20,7 @@
             <div class="col-md-10">
                 <!-- BEGIN CHART PORTLET-->
                 <div class="portlet light bordered">
-                    @if($staff->subjectClassRooms()->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->count() > 0)
+                    @if(Auth::user()->subjectClassRooms()->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->count() > 0)
                         <div class="portlet-title">
                             <div class="caption">
                                 <i class="fa fa-book font-green-haze"></i>
@@ -52,7 +52,7 @@
             <div class="col-md-10">
                 <!-- BEGIN CHART PORTLET-->
                 <div class="portlet light bordered">
-                    @if($staff->classMasters()->where('academic_year_id', AcademicYear::activeYear()->academic_year_id)->count() > 0)
+                    @if(Auth::user()->classMasters()->where('academic_year_id', AcademicYear::activeYear()->academic_year_id)->count() > 0)
                         <div class="portlet-title">
                             <div class="caption">
                                 <i class="fa fa-book font-green-haze"></i>
