@@ -7,6 +7,7 @@ use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoomView;
 use App\Models\Admin\Users\User;
 use App\Models\Admin\Users\UserType;
 use App\Models\School\Setups\Lga;
@@ -49,10 +50,14 @@ class StaffController extends Controller
      * Display a listing of the Staffs using Ajax Datatable.
      * @return Response
      */
-    public function postAllStaffs()
+    public function allStaffs()
     {
-        $iTotalRecords = User::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())
-            ->where('user_type_id', '<>', Sponsor::USER_TYPE)->count();;
+        $iTotalRecords = User::whereIn(
+                'user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray()
+            )
+            ->where('user_type_id', '<>', Sponsor::USER_TYPE)
+            ->count();;
+        
         $iDisplayLength = intval($_REQUEST['length']);
         $iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength;
         $iDisplayStart = intval($_REQUEST['start']);
@@ -61,12 +66,20 @@ class StaffController extends Controller
         $q = @$_REQUEST['sSearch'];
 
         //List of Sponsors
-        $staffs = User::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())
-            ->where('user_type_id', '<>', Sponsor::USER_TYPE)->orderBy('first_name')->where(function ($query) use ($q) {
-            if (!empty($q))
-                $query->orWhere('first_name', 'like', '%'.$q.'%')->orWhere('last_name', 'like', '%'.$q.'%')
-                    ->orWhere('email', 'like', '%'.$q.'%')->orWhere('phone_no', 'like', '%'.$q.'%');
-        });
+        $staffs = User::whereIn(
+                'user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray()
+            )
+            ->where('user_type_id', '<>', Sponsor::USER_TYPE)
+            ->where(function ($query) use ($q) {
+                if (!empty($q)){
+                    $query->orWhere('first_name', 'like', '%'.$q.'%')
+                        ->orWhere('last_name', 'like', '%'.$q.'%')
+                        ->orWhere('email', 'like', '%'.$q.'%')
+                        ->orWhere('phone_no', 'like', '%'.$q.'%');
+                }
+            })
+            ->orderBy('first_name');
+        
         // iTotalDisplayRecords = filtered result count
         $iTotalDisplayRecords = $staffs->count();
         $records = array();
@@ -77,6 +90,7 @@ class StaffController extends Controller
 
         $i = $iDisplayStart;
         $allStaffs = $staffs->skip($iDisplayStart)->take($iDisplayLength)->get();
+        
         foreach ($allStaffs as $staff){
             $status = ($staff->status == 1)
                 ? LabelHelper::success('Activated') : LabelHelper::danger('Deactivated');
@@ -87,14 +101,14 @@ class StaffController extends Controller
                 $staff->phone_no,
                 $staff->email,
                 ($staff->gender) ? $staff->gender : LabelHelper::danger(),
-                '<a target="_blank" href="/staffs/dashboard/'.$this->getHashIds()->encode($staff->user_id).'" class="btn btn-default btn-rounded btn-condensed btn-xs">
+                '<a target="_blank" href="/staffs/dashboard/'.$this->encode($staff->user_id).'" class="btn btn-default btn-rounded btn-condensed btn-xs">
                      <span class="fa fa-eye"></span> View
                  </a>',
                 $status,
-                '<a href="/staffs/view/'.$this->getHashIds()->encode($staff->user_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                '<a href="/staffs/view/'.$this->encode($staff->user_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
                      <span class="fa fa-eye-slash"></span> Details
                  </a>',
-                '<a href="/staffs/edit/'.$this->getHashIds()->encode($staff->user_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                '<a href="/staffs/edit/'.$this->encode($staff->user_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
                      <span class="fa fa-edit"></span>
                  </a>'
             );
@@ -106,7 +120,7 @@ class StaffController extends Controller
 
         echo json_encode($records);
     }
-
+    
     /**
      * Displays the Staff profiles details
      * @param String $encodeId
@@ -209,15 +223,12 @@ class StaffController extends Controller
         return view('admin.accounts.staffs.unmarked', compact('unmarked', 'staff'));
     }
 
-    //TODO :: Ajax load data
     public function subject($encodeId)
     {
         $staff = User::findOrFail($this->decode($encodeId));
-        $subjects = $staff->subjectClassRooms()
-            ->groupBy(['academic_term_id','subject_id'])
-            ->get();
-
-        return view('admin.accounts.staffs.subject', compact('subjects', 'staff'));
+        $conditions = "userId=".$staff->user_id;
+  
+        return view('admin.accounts.staffs.subject', compact('staff', 'conditions'));
     }
 
     public function subjectDetails($subjectId)
@@ -238,5 +249,62 @@ class StaffController extends Controller
         $classrooms = $staff->classMasters()->get();
         
         return view('admin.accounts.staffs.classroom', compact('classrooms', 'staff'));
+    }
+    
+    public function staffSubjects(Request $request)
+    {
+        $staffId = $request->input('userId');
+        $staff = User::findOrFail($staffId);
+
+        $iTotalRecords = SubjectClassRoomView::where('tutor_id', $staff->user_id)
+            ->groupBy(['academic_term_id','subject_id'])
+            ->get()
+            ->count();
+
+        $iDisplayLength = intval($_REQUEST['length']);
+        $iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength;
+        $iDisplayStart = intval($_REQUEST['start']);
+        $sEcho = intval($_REQUEST['draw']);
+
+        $q = @$_REQUEST['sSearch'];
+
+        //List of Sponsors
+        $subjects = SubjectClassRoomView::where('tutor_id', $staff->user_id)
+            ->groupBy(['academic_term_id','subject_id'])
+            ->where(function ($query) use ($q) {
+                if (!empty($q)){
+                    $query->orWhere('subject', 'like', '%'.$q.'%')
+                        ->orWhere('academic_term', 'like', '%'.$q.'%');
+                }
+            });
+        
+        // iTotalDisplayRecords = filtered result count
+        $iTotalDisplayRecords = $subjects->get()->count();
+        $records = array();
+        $records["data"] = array();
+
+        $end = $iDisplayStart + $iDisplayLength;
+        $end = $end > $iTotalRecords ? $iTotalRecords : $end;
+
+        $i = $iDisplayStart;
+        $allSubjects = $subjects->skip($iDisplayStart)->take($iDisplayLength)->get();
+
+        foreach ($allSubjects as $subject){
+            $records["data"][] = array(
+                ($i++ + 1),
+                $subject->academic_term,
+                $subject->subject,
+                ($subject->exam_status_id == 1) ? LabelHelper::success('Marked') : LabelHelper::danger('Unmarked'),
+                '<a href="/staffs/subject-details/'.$this->encode($subject->subject_classroom_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-eye"></span> Details
+                 </a>'
+            );
+        }
+
+        $records["draw"] = $sEcho;
+        $records["recordsTotal"] = $iTotalRecords;
+        $records["recordsFiltered"] = isset($iTotalDisplayRecords) ? $iTotalDisplayRecords :$iTotalRecords;
+
+        echo json_encode($records);
     }
 }

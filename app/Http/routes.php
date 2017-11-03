@@ -89,6 +89,9 @@ Route::group(['middleware' => ['web']], function () {
 
     //Staffs Routes
     Route::group(['prefix'=>'staffs/', 'namespace' => 'Admin\Accounts'], function () {
+        Route::post('/all-staffs', 'StaffController@allStaffs');
+        Route::post('/staff-subjects', 'StaffController@staffSubjects');
+        
         Route::get('/dashboard/{staffId}', 'StaffController@dashboard');
         Route::get('/marked/{staffId}', 'StaffController@marked');
         Route::get('/unmarked/{staffId}/', 'StaffController@unmarked');

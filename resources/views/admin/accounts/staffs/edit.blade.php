@@ -148,10 +148,11 @@
 
 @section('layout-script')
     <script src="{{ asset('assets/pages/scripts/components-date-time-pickers.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/custom/js/accounts/staffs.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/staffs"]');
+
+            getDependentListBox($('#state_id'), $('#lga_id'), '/list-box/lga/');
         });
     </script>
 @endsection

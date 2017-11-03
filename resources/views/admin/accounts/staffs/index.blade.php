@@ -90,14 +90,14 @@
     <script src="{{ asset('assets/global/plugins/bootbox/bootbox.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('assets/pages/scripts/ui-bootbox.min.js') }}" type="text/javascript"></script>
 
-    <script src="{{ asset('assets/custom/js/accounts/staffs.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/staffs"]');
 
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
 
-            TableDatatablesAjax.init();
+            var url = '/staffs/all-staffs';
+            setTableDatatablesAjax($('#staff_tabledata'), url).init();
         });
     </script>
 @endsection

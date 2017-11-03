@@ -42,36 +42,31 @@
                             </div>
                         </div>
                         <div class="portlet-body">
-                            <div class="table-responsive">
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-bordered table-striped" id="subject_table">
-                                        <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Academic Term</th>
-                                            <th>Subject Name</th>
-                                            <th>Exam Status</th>
-                                            <th>Details</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($subjects as $subject)
-                                            <tr class="odd gradeX">
-                                                <td class="center">{{$j++}}</td>
-                                                <td>{{ $subject->academicTerm->academic_term }}</td>
-                                                <td>{{ $subject->subject->subject }}</td>
-                                                <td>{!! ($subject->exam_status_id == 1) ? LabelHelper::success('Marked') : LabelHelper::danger('Unmarked') !!}</td>
-                                                <td>
-                                                    <a href="{{ url('/staffs/subject-details/'.$hashIds->encode($subject->subject_classroom_id)) }}"
-                                                       class="btn btn-warning btn-rounded btn-condensed btn-xs">
-                                                        <span class="fa fa-eye"></span> Details
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
+                            <div class="table-container">
+                                <div class="table-actions-wrapper">
+                                    <span> </span>
+                                    Search: <input type="text" class="form-control input-inline input-small input-sm" id="search_param"/>
                                 </div>
+                                <table class="table table-striped table-bordered table-hover" id="subject_tabledata">
+                                    <thead>
+                                    <tr role="row" class="heading">
+                                        <th>#</th>
+                                        <th>Academic Term</th>
+                                        <th>Subject Name</th>
+                                        <th>Exam Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                    </thead>
+                                    <tfoot>
+                                    <tr role="row" class="heading">
+                                        <th>#</th>
+                                        <th>Academic Term</th>
+                                        <th>Subject Name</th>
+                                        <th>Exam Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -96,7 +91,11 @@
         jQuery(document).ready(function () {
             setTabActive('[href="/staffs"]');
 
-            setTableData($('#subject_table')).init();
+            $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
+
+            var url = '/staffs/staff-subjects?<?= $conditions ?>';
+
+            setTableDatatablesAjax($('#subject_tabledata'), url).init();
         });
     </script>
 @endsection

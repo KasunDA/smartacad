@@ -123,6 +123,11 @@
 <script src="{{ asset('assets/custom/js/function.js')}}" type="text/javascript"></script>
 <script src="{{ asset('assets/custom/js/confirm-delete-dialog.js')}}" type="text/javascript"></script>
 <!-- END THEME GLOBAL SCRIPTS -->
+<script>
+    jQuery(document).ready(function () {
+        $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
+    });
+</script>
 @yield('layout-script')
 </body>
 
