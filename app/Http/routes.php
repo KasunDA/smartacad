@@ -87,6 +87,16 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/details/{studentId}/{orderId}', 'BillingsController@details');
     });
 
+    //Staffs Routes
+    Route::group(['prefix'=>'staffs/', 'namespace' => 'Admin\Accounts'], function () {
+        Route::get('/dashboard/{staffId}', 'StaffController@dashboard');
+        Route::get('/marked/{staffId}', 'StaffController@marked');
+        Route::get('/unmarked/{staffId}/', 'StaffController@unmarked');
+        
+        Route::get('/subject/{staffId}/', 'StaffController@subject');
+        Route::get('/subject-details/{subjectId}', 'StaffController@subjectDetails');
+    });
+
     
     //Attendance Routes
     Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {

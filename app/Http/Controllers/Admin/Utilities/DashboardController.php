@@ -135,11 +135,12 @@ class DashboardController extends Controller
 
     /**
      * Gets The subjects assigned to a tutor for the current academic term
+     * @param $userId
      * @return Response
      */
-    public function getSubjectTutor()
+    public function getSubjectTutor($userId)
     {
-        $subjects = SubjectClassRoom::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->where('tutor_id', Auth::user()->user_id)->get();
+        $subjects = SubjectClassRoom::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->where('tutor_id', $userId)->get();
         $response = [];
         $color = 0;
         if($subjects->count() > 0){
@@ -159,11 +160,12 @@ class DashboardController extends Controller
 
     /**
      * Gets The class room assigned to a teacher for the current academic year
+     * @param $userId
      * @return Json
      */
-    public function getClassTeacher()
+    public function getClassTeacher($userId)
     {
-        $classes = ClassMaster::where('academic_year_id', AcademicYear::activeYear()->academic_year_id)->where('user_id', Auth::user()->user_id)->get();
+        $classes = ClassMaster::where('academic_year_id', AcademicYear::activeYear()->academic_year_id)->where('user_id', $userId)->get();
         $response = [];
         $color = 0;
         if($classes->count() > 0){

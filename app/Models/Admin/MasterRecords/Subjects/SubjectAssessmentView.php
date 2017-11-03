@@ -14,17 +14,6 @@ class SubjectAssessmentView extends Model
     protected $table = 'subjects_assessmentsviews';
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'subject_id',
-        'classroom_id',
-        'subject_classroom_id'
-    ];
-
-    /**
      * A SchoolSubject Belongs To A School
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

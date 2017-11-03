@@ -109,11 +109,11 @@ var ChartsAmcharts = function() {
         });
     };
 
-    var initChartSubjectTutor = function() {
+    var initChartSubjectTutor = function(userId) {
 
         $.ajax({
             type: "GET",
-            url: '/dashboard/subject-tutor',
+            url: '/dashboard/subject-tutor/' + userId,
             success: function(data){
                 try{
                     //console.log(data);
@@ -176,11 +176,11 @@ var ChartsAmcharts = function() {
         });
     };
 
-    var initChartClassTeacher = function() {
+    var initChartClassTeacher = function(userId) {
 
         $.ajax({
             type: "GET",
-            url: '/dashboard/class-teacher',
+            url: '/dashboard/class-teacher/' + userId,
             success: function(data){
                 try{
                     //console.log(data);
@@ -244,10 +244,10 @@ var ChartsAmcharts = function() {
     };
     return {
         //main function to initiate the module
-        init: function() {
+        init: function(userId) {
             initChartClassLevel();
-            initChartSubjectTutor();
-            initChartClassTeacher();
+            initChartSubjectTutor(userId);
+            initChartClassTeacher(userId);
         }
 
     };
@@ -400,8 +400,3 @@ var ChartsAmchartsOld = function() {
     };
 
 }();
-
-jQuery(document).ready(function() {
-    ChartsStudentGender.initPieCharts();
-    ChartsAmcharts.init();
-});

@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin\Accounts;
 
 use App\Helpers\LabelHelper;
 use App\Models\Admin\Accounts\Sponsor;
+use App\Models\Admin\MasterRecords\AcademicTerm;
+use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use App\Models\Admin\Users\User;
 use App\Models\Admin\Users\UserType;
 use App\Models\School\Setups\Lga;
@@ -17,6 +20,22 @@ use Illuminate\Support\Facades\Validator;
 
 class StaffController extends Controller
 {
+
+    /**
+     * A list of colors for representing charts
+     */
+    public function __construct()
+    {
+        $this->colors = [
+            '#FF0F00', '#FF6600', '#FF9E01', '#FCD202', '#F8FF01', '#B0DE09', '#04D215', '#0D8ECF', '#0D52D1', '#2A0CD0', '#8A0CCF',
+            '#CD0D74', '#754DEB', '#DDDDDD', '#CCCCCC', '#999999', '#333333', '#000000',
+            '#FF0F00', '#FF6600', '#FF9E01', '#FCD202', '#F8FF01', '#B0DE09', '#04D215', '#0D8ECF', '#0D52D1', '#2A0CD0', '#8A0CCF',
+            '#CD0D74', '#754DEB', '#DDDDDD', '#CCCCCC', '#999999', '#333333', '#000000',
+        ];
+
+        parent::__construct();
+    }
+    
     /**
      * Display a listing of the Users.
      * @return Response
@@ -95,8 +114,7 @@ class StaffController extends Controller
      */
     public function getView($encodeId)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
-        $staff = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
+        $staff = User::findOrFail($this->decode($encodeId));
         return view('admin.accounts.staffs.view', compact('staff'));
     }
 
@@ -157,5 +175,60 @@ class StaffController extends Controller
         $this->setFlashMessage('Staff ' . $user->fullNames() . ', Information has been successfully updated.', 1);
 
         return redirect('/staffs');
+    }
+
+    public function dashboard($encodeId)
+    {
+        $staff = User::findOrFail($this->decode($encodeId));
+
+        return view('admin.accounts.staffs.dashboard', compact('staff'));
+    }
+
+    public function marked($encodeId)
+    {
+        $staff = User::findOrFail($this->decode($encodeId));
+        $marked = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
+            ->where('tutor_id', $staff->user_id)
+            ->where('marked', 1)
+            ->groupBy('subject', 'subject_id')
+            ->get();
+
+        return view('admin.accounts.staffs.marked', compact('marked', 'staff'));
+    }
+
+    public function unmarked($encodeId)
+    {
+        $staff = User::findOrFail($this->decode($encodeId));
+        $unmarked = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
+            ->where('tutor_id', $staff->user_id)
+            ->where(function ($query) {
+                $query->whereNull('assessment_id')->orWhere('marked', '<>', 1);
+            })
+            ->get();
+
+        return view('admin.accounts.staffs.unmarked', compact('unmarked', 'staff'));
+    }
+
+    public function subject($encodeId)
+    {
+        $staff = User::findOrFail($this->decode($encodeId));
+        $subjects = $staff->subjectClassRooms()
+            ->groupBy(['academic_term_id','subject_id'])
+            ->get();
+
+        return view('admin.accounts.staffs.subject', compact('subjects', 'staff'));
+    }
+
+    public function subjectDetails($subjectId)
+    {
+        $subjectClassrooms = SubjectClassRoom::findOrFail($this->decode($subjectId));
+        $staff = User::findOrFail($subjectClassrooms->tutor_id);
+        $subjects = $staff->subjectClassRooms()
+            ->where('subject_id', $subjectClassrooms->subject_id)
+            ->where('academic_term_id', $subjectClassrooms->academic_term_id)
+//            ->orderBy('subject')
+            ->get();
+
+        return view('admin.accounts.staffs.subject-details', compact('subjects', 'staff'));
     }
 }

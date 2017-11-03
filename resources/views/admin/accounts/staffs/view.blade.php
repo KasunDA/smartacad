@@ -113,65 +113,6 @@
         </div>
         <!-- END PROFILE CONTENT -->
     </div>
-
-    <!-- END PAGE HEADER-->
-    <div class="profile">
-        <div class="tabbable-line tabbable-full-width">
-            <div class="tab-content">
-                <div class="tab-pane active" id="tab_1_1">
-                    <div class="row">
-
-                        <div class="col-md-10 col-md-offset-1">
-                            <div class="row">
-                                <div class="portlet">
-                                    <div class="alert alert-info"> Subjects <strong>Assigned To: {{ $staff->fullNames() }}</strong> For An Academic Term</div>
-                                    <div class="portlet-body">
-                                        <div class="table-container">
-                                            <table class="table table-striped table-bordered table-hover" id="subject_tabledata">
-                                                <thead>
-                                                <tr role="row" class="heading">
-                                                    <th width="2%">#</th>
-                                                    <th width="30%">Academic Term</th>
-                                                    <th width="25%">Subject</th>
-                                                    <th width="18%">No. of Students</th>
-                                                    <th width="25%">Class Room</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php $i=1;?>
-                                                    @if($staff->subjectClassRooms()->count() > 0)
-                                                        @foreach($staff->subjectClassRooms()->get() as $subject)
-                                                            <tr>
-                                                                <td>{{ $i++ }}</td>
-                                                                <td>{{ $subject->academicTerm->academic_term }}</td>
-                                                                <td>{{ $subject->subject->subject }}</td>
-                                                                <td>{{ $subject->studentSubjects()->count() }}</td>
-                                                                <td>{{ $subject->classRoom->classroom }}</td>
-                                                            </tr>
-                                                        @endforeach
-                                                    @endif
-                                                </tbody>
-                                                <tfoot>
-                                                <tr role="row" class="heading">
-                                                    <th width="2%">#</th>
-                                                    <th width="30%">Academic Term</th>
-                                                    <th width="25%">Subject</th>
-                                                    <th width="18%">No. of Students</th>
-                                                    <th width="25%">Class Room</th>
-                                                </tr>
-                                                </tfoot>
-
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @section('page-level-js')

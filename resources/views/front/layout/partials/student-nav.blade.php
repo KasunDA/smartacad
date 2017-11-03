@@ -19,17 +19,17 @@
             <ul class="nav">
                 <li class="{!! ($active == 'view' || !isset($active)) ? 'active' : ''  !!}">
                     <a href="{{ url('/wards/view/'.$hashIds->encode($student->student_id)) }}">
-                        <i class="icon-info"></i> Information </a>
+                        <i class="icon-info"></i> Information
                     </a>
                 </li>
                 <li class="{!! ($active == 'edit') ? 'active' : ''  !!}">
                     <a href="{{ url('/wards/edit/'.$hashIds->encode($student->student_id)) }}">
-                        <i class="fa fa-edit"></i> Edit Record </a>
+                        <i class="fa fa-edit"></i> Edit Record
                     </a>
                 </li>
                 <li class="{!! ($active == 'assessment') ? 'active' : ''  !!}">
                     <a href="{{ url('/wards-assessments/view/'.$hashIds->encode($student->student_id)) }}">
-                        <i class="fa fa-book"></i> Assessments</a>
+                        <i class="fa fa-book"></i> Assessments
                     </a>
                 </li>
                 {{--<li class="{!! ($active == 'exam') ? 'active' : ''  !!}">--}}
@@ -39,12 +39,12 @@
                 {{--</li>--}}
                 <li class="{!! ($active == 'billing') ? 'active' : ''  !!}">
                     <a href="{{ url('/wards-billings/view/'.$hashIds->encode($student->student_id)) }}">
-                        <i class="fa fa-money"></i> Billings </a>
+                        <i class="fa fa-money"></i> Billings
                     </a>
                 </li>
                 <li class="{!! ($active == 'attendance') ? 'active' : ''  !!}">
                     <a href="{{ url('/wards-attendances/view/'.$hashIds->encode($student->student_id)) }}">
-                        <i class="fa fa-check"></i> Attendance </a>
+                        <i class="fa fa-check"></i> Attendance
                     </a>
                 </li>
             </ul>

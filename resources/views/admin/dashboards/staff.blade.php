@@ -228,6 +228,9 @@
             setTabActive('[href="/dashboard"]');
 
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
+
+            ChartsStudentGender.initPieCharts();
+            ChartsAmcharts.init('{{ Auth::user()->user_id }}');
         });
     </script>
 @endsection

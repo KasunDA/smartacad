@@ -19,27 +19,37 @@
             <ul class="nav">
                 <li class="{!! ($active == 'view' || !isset($active)) ? 'active' : ''  !!}">
                     <a href="{{ url('/staffs/view/'.$hashIds->encode($staff->user_id)) }}">
-                        <i class="icon-info"></i> Information </a>
+                        <i class="icon-info"></i> Information
                     </a>
                 </li>
                 <li class="{!! ($active == 'edit') ? 'active' : ''  !!}">
                     <a href="{{ url('/staffs/edit/'.$hashIds->encode($staff->user_id)) }}">
-                        <i class="fa fa-edit"></i> Edit Record </a>
+                        <i class="fa fa-edit"></i> Edit Record
                     </a>
                 </li>
                 <li class="{!! ($active == 'dashboard') ? 'active' : ''  !!}">
-                    <a href="{{ url('/assessments/view/'.$hashIds->encode($staff->user_id)) }}">
-                        <i class="fa fa-dashboard"></i> Dashboard</a>
+                    <a href="{{ url('/staffs/dashboard/'.$hashIds->encode($staff->user_id)) }}">
+                        <i class="fa fa-dashboard"></i> Dashboard
                     </a>
                 </li>
-                <li class="{!! ($active == 'classrooms') ? 'active' : ''  !!}">
-                    <a href="{{ url('/exams/view/'.$hashIds->encode($staff->user_id)) }}">
-                        <i class="fa fa-industry"></i> Class Rooms </a>
+                <li class="{!! ($active == 'classroom') ? 'active' : ''  !!}">
+                    <a href="{{ url('/staffs/classroom/'.$hashIds->encode($staff->user_id)) }}">
+                        <i class="fa fa-industry"></i> Class Rooms
                     </a>
                 </li>
-                <li class="{!! ($active == 'subjects') ? 'active' : ''  !!}">
-                    <a href="{{ url('/billings/view/'.$hashIds->encode($staff->user_id)) }}">
-                        <i class="fa fa-book"></i> Subjects </a>
+                <li class="{!! ($active == 'subject') ? 'active' : ''  !!}">
+                    <a href="{{ url('/staffs/subject/'.$hashIds->encode($staff->user_id)) }}">
+                        <i class="fa fa-book"></i> Subjects
+                    </a>
+                </li>
+                <li class="{!! ($active == 'marked') ? 'active' : ''  !!}">
+                    <a href="{{ url('/staffs/marked/'.$hashIds->encode($staff->user_id)) }}">
+                        <i class="fa fa-check"></i> Subjects (Marked)
+                    </a>
+                </li>
+                <li class="{!! ($active == 'unmarked') ? 'active' : ''  !!}">
+                    <a href="{{ url('/staffs/unmarked/'.$hashIds->encode($staff->user_id)) }}">
+                        <i class="fa fa-times"></i> Subjects (Unmarked)
                     </a>
                 </li>
             </ul>
