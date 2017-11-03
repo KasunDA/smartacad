@@ -75,7 +75,7 @@
                                     </tr>
                                     @if(!empty($order))
                                         <tr>
-                                            <th> Academic Term </th>
+                                            <th> Term </th>
                                             <td> {{ $order->academicTerm->academic_term }} </td>
                                             <th> Class Room </th>
                                             <td> {{ $order->classRoom->classroom }} </td>
@@ -84,14 +84,52 @@
                                             <th> Order No. </th>
                                             <td> {{ $order->number }} </td>
                                             <th> Status </th>
-                                            <td> {{ strtoupper($order->status) }} </td>
+                                            <td>{!! LabelHelper::label(Order::STATUSES[$order->paid]['label'], Order::STATUSES[$order->paid]['title']) !!}</td>
+                                        </tr>
+                                        <tr>
+                                            <th> Discount </th>
+                                            <th>{{CurrencyHelper::format($order->total_amount - $order->amount, 1)}} ({{$order->discount}}%)</th>
+                                            <th> Item(s) </th>
+                                            <td> {{ $order->item_count }} </td>
                                         </tr>
                                         <tr>
                                             <th> Total Amount </th>
-                                            <th>{{CurrencyHelper::NAIRA}} {{ $order->amount(true) }}</th>
-                                            <th> Item(s) </th>
-                                            <td> {{ count($items) }} </td>
+                                            <th>{{ CurrencyHelper::format($order->total_amount, 2, true) }}</th>
+                                            <th> Amount Payable </th>
+                                            <th>{{ CurrencyHelper::format($order->amount, 2, true) }}</th>
                                         </tr>
+                                        <th>Payment Type</th>
+                                        <td>
+                                            @if($order->is_part_payment)
+                                                {!! LabelHelper::primary(PartPayment::PAYMENT_TYPES[$order->is_part_payment]) !!}
+                                            @else
+                                                {!! LabelHelper::success(PartPayment::PAYMENT_TYPES[$order->is_part_payment]) !!}
+                                            @endif
+                                        </td>
+                                        <th>Source</th>
+                                        <td>{!! ($order->backend) ? LabelHelper::info('Admin') : LabelHelper::default('Sponsor') !!}</td>
+                                        @if($order->is_part_payment)
+                                            <tr><th colspan="4" class="text-center">Part Payments Summary</th></tr>
+                                            <tr>
+                                                <th>Installment(s)</th>
+                                                <td>{{ $order->partPayments->count() }}</td>
+                                                <th>Add Amount</th>
+                                                <td><button class="btn btn-success btn-xs add-part-payment"><span class="fa fa-plus"></span> Add</button></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Amount Paid: </th>
+                                                <td>{{ CurrencyHelper::format($order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                                                <th>Outstanding: </th>
+                                                <td>{{ CurrencyHelper::format($order->amount - $order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                                            </tr>
+                                        @else
+                                            <tr>
+                                                <th>Amount Paid: </th>
+                                                <td>{{ CurrencyHelper::format($order->amount_paid, 2, true) }}</td>
+                                                <th>Outstanding: </th>
+                                                <td>{{ CurrencyHelper::format($order->amount - $order->amount_paid, 2, true) }}</td>
+                                            </tr>
+                                        @endif
                                     @else
                                         <tr>
                                             <th colspan="2">No Order initiated yet for the Student</th>
