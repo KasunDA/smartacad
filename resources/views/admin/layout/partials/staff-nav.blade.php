@@ -32,14 +32,14 @@
                         <i class="fa fa-dashboard"></i> Dashboard
                     </a>
                 </li>
-                <li class="{!! ($active == 'classroom') ? 'active' : ''  !!}">
-                    <a href="{{ url('/staffs/classroom/'.$hashIds->encode($staff->user_id)) }}">
-                        <i class="fa fa-industry"></i> Class Rooms
-                    </a>
-                </li>
                 <li class="{!! ($active == 'subject') ? 'active' : ''  !!}">
                     <a href="{{ url('/staffs/subject/'.$hashIds->encode($staff->user_id)) }}">
                         <i class="fa fa-book"></i> Subjects
+                    </a>
+                </li>
+                <li class="{!! ($active == 'classroom') ? 'active' : ''  !!}">
+                    <a href="{{ url('/staffs/classroom/'.$hashIds->encode($staff->user_id)) }}">
+                        <i class="fa fa-industry"></i> Class Rooms
                     </a>
                 </li>
                 <li class="{!! ($active == 'marked') ? 'active' : ''  !!}">

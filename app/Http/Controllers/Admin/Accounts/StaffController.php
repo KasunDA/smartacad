@@ -209,6 +209,7 @@ class StaffController extends Controller
         return view('admin.accounts.staffs.unmarked', compact('unmarked', 'staff'));
     }
 
+    //TODO :: Ajax load data
     public function subject($encodeId)
     {
         $staff = User::findOrFail($this->decode($encodeId));
@@ -226,9 +227,16 @@ class StaffController extends Controller
         $subjects = $staff->subjectClassRooms()
             ->where('subject_id', $subjectClassrooms->subject_id)
             ->where('academic_term_id', $subjectClassrooms->academic_term_id)
-//            ->orderBy('subject')
             ->get();
 
         return view('admin.accounts.staffs.subject-details', compact('subjects', 'staff'));
+    }
+
+    public function classroom($encodeId)
+    {
+        $staff = User::findOrFail($this->decode($encodeId));
+        $classrooms = $staff->classMasters()->get();
+        
+        return view('admin.accounts.staffs.classroom', compact('classrooms', 'staff'));
     }
 }

@@ -6,7 +6,7 @@
     <link href="{{ asset('assets/pages/css/profile.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
-@section('title', 'Staff Subjects')
+@section('title', 'Staff Class Rooms')
 
 @section('breadcrumb')
     <li>
@@ -18,55 +18,48 @@
         <i class="fa fa-users"></i>
     </li>
     <li>
-        <span>Staff Subjects</span>
+        <span>Staff Class Rooms</span>
     </li>
 @stop
 
+
+
 @section('content')
-    <h3 class="page-title">Staff Profile | Subjects</h3>
+    <h3 class="page-title">Staff Profile | Class Rooms</h3>
 
     <div class="col-md-12">
         <!-- BEGIN PROFILE SIDEBAR -->
-        @include('admin.layout.partials.staff-nav', ['active' => 'subject'])
+        @include('admin.layout.partials.staff-nav', ['active' => 'classroom'])
         <!-- END BEGIN PROFILE SIDEBAR -->
         <div class="profile-content">
             <?php $j = 1; ?>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-10">
                     <!-- BEGIN CHART PORTLET-->
                     <div class="portlet light bordered">
                         <div class="portlet-title">
                             <div class="caption">
                                 <i class="fa fa-book font-green"></i>
-                                <span class="caption-subject font-green bold uppercase">Lists of subjects assigned.</span>
+                                <span class="caption-subject font-green bold uppercase">Lists of Class Rooms Assigned.</span>
                             </div>
                         </div>
                         <div class="portlet-body">
                             <div class="table-responsive">
                                 <div class="table-responsive">
-                                    <table class="table table-hover table-bordered table-striped" id="subject_table">
+                                    <table class="table table-hover table-bordered table-striped" id="classroom_table">
                                         <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Academic Term</th>
-                                            <th>Subject Name</th>
-                                            <th>Exam Status</th>
-                                            <th>Details</th>
+                                            <th>Academic Year</th>
+                                            <th>Class Room</th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach($subjects as $subject)
+                                        @foreach($classrooms as $classroom)
                                             <tr class="odd gradeX">
                                                 <td class="center">{{$j++}}</td>
-                                                <td>{{ $subject->academicTerm->academic_term }}</td>
-                                                <td>{{ $subject->subject->subject }}</td>
-                                                <td>{!! ($subject->exam_status_id == 1) ? LabelHelper::success('Marked') : LabelHelper::danger('Unmarked') !!}</td>
-                                                <td>
-                                                    <a href="{{ url('/staffs/subject-details/'.$hashIds->encode($subject->subject_classroom_id)) }}"
-                                                       class="btn btn-warning btn-rounded btn-condensed btn-xs">
-                                                        <span class="fa fa-eye"></span> Details
-                                                    </a>
-                                                </td>
+                                                <td>{{ $classroom->academicYear->academic_year }}</td>
+                                                <td>{{ $classroom->classRoom->classroom }}</td>
                                             </tr>
                                         @endforeach
                                         </tbody>
@@ -96,7 +89,7 @@
         jQuery(document).ready(function () {
             setTabActive('[href="/staffs"]');
 
-            setTableData($('#subject_table')).init();
+            setTableData($('#classroom_table')).init();
         });
     </script>
 @endsection

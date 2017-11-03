@@ -95,6 +95,7 @@ Route::group(['middleware' => ['web']], function () {
         
         Route::get('/subject/{staffId}/', 'StaffController@subject');
         Route::get('/subject-details/{subjectId}', 'StaffController@subjectDetails');
+        Route::get('/classroom/{staffId}/', 'StaffController@classroom');
     });
 
     
