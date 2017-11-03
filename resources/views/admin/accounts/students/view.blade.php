@@ -12,7 +12,7 @@
         <i class="fa fa-dashboard"></i>
     </li>
     <li>
-        <a href="{{ url('/wards') }}">Students</a>
+        <a href="{{ url('/students') }}">Students</a>
         <i class="fa fa-users"></i>
     </li>
     <li>

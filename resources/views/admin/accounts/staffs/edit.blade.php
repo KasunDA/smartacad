@@ -13,117 +13,130 @@
 <!-- END PAGE LEVEL PLUGINS -->
 <!-- BEGIN THEME GLOBAL STYLES -->
 <!-- BEGIN PAGE LEVEL STYLES -->
-<link href="{{ asset('assets/pages/css/profile-2.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('assets/pages/css/profile.min.css') }}" rel="stylesheet" type="text/css" />
 <!-- END PAGE LEVEL STYLES -->
 @endsection
 @section('title', 'Modify Staff')
 
 @section('breadcrumb')
     <li>
-        <a href="{{ url('/') }}">Home</a>
-        <i class="fa fa-home"></i>
+        <a href="{{ url('/dashboard') }}">Dashboard</a>
+        <i class="fa fa-dashboard"></i>
     </li>
     <li>
-        <span>Add Account</span>
+        <a href="{{ url('/staffs') }}">Staffs</a>
+        <i class="fa fa-users"></i>
+    </li>
+    <li>
+        <span>Modify Staff</span>
     </li>
 @stop
 
 @section('content')
-    <h3 class="page-title"> Modify Staff Record</h3>
+    <h3 class="page-title"> Staff Profile | Modify Record</h3>
 
-    <div class="row">
-        <div class="col-md-offset-2 col-md-6">
-            <!-- BEGIN SAMPLE FORM PORTLET-->
-            <div class="portlet light bordered">
-                <div class="portlet-title">
-                    <div class="caption font-red-sunglo">
-                        <i class="icon-user font-red-sunglo"></i>
-                        <span class="caption-subject bold uppercase"> Modify Staff</span>
-                    </div>
-                </div>
-                <div class="portlet-body form">
-                    @include('errors.errors')
-                        {!! Form::open([
-                                'method'=>'POST',
-                                'class'=>'form',
-                                'role'=>'form'
-                            ])
-                        !!}
-                        {!! Form::hidden('user_id', $staff->user_id) !!}
-                        <div class="form-body">
-                            <div class="form-group">
-                                <label>Title <span class="text-danger">*</span></label>
-                                <div>
-                                    {!! Form::select('salutation_id', $salutations, $staff->salutation_id, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
-                                </div>
-                            </div>
+    <div class="col-md-12">
+        <!-- BEGIN PROFILE SIDEBAR -->
+        @include('admin.layout.partials.staff-nav', ['active' => 'edit'])
 
-                            <div class="form-group">
-                                <label class="control-label">First Name <span class="text-danger">*</span></label>
-                                {!! Form::text('first_name', $staff->first_name, ['placeholder'=>'First Name', 'class'=>'form-control', 'required'=>'required']) !!}
+                <!-- BEGIN PROFILE CONTENT -->
+        <div class="profile-content">
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- BEGIN SAMPLE FORM PORTLET-->
+                    <div class="portlet light bordered">
+                        <div class="portlet-title">
+                            <div class="caption font-red-sunglo">
+                                <i class="icon-user font-red-sunglo"></i>
+                                <span class="caption-subject bold uppercase"> Modify Staff Form</span>
                             </div>
-                            <div class="form-group">
-                                <label class="control-label">Last Name <span class="text-danger">*</span></label>
-                                {!! Form::text('last_name', $staff->last_name, ['placeholder'=>'Last Name', 'class'=>'form-control', 'required'=>'required']) !!}
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Middle Name</label>
-                                {!! Form::text('middle_name', $staff->middle_name, ['placeholder'=>'Middle Name', 'class'=>'form-control']) !!}
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Email <span class="text-danger">*</span></label>
-                                {!! Form::text('email', $staff->email, ['placeholder'=>'Email', 'class'=>'form-control', 'required'=>'required']) !!}
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Mobile Number <span class="text-danger">*</span></label>
-                                {!! Form::text('phone_no', $staff->phone_no, ['placeholder'=>'Mobile No', 'class'=>'form-control', 'required'=>'required']) !!}
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Mobile Number 2</label>
-                                {!! Form::text('phone_no2', $staff->phone_no2, ['placeholder'=>'Mobile No 2', 'class'=>'form-control']) !!}
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Gender <span class="text-danger">*</span></label>
-                                {!! Form::select('gender', [''=>'Gender', 'Male'=>'Male', 'Female'=>'Female'], $staff->gender, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Date Of Birth <span class="text-danger">*</span></label>
-                                <input class="form-control date-picker" data-date-format="yyyy-mm-dd" name="dob" type="text" value="{!! ($staff->dob) ?  $staff->dob->format('Y-m-d') : '' !!}" />
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">State </label>
-                                <div>
-                                    @if($lga === null)
-                                        {!! Form::select('state_id', $states, old('state_id'), ['class'=>'form-control', 'id'=>'state_id']) !!}
-                                    @else
-                                        {!! Form::select('state_id', $states, $lga->state_id, ['class'=>'form-control', 'id'=>'state_id']) !!}
-                                    @endif
+                        </div>
+                        <div class="portlet-body form">
+                            @include('errors.errors')
+                            {!! Form::open([
+                                    'method'=>'POST',
+                                    'class'=>'form',
+                                    'role'=>'form'
+                                ])
+                            !!}
+                            {!! Form::hidden('user_id', $staff->user_id) !!}
+                            <div class="form-body">
+                                <div class="form-group">
+                                    <label>Title <span class="text-danger">*</span></label>
+                                    <div>
+                                        {!! Form::select('salutation_id', $salutations, $staff->salutation_id, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">L.G.A </label>
-                                <div>
-                                    @if($lga == null)
-                                        {!! Form::select('lga_id', [''=>'Nothing Selected'], '', ['class'=>'form-control', 'id'=>'lga_id']) !!}
-                                    @else
-                                        {!! Form::select('lga_id', $lgas, $lga->lga_id, ['class'=>'form-control', 'id'=>'lga_id']) !!}
-                                    @endif
+
+                                <div class="form-group">
+                                    <label class="control-label">First Name <span class="text-danger">*</span></label>
+                                    {!! Form::text('first_name', $staff->first_name, ['placeholder'=>'First Name', 'class'=>'form-control', 'required'=>'required']) !!}
                                 </div>
-                            </div>
-                            {{--<div class="form-group">--}}
+                                <div class="form-group">
+                                    <label class="control-label">Last Name <span class="text-danger">*</span></label>
+                                    {!! Form::text('last_name', $staff->last_name, ['placeholder'=>'Last Name', 'class'=>'form-control', 'required'=>'required']) !!}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Middle Name</label>
+                                    {!! Form::text('middle_name', $staff->middle_name, ['placeholder'=>'Middle Name', 'class'=>'form-control']) !!}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Email <span class="text-danger">*</span></label>
+                                    {!! Form::text('email', $staff->email, ['placeholder'=>'Email', 'class'=>'form-control', 'required'=>'required']) !!}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Mobile Number <span class="text-danger">*</span></label>
+                                    {!! Form::text('phone_no', $staff->phone_no, ['placeholder'=>'Mobile No', 'class'=>'form-control', 'required'=>'required']) !!}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Mobile Number 2</label>
+                                    {!! Form::text('phone_no2', $staff->phone_no2, ['placeholder'=>'Mobile No 2', 'class'=>'form-control']) !!}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Gender <span class="text-danger">*</span></label>
+                                    {!! Form::select('gender', [''=>'Gender', 'Male'=>'Male', 'Female'=>'Female'], $staff->gender, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Date Of Birth <span class="text-danger">*</span></label>
+                                    <input class="form-control date-picker" data-date-format="yyyy-mm-dd" name="dob" type="text" value="{!! ($staff->dob) ?  $staff->dob->format('Y-m-d') : '' !!}" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">State </label>
+                                    <div>
+                                        @if($lga === null)
+                                            {!! Form::select('state_id', $states, old('state_id'), ['class'=>'form-control', 'id'=>'state_id']) !!}
+                                        @else
+                                            {!! Form::select('state_id', $states, $lga->state_id, ['class'=>'form-control', 'id'=>'state_id']) !!}
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">L.G.A </label>
+                                    <div>
+                                        @if($lga == null)
+                                            {!! Form::select('lga_id', [''=>'Nothing Selected'], '', ['class'=>'form-control', 'id'=>'lga_id']) !!}
+                                        @else
+                                            {!! Form::select('lga_id', $lgas, $lga->lga_id, ['class'=>'form-control', 'id'=>'lga_id']) !!}
+                                        @endif
+                                    </div>
+                                </div>
+                                {{--<div class="form-group">--}}
                                 {{--<label>Contact Address</label>--}}
                                 {{--<textarea class="form-control" rows="3" required placeholder="Contact Address" name="address">{{ $staff->address }}</textarea>--}}
-                            {{--</div>--}}
-                            <div class="margiv-top-10">
-                                <button class="btn green pull-right"> Update Info </button>
+                                {{--</div>--}}
+                                <div class="margiv-top-10">
+                                    <button class="btn green pull-right"> Update Info </button>
+                                </div>
+                                {!! Form::close() !!}
                             </div>
-                            {!! Form::close() !!}
+                            </form>
                         </div>
-                    </form>
+                    </div>
+                    <!-- END SAMPLE FORM PORTLET-->
                 </div>
             </div>
-            <!-- END SAMPLE FORM PORTLET-->
         </div>
+        <!-- END PROFILE CONTENT -->
     </div>
 
 @endsection

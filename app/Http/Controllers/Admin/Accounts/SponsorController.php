@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Accounts;
 
+use App\Helpers\LabelHelper;
 use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Users\User;
 use App\Models\School\Setups\Lga;
@@ -57,7 +58,7 @@ class SponsorController extends Controller
         $allSponsors = $sponsors->skip($iDisplayStart)->take($iDisplayLength)->get();
         foreach ($allSponsors as $sponsor){
             $status = ($sponsor->status == 1)
-                ? '<label class="label label-success">Activated</label>' : '<label class="label label-danger">Deactivated</label>';
+                ? LabelHelper::success('Activated') : LabelHelper::danger('Deactivated');
             
             $records["data"][] = array(
                 ($i++ + 1),

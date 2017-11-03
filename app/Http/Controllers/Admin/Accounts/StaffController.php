@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin\Accounts;
 
+use App\Helpers\LabelHelper;
 use App\Models\Admin\Accounts\Sponsor;
-use App\Models\Admin\Accounts\Staff;
 use App\Models\Admin\Users\User;
 use App\Models\Admin\Users\UserType;
 use App\Models\School\Setups\Lga;
@@ -23,7 +23,6 @@ class StaffController extends Controller
      */
     public function getIndex()
     {
-//        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
         return view('admin.accounts.staffs.index');
     }
 
@@ -61,19 +60,22 @@ class StaffController extends Controller
         $allStaffs = $staffs->skip($iDisplayStart)->take($iDisplayLength)->get();
         foreach ($allStaffs as $staff){
             $status = ($staff->status == 1)
-                ? '<label class="label label-success">Activated</label>' : '<label class="label label-danger">Deactivated</label>';
+                ? LabelHelper::success('Activated') : LabelHelper::danger('Deactivated');
 
             $records["data"][] = array(
                 ($i++ + 1),
                 $staff->fullNames(),
                 $staff->phone_no,
                 $staff->email,
-                ($staff->gender) ? $staff->gender : '<span class="label label-danger">nil</span>',
-                $status,
-                '<a target="_blank" href="/staffs/view/'.$this->getHashIds()->encode($staff->user_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
-                     <span class="fa fa-eye-slash"></span>
+                ($staff->gender) ? $staff->gender : LabelHelper::danger(),
+                '<a target="_blank" href="/staffs/dashboard/'.$this->getHashIds()->encode($staff->user_id).'" class="btn btn-default btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-eye"></span> View
                  </a>',
-                '<a target="_blank" href="/staffs/edit/'.$this->getHashIds()->encode($staff->user_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                $status,
+                '<a href="/staffs/view/'.$this->getHashIds()->encode($staff->user_id).'" class="btn btn-info btn-rounded btn-condensed btn-xs">
+                     <span class="fa fa-eye-slash"></span> Details
+                 </a>',
+                '<a href="/staffs/edit/'.$this->getHashIds()->encode($staff->user_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
                      <span class="fa fa-edit"></span>
                  </a>'
             );

@@ -86,7 +86,7 @@ class User extends Authenticatable
      * User Avatar full avatar path
      */
     public function getAvatarPath(){
-        return ($this->avatar) ? DIRECTORY_SEPARATOR . $this->avatar_path . $this->avatar : false;
+        return ($this->avatar) ? DIRECTORY_SEPARATOR . $this->avatar_path . $this->avatar : '/uploads/no-image.jpg';
     }
 
     /**

@@ -44,10 +44,11 @@
                             <thead>
                             <tr role="row" class="heading">
                                 <th width="2%">#</th>
-                                <th width="30%">Full Name</th>
+                                <th width="25%">Full Name</th>
                                 <th width="12%">Phone No.</th>
                                 <th width="23%">Email</th>
-                                <th width="15%">Gender</th>
+                                <th width="10%">Gender</th>
+                                <th width="10%">Dashboard</th>
                                 <th width="8%">Status</th>
                                 <th width="5%">View</th>
                                 <th width="5%">Edit</th>
@@ -58,10 +59,11 @@
                             <tfoot>
                             <tr role="row" class="heading">
                                 <th width="2%">#</th>
-                                <th width="30%">Full Name</th>
+                                <th width="25%">Full Name</th>
                                 <th width="12%">Phone No.</th>
                                 <th width="23%">Email</th>
-                                <th width="15%">Gender</th>
+                                <th width="10%">Gender</th>
+                                <th width="10%">Dashboard</th>
                                 <th width="8%">Status</th>
                                 <th width="5%">View</th>
                                 <th width="5%">Edit</th>
