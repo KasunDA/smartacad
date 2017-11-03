@@ -101,6 +101,14 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/classroom/{staffId}/', 'StaffController@classroom');
     });
 
+    //Profile Routes
+    Route::group(['prefix'=>'profiles/', 'namespace' => 'Admin\Users'], function () {
+        Route::get('/dashboard', 'ProfileController@dashboard');
+        Route::get('/subject', 'ProfileController@subject');
+        Route::get('/subject-details/{subjectId}', 'ProfileController@subjectDetails');
+        Route::get('/classroom', 'ProfileController@classroom');
+    });
+
     
     //Attendance Routes
     Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {

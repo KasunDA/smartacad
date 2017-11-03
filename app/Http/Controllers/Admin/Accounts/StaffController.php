@@ -226,7 +226,7 @@ class StaffController extends Controller
     public function subject($encodeId)
     {
         $staff = User::findOrFail($this->decode($encodeId));
-        $conditions = "userId=".$staff->user_id;
+        $conditions = "userId=".$staff->user_id.'&url=/staffs/subject-details/';
   
         return view('admin.accounts.staffs.subject', compact('staff', 'conditions'));
     }
@@ -254,6 +254,7 @@ class StaffController extends Controller
     public function staffSubjects(Request $request)
     {
         $staffId = $request->input('userId');
+        $url = $request->input('url');
         $staff = User::findOrFail($staffId);
 
         $iTotalRecords = SubjectClassRoomView::where('tutor_id', $staff->user_id)
@@ -295,7 +296,7 @@ class StaffController extends Controller
                 $subject->academic_term,
                 $subject->subject,
                 ($subject->exam_status_id == 1) ? LabelHelper::success('Marked') : LabelHelper::danger('Unmarked'),
-                '<a href="/staffs/subject-details/'.$this->encode($subject->subject_classroom_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
+                '<a href="'.$url.$this->encode($subject->subject_classroom_id).'" class="btn btn-warning btn-rounded btn-condensed btn-xs">
                      <span class="fa fa-eye"></span> Details
                  </a>'
             );

@@ -8,7 +8,7 @@
 <!-- END PAGE LEVEL STYLES -->
 @endsection
 
-@section('title', 'Staff Subject Details')
+@section('title', 'My Subject Details')
 
 @section('breadcrumb')
     <li>
@@ -20,22 +20,22 @@
     </li>
     <li>
         <i class="fa fa-users"></i>
-        <a href="{{ url('/staffs') }}">Staffs</a>
+        <a href="{{ url('/profiles') }}">Profile</a>
     </li>
     <li>
         <i class="fa fa-chevron-right"></i>
     </li>
     <li>
-        <span>Subject Details</span>
+        <span>My Subject Details</span>
     </li>
 @stop
 
 @section('content')
-    <h3 class="page-title">Staff Profile | Subject Records Details</h3>
+    <h3 class="page-title">Profile | Subject Records Details</h3>
 
     <div class="col-md-12">
         <!-- BEGIN PROFILE SIDEBAR -->
-        @include('admin.layout.partials.staff-nav', ['active' => 'subject'])
+        @include('admin.layout.partials.profile-nav', ['active' => 'subject'])
                 <!-- END BEGIN PROFILE SIDEBAR -->
         <!-- BEGIN PROFILE CONTENT -->
         <div class="profile-content">
@@ -119,7 +119,7 @@
 @section('layout-script')
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/staffs"]');
+            setTabActive('[href="/profiles"]');
 
             setTableData($('#view_attendance_datatable')).init();
         });

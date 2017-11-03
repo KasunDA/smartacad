@@ -39,7 +39,7 @@
         <!-- BEGIN PROFILE SIDEBAR -->
         @include('admin.layout.partials.staff-nav', ['active' => 'edit'])
 
-                <!-- BEGIN PROFILE CONTENT -->
+        <!-- BEGIN PROFILE CONTENT -->
         <div class="profile-content">
             <div class="row">
                 <div class="col-md-8">

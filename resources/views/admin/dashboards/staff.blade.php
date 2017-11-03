@@ -16,11 +16,11 @@
 
 @section('content')
     <div class="row widget-row" style="margin-top: 30px;">
-        @if(Auth::user()->subjectClassRooms()->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->count() > 0)
-            <div class="row">
-                <div class="col-md-10">
-                    <!-- BEGIN CHART PORTLET-->
-                    <div class="portlet light bordered">
+        <div class="row">
+            <div class="col-md-10">
+                <!-- BEGIN CHART PORTLET-->
+                <div class="portlet light bordered">
+                    @if($staff->subjectClassRooms()->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->count() > 0)
                         <div class="portlet-title">
                             <div class="caption">
                                 <i class="fa fa-book font-green-haze"></i>
@@ -35,16 +35,24 @@
                         <div class="portlet-body">
                             <div id="subject_tutor" class="chart" style="height: 450px;"> </div>
                         </div>
-                    </div>
-                    <!-- END CHART PORTLET-->
+                    @else
+                        <div class="portlet-title">
+                            <div class="caption">
+                                <i class="fa fa-book font-red-haze"></i>
+                                <span class="caption-subject bold uppercase font-red-haze">No Subjects Assigned</span>
+                                <span class="caption-helper"> in {{ AcademicTerm::activeTerm()->academic_term }} Academic Year</span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
+                <!-- END CHART PORTLET-->
             </div>
-        @endif
-        @if(Auth::user()->classMasters()->where('academic_year_id', AcademicYear::activeYear()->academic_year_id)->count() > 0)
-            <div class="row">
-                <div class="col-md-6">
-                    <!-- BEGIN CHART PORTLET-->
-                    <div class="portlet light bordered">
+        </div>
+        <div class="row">
+            <div class="col-md-10">
+                <!-- BEGIN CHART PORTLET-->
+                <div class="portlet light bordered">
+                    @if($staff->classMasters()->where('academic_year_id', AcademicYear::activeYear()->academic_year_id)->count() > 0)
                         <div class="portlet-title">
                             <div class="caption">
                                 <i class="fa fa-book font-green-haze"></i>
@@ -59,11 +67,17 @@
                         <div class="portlet-body">
                             <div id="class_teacher" class="chart" style="height: 450px;"> </div>
                         </div>
-                    </div>
-                    <!-- END CHART PORTLET-->
+                    @else
+                        <div class="caption">
+                            <i class="fa fa-book font-red-haze"></i>
+                            <span class="caption-subject bold uppercase font-red-haze"> No Class Rooms Assigned</span>
+                            <span class="caption-helper"> in {{ AcademicYear::activeYear()->academic_year }} Academic Year: as Class Teacher</span>
+                        </div>
+                    @endif
                 </div>
+                <!-- END CHART PORTLET-->
             </div>
-        @endif
+        </div>
         <?php $j = 1; ?>
         @if(count($unmarked) > 0)
             <div class="row">

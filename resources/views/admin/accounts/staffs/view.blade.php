@@ -1,11 +1,6 @@
 @extends('admin.layout.default')
 
 @section('layout-style')
-    <!-- BEGIN PAGE LEVEL PLUGINS -->
-    <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
-    <!-- END PAGE LEVEL PLUGINS -->
-    <!-- BEGIN THEME GLOBAL STYLES -->
     <!-- BEGIN PAGE LEVEL STYLES -->
     <link href="{{ asset('assets/pages/css/profile.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- END PAGE LEVEL STYLES -->
@@ -115,12 +110,6 @@
     </div>
 @endsection
 
-@section('page-level-js')
-    <script src="{{ asset('assets/global/scripts/datatable.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/datatables/datatables.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('assets/pages/scripts/profile.min.js') }}" type="text/javascript"></script>
-@endsection
 
 @section('layout-script')
     <!-- BEGIN PAGE LEVEL PLUGINS -->
@@ -128,8 +117,6 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/staffs"]');
-
-            setTableData($('#subject_tabledata')).init();
         });
     </script>
 @endsection

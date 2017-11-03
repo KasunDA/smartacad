@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\Users;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Accounts\Sponsor;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use App\Models\School\Setups\Lga;
 use App\Models\School\Setups\Salutation;
 use App\Models\School\Setups\State;
@@ -14,7 +14,6 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Storage;
 use Validator;
 
 
@@ -66,10 +65,19 @@ class ProfileController extends Controller
         session()->put('active', 'info');
 
         if($user){
-            $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->prepend('Select Title', '');
-            $states = State::orderBy('state')->lists('state', 'state_id')->prepend('Select State', '');
+            $salutations = Salutation::orderBy('salutation')
+                ->lists('salutation', 'salutation_id')
+                ->prepend('- Select Title -', '');
+            $states = State::orderBy('state')
+                ->lists('state', 'state_id')
+                ->prepend('- Select State -', '');
             $lga = ($user->lga()->first()) ? $user->lga()->first() : null;
-            $lgas = ($user->lga_id > 0) ? Lga::where('state_id', $user->lga()->first()->state_id)->lists('lga', 'lga_id')->prepend('Select L. G. A', '') : null;
+           
+            $lgas = ($user->lga_id > 0) 
+                ? Lga::where('state_id', $user->lga()->first()->state_id)
+                    ->lists('lga', 'lga_id')
+                    ->prepend('- Select L. G. A -', '') 
+                : null;
         }else{
             session()->put('active', 'avatar');
         }
@@ -117,32 +125,7 @@ class ProfileController extends Controller
 
         return redirect('/profiles');
     }
-
-    /**
-     * Change password of logged in user via profile modal
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    /*public function postChange(Request $request)
-    {
-        $user = Auth::user();
-        $output = array();
-        $output['status'] = 0;
-
-        //Validate if the password match the current password
-        if (! Hash::check($request->password, $user->password) ) {
-            $output['msg'] = 'Warning!!! '.$user->first_name.', Your Old Password Credential did not match your current';
-            //validate if the new and confirm password match
-        }elseif($request->password_confirmation !== $request->new_password){
-            $output['msg'] = 'Warning!!! '.$user->first_name.', Your New and Confirm Password Credential did not match';
-            //Store the password...
-        }else{
-            $user->fill(['password' => Hash::make($request->new_password)])->save();
-            $output['status'] = 1;
-            $output['msg'] = 'Changed!!! '.$user->username.' Your password change was successful.';
-        }
-        return Response::json($output);
-    }*/
+    
 
     /**
      * Change password form via logged in user
@@ -168,11 +151,10 @@ class ProfileController extends Controller
                 'password' => 'Warning!!! ' . $user->fullNames() . ', Your New and Confirm Password Credential did not match'
             ]);
         }
-//         Store the password...
+        
         $user->fill(['password' => Hash::make($request->new_password)])->save();
-        // Set the flash message
         $this->setFlashMessage('Changed!!! ' . $user->fullNames() . ' Your password change was successful.', 1);
-        //Keep track of selected tab
+        
         return redirect('/profiles/');
     }
 
@@ -197,5 +179,40 @@ class ProfileController extends Controller
             $this->setFlashMessage(' Your profile picture has been successfully uploaded.', 1);
             return redirect('/profiles');
         }
+    }
+
+    public function dashboard()
+    {
+        $user = Auth::user();
+
+        return view('admin.profile.dashboard', compact('user'));
+    }
+
+    public function subject()
+    {
+        $user = Auth::user();
+        $conditions = "userId=".$user->user_id.'&url=/profiles/subject-details/';
+
+        return view('admin.profile.subject', compact('user', 'conditions'));
+    }
+
+    public function subjectDetails($subjectId)
+    {
+        $subjectClassrooms = SubjectClassRoom::findOrFail($this->decode($subjectId));
+        $user = Auth::user();
+        $subjects = $user->subjectClassRooms()
+            ->where('subject_id', $subjectClassrooms->subject_id)
+            ->where('academic_term_id', $subjectClassrooms->academic_term_id)
+            ->get();
+
+        return view('admin.profile.subject-details', compact('subjects', 'user'));
+    }
+
+    public function classroom()
+    {
+        $user = Auth::user();
+        $classrooms = $user->classMasters()->get();
+
+        return view('admin.profile.classroom', compact('classrooms', 'user'));
     }
 }
