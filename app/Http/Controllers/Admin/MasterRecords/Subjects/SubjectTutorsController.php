@@ -23,8 +23,8 @@ class SubjectTutorsController extends Controller
      */
     public function getIndex()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
         return view('admin.master-records.subjects.subject-tutor', compact('academic_years', 'classlevels', 'school_subjects'));
     }
 
@@ -43,7 +43,7 @@ class SubjectTutorsController extends Controller
 
         if(isset($inputs['manage_classlevel_id']) and $inputs['manage_classlevel_id'] != ''){
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])->where('tutor_id', $tutor_id)
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->lists('classroom_id')->toArray())->get();
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->pluck('classroom_id')->toArray())->get();
         }else{
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])->where('tutor_id', $tutor_id)->get();
         }
@@ -142,7 +142,7 @@ class SubjectTutorsController extends Controller
                 ->where('classroom_id', $inputs['view_classroom_id'])->get();
         }else{
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['view_academic_term_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->lists('classroom_id')->toArray())->get();
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->pluck('classroom_id')->toArray())->get();
         }
         if(isset($class_subjects)){
             foreach($class_subjects as $class_subject){

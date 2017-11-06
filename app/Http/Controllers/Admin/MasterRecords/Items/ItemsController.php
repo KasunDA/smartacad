@@ -19,7 +19,7 @@ class ItemsController extends Controller
     public function getIndex()
     {
         $items = Item::orderBy('name')->get();
-        $item_types = ItemType::lists('item_type', 'id')->prepend('- Item Type -', '');
+        $item_types = ItemType::pluck('item_type', 'id')->prepend('- Item Type -', '');
 
         if(count($item_types) == 1){
             $this->setFlashMessage('Kindly Set up Item Types before proceeding to Items', 3);

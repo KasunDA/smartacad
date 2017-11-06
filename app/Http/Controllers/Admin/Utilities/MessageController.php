@@ -23,8 +23,8 @@ class MessageController extends Controller
      */
     public function getIndex()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
         return view('admin.messages.index', compact('academic_years', 'classlevels'));
     }
 
@@ -42,7 +42,7 @@ class MessageController extends Controller
             ->where(function ($query) use ($class, $inputs) {
                 //If a class is selected else return all the class level students
                 ($class) ? $query->where('classroom_id', $inputs['classroom_id'])
-                    : $query->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['classlevel_id'])->lists('classroom_id')->toArray());
+                    : $query->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['classlevel_id'])->pluck('classroom_id')->toArray());
             })->get();
 
         $response = array();
@@ -197,10 +197,10 @@ class MessageController extends Controller
 
         if($type == '#sponsor'){
             //TODO exclude not active students
-            $nos = User::where('user_type_id', Sponsor::USER_TYPE)->where('status', 1)->distinct()->lists('phone_no')->toArray();
+            $nos = User::where('user_type_id', Sponsor::USER_TYPE)->where('status', 1)->distinct()->pluck('phone_no')->toArray();
         }elseif($type == '#staff'){
             $nos = User::whereIn('user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray())
-                ->where('user_type_id', '<>', Sponsor::USER_TYPE)->where('status', 1)->distinct()->lists('phone_no')->toArray();
+                ->where('user_type_id', '<>', Sponsor::USER_TYPE)->where('status', 1)->distinct()->pluck('phone_no')->toArray();
         }
 
         for ($i = 0; $i < count($nos); $i++) {

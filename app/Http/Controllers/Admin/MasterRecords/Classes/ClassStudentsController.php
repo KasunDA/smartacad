@@ -26,8 +26,8 @@ class ClassStudentsController extends Controller
     public function getIndex()
     {
         session()->put('active', 'search');
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
         return view('admin.master-records.classes.class-rooms.class-student', compact('academic_years', 'classlevels', 'tutors'));
     }
 
@@ -49,7 +49,7 @@ class ClassStudentsController extends Controller
         if($students->count() > 0){
             $studentsNoClass = Student::where('status_id', 1)
                 ->whereNotIn('student_id', StudentClass::where('academic_year_id', $inputs['student_academic_year_id'])
-                ->lists('student_id')->toArray())->get();
+                ->pluck('student_id')->toArray())->get();
             //All the students in the class room for the academic year
             foreach($students as $student){
                 if($student->student()->first()->status_id == 1){
@@ -130,7 +130,7 @@ class ClassStudentsController extends Controller
                 ->where('classroom_id', $inputs['view_classroom_id'])->get();
         }else{
             $students = StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->lists('classroom_id')->toArray())->get();
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->pluck('classroom_id')->toArray())->get();
         }
 
         $response = array();

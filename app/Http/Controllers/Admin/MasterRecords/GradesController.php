@@ -35,7 +35,7 @@ class GradesController extends Controller
     {
         $classgroup = ($encodeId == null) ? null : ClassGroup::findOrFail($this->getHashIds()->decode($encodeId)[0]);
         $grades = ($classgroup) ? Grade::where('classgroup_id', $classgroup->classgroup_id)->get() : Grade::all();
-        $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('Select Class Group', '');
+        $classgroups = ClassGroup::pluck('classgroup', 'classgroup_id')->prepend('Select Class Group', '');
         return view('admin.master-records.grades', compact('classgroups', 'grades', 'classgroup'));
     }
 

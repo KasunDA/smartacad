@@ -44,7 +44,7 @@
                     <div class="col-md-6">
                         <div class="col-md-9">
                             {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', $academic_term->academic_year_id)
-                            ->orderBy('term_type_id')->lists('academic_term', 'academic_term_id')->prepend('- Academic Term -', ''),
+                            ->orderBy('term_type_id')->pluck('academic_term', 'academic_term_id')->prepend('- Academic Term -', ''),
                             $academic_term->academic_term_id, ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required']) !!}
                         </div>
                         <div class="col-md-3">

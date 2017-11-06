@@ -22,7 +22,7 @@ class SubjectsController extends Controller
         $subject_group = ($group_id) ? SubjectGroup::findOrFail($this->decode($group_id)) : false;
         
         $subjects = ($subject_group) ? $subject_group->subjects()->orderBy('subject')->get() : Subject::orderBy('subject')->get();
-        $subject_groups = SubjectGroup::orderBy('subject_group')->lists('subject_group', 'subject_group_id')->prepend('- Subject Group -', '');
+        $subject_groups = SubjectGroup::orderBy('subject_group')->pluck('subject_group', 'subject_group_id')->prepend('- Subject Group -', '');
 
         return view('school.setups.subjects.subjects', compact('subjects', 'subject_groups', 'subject_group'));
     }

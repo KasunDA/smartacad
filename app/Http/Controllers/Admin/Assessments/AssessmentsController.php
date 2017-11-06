@@ -31,9 +31,9 @@ class AssessmentsController extends Controller
      */
     public function getIndex()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
             ->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
             ->prepend('Select Class Level', '');
 
         return view('admin.assessments.index', compact('academic_years', 'classlevels'));
@@ -54,7 +54,7 @@ class AssessmentsController extends Controller
         //Filter by classlevel if its selected else only by classroom
         if($inputs['classlevel_id'] > 0){
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['classlevel_id'])->lists('classroom_id')->toArray())
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['classlevel_id'])->pluck('classroom_id')->toArray())
                 ->where(function ($query) use ($user_id) {
                     //If its not a developer admin filter by the logged in user else return all records in the class level
                     if($user_id)

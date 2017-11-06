@@ -24,7 +24,7 @@ class ItemQuotesController extends Controller
      */
     public function getIndex($year_id = false, $item_id = false)
     {
-        $items = Item::orderBy('name')->lists('name', 'id')->prepend('- Items -', '');
+        $items = Item::orderBy('name')->pluck('name', 'id')->prepend('- Items -', '');
 
         if(count($items) == 1){
             $this->setFlashMessage('Kindly Set up Items before proceeding to Item Quotes ', 3);
@@ -43,9 +43,9 @@ class ItemQuotesController extends Controller
                 : $item_quotes;
         }
 
-//        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
-        $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('- Class Group -', '');
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+//        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
+        $classgroups = ClassGroup::pluck('classgroup', 'classgroup_id')->prepend('- Class Group -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         
         return view('admin.master-records.items.item-quotes',
             compact('items', 'item_quotes', 'classgroups', 'academic_year', 'item', 'academic_years')

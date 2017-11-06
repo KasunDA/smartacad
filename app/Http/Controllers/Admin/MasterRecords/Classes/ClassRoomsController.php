@@ -44,7 +44,7 @@ class ClassRoomsController extends Controller
     {
         $classlevel = ($encodeId == null) ? null : ClassLevel::findOrFail($this->getHashIds()->decode($encodeId)[0]);
         $classrooms = ($classlevel == null) ? ClassRoom::all() : $classlevel->classRooms()->get();
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('All Class Level', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('All Class Level', '');
         return view('admin.master-records.classes.class-rooms.index', compact('classlevels', 'classrooms', 'classlevel'));
     }
 
@@ -116,8 +116,8 @@ class ClassRoomsController extends Controller
      */
     public function getClassTeachers()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
         $tutors = User::where('user_type_id', Staff::USER_TYPE)->where('status', 1)->orderBy('first_name')->get();
         return view('admin.master-records.classes.class-rooms.class-teacher', compact('academic_years', 'classlevels', 'tutors'));
     }

@@ -25,8 +25,8 @@ class SubjectClassRoomsController extends Controller
      */
     public function getIndex()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
         $tutors = User::where('user_type_id', Staff::USER_TYPE)->where('status', 1)->orderBy('first_name')->get();
         $school_subjects = School::mySchool()->subjects()->orderBy('subject')
             ->get(['schools_subjects.subject_id', 'subject', 'schools_subjects.subject_alias']);
@@ -48,14 +48,14 @@ class SubjectClassRoomsController extends Controller
 
         if($type == 1){
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['class_academic_term_id'])
-                ->where('classroom_id', $inputs['class_classroom_id'])->lists('subject_id')->toArray();
+                ->where('classroom_id', $inputs['class_classroom_id'])->pluck('subject_id')->toArray();
             $response['ClassID'] = $inputs['class_classroom_id'];
             $response['TermID'] = $inputs['class_academic_term_id'];
 
         }elseif($type == 2){
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['level_academic_term_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['level_classlevel_id'])->lists('classroom_id')->toArray())
-                ->lists('subject_id')->toArray();
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['level_classlevel_id'])->pluck('classroom_id')->toArray())
+                ->pluck('subject_id')->toArray();
             $response['LevelID'] = $inputs['level_classlevel_id'];
             $response['TermID'] = $inputs['level_academic_term_id'];
         }
@@ -115,7 +115,7 @@ class SubjectClassRoomsController extends Controller
                 ->where('classroom_id', $inputs['view_classroom_id'])->get();
         }else{
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['view_academic_term_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->lists('classroom_id')->toArray())->get();
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->pluck('classroom_id')->toArray())->get();
         }
         if(isset($class_subjects)){
             foreach($class_subjects as $class_subject){
@@ -164,10 +164,10 @@ class SubjectClassRoomsController extends Controller
 
         if(isset($inputs['subject_id']) and $inputs['subject_id'] != ''){
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])->where('subject_id', $inputs['subject_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->lists('classroom_id')->toArray())->get();
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->pluck('classroom_id')->toArray())->get();
         }else{
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->lists('classroom_id')->toArray())->get();
+                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->pluck('classroom_id')->toArray())->get();
         }
         if(isset($class_subjects)){
             foreach($class_subjects as $class_subject){

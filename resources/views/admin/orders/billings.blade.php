@@ -66,7 +66,7 @@
                                                     <label class="control-label">Academic Term <span class="text-danger">*</span></label>
                                                     {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
                                                             ->orderBy('term_type_id')
-                                                            ->lists('academic_term', 'academic_term_id')
+                                                            ->pluck('academic_term', 'academic_term_id')
                                                             ->prepend('- Academic Term -', ''),
                                                         AcademicTerm::activeTerm()->academic_term_id,
                                                         ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required'])
@@ -104,7 +104,7 @@
                                                 <div class="form-group">
                                                     <label class="control-label">Academic Term <small class="font-red">*</small></label>
                                                     {!! Form::select('view_academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
-                                                        ->lists('academic_term', 'academic_term_id')
+                                                        ->pluck('academic_term', 'academic_term_id')
                                                         ->prepend('- Academic Term -', ''),
                                                         AcademicTerm::activeTerm()->academic_term_id,
                                                         ['class'=>'form-control', 'id'=>'view_academic_term_id', 'required'=>'required'])

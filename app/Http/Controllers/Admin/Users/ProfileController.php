@@ -66,16 +66,16 @@ class ProfileController extends Controller
 
         if($user){
             $salutations = Salutation::orderBy('salutation')
-                ->lists('salutation', 'salutation_id')
+                ->pluck('salutation', 'salutation_id')
                 ->prepend('- Select Title -', '');
             $states = State::orderBy('state')
-                ->lists('state', 'state_id')
+                ->pluck('state', 'state_id')
                 ->prepend('- Select State -', '');
             $lga = ($user->lga()->first()) ? $user->lga()->first() : null;
            
             $lgas = ($user->lga_id > 0) 
                 ? Lga::where('state_id', $user->lga()->first()->state_id)
-                    ->lists('lga', 'lga_id')
+                    ->pluck('lga', 'lga_id')
                     ->prepend('- Select L. G. A -', '') 
                 : null;
         }else{

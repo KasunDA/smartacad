@@ -36,9 +36,9 @@ class ExamsController extends Controller
      */
     public function getIndex()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
             ->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
             ->prepend('Select Class Level', '');
 
         return view('admin.assessments.exams.index', compact('academic_years', 'classlevels'));
@@ -59,7 +59,7 @@ class ExamsController extends Controller
      */
     public function getSetup()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
             ->prepend('Select Academic Year', '');
 
         return view('admin.assessments.exams.setup', compact('academic_years', 'classlevels', 'tutors'));
@@ -131,14 +131,14 @@ class ExamsController extends Controller
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
                 ->whereIn('classroom_id',
                     ClassRoom::where('classlevel_id', $inputs['classlevel_id'])
-                        ->lists('classroom_id')
+                        ->pluck('classroom_id')
                         ->toArray()
                 )
                 ->where(function ($query) use ($user_id) {
                     //If its not a developer admin filter by the logged in user else return all records in the class level
                     if($user_id) $query->where('tutor_id', $user_id);
                 })
-                ->lists('subject_classroom_id')
+                ->pluck('subject_classroom_id')
                 ->toArray();
 
         }else{
@@ -147,7 +147,7 @@ class ExamsController extends Controller
                     //If its not a developer admin filter by the logged in user else return all records in the class room
                     if($user_id) $query->where('tutor_id', $user_id);
                 })
-                ->lists('subject_classroom_id')
+                ->pluck('subject_classroom_id')
                 ->toArray();
         }
 

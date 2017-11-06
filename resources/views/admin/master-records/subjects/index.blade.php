@@ -67,7 +67,7 @@
                                                         <optgroup label="{{ $subject_group->subject_group }}">
                                                             @if($subject_group->subjects()->count() > 0)
                                                                 @foreach($subject_group->subjects()->orderBy('subject')->get() as $subject )
-                                                                    @if(in_array($subject->subject_id, $mySchool->subjects()->lists('schools_subjects.subject_id')->toArray()))
+                                                                    @if(in_array($subject->subject_id, $mySchool->subjects()->pluck('schools_subjects.subject_id')->toArray()))
                                                                         <option selected value="{{ $subject->subject_id }}">{{ $subject->subject }}</option>
                                                                     @else
                                                                         <option value="{{ $subject->subject_id }}">{{ $subject->subject }}</option>

@@ -22,7 +22,7 @@ class RolesController extends Controller
     public function getIndex()
     {
         $roles = Role::orderBy('name')->get();
-        $user_types = UserType::orderBy('user_type')->lists('user_type', 'user_type_id')->toArray();;
+        $user_types = UserType::orderBy('user_type')->pluck('user_type', 'user_type_id')->toArray();;
 
         return view('admin.roles-permissions.roles', compact('roles', 'user_types'));
     }

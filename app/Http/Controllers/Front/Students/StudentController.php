@@ -79,10 +79,10 @@ class StudentController extends Controller
         $decodeId = $this->getHashIds()->decode($encodeId);
 
         $student = (empty($decodeId)) ? abort(305) : Student::findOrFail($decodeId[0]);
-        $status = Status::lists('status', 'status_id')->prepend('Select Status', '');
-        $states = State::orderBy('state')->lists('state', 'state_id')->prepend('- Select State -', '');
+        $status = Status::pluck('status', 'status_id')->prepend('Select Status', '');
+        $states = State::orderBy('state')->pluck('state', 'state_id')->prepend('- Select State -', '');
         $lga = ($student->lga()->first()) ? $student->lga()->first() : null;
-        $lgas = ($student->lga_id > 0) ? Lga::where('state_id', $student->lga()->first()->state_id)->lists('lga', 'lga_id')->prepend('- Select L.G.A -', '') : null;
+        $lgas = ($student->lga_id > 0) ? Lga::where('state_id', $student->lga()->first()->state_id)->pluck('lga', 'lga_id')->prepend('- Select L.G.A -', '') : null;
 
         return view('front.students.edit', compact('student', 'states', 'lga', 'lgas', 'status'));
     }

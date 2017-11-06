@@ -105,10 +105,16 @@ class SponsorController extends Controller
         $decodeId = $this->getHashIds()->decode($encodeId);
 
         $sponsor = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
-        $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->prepend('Select Title', '');
-        $states = State::orderBy('state')->lists('state', 'state_id')->prepend('Select State', '');
+        $salutations = Salutation::orderBy('salutation')
+            ->pluck('salutation', 'salutation_id')
+            ->prepend('Select Title', '');
+        $states = State::orderBy('state')
+            ->pluck('state', 'state_id')
+            ->prepend('Select State', '');
         $lga = ($sponsor->lga()->first()) ? $sponsor->lga()->first() : null;
-        $lgas = ($sponsor->lga_id > 0) ? Lga::where('state_id', $sponsor->lga()->first()->state_id)->lists('lga', 'lga_id')->prepend('Select L.G.A', '') : null;
+        $lgas = ($sponsor->lga_id > 0) 
+            ? Lga::where('state_id', $sponsor->lga()->first()->state_id)->pluck('lga', 'lga_id')->prepend('Select L.G.A', '') 
+            : null;
 
         return view('admin.accounts.sponsors.edit', compact('sponsor', 'salutations', 'states', 'lga', 'lgas'));
     }

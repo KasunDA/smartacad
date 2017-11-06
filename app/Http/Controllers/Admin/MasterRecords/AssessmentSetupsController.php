@@ -42,15 +42,15 @@ class AssessmentSetupsController extends Controller
     {
         $academic_year = ($year_id) ? $academic_year = AcademicYear::findOrFail($this->decode($year_id)) : AcademicYear::activeYear();
         $assessment_setups = AssessmentSetup::whereIn(
-            'academic_term_id', $academic_year->academicTerms()->lists('academic_term_id')->toArray()
+            'academic_term_id', $academic_year->academicTerms()->pluck('academic_term_id')->toArray()
         )->get();
 
-        $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('- Class Group -', '');
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+        $classgroups = ClassGroup::pluck('classgroup', 'classgroup_id')->prepend('- Class Group -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
 
         $academic_terms = $academic_year->academicTerms()
             ->orderBy('term_type_id')
-            ->lists('academic_term', 'academic_term_id')
+            ->pluck('academic_term', 'academic_term_id')
             ->prepend('- Academic Term -', '');
 
         return view('admin.master-records.assessment-setups.index',
@@ -131,7 +131,7 @@ class AssessmentSetupsController extends Controller
         $academic_year = ($year) ? AcademicYear::findOrFail($this->decode($year)) : AcademicYear::activeYear();
         
         $assessment_setups = $academic_term->assessmentSetups()->get();
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
 
         return view('admin.master-records.assessment-setups.detail',
             compact('academic_years', 'academic_terms', 'assessment_setups', 'academic_term', 'academic_year')

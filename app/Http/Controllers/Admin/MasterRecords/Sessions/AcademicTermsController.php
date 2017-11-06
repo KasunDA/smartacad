@@ -39,7 +39,7 @@ class AcademicTermsController extends Controller
         $academic_year = ($year_id) ? AcademicYear::findOrFail($this->decode($year_id)) : AcademicYear::activeYear();
 
         $academic_terms = $academic_year->academicTerms()->orderBy('term_type_id')->get();
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         return view('admin.master-records.sessions.academic-terms', compact('academic_terms', 'academic_years', 'academic_year'));
     }
 
@@ -127,7 +127,7 @@ class AcademicTermsController extends Controller
      */
     public function getClones()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         return view('admin.master-records.sessions.clones', compact('academic_years'));
     }
 

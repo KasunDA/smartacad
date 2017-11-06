@@ -142,10 +142,10 @@ class StaffController extends Controller
         $decodeId = $this->getHashIds()->decode($encodeId);
 
         $staff = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
-        $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->prepend('Select Title', '');
-        $states = State::orderBy('state')->lists('state', 'state_id')->prepend('Select State', '');
+        $salutations = Salutation::orderBy('salutation')->pluck('salutation', 'salutation_id')->prepend('Select Title', '');
+        $states = State::orderBy('state')->pluck('state', 'state_id')->prepend('Select State', '');
         $lga = ($staff->lga()->first()) ? $staff->lga()->first() : null;
-        $lgas = ($staff->lga_id > 0) ? Lga::where('state_id', $staff->lga()->first()->state_id)->lists('lga', 'lga_id')->prepend('Select L.G.A', '') : null;
+        $lgas = ($staff->lga_id > 0) ? Lga::where('state_id', $staff->lga()->first()->state_id)->pluck('lga', 'lga_id')->prepend('Select L.G.A', '') : null;
 
         return view('admin.accounts.staffs.edit', compact('staff', 'salutations', 'states', 'lga', 'lgas'));
     }

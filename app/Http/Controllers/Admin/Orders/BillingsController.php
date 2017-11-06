@@ -33,8 +33,8 @@ class BillingsController extends Controller
      */
     public function getIndex()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
         $items = Item::where('status', 1)
             ->where('item_type_id', '<>', ItemType::TERMLY)
             ->pluck('name', 'id')
@@ -89,7 +89,7 @@ class BillingsController extends Controller
         if(!empty($inputs['view_classroom_id'])){
             $students = StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])
                 ->where('classroom_id', $inputs['view_classroom_id'])
-                ->whereIn('student_id', Student::where('status_id', 1)->lists('student_id')->toArray())
+                ->whereIn('student_id', Student::where('status_id', 1)->pluck('student_id')->toArray())
                 ->get();
         }else{
             $classrooms = ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->get();
@@ -100,7 +100,7 @@ class BillingsController extends Controller
                 ->whereIn('item_id', 
                     Item::where('status', 1)
                         ->where('item_type_id', '<>', ItemType::TERMLY)
-                        ->lists('id')
+                        ->pluck('id')
                         ->toArray()
                 )
                 ->get();
@@ -147,7 +147,7 @@ class BillingsController extends Controller
                     "academic_term"=>$term->academic_term,
                     "student_count"=>$classroom->studentClasses()
                         ->where('academic_year_id', $inputs['view_academic_year_id'])
-                        ->whereIn('student_id', Student::where('status_id', 1)->lists('student_id')->toArray())
+                        ->whereIn('student_id', Student::where('status_id', 1)->pluck('student_id')->toArray())
                         ->count()
                 );
             }
@@ -183,7 +183,7 @@ class BillingsController extends Controller
                     else if($type_id == 2)
                         $query->whereIn('classroom_id', explode(',', $ids));
                 })
-                ->lists('id')
+                ->pluck('id')
                 ->toArray();
 
             if(empty($variableIds)){

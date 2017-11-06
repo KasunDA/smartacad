@@ -37,7 +37,7 @@ class ClassLevelsController extends Controller
         $classGroup = ($group_id) ? ClassGroup::findOrFail($this->decode($group_id)) : false;
         $classlevels = ($classGroup) ? $classGroup->classLevels()->get() : ClassLevel::all();
 
-        $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('Select Class Group', '');
+        $classgroups = ClassGroup::pluck('classgroup', 'classgroup_id')->prepend('Select Class Group', '');
         return view('admin.master-records.classes.class-levels', compact('classlevels', 'classgroups', 'classGroup'));
     }
 

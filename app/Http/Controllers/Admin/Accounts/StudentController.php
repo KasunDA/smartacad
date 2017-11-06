@@ -58,10 +58,10 @@ class StudentController extends Controller
     public function getIndex()
     {
         $classrooms = ClassRoom::orderBy('classroom')
-            ->lists('classroom', 'classroom_id')
+            ->pluck('classroom', 'classroom_id')
             ->prepend('- Class Room -', '');
         $status = Status::orderBy('status')
-            ->lists('status', 'status_id')
+            ->pluck('status', 'status_id')
             ->prepend('- Status -', '');
 
         return view('admin.accounts.students.index', compact('classrooms', 'status'));
@@ -91,7 +91,7 @@ class StudentController extends Controller
                     $query->orWhere('first_name', 'like', '%'.$q.'%')
                         ->orWhere('last_name', 'like', '%'.$q.'%');
                 })
-                ->lists('user_id')
+                ->pluck('user_id')
                 ->toArray()
             : [];
 
@@ -185,7 +185,7 @@ class StudentController extends Controller
      */
     public function getCreate()
     {
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
             ->prepend('- Class Level -', '');
 
         return view('admin.accounts.students.create', compact('classlevels'));
@@ -259,25 +259,25 @@ class StudentController extends Controller
     public function getEdit($encodeId)
     {
         $student = Student::findOrFail($this->decode($encodeId));
-        $status = Status::lists('status', 'status_id')
+        $status = Status::pluck('status', 'status_id')
             ->prepend('- Select Status -', '');
 
         $states = State::orderBy('state')
-            ->lists('state', 'state_id')
+            ->pluck('state', 'state_id')
             ->prepend('- Select State -', '');
         $lga = ($student->lga()->first()) ? $student->lga()->first() : null;
         $lgas = ($student->lga_id > 0)
             ? Lga::where('state_id', $student->lga()->first()->state_id)
-                ->lists('lga', 'lga_id')
+                ->pluck('lga', 'lga_id')
                 ->prepend('- Select L.G.A -', '')
             : null;
 
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
             ->prepend('- Select Class Level -', '');
         $classroom = ($student->classroom_id) ? $student->classRoom()->first() : null;
         $classrooms = ($student->classroom_id > 0)
             ? ClassRoom::where('classlevel_id', $classroom->classlevel_id)
-                ->lists('classroom', 'classroom_id')
+                ->pluck('classroom', 'classroom_id')
                 ->prepend('- Select Class Room -', '')
             : null;
 

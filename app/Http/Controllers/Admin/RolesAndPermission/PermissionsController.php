@@ -95,7 +95,7 @@ class PermissionsController extends Controller
         $decodeId = ($encodeId == null) ? Role::DEFAULT_ROLE : $this->getHashIds()->decode($encodeId)[0];
         $role = Role::findorFail($decodeId);
 
-        $roles = Role::orderBy('display_name')->lists('display_name','role_id');
+        $roles = Role::orderBy('display_name')->pluck('display_name','role_id');
 
         $permissions = Permission::all();
 

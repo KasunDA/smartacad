@@ -35,7 +35,7 @@ class SchoolSubjectsController extends Controller
     public function getIndex()
     {
         $subject_groups = SubjectGroup::orderBy('subject_group')->get();
-        $subjects = Subject::lists('subject_id')->toArray();
+        $subjects = Subject::pluck('subject_id')->toArray();
         return view('admin.master-records.subjects.index', compact('subject_groups', 'subjects'));
     }
 

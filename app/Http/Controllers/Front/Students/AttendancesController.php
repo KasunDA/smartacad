@@ -32,7 +32,7 @@ class AttendancesController extends Controller
     {
         $student = Student::findOrFail($this->decode($encodeId));
         $attendances = Attendance::whereIn('id', AttendanceDetail::where('student_id', $student->student_id)
-                ->lists('attendance_id')->toArray()
+                ->pluck('attendance_id')->toArray()
             )
             ->groupBy(['academic_term_id'])
             ->orderBy('attendance_date', 'DESC')

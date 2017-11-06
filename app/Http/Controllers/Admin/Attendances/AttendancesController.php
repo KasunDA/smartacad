@@ -27,8 +27,8 @@ class AttendancesController extends Controller
      */
     public function index()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
         $classrooms = $classes = ClassMaster::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)
             ->where(function($query){
                 if(!Auth::user()->hasRole([Role::DEVELOPER, Role::SUPER_ADMIN]))
@@ -213,7 +213,7 @@ class AttendancesController extends Controller
                         ->whereIn('attendance_id',
                             Attendance::where('classroom_id', $inputs['view_classroom_id'])
                                 ->where('academic_term_id', $term->academic_term_id)
-                                ->lists('id')
+                                ->pluck('id')
                                 ->toArray()
                         )
                         ->count(),
@@ -223,7 +223,7 @@ class AttendancesController extends Controller
                         ->whereIn('attendance_id',
                             Attendance::where('classroom_id', $inputs['view_classroom_id'])
                                 ->where('academic_term_id', $term->academic_term_id)
-                                ->lists('id')
+                                ->pluck('id')
                                 ->toArray()
                         )
                         ->count(),
@@ -265,7 +265,7 @@ class AttendancesController extends Controller
     {
         $student = Student::findOrFail($this->decode($encodeId));
         $attendances = Attendance::whereIn('id', AttendanceDetail::where('student_id', $student->student_id)
-            ->lists('attendance_id')->toArray()
+            ->pluck('attendance_id')->toArray()
         )
             ->groupBy(['academic_term_id'])
             ->orderBy('attendance_date', 'DESC')

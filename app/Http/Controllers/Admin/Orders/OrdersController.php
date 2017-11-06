@@ -51,13 +51,13 @@ class OrdersController extends Controller
      */
     public function getIndex()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
             ->prepend('- Academic Year -', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
             ->prepend('- Class Level -', '');
         $items = Item::where('status', 1)
             ->where('item_type_id', '<>', ItemType::TERMLY)
-            ->lists('name', 'id')
+            ->pluck('name', 'id')
             ->prepend('- Select Item -', '');
 
         return view('admin.orders.index', compact('academic_years', 'classlevels', 'items'));
@@ -85,7 +85,7 @@ class OrdersController extends Controller
                 ->whereIn(
                     'classroom_id',
                     ClassRoom::where('classlevel_id', $inputs['classlevel_id'])
-                        ->lists('classroom_id')
+                        ->pluck('classroom_id')
                         ->toArray()
                 )
                 ->get();
@@ -140,7 +140,7 @@ class OrdersController extends Controller
         if(!empty($inputs['view_classroom_id'])){
             $students = StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])
                 ->where('classroom_id', $inputs['view_classroom_id'])
-                ->whereIn('student_id', Student::where('status_id', 1)->lists('student_id')->toArray())
+                ->whereIn('student_id', Student::where('status_id', 1)->pluck('student_id')->toArray())
                 ->get();
         }
 
@@ -391,25 +391,25 @@ class OrdersController extends Controller
     public function getDashboard($term=false)
     {
         $academic_term = ($term) ? AcademicTerm::findOrFail($this->decode($term)) : AcademicTerm::activeTerm();
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
 
         $pendingAmount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
             ->notPaid()
             ->activeStudent()
-            ->lists('amount')
+            ->pluck('amount')
             ->sum();
         $paidAmount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
             ->paid()
             ->activeStudent()
-            ->lists('amount')
+            ->pluck('amount')
             ->sum();
         $totalAmount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
             ->activeStudent()
-            ->lists('amount')
+            ->pluck('amount')
             ->sum();
         $studentCount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
             ->activeStudent()
-            ->lists('student_id')
+            ->pluck('student_id')
             ->count();
 
         return view('admin.orders.dashboard',
@@ -595,7 +595,7 @@ class OrdersController extends Controller
     private function all($termId=false, $type='All-Orders', $condition=-1)
     {
         $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         $conditions = "term=".$term->academic_term_id."&status=".$condition;
 
         return view('admin.orders.summary', compact('academic_years', 'term', 'type', 'conditions'));
