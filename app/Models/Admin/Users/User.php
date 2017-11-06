@@ -2,15 +2,15 @@
 
 namespace App\Models\Admin\Users;
 
-use App\Models\Admin\Accounts\Student;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
 
 class User extends Authenticatable
 {
-    use EntrustUserTrait, SoftDeletes;
+    use Notifiable, EntrustUserTrait, SoftDeletes;
     /**
      * The table users primary key
      * @var string
@@ -204,5 +204,9 @@ class User extends Authenticatable
     public function restore()
     {
         $this->restore();
+    }
+
+    public function sendPasswordResetNotification($token){
+        $this->sendPasswordResetNotification('Test');
     }
 }
