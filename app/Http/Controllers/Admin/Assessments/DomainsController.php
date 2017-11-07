@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Admin\Assessments;
 
 use App\Models\Admin\Accounts\Students\Student;
-use App\Models\Admin\Assessments\Assessment;
-use App\Models\Admin\Assessments\AssessmentDetail;
 use App\Models\Admin\Assessments\Domains\Domain;
 use App\Models\Admin\Assessments\Domains\DomainAssessment;
 use App\Models\Admin\Assessments\Domains\DomainDetail;

@@ -117,3 +117,36 @@ Route::group(['namespace' => 'Admin\Assessments', 'prefix'=>'/domains'], functio
     Route::get('/remark/{classId}/{termId}', 'DomainsController@remark');
     Route::post('/remark/{classId?}/{termId?}', 'DomainsController@saveRemark');
 });
+
+//Exams Routes
+Route::group(['namespace' => 'Admin\Assessments', 'prefix'=>'/exams'], function () {
+    Route::get('/', 'ExamsController@index');
+    Route::get('/setup', 'ExamsController@setup');
+    Route::post('/validate-all-setup', 'ExamsController@validateAllSetup');
+    Route::post('/all-setup', 'ExamsController@allSetup');
+    Route::post('/subject-assigned', 'ExamsController@subjectAssigned');
+    Route::get('/input-scores/{id}', 'ExamsController@inputScores');
+    Route::post('/input-scores/{id?}', 'ExamsController@saveScores');
+    Route::get('/view-scores/{id}', 'ExamsController@viewScores');
+    
+    Route::post('/search-results', 'ExamsController@searchResults');
+    Route::get('/student-terminal-result/{studId}/{termId}', 'ExamsController@studentTerminalResult');
+    Route::get('/classroom-terminal-result/{classId}/{termId}', 'ExamsController@classroomTerminalResult');
+    Route::post('/validate-my-setup', 'ExamsController@validateMySetup');
+    Route::get('/compute-ca', 'ExamsController@computeCa');
+    Route::post('/my-setup', 'ExamsController@mySetup');
+    Route::get('/print-student-terminal-result/{studId}/{termId}', 'ExamsController@printStudentTerminalResult');
+    
+    Route::get('/view/{studentId}', 'ExamsController@view');
+    Route::get('/details/{studentId}/{termId}', 'ExamsController@details');
+});
+//Route::group(['namespace' => 'Admin\Assessments', 'prefix'=>'/assessments'], function () {
+//    Route::get('/', 'AssessmentsController@index');
+//    Route::get('/subject-details/{id}', 'AssessmentsController@subjectDetails');
+//    Route::get('/input-scores/{setupId}/{subjectId}/{view?}', 'AssessmentsController@inputScores');
+//    Route::post('/input-scores/{setupId?}/{subjectId?}/{view?}', 'AssessmentsController@saveInputScores');
+//
+//    Route::get('/print-report/{studId}/{termId}', 'AssessmentsController@printReport');
+//    Route::get('/view/{studentId}', 'AssessmentsController@view');
+//    Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
+//});
