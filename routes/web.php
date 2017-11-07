@@ -31,6 +31,17 @@ Route::group(['namespace' => 'Admin\Utilities', 'prefix'=>'/dashboard'], functio
     Route::get('/class-teacher/{userId}', 'DashboardController@classTeacher');
 });
 
+//ListBoxes Routes
+Route::group(['namespace' => 'Admin\Utilities', 'prefix'=>'/list-box'], function() {
+    Route::get('/lga/{id}', 'ListBoxController@lga');
+    Route::get('/academic-term/{id}', 'ListBoxController@academicTerm');
+    Route::get('/classroom/{id}', 'ListBoxController@classroom');
+});
+
+//PHP Info
+Route::get('/phpinfo', function () {
+    return view('/phpinfo');
+});
 
 //Authentication Route
 Auth::routes();
@@ -38,3 +49,14 @@ Route::get('/logout', 'Auth\LoginController@logout');
 Route::get('/joker', 'Auth\LoginController@joker');
 Route::post('/joker', 'Auth\LoginController@jokerIn');
 
+//Sponsors Route
+Route::group(['namespace' => 'Admin\Accounts', 'prefix'=>'/sponsors'], function() {
+    Route::get('/', 'SponsorController@index');
+    Route::post('/all-sponsors', 'SponsorController@data');
+    Route::get('/view/{id}', 'SponsorController@view');
+    Route::get('/edit/{id}', 'SponsorController@edit');
+    Route::post('/edit/{id?}', 'SponsorController@update');
+    
+    Route::get('/subject-tutor/{userId}', 'DashboardController@subjectTutor');
+    Route::get('/class-teacher/{userId}', 'DashboardController@classTeacher');
+});

@@ -23,7 +23,7 @@ class ListBoxController extends Controller
      * @param int $id
      * @return Response
      */
-    public function getLga($id)
+    public function lga($id)
     {
         $lgas = Lga::where('state_id', $id)->orderBy('lga')->get();
 
@@ -37,7 +37,7 @@ class ListBoxController extends Controller
      * @param int $id
      * @return Response
      */
-    public function getAcademicTerm($id)
+    public function academicTerm($id)
     {
         $academic_terms = AcademicTerm::where('academic_year_id', $id)->orderBy('term_type_id')->get();
 
@@ -51,7 +51,7 @@ class ListBoxController extends Controller
      * @param int $id
      * @return Response
      */
-    public function getClassroom($id)
+    public function classroom($id)
     {
         $classrooms = ClassRoom::where('classlevel_id', $id)->orderBy('classroom')->get();
 
