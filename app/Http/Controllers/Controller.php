@@ -39,16 +39,22 @@ class Controller extends BaseController
             $this->school_profile = School::findOrFail(env('SCHOOL_ID'));
         }
 
-        if(Auth::check()){
-            // render PARENT / STUDENT page
-            $this->view = (Auth::user()->user_type_id == Sponsor::USER_TYPE) ? 'front.' : 'admin.';
+        $this->middleware(function ($request, $next) {
 
-            if(empty(AcademicTerm::activeTerm()))
-                $this->setFlashMessage('Note!!! An Academic Term (Only One) Must Be Set To Active At Any Point In Time.', 2);
-        }
+            if(Auth::check()){
+                // render PARENT / STUDENT page
+                $this->view = (Auth::user()->user_type_id == Sponsor::USER_TYPE) ? 'front.' : 'admin.';
 
-        //Check if the user has permission to perform such action
-//        $this->checkPermission();
+                if(empty(AcademicTerm::activeTerm()))
+                    $this->setFlashMessage('Note!!! An Academic Term (Only One) Must Be Set To Active At Any Point In Time.', 2);
+            }
+
+            //Check if the user has permission to perform such action
+            //$this->checkPermission();
+
+            return $next($request);
+        });
+
     }
 
     /**

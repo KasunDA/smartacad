@@ -54,11 +54,11 @@ class ForgotPasswordController extends Controller
 
         if ($user) {
             //Password Reset Mail Sending
-            $content = "<h4>Here is your new password: <i>" . $password . "</i></h4> ";
-            Mail::to($user)->send(new PasswordReset($user, $content));
+            $content = "Here is your new password: <strong>" . $password . "</strong> ";
+            Mail::to($user)
+                ->send(new PasswordReset($user, $content));
 
-            $newPassword = str_replace("$2y$", "$2a$", bcrypt($password));
-            $user->fill(['password' => $newPassword])->save();
+            $user->fill(['password' => bcrypt($password)])->save();
             $this->setFlashMessage(' Reset Successful!!! Your Password has been reset' . ' kindly login to ' . $user->email . ' to view your new password', 1);
 
         } else {

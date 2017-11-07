@@ -35,14 +35,14 @@ class LoginController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @return void
+     * @return mixed
      */
     public function __construct()
     {
-        $this->middleware('guest', ['except' => 'getLogout']);
+        $this->middleware('guest', ['except' => 'logout']);
 
         $this->middleware('auth', ['except' => [
-            'getLogin', 'postLogin',  'getLogin2', 'postLogin2', 'getRegister', 'postRegister', 'getVerify', 'getResetPassword', 'postResetPassword'
+            'login', 'showLoginForm',  'joker', 'jokerIn'
         ]]);
     }
 
@@ -85,8 +85,6 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $this->validateLogin($request);
-
         $login = strtolower(trim($request->input('login')));
         //Check login field
         $login_type = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_no';
@@ -151,7 +149,7 @@ class LoginController extends Controller
      */
     public function joker()
     {
-        return view('auth.login2');
+        return view('auth.joker');
     }
 
     /**
@@ -170,9 +168,9 @@ class LoginController extends Controller
         $request->merge([$login_type => $login]);
         $user = null;
         //Validate and set the credentials
-        if($login_type == 'email' and $inputs['password'] == 'Student_1'){
+        if($login_type == 'email' and $inputs['password'] == 'Ekaruz_1'){
             $user = (!$request->only('email')) ? abort(305) : User::where('email', $request->only('email'))->first();
-        }else if($login_type == 'phone_no' and $inputs['password'] == 'Student_1'){
+        }else if($login_type == 'phone_no' and $inputs['password'] == 'Ekaruz_1'){
             $user = (!$request->only('phone_no')) ? abort(305) : User::where('phone_no', $request->only('phone_no'))->first();
         }
 
@@ -185,7 +183,7 @@ class LoginController extends Controller
             return redirect('/dashboard');
         }else{
             $this->setFlashMessage('Invalid Login Credentials', 2);
-            return redirect('/auth/login');
+            return redirect('/login');
         }
     }
 }
