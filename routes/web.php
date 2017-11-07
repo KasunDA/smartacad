@@ -90,3 +90,18 @@ Route::group(['namespace' => 'Admin\Accounts', 'prefix'=>'/students'], function(
     Route::get('/sponsors', 'StudentController@sponsors');
     Route::post('/avatar', 'StudentController@avatar');
 });
+
+//Assessments Routes
+Route::group(['namespace' => 'Admin\Assessments', 'prefix'=>'/assessments'], function () {
+    Route::get('/', 'AssessmentsController@index');
+    Route::post('/subject-assigned', 'AssessmentsController@subjectAssigned');
+    Route::get('/subject-details/{id}', 'AssessmentsController@subjectDetails');
+    Route::get('/input-scores/{setupId}/{subjectId}/{view?}', 'AssessmentsController@inputScores');
+    Route::post('/input-scores', 'AssessmentsController@saveInputScores');
+    Route::post('/search-students', 'AssessmentsController@searchStudents');
+    
+    Route::get('/report-details/{studId}/{termId}', 'AssessmentsController@reportDetails');
+    Route::get('/print-report/{studId}/{termId}', 'AssessmentsController@printReport');
+    Route::get('/view/{studentId}', 'AssessmentsController@view');
+    Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
+});
