@@ -12,7 +12,6 @@ use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use App\Models\Admin\Users\User;
 use App\Models\School\Setups\Lga;
-use App\Models\School\Setups\Salutation;
 use App\Models\School\Setups\State;
 use App\Models\School\Setups\Status;
 use Illuminate\Http\Request;
@@ -29,6 +28,7 @@ class StudentController extends Controller
     /**
      * Get a validator for an incoming registration request.
      * @param  array $data
+     *
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
@@ -55,11 +55,12 @@ class StudentController extends Controller
      * Display a listing of the Users.
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         $classrooms = ClassRoom::orderBy('classroom')
             ->pluck('classroom', 'classroom_id')
             ->prepend('- Class Room -', '');
+
         $status = Status::orderBy('status')
             ->pluck('status', 'status_id')
             ->prepend('- Status -', '');
@@ -71,7 +72,7 @@ class StudentController extends Controller
      * Display a listing of the Students using Ajax Datatable.
      * @return Response
      */
-    public function postAllStudents()
+    public function data()
     {
         $iTotalRecords = Student::orderBy('first_name')->count();;
         $iDisplayLength = intval($_REQUEST['length']);
@@ -169,21 +170,22 @@ class StudentController extends Controller
     }
 
     /**
-     * Displays the Staff profiles details
+     * Displays the Student profiles details
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getView($encodeId)
+    public function view($encodeId)
     {
         $student = Student::findOrFail($this->decode($encodeId));
+
         return view('admin.accounts.students.view', compact('student'));
     }
 
     /**
-     * Displays the Staff profiles details for editing
+     * Displays the Student profiles details for editing
      * @return \Illuminate\View\View
      */
-    public function getCreate()
+    public function create()
     {
         $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
             ->prepend('- Class Level -', '');
@@ -196,12 +198,10 @@ class StudentController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function postCreate(Request $request)
+    public function save(Request $request)
     {
         $input = $request->all();
-        //Validate Request Inputs
-        if ($this->validator($input)->fails())
-        {
+        if ($this->validator($input)->fails()) {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
 
             return redirect('/students/create')
@@ -209,7 +209,7 @@ class StudentController extends Controller
                 ->withInput();
         }
 
-        if($input['sponsor_id'] < 1){
+        if ($input['sponsor_id'] < 1) {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
 
             return redirect('/students/create')
@@ -256,7 +256,7 @@ class StudentController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getEdit($encodeId)
+    public function edit($encodeId)
     {
         $student = Student::findOrFail($this->decode($encodeId));
         $status = Status::pluck('status', 'status_id')
@@ -272,14 +272,15 @@ class StudentController extends Controller
                 ->prepend('- Select L.G.A -', '')
             : null;
 
-        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
-            ->prepend('- Select Class Level -', '');
         $classroom = ($student->classroom_id) ? $student->classRoom()->first() : null;
         $classrooms = ($student->classroom_id > 0)
             ? ClassRoom::where('classlevel_id', $classroom->classlevel_id)
                 ->pluck('classroom', 'classroom_id')
                 ->prepend('- Select Class Room -', '')
             : null;
+
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
+            ->prepend('- Select Class Level -', '');
 
         return view('admin.accounts.students.edit',
             compact('student', 'states', 'lga', 'lgas', 'status', 'classlevels', 'classroom', 'classrooms')
@@ -291,7 +292,7 @@ class StudentController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postEdit(Request $request)
+    public function update(Request $request)
     {
         //Keep track of selected tab
         session()->put('active', 'info');
@@ -299,8 +300,7 @@ class StudentController extends Controller
         $inputs = $request->all();
         $student = (empty($inputs['student_id'])) ? abort(305) : Student::findOrFail($inputs['student_id']);
 
-        if ($this->validator($inputs)->fails())
-        {
+        if ($this->validator($inputs)->fails()) {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
             
             return redirect('/students/edit/'.$this->encode($inputs['student_id']))
@@ -326,7 +326,7 @@ class StudentController extends Controller
      * Delete a Student Record
      * @param $id
      */
-    public function getDelete($id)
+    public function delete($id)
     {
         $student = Student::findOrFail($id);
         //Delete The Record
@@ -341,7 +341,7 @@ class StudentController extends Controller
     /**
      * Get The List of Sponsors
      */
-    public function getSponsors()
+    public function sponsors()
     {
         $response = array();
         $inputs = Input::get('term');
@@ -369,7 +369,7 @@ class StudentController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function postAvatar(Request $request)
+    public function avatar(Request $request)
     {
         $inputs = Input::all();
         //Keep track of selected tab

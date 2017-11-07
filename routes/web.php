@@ -75,3 +75,18 @@ Route::group(['namespace' => 'Admin\Accounts', 'prefix'=>'/staffs'], function() 
     Route::get('/subject-details/{subjectId}', 'StaffController@subjectDetails');
     Route::get('/classroom/{staffId}/', 'StaffController@classroom');
 });
+
+//Students Route
+Route::group(['namespace' => 'Admin\Accounts', 'prefix'=>'/students'], function() {
+    Route::get('/', 'StudentController@index');
+    Route::post('/all-students', 'StudentController@data');
+    Route::get('/view/{id}', 'StudentController@view');
+    Route::get('/edit/{id}', 'StudentController@edit');
+    Route::post('/edit/{id?}', 'StudentController@update');
+    Route::get('/create', 'StudentController@create');
+    Route::post('/create', 'StudentController@save');
+
+    Route::get('/delete/{id}', 'StudentController@delete');
+    Route::get('/sponsors', 'StudentController@sponsors');
+    Route::post('/avatar', 'StudentController@avatar');
+});
