@@ -97,11 +97,23 @@ Route::group(['namespace' => 'Admin\Assessments', 'prefix'=>'/assessments'], fun
     Route::post('/subject-assigned', 'AssessmentsController@subjectAssigned');
     Route::get('/subject-details/{id}', 'AssessmentsController@subjectDetails');
     Route::get('/input-scores/{setupId}/{subjectId}/{view?}', 'AssessmentsController@inputScores');
-    Route::post('/input-scores', 'AssessmentsController@saveInputScores');
+    Route::post('/input-scores/{setupId?}/{subjectId?}/{view?}', 'AssessmentsController@saveInputScores');
     Route::post('/search-students', 'AssessmentsController@searchStudents');
     
     Route::get('/report-details/{studId}/{termId}', 'AssessmentsController@reportDetails');
     Route::get('/print-report/{studId}/{termId}', 'AssessmentsController@printReport');
     Route::get('/view/{studentId}', 'AssessmentsController@view');
     Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
+});
+
+//Domains Routes
+Route::group(['namespace' => 'Admin\Assessments', 'prefix'=>'/domains'], function () {
+    Route::get('/', 'DomainsController@index');
+    Route::post('/classroom-assigned', 'DomainsController@classroomAssigned');
+    Route::get('/view-students/{classId}/{termId}', 'DomainsController@viewStudents');
+    
+    Route::get('/assess/{studId}/{termId}', 'DomainsController@assess');
+    Route::post('/assess/{studId?}/{termId?}', 'DomainsController@saveAssess');
+    Route::get('/remark/{classId}/{termId}', 'DomainsController@remark');
+    Route::post('/remark/{classId?}/{termId?}', 'DomainsController@saveRemark');
 });
