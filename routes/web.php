@@ -56,7 +56,22 @@ Route::group(['namespace' => 'Admin\Accounts', 'prefix'=>'/sponsors'], function(
     Route::get('/view/{id}', 'SponsorController@view');
     Route::get('/edit/{id}', 'SponsorController@edit');
     Route::post('/edit/{id?}', 'SponsorController@update');
-    
-    Route::get('/subject-tutor/{userId}', 'DashboardController@subjectTutor');
-    Route::get('/class-teacher/{userId}', 'DashboardController@classTeacher');
+});
+
+//Staffs Route
+Route::group(['namespace' => 'Admin\Accounts', 'prefix'=>'/staffs'], function() {
+    Route::get('/', 'StaffController@index');
+    Route::get('/view/{id}', 'StaffController@view');
+    Route::get('/edit/{id}', 'StaffController@edit');
+    Route::post('/edit/{id?}', 'StaffController@update');
+    Route::post('/all-staffs', 'StaffController@allStaffs');
+    Route::post('/staff-subjects', 'StaffController@staffSubjects');
+
+    Route::get('/dashboard/{staffId}', 'StaffController@dashboard');
+    Route::get('/marked/{staffId}', 'StaffController@marked');
+    Route::get('/unmarked/{staffId}/', 'StaffController@unmarked');
+
+    Route::get('/subject/{staffId}/', 'StaffController@subject');
+    Route::get('/subject-details/{subjectId}', 'StaffController@subjectDetails');
+    Route::get('/classroom/{staffId}/', 'StaffController@classroom');
 });
