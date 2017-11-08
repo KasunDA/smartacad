@@ -175,10 +175,10 @@ Route::group(['middleware' => ['web']], function () {
         //Subjects
         'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
         'subjects' => 'School\Setups\Subjects\SubjectsController',
-        'subject-classrooms' => 'Admin\MasterRecords\Subjects\SubjectClassRoomsController',
-        'subject-tutors' => 'Admin\MasterRecords\Subjects\SubjectTutorsController',
-        'school-subjects' => 'Admin\MasterRecords\Subjects\SchoolSubjectsController',
-        'custom-subjects' => 'Admin\MasterRecords\Subjects\CustomSubjectsController',
+//        'subject-classrooms' => 'Admin\MasterRecords\Subjects\SubjectClassRoomsController',
+//        'subject-tutors' => 'Admin\MasterRecords\Subjects\SubjectTutorsController',
+//        'school-subjects' => 'Admin\MasterRecords\Subjects\SchoolSubjectsController',
+//        'custom-subjects' => 'Admin\MasterRecords\Subjects\CustomSubjectsController',
 
         //Assessment Setup
 //        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
