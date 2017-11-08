@@ -126,10 +126,10 @@ Route::group(['middleware' => ['web']], function () {
     });
     
     Route::controllers([
-        'auth' => 'Auth\AuthController',
-        'dashboard' => 'Admin\Utilities\DashboardController',
+//        'auth' => 'Auth\AuthController',
+//        'dashboard' => 'Admin\Utilities\DashboardController',
         //Dependent List Box
-        'list-box' => 'Admin\Utilities\ListBoxController',
+//        'list-box' => 'Admin\Utilities\ListBoxController',
         //Random Numbers
         'pin-numbers' => 'Admin\Utilities\PinNumberController',
 
@@ -153,24 +153,24 @@ Route::group(['middleware' => ['web']], function () {
         'marital-statuses' => 'School\Setups\MaritalStatusController',
         'school-banks' => 'School\Setups\BanksController',
 
-        'accounts' => 'Admin\Accounts\AccountsController',
-        'sponsors' => 'Admin\Accounts\SponsorController',
-        'staffs' => 'Admin\Accounts\StaffController',
-        'students' => 'Admin\Accounts\StudentController',
+//        'accounts' => 'Admin\Accounts\AccountsController',
+//        'sponsors' => 'Admin\Accounts\SponsorController',
+//        'staffs' => 'Admin\Accounts\StaffController',
+//        'students' => 'Admin\Accounts\StudentController',
 
         //Master Record
-        'academic-years' => 'Admin\MasterRecords\Sessions\AcademicYearsController',
-        'academic-terms' => 'Admin\MasterRecords\Sessions\AcademicTermsController',
+//        'academic-years' => 'Admin\MasterRecords\Sessions\AcademicYearsController',
+//        'academic-terms' => 'Admin\MasterRecords\Sessions\AcademicTermsController',
         'grades' => 'Admin\MasterRecords\GradesController',
-        'class-groups' => 'Admin\MasterRecords\Classes\ClassGroupsController',
-        'class-levels' => 'Admin\MasterRecords\Classes\ClassLevelsController',
-        'class-rooms' => 'Admin\MasterRecords\Classes\ClassRoomsController',
-        'class-students' => 'Admin\MasterRecords\Classes\ClassStudentsController',
+//        'class-groups' => 'Admin\MasterRecords\Classes\ClassGroupsController',
+//        'class-levels' => 'Admin\MasterRecords\Classes\ClassLevelsController',
+//        'class-rooms' => 'Admin\MasterRecords\Classes\ClassRoomsController',
+//        'class-students' => 'Admin\MasterRecords\Classes\ClassStudentsController',
 
         //Items Records
-        'item-types' => 'Admin\MasterRecords\Items\ItemTypesController',
-        'items' => 'Admin\MasterRecords\Items\ItemsController',
-        'item-quotes' => 'Admin\MasterRecords\Items\ItemQuotesController',
+//        'item-types' => 'Admin\MasterRecords\Items\ItemTypesController',
+//        'items' => 'Admin\MasterRecords\Items\ItemsController',
+//        'item-quotes' => 'Admin\MasterRecords\Items\ItemQuotesController',
 
         //Subjects
         'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
@@ -181,10 +181,10 @@ Route::group(['middleware' => ['web']], function () {
         'custom-subjects' => 'Admin\MasterRecords\Subjects\CustomSubjectsController',
 
         //Assessment Setup
-        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
-        'assessments' => 'Admin\Assessments\AssessmentsController',
-        'domains' => 'Admin\Assessments\DomainsController',
-        'exams' => 'Admin\Assessments\ExamsController',
+//        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
+//        'assessments' => 'Admin\Assessments\AssessmentsController',
+//        'domains' => 'Admin\Assessments\DomainsController',
+//        'exams' => 'Admin\Assessments\ExamsController',
 
         //Order Routes
         'orders' => 'Admin\Orders\OrdersController',

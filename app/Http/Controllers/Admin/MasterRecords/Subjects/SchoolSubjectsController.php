@@ -21,10 +21,10 @@ class SchoolSubjectsController extends Controller
     {
         $this->middleware('auth');
         $this->school = School::mySchool();
-        if ($this->school->setup == School::SUBJECT)
-            $this->setFlashMessage('Warning!!! Kindly Setup the Subjects records Before Proceeding.', 3);
-        else
-            $this->middleware('setup');
+
+        ($this->school->setup == School::SUBJECT)
+            ? $this->setFlashMessage('Warning!!! Kindly Setup the Subjects records Before Proceeding.', 3)
+            : $this->middleware('setup');
     }
     
     /**
@@ -32,40 +32,41 @@ class SchoolSubjectsController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         $subject_groups = SubjectGroup::orderBy('subject_group')->get();
         $subjects = Subject::pluck('subject_id')->toArray();
+
         return view('admin.master-records.subjects.index', compact('subject_groups', 'subjects'));
     }
-
 
     /**
      * Insert or Update the menu records
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postIndex(Request $request)
+    public function save(Request $request)
     {
         $inputs = $request->all();
 
-        if(isset($inputs['subject_id'])){
+        if (isset($inputs['subject_id'])) {
             $school = School::mySchool();
-            (isset($inputs['subject_id'])) ? $school->subjects()->sync($inputs['subject_id']) : $school->subjects()->sync([]);
+            (isset($inputs['subject_id'])) 
+                ? $school->subjects()->sync($inputs['subject_id']) 
+                : $school->subjects()->sync([]);
 
             //Update The Setup Process
             if ($this->school->setup == School::SUBJECT){
                 $this->school->setup = School::ASSESSMENT;
                 $this->school->save();
+                
                 return redirect('/assessment-setups');
             }
-            
-            // Set the flash message
             $this->setFlashMessage(count($inputs['subject_id']) . ' Subjects has been successfully registered.', 1);
         }else{
             $this->setFlashMessage('No Subject has been selected!!!.', 2);
         }
-        // redirect to the create a new inmate page
+        
         return redirect('/school-subjects');
     }
 
@@ -74,7 +75,7 @@ class SchoolSubjectsController extends Controller
      *
      * @return Response
      */
-    public function getView()
+    public function view()
     {
         return view('admin.master-records.subjects.view');
     }
@@ -84,7 +85,7 @@ class SchoolSubjectsController extends Controller
      *
      * @return Response
      */
-    public function getRename()
+    public function rename()
     {
         return view('admin.master-records.subjects.rename');
     }
@@ -94,20 +95,20 @@ class SchoolSubjectsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postRename(Request $request)
+    public function renaming(Request $request)
     {
         $inputs = $request->all();
 
-        if(isset($inputs['subject_alias'])){
+        if (isset($inputs['subject_alias'])) {
             $school = School::mySchool();
-            for($i = 0; $i < count($inputs['subject_id']); $i++) {
-                if(isset($inputs['subject_alias'][$i]))
+            for ($i = 0; $i < count($inputs['subject_id']); $i++) {
+                if (isset($inputs['subject_alias'][$i]))
                     $school->subjects()->updateExistingPivot($inputs['subject_id'][$i], ['subject_alias'=>$inputs['subject_alias'][$i]]);
             }
-            // Set the flash message
+            
             $this->setFlashMessage(count($inputs['subject_alias']) . ' Subjects has been successfully Rename.', 1);
         }
-        // redirect to the create a new inmate page
+        
         return redirect('/school-subjects/view');
     }
 }

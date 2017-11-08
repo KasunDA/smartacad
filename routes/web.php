@@ -241,3 +241,56 @@ Route::group(['namespace' => 'Admin\MasterRecords\Sessions'], function () {
         Route::get('/delete/{id}', 'AcademicYearsController@delete');
     });
 });
+
+//Subjects Routes
+Route::group(['namespace' => 'Admin\MasterRecords\Subjects'], function () {
+    //Custom Subjects Routes
+    Route::group(['prefix'=>'/custom-subjects'], function () {
+        Route::get('/', 'CustomSubjectsController@index');
+        Route::get('/groupings', 'CustomSubjectsController@groupings');
+        Route::post('/groupings', 'CustomSubjectsController@save');
+        Route::get('/subjects', 'CustomSubjectsController@subjects');
+        Route::post('/subjects', 'CustomSubjectsController@saveSubjects');
+        Route::get('/delete/{id}', 'CustomSubjectsController@delete');
+        
+        Route::get('/clones', 'AcademicTermsController@clone');
+        Route::post('/validate-clone', 'AcademicTermsController@validateClone');
+        Route::post('/cloning', 'AcademicTermsController@cloning');
+        Route::post('/academic-years', 'AcademicTermsController@academicYears');
+    });
+
+    //School Subjects Routes
+    Route::group(['prefix'=>'/school-subjects'], function () {
+        Route::get('/', 'SchoolSubjectsController@index');
+        Route::post('/', 'SchoolSubjectsController@save');
+        Route::get('/view', 'SchoolSubjectsController@view');
+        Route::get('/rename', 'SchoolSubjectsController@rename');
+        Route::post('/rename', 'SchoolSubjectsController@renaming');
+    });
+    
+    //Subject Class Rooms Routes
+    Route::group(['prefix'=>'/subject-classrooms'], function () {
+        Route::get('/', 'SubjectClassRoomsController@index');
+        Route::post('/search-assigned', 'SubjectClassRoomsController@searchAssigned');
+        Route::post('/assign-subjects', 'SubjectClassRoomsController@assignSubjects');
+        Route::post('/view-assigned', 'SubjectClassRoomsController@viewAssigned');
+        Route::get('/assign-tutor/{classId}/{tutorId}', 'SubjectClassRoomsController@assignTutor');
+        Route::post('/search-subjects', 'SubjectClassRoomsController@searchSubjects');
+        Route::get('/manage-student/{id}/{termId}', 'SubjectClassRoomsController@manageStudent');
+        Route::post('/manage-student/{id?}/{termId?}', 'SubjectClassRoomsController@saveStudents');
+        Route::get('/delete/{id}', 'SubjectClassRoomsController@delete');
+    });
+    
+    //Subject Tutors Routes
+    Route::group(['prefix'=>'/subject-tutors'], function () {
+        Route::get('/', 'SubjectTutorsController@index');
+        Route::post('/search-subjects', 'SubjectTutorsController@searchSubjects');
+        Route::get('/manage-student/{id}/{termId}', 'SubjectTutorsController@manageStudent');
+        Route::post('/manage-student/{id?}/{termId?}', 'SubjectTutorsController@saveStudents');
+        Route::post('/view-assigned', 'SubjectTutorsController@viewAssigned');
+        
+        Route::get('/assign-tutor/{classId}/{tutorId}', 'SubjectClassRoomsController@assignTutor');
+        Route::post('/search-subjects', 'SubjectClassRoomsController@searchSubjects');
+        Route::get('/delete/{id}', 'SubjectClassRoomsController@delete');
+    });
+});
