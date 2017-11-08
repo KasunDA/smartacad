@@ -16,15 +16,18 @@ class ItemsController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         $items = Item::orderBy('name')->get();
-        $item_types = ItemType::pluck('item_type', 'id')->prepend('- Item Type -', '');
+        $item_types = ItemType::pluck('item_type', 'id')
+            ->prepend('- Item Type -', '');
 
-        if(count($item_types) == 1){
+        if (count($item_types) == 1) {
             $this->setFlashMessage('Kindly Set up Item Types before proceeding to Items', 3);
+            
             return redirect('/item-types');
         }
+        
         return view('admin.master-records.items.items', compact('items', 'item_types'));
     }
 
@@ -33,7 +36,7 @@ class ItemsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postIndex(Request $request)
+    public function save(Request $request)
     {
         $inputs = $request->all();
         $count = 0;
@@ -46,10 +49,9 @@ class ItemsController extends Controller
             $item->item_type_id = $inputs['item_type_id'][$i];
             $count = ($item->save()) ? $count+1 : '';
         }
-        // Set the flash message
-        if($count > 0) $this->setFlashMessage($count . ' Item has been successfully updated.', 1);
+        
+        if ($count > 0) $this->setFlashMessage($count . ' Item has been successfully updated.', 1);
 
-        // redirect to the create a new inmate page
         return redirect('/items');
     }
 
@@ -57,7 +59,7 @@ class ItemsController extends Controller
      * Delete a item from the list of items using a given id
      * @param $id
      */
-    public function getDelete($id)
+    public function delete($id)
     {
         $item = Item::findOrFail($id);
 

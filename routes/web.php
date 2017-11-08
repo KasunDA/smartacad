@@ -193,11 +193,30 @@ Route::group(['namespace' => 'Admin\MasterRecords\Classes'], function () {
         Route::post('/view-students', 'ClassStudentsController@viewStudents');
         Route::post('/validate-clone', 'ClassStudentsController@validateClone');
         Route::post('/cloning', 'ClassStudentsController@cloning');
+    });
+});
 
-        Route::post('/', 'ClassRoomsController@save');
-        Route::get('/delete/{id}', 'ClassRoomsController@delete');
-        Route::post('/levels', 'ClassRoomsController@levels');
-        Route::get('/class-teachers', 'ClassRoomsController@classTeachers');
-        Route::post('/class-teachers', 'ClassRoomsController@teachers');
+//Items Routes
+Route::group(['namespace' => 'Admin\MasterRecords\Items'], function () {
+    //Items Quotes Routes
+    Route::group(['prefix'=>'/item-quotes'], function () {
+        Route::get('/{yearId?}/{termId?}', 'ItemQuotesController@index');
+        Route::post('/{yearId?}/{termId?}', 'ItemQuotesController@save');
+        Route::get('/delete/{id}', 'ItemQuotesController@delete');
+        Route::post('/academic-years', 'ItemQuotesController@academicYears');
+    });
+
+    //Items Routes
+    Route::group(['prefix'=>'/items'], function () {
+        Route::get('/', 'ItemsController@index');
+        Route::post('/', 'ItemsController@save');
+        Route::get('/delete/{id}', 'ItemsController@delete');
+    });
+
+    //Item Types Routes
+    Route::group(['prefix'=>'/item-types'], function () {
+        Route::get('/', 'ItemTypesController@index');
+        Route::post('/', 'ItemTypesController@save');
+        Route::get('/delete/{id}', 'ItemTypesController@delete');
     });
 });

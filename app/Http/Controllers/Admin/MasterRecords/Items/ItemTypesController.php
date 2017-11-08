@@ -15,9 +15,10 @@ class ItemTypesController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         $item_types = ItemType::all();
+
         return view('admin.master-records.items.item-types', compact('item_types'));
     }
 
@@ -26,20 +27,19 @@ class ItemTypesController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postIndex(Request $request)
+    public function save(Request $request)
     {
         $inputs = $request->all();
         $count = 0;
 
-        for($i = 0; $i < count($inputs['id']); $i++){
+        for ($i = 0; $i < count($inputs['id']); $i++) {
             $item_type = ($inputs['id'][$i] > 0) ? ItemType::find($inputs['id'][$i]) : new ItemType();
             $item_type->item_type = $inputs['item_type'][$i];
             $count = ($item_type->save()) ? $count+1 : '';
         }
-        // Set the flash message
-        if($count > 0)
-            $this->setFlashMessage($count . ' Item Type has been successfully updated.', 1);
-        // redirect to the create a new inmate page
+
+        if ($count > 0) $this->setFlashMessage($count . ' Item Type has been successfully updated.', 1);
+
         return redirect('/item-types');
     }
 
@@ -47,17 +47,12 @@ class ItemTypesController extends Controller
      * Delete a item type from the list of item Types using a given id
      * @param $id
      */
-    public function getDelete($id)
+    public function delete($id)
     {
         $item_type = ItemType::findOrFail($id);
-        //Delete The Warder Record
-        $delete = ($item_type !== null) ? $item_type->delete() : null;
 
-        if($delete){
-            //Delete its Equivalent items Record
-            $this->setFlashMessage('  Deleted!!! '.$item_type->item_type.' Item Type have been deleted.', 1);
-        }else{
-            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
-        }
+        (!empty($item_type) && $item_type->delete())
+            ? $this->setFlashMessage('  Deleted!!! '.$item_type->item_type.' Item Type have been deleted.', 1)
+            : $this->setFlashMessage('Error!!! Unable to delete record.', 2);
     }
 }
