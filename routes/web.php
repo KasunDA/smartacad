@@ -220,3 +220,24 @@ Route::group(['namespace' => 'Admin\MasterRecords\Items'], function () {
         Route::get('/delete/{id}', 'ItemTypesController@delete');
     });
 });
+
+//Academic Session Routes
+Route::group(['namespace' => 'Admin\MasterRecords\Sessions'], function () {
+    //Academic Terms Routes
+    Route::group(['prefix'=>'/academic-terms'], function () {
+        Route::get('/{yearId?}', 'AcademicTermsController@index');
+        Route::post('/{yearId?}', 'AcademicTermsController@save');
+        Route::get('/delete/{id}', 'AcademicTermsController@delete');
+        Route::get('/clones', 'AcademicTermsController@clone');
+        Route::post('/validate-clone', 'AcademicTermsController@validateClone');
+        Route::post('/cloning', 'AcademicTermsController@cloning');
+        Route::post('/academic-years', 'AcademicTermsController@academicYears');
+    });
+
+    //Academic Years Routes
+    Route::group(['prefix'=>'/academic-years'], function () {
+        Route::get('/', 'AcademicYearsController@index');
+        Route::post('/', 'AcademicYearsController@save');
+        Route::get('/delete/{id}', 'AcademicYearsController@delete');
+    });
+});
