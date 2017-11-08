@@ -140,13 +140,64 @@ Route::group(['namespace' => 'Admin\Assessments', 'prefix'=>'/exams'], function 
     Route::get('/view/{studentId}', 'ExamsController@view');
     Route::get('/details/{studentId}/{termId}', 'ExamsController@details');
 });
-//Route::group(['namespace' => 'Admin\Assessments', 'prefix'=>'/assessments'], function () {
-//    Route::get('/', 'AssessmentsController@index');
-//    Route::get('/subject-details/{id}', 'AssessmentsController@subjectDetails');
-//    Route::get('/input-scores/{setupId}/{subjectId}/{view?}', 'AssessmentsController@inputScores');
-//    Route::post('/input-scores/{setupId?}/{subjectId?}/{view?}', 'AssessmentsController@saveInputScores');
-//
-//    Route::get('/print-report/{studId}/{termId}', 'AssessmentsController@printReport');
-//    Route::get('/view/{studentId}', 'AssessmentsController@view');
-//    Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
-//});
+
+//Attendance Routes
+Route::group(['namespace' => 'Admin\Attendances', 'prefix'=>'/attendances'], function () {
+    Route::get('/', 'AttendancesController@index');
+    Route::get('/initiate/{classId}/{attendId?}', 'AttendancesController@initiate')->name('initiateAttendance');
+    Route::post('/initiate/{classId}/{attendId?}', 'AttendancesController@take');
+    Route::get('/adjust/{classId}', 'AttendancesController@adjust')->name('adjustAttendance');
+    Route::post('/classroom', 'AttendancesController@classroom');
+    Route::get('/classroom-details/{attendId}', 'AttendancesController@classroomDetails');
+    Route::post('/student', 'AttendancesController@student');
+    Route::get('/student-details/{studentClassId}/{termId}', 'AttendancesController@studentDetails');
+    //Student
+    Route::get('/view/{studentId}', 'AttendancesController@view');
+    Route::get('/details/{studentId}/{attendId}', 'AttendancesController@details');
+});
+
+//////////////////////// Master Records Routes ////////////////////////////////////////////////////////////
+//Class Routes
+Route::group(['namespace' => 'Admin\MasterRecords\Classes'], function () {
+    //Class Groups Routes
+    Route::group(['prefix'=>'/class-groups'], function () {
+        Route::get('/', 'ClassGroupsController@index');
+        Route::post('/', 'ClassGroupsController@save');
+        Route::get('/delete/{id}', 'ClassGroupsController@delete');
+    });
+
+    //Class Level Routes
+    Route::group(['prefix'=>'/class-levels'], function () {
+        Route::get('/{groupId?}', 'ClassLevelsController@index');
+        Route::post('/', 'ClassLevelsController@save');
+        Route::get('/delete/{id}', 'ClassLevelsController@delete');
+        Route::post('/class-groups', 'ClassLevelsController@classGroups');
+    });
+
+    //Class Rooms Routes
+    Route::group(['prefix'=>'/class-rooms'], function () {
+        Route::get('/{id?}', 'ClassRoomsController@index');
+        Route::post('/', 'ClassRoomsController@save');
+        Route::get('/delete/{id}', 'ClassRoomsController@delete');
+        Route::post('/levels', 'ClassRoomsController@levels');
+        Route::get('/class-teachers', 'ClassRoomsController@classTeachers');
+        Route::post('/class-teachers', 'ClassRoomsController@teachers');
+        Route::post('/assign-class-teachers', 'ClassRoomsController@assignClassTeachers');
+    });
+
+    //Class Students Routes
+    Route::group(['prefix'=>'/class-students'], function () {
+        Route::get('/', 'ClassStudentsController@index');
+        Route::post('/search-students', 'ClassStudentsController@searchStudents');
+        Route::post('/assign', 'ClassStudentsController@assign');
+        Route::post('/view-students', 'ClassStudentsController@viewStudents');
+        Route::post('/validate-clone', 'ClassStudentsController@validateClone');
+        Route::post('/cloning', 'ClassStudentsController@cloning');
+
+        Route::post('/', 'ClassRoomsController@save');
+        Route::get('/delete/{id}', 'ClassRoomsController@delete');
+        Route::post('/levels', 'ClassRoomsController@levels');
+        Route::get('/class-teachers', 'ClassRoomsController@classTeachers');
+        Route::post('/class-teachers', 'ClassRoomsController@teachers');
+    });
+});

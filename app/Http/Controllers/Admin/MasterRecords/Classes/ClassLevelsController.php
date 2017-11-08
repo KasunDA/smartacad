@@ -21,10 +21,11 @@ class ClassLevelsController extends Controller
     {
         $this->middleware('auth');
         $this->school = School::mySchool();
-        if ($this->school->setup == School::CLASS_LEVEL)
+        if ($this->school->setup == School::CLASS_LEVEL) {
             $this->setFlashMessage('Warning!!! Kindly Setup the Class Levels records Before Proceeding.', 3);
-        else
+        } else {
             $this->middleware('setup');
+        }
     }
 
     /**
@@ -32,12 +33,14 @@ class ClassLevelsController extends Controller
      * @param Boolean $group_id
      * @return Response
      */
-    public function getIndex($group_id=false)
+    public function index($group_id = false)
     {
         $classGroup = ($group_id) ? ClassGroup::findOrFail($this->decode($group_id)) : false;
         $classlevels = ($classGroup) ? $classGroup->classLevels()->get() : ClassLevel::all();
 
-        $classgroups = ClassGroup::pluck('classgroup', 'classgroup_id')->prepend('Select Class Group', '');
+        $classgroups = ClassGroup::pluck('classgroup', 'classgroup_id')
+            ->prepend('- Select Class Group -', '');
+
         return view('admin.master-records.classes.class-levels', compact('classlevels', 'classgroups', 'classGroup'));
     }
 
@@ -46,7 +49,7 @@ class ClassLevelsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postIndex(Request $request)
+    public function save(Request $request)
     {
         $inputs = $request->all();
         $count = 0;
@@ -66,10 +69,8 @@ class ClassLevelsController extends Controller
             return redirect('/class-rooms');
         }
 
-        // Set the flash message
         if($count > 0) $this->setFlashMessage($count . ' Academic Year has been successfully updated.', 1);
 
-        // redirect to the create a new inmate page
         return redirect('/class-levels');
     }
 
@@ -77,17 +78,14 @@ class ClassLevelsController extends Controller
      * Delete a Menu from the list of Menus using a given menu id
      * @param $id
      */
-    public function getDelete($id)
+    public function delete($id)
     {
         $classlevel = ClassLevel::findOrFail($id);
-        //Delete The Record
         $delete = ($classlevel !== null) ? $classlevel->delete() : null;
 
-        if($delete){
-            $this->setFlashMessage('  Deleted!!! '.$classlevel->classlevel.' Class Level have been deleted.', 1);
-        }else{
-            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
-        }
+        ($delete)
+            ? $this->setFlashMessage('  Deleted!!! '.$classlevel->classlevel.' Class Level have been deleted.', 1)
+            : $this->setFlashMessage('Error!!! Unable to delete record.', 2);
     }
 
     /**
@@ -95,7 +93,7 @@ class ClassLevelsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postClassGroups(Request $request)
+    public function classGroups(Request $request)
     {
         $inputs = $request->all();
 
