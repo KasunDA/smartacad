@@ -25,9 +25,9 @@ Route::group(['middleware' => ['web']], function () {
         }
     });
     
-    Route::get('/phpinfo', function () {
-        return view('/phpinfo');
-    });
+//    Route::get('/phpinfo', function () {
+//        return view('/phpinfo');
+//    });
     
     //Dependent List Box
 //    Route::group(array('prefix'=>'list-box'), function(){
@@ -47,7 +47,7 @@ Route::group(['middleware' => ['web']], function () {
         'wards-billings' => 'Front\Orders\BillingsController',
     ]);
 
-    Route::auth();
+//    Route::auth();
 
     //Fees / Orders Routes
 //    Route::group(['prefix'=>'orders/', 'namespace' => 'Admin\Orders'], function () {
@@ -131,10 +131,10 @@ Route::group(['middleware' => ['web']], function () {
         //Dependent List Box
 //        'list-box' => 'Admin\Utilities\ListBoxController',
         //Random Numbers
-        'pin-numbers' => 'Admin\Utilities\PinNumberController',
+//        'pin-numbers' => 'Admin\Utilities\PinNumberController',
 
         //Messaging
-        'messages' => 'Admin\Utilities\MessageController',
+//        'messages' => 'Admin\Utilities\MessageController',
         
 //        'users' => 'Admin\Users\UserController',
 //        'user-types' => 'Admin\Users\UserTypeController',

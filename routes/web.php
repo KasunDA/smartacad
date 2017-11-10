@@ -20,28 +20,14 @@
 //    }
 //});
 
-//Dashboard Route
-Route::get('/', 'Admin\Utilities\DashboardController@index');
-Route::get('/home', 'Admin\Utilities\DashboardController@index');
-Route::group(['namespace' => 'Admin\Utilities', 'prefix'=>'/dashboard'], function() {
-    Route::get('/', 'DashboardController@index');
-    Route::get('/students-gender', 'DashboardController@studentsGender');
-    Route::get('/students-classlevel', 'DashboardController@studentsClasslevel');
-    Route::get('/subject-tutor/{userId}', 'DashboardController@subjectTutor');
-    Route::get('/class-teacher/{userId}', 'DashboardController@classTeacher');
-});
-
-//ListBoxes Routes
-Route::group(['namespace' => 'Admin\Utilities', 'prefix'=>'/list-box'], function() {
-    Route::get('/lga/{id}', 'ListBoxController@lga');
-    Route::get('/academic-term/{id}', 'ListBoxController@academicTerm');
-    Route::get('/classroom/{id}', 'ListBoxController@classroom');
-});
-
 //PHP Info
 Route::get('/phpinfo', function () {
     return view('/phpinfo');
 });
+
+//Home and Dashboard Route
+Route::get('/', 'Admin\Utilities\DashboardController@index');
+Route::get('/home', 'Admin\Utilities\DashboardController@index');
 
 //Authentication Route
 Auth::routes();
@@ -326,14 +312,14 @@ Route::group(['namespace' => 'Admin\MasterRecords'], function () {
     Route::group(['prefix'=>'/menus'], function () {
         Route::get('/', 'MenuController@index');
         Route::get('/level/{no?}/{id?}', 'MenuController@level');
-        Route::pos('/level/{no?}/{id?}', 'MenuController@saveLevel');
+        Route::post('/level/{no?}/{id?}', 'MenuController@saveLevel');
         Route::get('/delete/{id}', 'MenuController@delete');
         Route::post('/filter', 'MenuController@filter');
     });
 });
 //////////////////////// \ Master Records Routes ////////////////////////////////////////////////////////////
 
-//Fees and Billings Routes
+//Orders, Fees and Billings Routes
 Route::group(['namespace' => 'Admin\Orders'], function () {
     //Billings Routes
     Route::group(['prefix'=>'/billings'], function () {
@@ -446,3 +432,40 @@ Route::group(['namespace' => 'Admin\Users'], function () {
         Route::get('/delete/{id}', 'UserTypeController@delete');
     });
 });
+
+//Utilities Routes
+Route::group(['namespace' => 'Admin\Utilities'], function () {
+    //Dashboard Routes
+    Route::group(['prefix'=>'/dashboard'], function() {
+        Route::get('/', 'DashboardController@index');
+        Route::get('/students-gender', 'DashboardController@studentsGender');
+        Route::get('/students-classlevel', 'DashboardController@studentsClasslevel');
+        Route::get('/subject-tutor/{userId}', 'DashboardController@subjectTutor');
+        Route::get('/class-teacher/{userId}', 'DashboardController@classTeacher');
+    });
+
+    //ListBoxes Routes
+    Route::group(['prefix'=>'/list-box'], function() {
+        Route::get('/lga/{id}', 'ListBoxController@lga');
+        Route::get('/academic-term/{id}', 'ListBoxController@academicTerm');
+        Route::get('/classroom/{id}', 'ListBoxController@classroom');
+    });
+    
+    //Messages Routes
+    Route::group(['prefix'=>'/messages'], function() {
+        Route::get('/', 'MessageController@index');
+        Route::post('/list-students', 'MessageController@students');
+        Route::post('/all-staffs', 'MessageController@staffs');
+        Route::post('/message-selected', 'MessageController@messageSelected');
+        Route::post('/send', 'MessageController@send');
+        Route::post('/send-all', 'MessageController@sendAll');
+    });
+
+    //Pin Numbers Routes
+    Route::group(['prefix'=>'/pin-numbers'], function() {
+        Route::get('/{no?}', 'PinNumberController@index');
+        Route::get('/generate/{no?}', 'PinNumberController@generate');
+        Route::get('/insert', 'PinNumberController@insert');
+    });
+});
+

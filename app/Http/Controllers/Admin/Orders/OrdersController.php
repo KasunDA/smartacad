@@ -697,7 +697,7 @@ class OrdersController extends Controller
                         </button>';
             }
             
-            $action .= '<a href="/order/items/'.$this->encode($order->student_id).'/'.$this->encode($term->academic_term_id).'"
+            $action .= '<a href="/orders/items/'.$this->encode($order->student_id).'/'.$this->encode($term->academic_term_id).'"
                            class="btn btn-info btn-xs sbold"><i class="fa fa-eye"></i> View
                         </a>';
             $records["data"][] = [
