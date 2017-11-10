@@ -25,9 +25,18 @@ Route::get('/phpinfo', function () {
     return view('/phpinfo');
 });
 
+Route::get('/', function () {
+    if(\Illuminate\Support\Facades\Auth::check()){
+        return (\Illuminate\Support\Facades\Auth::user()->user_type_id == \App\Models\Admin\Accounts\Sponsor::USER_TYPE)
+            ? redirect('/home') : redirect('/dashboard');
+    }else{
+        return redirect('/auth/login');
+    }
+});
+
 //Home and Dashboard Route
 Route::get('/', 'Admin\Utilities\DashboardController@index');
-Route::get('/home', 'Admin\Utilities\DashboardController@index');
+//Route::get('/home', 'Admin\Utilities\DashboardController@index');
 
 //Authentication Route
 Auth::routes();
@@ -470,7 +479,7 @@ Route::group(['namespace' => 'Admin\Utilities'], function () {
 });
 
 //Schools Routes
-Route::group(['namespace' => 'Admin\School'], function () {
+Route::group(['namespace' => 'School'], function () {
     //School Routes
     Route::group(['prefix'=>'/schools'], function() {
         Route::get('/', 'SchoolController@index');
@@ -529,3 +538,53 @@ Route::group(['namespace' => 'Admin\School'], function () {
     });
 });
 
+//Sponsors / Fronts Routes
+Route::group(['namespace' => 'Front'], function () {
+    Route::group(['namespace' => 'Assessments'], function() {
+        //Ward Assessments Routes
+        Route::group(['prefix'=>'/wards-assessments'], function() {
+            Route::get('/', 'AssessmentsController@index');
+            Route::get('/print-report/{studentId}/{termId}', 'AssessmentsController@printReport');
+            Route::get('/view/{id}', 'AssessmentsController@view');
+            Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
+        });
+        
+        //Ward Exams Routes
+        Route::group(['prefix'=>'/wards-exams'], function() {
+            Route::get('/', 'ExamsController@index');
+            Route::get('/search-students', 'ExamsController@searchStudents');
+            Route::get('/terminal-result/{studentId}/{termId}/{type?}', 'ExamsController@terminalResult');
+            Route::post('/verify', 'ExamsController@verify');
+            Route::post('/result-checker', 'ExamsController@resultChecker');
+        });
+    });
+
+    //Ward Billings Routes
+    Route::group(['namespace' => 'Orders', 'prefix'=>'/wards-billings'], function() {
+        Route::get('/', 'BillingsController@index');
+        Route::get('/view/{id}', 'BillingsController@view');
+        Route::get('/details/{studentId}/{orderId}', 'BillingsController@details');
+    });
+
+    Route::group(['namespace' => 'Students'], function() {
+        //Ward Attendances Routes
+        Route::group(['prefix'=>'/wards-attendances'], function() {
+            Route::get('/', 'AttendancesController@index');
+            Route::get('/view/{id}', 'AttendancesController@view');
+            Route::get('/details/{studentId}/{attendId}', 'AttendancesController@details');
+        });
+
+        //Wards / Students Routes
+        Route::group(['prefix'=>'/wards'], function() {
+            Route::get('/', 'StudentController@index');
+            Route::get('/view/{id}', 'StudentController@view');
+            Route::get('/edit/{id}', 'StudentController@edit');
+            Route::post('/edit/{id?}', 'StudentController@update');
+        });
+    });
+
+    //Home Routes
+    Route::group(['prefix'=>'/home'], function() {
+        Route::get('/', 'HomeController@index');
+    });
+});

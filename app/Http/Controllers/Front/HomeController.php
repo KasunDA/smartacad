@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Front;
 
 use Illuminate\Http\Request;
-
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -30,14 +29,18 @@ class HomeController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         $students = Auth::user()->students()->get();
         $students_count = $students->count();
-        $active_students_count = Auth::user()->students()->where('status_id', 1)->count();
-        $inactive_students_count = Auth::user()->students()->where('status_id', '<>', 1)->count();
+        $active_students_count = Auth::user()->students()
+            ->where('status_id', 1)
+            ->count();
+        $inactive_students_count = Auth::user()
+            ->students()
+            ->where('status_id', '<>', 1)
+            ->count();
 
         return view('front.dashboards.home', compact('students', 'students_count', 'active_students_count', 'inactive_students_count'));
-        
     }
 }

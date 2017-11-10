@@ -39,12 +39,12 @@ Route::group(['middleware' => ['web']], function () {
 
     //Front End
     Route::controllers([
-        'home' => 'Front\HomeController',
-        'wards' => 'Front\Students\StudentController',
-        'wards-exams' => 'Front\Assessments\ExamsController',
-        'wards-assessments' => 'Front\Assessments\AssessmentsController',
-        'wards-attendances' => 'Front\Students\AttendancesController',
-        'wards-billings' => 'Front\Orders\BillingsController',
+//        'home' => 'Front\HomeController',
+//        'wards' => 'Front\Students\StudentController',
+//        'wards-exams' => 'Front\Assessments\ExamsController',
+//        'wards-assessments' => 'Front\Assessments\AssessmentsController',
+//        'wards-attendances' => 'Front\Students\AttendancesController',
+//        'wards-billings' => 'Front\Orders\BillingsController',
     ]);
 
 //    Route::auth();

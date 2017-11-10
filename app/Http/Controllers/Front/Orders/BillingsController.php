@@ -17,7 +17,7 @@ class BillingsController extends Controller
      * Displays the Students of the sponsor
      * @return \Illuminate\View\View
      */
-    public function getIndex()
+    public function index()
     {
         $students = Auth::user()->students()->get();
 
@@ -29,7 +29,7 @@ class BillingsController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getView($encodeId)
+    public function view($encodeId)
     {
         $student = Student::findOrFail($this->decode($encodeId));
         $orders = OrderView::where('student_id', $student->student_id)
@@ -46,7 +46,7 @@ class BillingsController extends Controller
      * @param String $encodeOrder
      * @return \Illuminate\View\View
      */
-    public function getDetails($encodeStud, $encodeOrder)
+    public function details($encodeStud, $encodeOrder)
     {
         $student = Student::findOrFail($this->decode($encodeStud));
         $order = Order::where('id', $this->decode($encodeOrder))->first();
