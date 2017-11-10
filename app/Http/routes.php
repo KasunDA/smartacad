@@ -50,56 +50,56 @@ Route::group(['middleware' => ['web']], function () {
     Route::auth();
 
     //Fees / Orders Routes
-    Route::group(['prefix'=>'orders/', 'namespace' => 'Admin\Orders'], function () {
-        Route::get('/paid/{termId?}', 'OrdersController@paid')->name('paidOrders');
-        Route::get('/not-paid/{termId?}', 'OrdersController@notPaid')->name('notPaidOrders');
-        Route::get('/cancelled/{termId?}', 'OrdersController@cancelled')->name('cancelledOrders');
-        Route::get('/all-orders/{termId?}', 'OrdersController@allOrders')->name('allOrders');
-        Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
-        
-        Route::post('/summary', 'OrdersController@postSummary');
-        Route::post('/all-data', 'OrdersController@data');
-    });
+//    Route::group(['prefix'=>'orders/', 'namespace' => 'Admin\Orders'], function () {
+//        Route::get('/paid/{termId?}', 'OrdersController@paid')->name('paidOrders');
+//        Route::get('/not-paid/{termId?}', 'OrdersController@notPaid')->name('notPaidOrders');
+//        Route::get('/cancelled/{termId?}', 'OrdersController@cancelled')->name('cancelledOrders');
+//        Route::get('/all-orders/{termId?}', 'OrdersController@allOrders')->name('allOrders');
+//        Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
+//
+//        Route::post('/summary', 'OrdersController@postSummary');
+//        Route::post('/all-data', 'OrdersController@data');
+//    });
 
-    //Invoice Routes
-    Route::group(['prefix'=>'invoices/', 'namespace' => 'Admin\Orders'], function () {
-        Route::get('/order/{orderId}', 'InvoicesController@order');
-        Route::get('/download/{orderId}', 'InvoicesController@download');
-        Route::get('/pdf/{orderId}', 'InvoicesController@pdf');
-    });
+//    //Invoice Routes
+//    Route::group(['prefix'=>'invoices/', 'namespace' => 'Admin\Orders'], function () {
+//        Route::get('/order/{orderId}', 'InvoicesController@order');
+//        Route::get('/download/{orderId}', 'InvoicesController@download');
+//        Route::get('/pdf/{orderId}', 'InvoicesController@pdf');
+//    });
 
 
     //Assessment Routes
-    Route::group(['prefix'=>'assessments/', 'namespace' => 'Admin\Assessments'], function () {
-        Route::get('/view/{studentId}', 'AssessmentsController@view');
-        Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
-    });
+//    Route::group(['prefix'=>'assessments/', 'namespace' => 'Admin\Assessments'], function () {
+//        Route::get('/view/{studentId}', 'AssessmentsController@view');
+//        Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
+//    });
 
     //Exams Routes
-    Route::group(['prefix'=>'exams/', 'namespace' => 'Admin\Assessments'], function () {
-        Route::get('/view/{studentId}', 'ExamsController@view');
-        Route::get('/details/{studentId}/{termId}', 'ExamsController@details');
-    });
+//    Route::group(['prefix'=>'exams/', 'namespace' => 'Admin\Assessments'], function () {
+//        Route::get('/view/{studentId}', 'ExamsController@view');
+//        Route::get('/details/{studentId}/{termId}', 'ExamsController@details');
+//    });
 
     //Billings Routes
-    Route::group(['prefix'=>'billings/', 'namespace' => 'Admin\Orders'], function () {
-        Route::get('/view/{studentId}', 'BillingsController@view');
-        Route::get('/details/{studentId}/{orderId}', 'BillingsController@details');
-    });
+//    Route::group(['prefix'=>'billings/', 'namespace' => 'Admin\Orders'], function () {
+//        Route::get('/view/{studentId}', 'BillingsController@view');
+//        Route::get('/details/{studentId}/{orderId}', 'BillingsController@details');
+//    });
 
     //Staffs Routes
-    Route::group(['prefix'=>'staffs/', 'namespace' => 'Admin\Accounts'], function () {
-        Route::post('/all-staffs', 'StaffController@allStaffs');
-        Route::post('/staff-subjects', 'StaffController@staffSubjects');
-        
-        Route::get('/dashboard/{staffId}', 'StaffController@dashboard');
-        Route::get('/marked/{staffId}', 'StaffController@marked');
-        Route::get('/unmarked/{staffId}/', 'StaffController@unmarked');
-        
-        Route::get('/subject/{staffId}/', 'StaffController@subject');
-        Route::get('/subject-details/{subjectId}', 'StaffController@subjectDetails');
-        Route::get('/classroom/{staffId}/', 'StaffController@classroom');
-    });
+//    Route::group(['prefix'=>'staffs/', 'namespace' => 'Admin\Accounts'], function () {
+//        Route::post('/all-staffs', 'StaffController@allStaffs');
+//        Route::post('/staff-subjects', 'StaffController@staffSubjects');
+//        
+//        Route::get('/dashboard/{staffId}', 'StaffController@dashboard');
+//        Route::get('/marked/{staffId}', 'StaffController@marked');
+//        Route::get('/unmarked/{staffId}/', 'StaffController@unmarked');
+//        
+//        Route::get('/subject/{staffId}/', 'StaffController@subject');
+//        Route::get('/subject-details/{subjectId}', 'StaffController@subjectDetails');
+//        Route::get('/classroom/{staffId}/', 'StaffController@classroom');
+//    });
 
     //Profile Routes
     Route::group(['prefix'=>'profiles/', 'namespace' => 'Admin\Users'], function () {
@@ -111,19 +111,19 @@ Route::group(['middleware' => ['web']], function () {
 
     
     //Attendance Routes
-    Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {
-        Route::get('/', 'AttendancesController@index');
-        Route::get('/initiate/{classId}/{attendId?}', 'AttendancesController@initiate')->name('initiateAttendance');
-        Route::post('/initiate/{classId}/{attendId?}', 'AttendancesController@take');
-        Route::get('/adjust/{classId}', 'AttendancesController@adjust')->name('adjustAttendance');
-        Route::post('/classroom', 'AttendancesController@classroom');
-        Route::get('/classroom-details/{attendId}', 'AttendancesController@classroomDetails');
-        Route::post('/student', 'AttendancesController@student');
-        Route::get('/student-details/{studentClassId}/{termId}', 'AttendancesController@studentDetails');
-        //Student
-        Route::get('/view/{studentId}', 'AttendancesController@view');
-        Route::get('/details/{studentId}/{attendId}', 'AttendancesController@details');
-    });
+//    Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {
+//        Route::get('/', 'AttendancesController@index');
+//        Route::get('/initiate/{classId}/{attendId?}', 'AttendancesController@initiate')->name('initiateAttendance');
+//        Route::post('/initiate/{classId}/{attendId?}', 'AttendancesController@take');
+//        Route::get('/adjust/{classId}', 'AttendancesController@adjust')->name('adjustAttendance');
+//        Route::post('/classroom', 'AttendancesController@classroom');
+//        Route::get('/classroom-details/{attendId}', 'AttendancesController@classroomDetails');
+//        Route::post('/student', 'AttendancesController@student');
+//        Route::get('/student-details/{studentClassId}/{termId}', 'AttendancesController@studentDetails');
+//        //Student
+//        Route::get('/view/{studentId}', 'AttendancesController@view');
+//        Route::get('/details/{studentId}/{attendId}', 'AttendancesController@details');
+//    });
     
     Route::controllers([
 //        'auth' => 'Auth\AuthController',
@@ -146,7 +146,7 @@ Route::group(['middleware' => ['web']], function () {
         'schools' => 'School\SchoolController',
         
         //Menus Route
-        'menus' => 'Admin\MasterRecords\MenuController',
+//        'menus' => 'Admin\MasterRecords\MenuController',
 
         //setup records
         'salutations' => 'School\Setups\SalutationController',
@@ -187,8 +187,8 @@ Route::group(['middleware' => ['web']], function () {
 //        'exams' => 'Admin\Assessments\ExamsController',
 
         //Order Routes
-        'orders' => 'Admin\Orders\OrdersController',
-        'billings' => 'Admin\Orders\BillingsController',
+//        'orders' => 'Admin\Orders\OrdersController',
+//        'billings' => 'Admin\Orders\BillingsController',
     ]);
 });
 

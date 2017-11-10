@@ -142,7 +142,7 @@ class MenuController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postFilter(Request $request)
+    public function filter(Request $request)
     {
         $inputs = $request->all();
         return redirect('/menus/level/'.$inputs['level'].'/' . $this->encode($inputs['menu_id']));

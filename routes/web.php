@@ -331,3 +331,55 @@ Route::group(['namespace' => 'Admin\MasterRecords'], function () {
         Route::post('/filter', 'MenuController@filter');
     });
 });
+//////////////////////// \ Master Records Routes ////////////////////////////////////////////////////////////
+
+//Fees and Billings Routes
+Route::group(['namespace' => 'Admin\Orders'], function () {
+    //Billings Routes
+    Route::group(['prefix'=>'/billings'], function () {
+        Route::get('/', 'BillingsController@index');
+        Route::post('/initiate-billings', 'BillingsController@initiateBillings');
+        Route::post('/search-results', 'BillingsController@searchResults');
+        Route::post('/item-variables', 'BillingsController@itemVariables');
+        Route::get('/item-quotes', 'BillingsController@itemQuotes');
+        Route::post('/item-quotes', 'BillingsController@itemQuotes');
+        Route::get('/view/{studentId}', 'BillingsController@view');
+        Route::get('/details/{studentId}/{orderId}', 'BillingsController@details');
+    });
+
+    //Invoice Routes
+    Route::group(['prefix'=>'/invoices'], function () {
+        Route::get('/order/{orderId}', 'InvoicesController@order');
+        Route::get('/download/{orderId}', 'InvoicesController@download');
+        Route::get('/pdf/{orderId}', 'InvoicesController@pdf');
+    });
+
+    //Orders Routes
+    Route::group(['prefix'=>'/orders'], function () {
+        Route::get('/', 'OrdersController@index');
+        Route::post('/search', 'OrdersController@search');
+        Route::post('/search-students', 'OrdersController@searchStudents');
+        Route::post('/order-update', 'OrdersController@orderUpdate');
+        Route::get('/items/{studentId}/{termId}', 'OrdersController@items');
+        Route::get('/delete-item/{itemId}', 'OrdersController@deleteItem');
+        
+        Route::post('/item-update-amount', 'OrdersController@itemUpdateAmount');
+        Route::post('/part-payments', 'OrdersController@partPayments');
+        Route::get('/delete-part-payment/{id}', 'OrdersController@deletePartPayment');
+        Route::get('/status/{orderId}', 'OrdersController@status');
+
+        Route::get('/dashboard/{termId?}', 'OrdersController@dashboard');
+        Route::get('/paid-items/{termId}', 'OrdersController@paidItems');
+        Route::get('/pending-items/{termId}', 'OrdersController@pendingItems');
+        Route::get('/expected-items/{termId}', 'OrdersController@expectedItems');
+        Route::post('/dashboard', 'OrdersController@filterDashboard');
+        
+        Route::get('/paid/{termId?}', 'OrdersController@paid')->name('paidOrders');
+        Route::get('/not-paid/{termId?}', 'OrdersController@notPaid')->name('notPaidOrders');
+        Route::get('/cancelled/{termId?}', 'OrdersController@cancelled')->name('cancelledOrders');
+        Route::get('/all-orders/{termId?}', 'OrdersController@allOrders')->name('allOrders');
+        Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
+        Route::post('/summary', 'OrdersController@summary');
+        Route::post('/all-data', 'OrdersController@data');
+    });
+});
