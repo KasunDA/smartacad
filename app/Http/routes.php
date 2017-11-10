@@ -181,7 +181,7 @@ Route::group(['middleware' => ['web']], function () {
 //        'custom-subjects' => 'Admin\MasterRecords\Subjects\CustomSubjectsController',
 
         //Assessment Setup
-//        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
+        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
 //        'assessments' => 'Admin\Assessments\AssessmentsController',
 //        'domains' => 'Admin\Assessments\DomainsController',
 //        'exams' => 'Admin\Assessments\ExamsController',

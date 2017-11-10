@@ -293,4 +293,27 @@ Route::group(['namespace' => 'Admin\MasterRecords\Subjects'], function () {
         Route::post('/search-subjects', 'SubjectClassRoomsController@searchSubjects');
         Route::get('/delete/{id}', 'SubjectClassRoomsController@delete');
     });
+    
+});
+//Master Records
+Route::group(['namespace' => 'Admin\MasterRecords'], function () {
+    //Assessment Setups Route
+    Route::group(['prefix'=>'/assessment-setups'], function () {
+        Route::get('/{yearId?}', 'AssessmentSetupsController@index');
+        Route::post('/academic-years', 'AssessmentSetupsController@academicYears');
+        Route::post('/{yearId?}', 'AssessmentSetupsController@save');
+        Route::get('/delete/{id}', 'AssessmentSetupsController@delete');
+        
+        Route::get('/details/{termId?}/{yearId?}', 'AssessmentSetupsController@details');
+        Route::post('/terms', 'AssessmentSetupsController@terms');
+        Route::post('/details/{termId?}/{yearId?}', 'AssessmentSetupsController@saveDetails');
+        Route::get('/details-delete/{id?}/{groupId?}', 'AssessmentSetupsController@deleteDetails');
+        
+        Route::get('/manage-student/{id}/{termId}', 'SubjectTutorsController@manageStudent');
+        Route::post('/manage-student/{id?}/{termId?}', 'SubjectTutorsController@saveStudents');
+        Route::post('/view-assigned', 'SubjectTutorsController@viewAssigned');
+        
+        Route::get('/assign-tutor/{classId}/{tutorId}', 'SubjectClassRoomsController@assignTutor');
+        Route::post('/search-subjects', 'SubjectClassRoomsController@searchSubjects');
+    });
 });
