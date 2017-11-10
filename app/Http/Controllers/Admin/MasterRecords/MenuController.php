@@ -17,10 +17,11 @@ class MenuController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         $menus = Menu::roots()->get();
         $max = Menu::max('depth');
+        
         return view('admin.menus.index', compact('menus', 'max'));
     }
 
@@ -31,14 +32,16 @@ class MenuController extends Controller
      * @param Boolean $encodeId
      * @return Response
      */
-    public function getLevel($no = 1, $encodeId=false)
+    public function level($no = 1, $encodeId=false)
     {
         $roles = Role::orderBy('name')->get();
         $filters = null;
         $menu = '';
 
-        if(!$encodeId || $encodeId == 'all' || $encodeId == '') {
-            $menus = ($no > 2) ? Menu::where('depth', $no - 2)->get() : Menu::roots()->orderBy('name')->get();
+        if (!$encodeId || $encodeId == 'all' || $encodeId == '') {
+            $menus = ($no > 2) 
+                ? Menu::where('depth', $no - 2)->get() 
+                : Menu::roots()->orderBy('name')->get();
         }else{
             $menu = Menu::find($this->decode($encodeId));
             $menus = Menu::where('menu_id', $menu->menu_id)
@@ -46,14 +49,14 @@ class MenuController extends Controller
                 ->get();
         }
 
-        if($no == 2){
+        if ($no == 2) {
             $sub = Menu::whereNotNull('parent_id')->count();
             $parents = Menu::roots()
                 ->orderBy('name')
                 ->get()
                 ->pluck('name', 'menu_id')
                 ->prepend('- Select Parent -', '');
-        }else if($no > 2){
+        } elseif($no > 2) {
             $filters = Menu::where('depth', $no - 2)
                 ->orderBy('name')
                 ->get();
@@ -66,7 +69,6 @@ class MenuController extends Controller
         return ($no == 1)
             ? view('admin.menus.menu', compact('menus', 'roles', 'no'))
             : view('admin.menus.sub-menus', compact('menus', 'parents', 'sub', 'roles', 'menu', 'no', 'filters'));
-
     }
 
     /**
@@ -74,14 +76,14 @@ class MenuController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postLevel(Request $request)
+    public function saveLevel(Request $request)
     {
         $inputs = $request->all();
         $root = ($inputs['level'] >= 2) ? true : false;
-        $count = $this->saveMenus($inputs, $root);
-        // Set the flash message
+        $count = $this->_saveMenu($inputs, $root);
+        
         $this->setFlashMessage($count . ' Menus Level '.$inputs['level'].' has been successfully updated.', 1);
-        // redirect to the create a new inmate page
+        
         return redirect('/menus/level/' . $inputs['level']);
     }
 
@@ -90,17 +92,13 @@ class MenuController extends Controller
      * Delete a Menu from the list of Categories using a given menu id
      * @param $menu_id
      */
-    public function getDelete($menu_id)
+    public function delete($menu_id)
     {
         $menu = Menu::findOrFail($menu_id);
-        //Delete The Menu Record
-        $delete = ($menu) ? $menu->delete() : false;
-        if($delete){
-            //Delete its Equivalent Users Record
-            $this->setFlashMessage('  Deleted!!! '.$menu->name.' Menu have been deleted.', 1);
-        }else{
-            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
-        }
+     
+        ($menu && $menu->delete())
+            ? $this->setFlashMessage('  Deleted!!! '.$menu->name.' Menu have been deleted.', 1)
+            : $this->setFlashMessage('Error!!! Unable to delete record.', 2);
     }
 
     /**
@@ -109,12 +107,15 @@ class MenuController extends Controller
      * @param Boolean $isRoot
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    private function saveMenus($inputs, $isRoot=false)
+    private function _saveMenu($inputs, $isRoot=false)
     {
         $count = 0;
-        for($i = 0; $i < count($inputs['menu_id']); $i++){
+        for ($i = 0; $i < count($inputs['menu_id']); $i++) {
             //Create New or Modify Existing Sub Menu
-            $menu = ($inputs['menu_id'][$i] > 0) ? Menu::find($inputs['menu_id'][$i]) : new Menu();
+            $menu = ($inputs['menu_id'][$i] > 0) 
+                ? Menu::find($inputs['menu_id'][$i]) 
+                : new Menu();
+            
             $menu->name = Str::upper($inputs['name'][$i]);
             $menu->url = $inputs['url'][$i];
             $menu->icon = $inputs['icon'][$i];
@@ -123,14 +124,16 @@ class MenuController extends Controller
             $menu->sequence = $inputs['sequence'][$i];
             $menu->save();
             $count++;
-            (isset($inputs['role_id'][$i + 1])) ? $menu->roles()->sync($inputs['role_id'][$i + 1]) : $menu->roles()->sync([]);
+            (isset($inputs['role_id'][$i + 1])) 
+                ? $menu->roles()->sync($inputs['role_id'][$i + 1]) 
+                : $menu->roles()->sync([]);
 
-            if($isRoot){
+            if ($isRoot) {
                 $root = Menu::find($inputs['parent_id'][$i]);
-                //Attach a Parent(Menu) to it
-                $menu->makeChildOf($root);
+                $menu->makeChildOf($root); //Attach a Parent(Menu) to it
             }
         }
+        
         return $count;
     }
 

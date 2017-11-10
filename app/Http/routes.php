@@ -161,7 +161,7 @@ Route::group(['middleware' => ['web']], function () {
         //Master Record
 //        'academic-years' => 'Admin\MasterRecords\Sessions\AcademicYearsController',
 //        'academic-terms' => 'Admin\MasterRecords\Sessions\AcademicTermsController',
-        'grades' => 'Admin\MasterRecords\GradesController',
+//        'grades' => 'Admin\MasterRecords\GradesController',
 //        'class-groups' => 'Admin\MasterRecords\Classes\ClassGroupsController',
 //        'class-levels' => 'Admin\MasterRecords\Classes\ClassLevelsController',
 //        'class-rooms' => 'Admin\MasterRecords\Classes\ClassRoomsController',
@@ -181,7 +181,7 @@ Route::group(['middleware' => ['web']], function () {
 //        'custom-subjects' => 'Admin\MasterRecords\Subjects\CustomSubjectsController',
 
         //Assessment Setup
-        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
+//        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
 //        'assessments' => 'Admin\Assessments\AssessmentsController',
 //        'domains' => 'Admin\Assessments\DomainsController',
 //        'exams' => 'Admin\Assessments\ExamsController',

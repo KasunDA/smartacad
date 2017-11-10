@@ -299,21 +299,35 @@ Route::group(['namespace' => 'Admin\MasterRecords\Subjects'], function () {
 Route::group(['namespace' => 'Admin\MasterRecords'], function () {
     //Assessment Setups Route
     Route::group(['prefix'=>'/assessment-setups'], function () {
-        Route::get('/{yearId?}', 'AssessmentSetupsController@index');
+        Route::get('/', 'AssessmentSetupsController@index');
+        Route::get('/index/{yearId}', 'AssessmentSetupsController@index');
+        Route::post('/', 'AssessmentSetupsController@save');
+        Route::post('/index/{yearId}', 'AssessmentSetupsController@save');
         Route::post('/academic-years', 'AssessmentSetupsController@academicYears');
-        Route::post('/{yearId?}', 'AssessmentSetupsController@save');
         Route::get('/delete/{id}', 'AssessmentSetupsController@delete');
         
         Route::get('/details/{termId?}/{yearId?}', 'AssessmentSetupsController@details');
         Route::post('/terms', 'AssessmentSetupsController@terms');
         Route::post('/details/{termId?}/{yearId?}', 'AssessmentSetupsController@saveDetails');
         Route::get('/details-delete/{id?}/{groupId?}', 'AssessmentSetupsController@deleteDetails');
-        
-        Route::get('/manage-student/{id}/{termId}', 'SubjectTutorsController@manageStudent');
-        Route::post('/manage-student/{id?}/{termId?}', 'SubjectTutorsController@saveStudents');
-        Route::post('/view-assigned', 'SubjectTutorsController@viewAssigned');
-        
-        Route::get('/assign-tutor/{classId}/{tutorId}', 'SubjectClassRoomsController@assignTutor');
-        Route::post('/search-subjects', 'SubjectClassRoomsController@searchSubjects');
+    });
+    
+    //Grades Route
+    Route::group(['prefix'=>'/grades'], function () {
+        Route::get('/', 'GradesController@index');
+        Route::get('/index/{id}', 'GradesController@index');
+        Route::post('/', 'GradesController@save');
+        Route::post('/index/{id}', 'GradesController@save');
+        Route::get('/delete/{id}', 'GradesController@delete');
+        Route::post('/class-groups', 'GradesController@classGroups');
+    });
+    
+    //Menus Route
+    Route::group(['prefix'=>'/menus'], function () {
+        Route::get('/', 'MenuController@index');
+        Route::get('/level/{no?}/{id?}', 'MenuController@level');
+        Route::pos('/level/{no?}/{id?}', 'MenuController@saveLevel');
+        Route::get('/delete/{id}', 'MenuController@delete');
+        Route::post('/filter', 'MenuController@filter');
     });
 });

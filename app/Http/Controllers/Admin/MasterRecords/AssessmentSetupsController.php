@@ -70,7 +70,7 @@ class AssessmentSetupsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postAcademicYears(Request $request)
+    public function academicYears(Request $request)
     {
         $inputs = $request->all();
         return redirect('/assessment-setups/index/' . $this->encode($inputs['academic_year_id']));
