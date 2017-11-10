@@ -143,15 +143,15 @@ Route::group(['middleware' => ['web']], function () {
 //        'permissions' => 'Admin\RolesAndPermission\PermissionsController',
 //        'profiles' => 'Admin\Users\ProfileController',
 
-        'schools' => 'School\SchoolController',
+//        'schools' => 'School\SchoolController',
         
         //Menus Route
 //        'menus' => 'Admin\MasterRecords\MenuController',
 
         //setup records
-        'salutations' => 'School\Setups\SalutationController',
-        'marital-statuses' => 'School\Setups\MaritalStatusController',
-        'school-banks' => 'School\Setups\BanksController',
+//        'salutations' => 'School\Setups\SalutationController',
+//        'marital-statuses' => 'School\Setups\MaritalStatusController',
+//        'school-banks' => 'School\Setups\SchoolBanksController',
 
 //        'accounts' => 'Admin\Accounts\AccountsController',
 //        'sponsors' => 'Admin\Accounts\SponsorController',
@@ -173,8 +173,8 @@ Route::group(['middleware' => ['web']], function () {
 //        'item-quotes' => 'Admin\MasterRecords\Items\ItemQuotesController',
 
         //Subjects
-        'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
-        'subjects' => 'School\Setups\Subjects\SubjectsController',
+//        'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
+//        'subjects' => 'School\Setups\Subjects\SubjectsController',
 //        'subject-classrooms' => 'Admin\MasterRecords\Subjects\SubjectClassRoomsController',
 //        'subject-tutors' => 'Admin\MasterRecords\Subjects\SubjectTutorsController',
 //        'school-subjects' => 'Admin\MasterRecords\Subjects\SchoolSubjectsController',

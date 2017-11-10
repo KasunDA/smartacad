@@ -43,8 +43,9 @@ class SchoolController extends Controller
      * Display a listing of the resource.
      * @return Response
      */
-    public function getIndex(){
+    public function index(){
         $schools= School::all();
+
         return view('school.index', compact('schools'));
     }
 
@@ -52,8 +53,11 @@ class SchoolController extends Controller
      * Display form for creating a new school
      * @return Response
      */
-    public function getCreate(){
-        $admins = User::where('user_type_id',2)->orderBy('first_name')->get();
+    public function create(){
+        $admins = User::where('user_type_id',2)
+            ->orderBy('first_name')
+            ->get();
+
         return view('school.create', compact('admins'));
     }
 
@@ -62,20 +66,22 @@ class SchoolController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function postCreate(Request $request)
+    public function save(Request $request)
     {
         $inputs = $request->all();
         $inputs['address'] = trim($inputs['address']);
-        //Validate Request Inputs
-        if ($this->validator($inputs)->fails())
-        {
+
+        if ($this->validator($inputs)->fails()) {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/schools/create')->withErrors($this->validator($inputs))->withInput();
+
+            return redirect('/schools/create')
+                ->withErrors($this->validator($inputs))
+                ->withInput();
         }
-        // Store the School...
+
         $school = School::create($inputs);
 
-        if($school->school_id) {
+        if ($school->school_id) {
             if ($request->file('logo')) {
                 $file = $request->file('logo');
                 $filename = $file->getClientOriginalName();
@@ -85,11 +91,11 @@ class SchoolController extends Controller
                 Input::file('logo')->move($school->logo_path, $school->logo);
                 $school->save();
             }
-            // Set the flash message
             $this->setFlashMessage($school->name . ' has been successfully created.', 1);
-        }else
+        } else {
             $this->setFlashMessage('Error!!! Unable to save the record.', 2);
-        // redirect to the list of schools page
+        }
+
         return redirect('/schools');
     }
 
@@ -99,17 +105,18 @@ class SchoolController extends Controller
      * @param  int  $status
      * @return Response
      */
-    public function getStatus($school_id, $status)
+    public function status($school_id, $status)
     {
         $school = School::findOrFail($school_id);
-        if($school !== null) {
+        
+        if ($school !== null) {
             $school->status_id = $status;
-            //Save The Project
             $school->save();
+            
             ($status == '1')
                 ? $this->setFlashMessage(' Activated!!! '.$school->full_name.' have been activated.', 1)
                 : $this->setFlashMessage(' Deactivated!!! '.$school->full_name.' have been deactivated.', 1);
-        }else{
+        } else {
             $this->setFlashMessage('Error!!! Unable to perform task try again.', 2);
         }
     }
@@ -119,15 +126,16 @@ class SchoolController extends Controller
      * @param String $encodeId
      * @return Response
      */
-    public function getEdit($encodeId = null)
+    public function edit($encodeId = null)
     {
-        if($encodeId == null){
-            $school = $this->school_profile;
-        }else{
-            $decodeId = $this->getHashIds()->decode($encodeId);
-            $school = (empty($decodeId)) ? abort(403) : School::findOrFail($decodeId[0]);
-        }
-        $admins = User::where('user_type_id',2)->orderBy('email')->get();
+        $school = ($encodeId == null) 
+            ? $this->school_profile
+            : School::findOrFail($this->decode($encodeId));
+        
+        $admins = User::where('user_type_id',2)
+            ->orderBy('email')
+            ->get();
+        
         return view('school.edit', compact('school','admins'));
     }
 
@@ -137,19 +145,20 @@ class SchoolController extends Controller
      * @param  String $encodeId
      * @return Response
      */
-    public function patchEdit(Request $request, $encodeId)
+    public function update(Request $request, $encodeId)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
-        $school = (empty($decodeId)) ? abort(403) : School::findOrFail($decodeId[0]);
+        $school = School::findOrFail($this->decode($encodeId));
         $inputs = $request->all();
-        //Validate Request Inputs
         $validator = $this->validator($inputs);
 
         if ($validator->fails()) {
             $this->setFlashMessage('  Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/schools/edit/' . $encodeId)->withErrors($validator)->withInput();
+        
+            return redirect('/schools/edit/' . $encodeId)
+                ->withErrors($validator)
+                ->withInput();
         }
-        // Update the School...
+        
         if ($school->update($inputs)) {
             if ($request->file('logo')) {
                 $file = $request->file('logo');
@@ -160,10 +169,10 @@ class SchoolController extends Controller
                 Input::file('logo')->move($school->logo_path, $school->logo);
                 $school->save();
             }
-            // Set the flash message
+            
             $this->setFlashMessage($school->name . ' have successfully been updated.', 1);
-            // redirect to the create bill page and enable the take roll call link
         }
+        
         return redirect('/schools/edit');
     }
 
@@ -171,7 +180,7 @@ class SchoolController extends Controller
      * Display form for creating a new school
      * @return Response
      */
-    public function getSearch(){
+    public function search(){
         $schools = School::orderBy('full_name')->get();
 
         return view('school.search', compact('schools'));
@@ -182,22 +191,24 @@ class SchoolController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function postSearch(Request $request){
+    public function searching(Request $request){
         $inputs = $request->all();
         $school = School::findOrFail($inputs['school_id']);
         $db = $school->database()->first();
 
-        if($db){
-            Config::set('database.connections.' . $db->database, array(
-                'driver'    => 'mysql',
-                'host'      => $db->host,
-                'database'  => $db->database,
-                'username'  => $db->username,
-                'password'  => $db->password,
-                'charset'   => 'utf8',
-                'collation' => 'utf8_general_ci',
-                'prefix'    => '',
-            ));
+        if ($db) {
+            Config::set('database.connections.' . $db->database, 
+                [
+                    'driver'    => 'mysql',
+                    'host'      => $db->host,
+                    'database'  => $db->database,
+                    'username'  => $db->username,
+                    'password'  => $db->password,
+                    'charset'   => 'utf8',
+                    'collation' => 'utf8_general_ci',
+                    'prefix'    => '',
+                ]
+            );
             $users = DB::connection($db->database)->select('select * from users');
         }
         $schools = School::orderBy('full_name')->get();
@@ -210,9 +221,8 @@ class SchoolController extends Controller
      * @param $encodeId
      * @return Response
      */
-    public function getDbConfig($encodeId){
-        $decodeId = $this->getHashIds()->decode($encodeId);
-        $school = (empty($decodeId)) ? abort(403) : School::findOrFail($decodeId[0]);
+    public function dbConfig($encodeId){
+        $school = School::findOrFail($this->decode($encodeId));
         $db = $school->database()->first();
 
         return view('school.db-config', compact('school', 'db'));
@@ -223,21 +233,25 @@ class SchoolController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postDbConfig(Request $request)
+    public function saveDbConfig(Request $request)
     {
         $inputs = $request->all();
         $school = School::findOrFail($inputs['school_id']);
         $db = $school->database()->first();
-        $database = ($db) ? SchoolDatabase::find($db->school_database_id) : new SchoolDatabase();
+        $database = ($db) 
+            ? SchoolDatabase::find($db->school_database_id) 
+            : new SchoolDatabase();
+        
         $database->host = $inputs['host'];
         $database->database = $inputs['database'];
         $database->username = $inputs['username'];
         $database->password = $inputs['password'];
         $database->school_id = $inputs['school_id'];
-        if($database->save())
-        // Set the flash message
+        
+        if ($database->save()) {
             $this->setFlashMessage($school->name . ' Database has been successfully configured.', 1);
-        // redirect to the create a new inmate page
+        }
+        
         return redirect('/schools');
     }
 }

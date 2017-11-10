@@ -469,3 +469,63 @@ Route::group(['namespace' => 'Admin\Utilities'], function () {
     });
 });
 
+//Schools Routes
+Route::group(['namespace' => 'Admin\School'], function () {
+    //School Routes
+    Route::group(['prefix'=>'/schools'], function() {
+        Route::get('/', 'SchoolController@index');
+        Route::get('/create', 'SchoolController@create');
+        Route::post('/create', 'SchoolController@save');
+        Route::get('/status/{id}/{status}', 'SchoolController@status');
+        
+        Route::get('/edit/{id?}', 'SchoolController@edit');
+        Route::post('/edit/{id?}', 'SchoolController@update');
+        Route::get('/search', 'SchoolController@search');
+        Route::post('/search', 'SchoolController@searching');
+        Route::get('/db-config/{id}', 'SchoolController@dbConfig');
+        Route::post('/db-config/{id?}', 'SchoolController@saveDbConfig');
+    });
+
+    Route::group(['namespace' => 'Setups'], function() {
+        Route::group(['namespace' => 'Subjects'], function() {
+            //Subject Groups Routes
+            Route::group(['prefix'=>'/subject-groups'], function() {
+                Route::get('/', 'SubjectGroupsController@index');
+                Route::post('/', 'SubjectGroupsController@save');
+                Route::get('/delete/{id}', 'SubjectGroupsController@delete');
+            });
+
+            //Subject Routes
+            Route::group(['prefix'=>'/subjects'], function() {
+                Route::get('/{groupId?}', 'SubjectsController@index');
+                Route::get('/index/{groupId}', 'SubjectsController@index');
+                Route::post('/', 'SubjectsController@save');
+                Route::post('/index/{groupId}', 'SubjectsController@save');
+                Route::get('/delete/{id}', 'SubjectsController@delete');
+                Route::post('/subject-groups', 'SubjectsController@subjectGroups');
+            });
+        });
+
+        //Marital Status Routes
+        Route::group(['prefix'=>'/marital-statuses'], function() {
+            Route::get('/', 'MaritalStatusController@index');
+            Route::post('/', 'MaritalStatusController@save');
+            Route::get('/delete/{id}', 'MaritalStatusController@delete');
+        });
+
+        //Salutations Routes
+        Route::group(['prefix'=>'/salutations'], function() {
+            Route::get('/', 'SalutationController@index');
+            Route::post('/', 'SalutationController@save');
+            Route::get('/delete/{id}', 'SalutationController@delete');
+        });
+
+        //School Banks Routes
+        Route::group(['prefix'=>'/school-banks'], function() {
+            Route::get('/', 'SchoolBanksController@index');
+            Route::post('/', 'SchoolBanksController@save');
+            Route::get('/delete/{id}', 'SchoolBanksController@delete');
+        });
+    });
+});
+
