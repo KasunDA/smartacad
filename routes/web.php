@@ -383,3 +383,66 @@ Route::group(['namespace' => 'Admin\Orders'], function () {
         Route::post('/all-data', 'OrdersController@data');
     });
 });
+
+//Roles and Permission Routes
+Route::group(['namespace' => 'Admin\RolesAndPermission'], function () {
+    //Permissions Routes
+    Route::group(['prefix'=>'/permissions'], function () {
+        Route::get('/', 'PermissionsController@index');
+        Route::post('/', 'PermissionsController@save');
+        Route::get('/roles-permissions/{id?}', 'PermissionsController@rolesPermissions');
+        Route::post('/roles-permissions/{id?}', 'PermissionsController@saveRolesPermissions');
+        Route::post('/roles', 'PermissionsController@roles');
+    });
+
+    //Roles Routes
+    Route::group(['prefix'=>'/roles'], function () {
+        Route::get('/', 'RolesController@index');
+        Route::post('/', 'RolesController@save');
+        Route::get('/delete/{id}', 'RolesController@delete');
+        Route::post('/all-users', 'RolesController@data');
+        Route::get('/users-roles', 'RolesController@users');
+        Route::post('/users-roles', 'RolesController@saveUsers');
+    });
+});
+
+//Users and Types Routes
+Route::group(['namespace' => 'Admin\Users'], function () {
+    //Permissions Routes
+    Route::group(['prefix'=>'/profiles'], function () {
+        Route::get('/', 'ProfileController@index');
+        Route::get('/edit', 'ProfileController@edit');
+        Route::post('/edit', 'ProfileController@update');
+        Route::post('/change-password', 'ProfileController@changePassword');
+        Route::post('/avatar', 'ProfileController@uploadAvatar');
+
+        Route::get('/dashboard', 'ProfileController@dashboard');
+        Route::get('/subject', 'ProfileController@subject');
+        Route::get('/subject-details/{subjectId}', 'ProfileController@subjectDetails');
+        Route::get('/classroom', 'ProfileController@classroom');
+    });
+
+    //Users Routes
+    Route::group(['prefix'=>'/users'], function () {
+        Route::get('/', 'UserController@index');
+        Route::post('/all-users', 'UserController@data');
+        Route::get('/create', 'UserController@create');
+        Route::post('/create', 'UserController@save');
+        Route::get('/change', 'UserController@change');
+        Route::post('/change', 'UserController@saveChange');
+        
+        Route::get('/status/{id}/{status}', 'UserController@status');
+        Route::get('/view/{id}', 'UserController@view');
+        Route::get('/edit/{id}', 'UserController@edit');
+        Route::post('/edit/{id}', 'UserController@update');
+        Route::post('/avatar', 'UserController@uploadAvatar');
+        Route::get('/delete/{id}', 'UserController@delete');
+    });
+    
+    //User Types Routes
+    Route::group(['prefix'=>'/user-types'], function () {
+        Route::get('/', 'UserTypeController@index');
+        Route::post('/', 'UserTypeController@save');
+        Route::get('/delete/{id}', 'UserTypeController@delete');
+    });
+});

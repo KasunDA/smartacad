@@ -102,12 +102,12 @@ Route::group(['middleware' => ['web']], function () {
 //    });
 
     //Profile Routes
-    Route::group(['prefix'=>'profiles/', 'namespace' => 'Admin\Users'], function () {
-        Route::get('/dashboard', 'ProfileController@dashboard');
-        Route::get('/subject', 'ProfileController@subject');
-        Route::get('/subject-details/{subjectId}', 'ProfileController@subjectDetails');
-        Route::get('/classroom', 'ProfileController@classroom');
-    });
+//    Route::group(['prefix'=>'profiles/', 'namespace' => 'Admin\Users'], function () {
+//        Route::get('/dashboard', 'ProfileController@dashboard');
+//        Route::get('/subject', 'ProfileController@subject');
+//        Route::get('/subject-details/{subjectId}', 'ProfileController@subjectDetails');
+//        Route::get('/classroom', 'ProfileController@classroom');
+//    });
 
     
     //Attendance Routes
@@ -136,12 +136,12 @@ Route::group(['middleware' => ['web']], function () {
         //Messaging
         'messages' => 'Admin\Utilities\MessageController',
         
-        'users' => 'Admin\Users\UserController',
-        'user-types' => 'Admin\Users\UserTypeController',
+//        'users' => 'Admin\Users\UserController',
+//        'user-types' => 'Admin\Users\UserTypeController',
 
-        'roles' => 'Admin\RolesAndPermission\RolesController',
-        'permissions' => 'Admin\RolesAndPermission\PermissionsController',
-        'profiles' => 'Admin\Users\ProfileController',
+//        'roles' => 'Admin\RolesAndPermission\RolesController',
+//        'permissions' => 'Admin\RolesAndPermission\PermissionsController',
+//        'profiles' => 'Admin\Users\ProfileController',
 
         'schools' => 'School\SchoolController',
         
