@@ -11,15 +11,6 @@
 |
 */
 
-//Route::get('/', function () {
-//    if(\Illuminate\Support\Facades\Auth::check()){
-//        return (\Illuminate\Support\Facades\Auth::user()->user_type_id == \App\Models\Admin\Accounts\Sponsor::USER_TYPE)
-//            ? redirect('/home') : redirect('/dashboard');
-//    }else{
-//        return redirect('/login');
-//    }
-//});
-
 //PHP Info
 Route::get('/phpinfo', function () {
     return view('/phpinfo');
@@ -552,7 +543,7 @@ Route::group(['namespace' => 'Front'], function () {
         //Ward Exams Routes
         Route::group(['prefix'=>'/wards-exams'], function() {
             Route::get('/', 'ExamsController@index');
-            Route::get('/search-students', 'ExamsController@searchStudents');
+            Route::post('/search-students', 'ExamsController@searchStudents');
             Route::get('/terminal-result/{studentId}/{termId}/{type?}', 'ExamsController@terminalResult');
             Route::post('/verify', 'ExamsController@verify');
             Route::post('/result-checker', 'ExamsController@resultChecker');

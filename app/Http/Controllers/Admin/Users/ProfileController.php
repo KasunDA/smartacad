@@ -62,9 +62,9 @@ class ProfileController extends Controller
     public function edit()
     {
         $user = Auth::user();
-        session()->put('active', 'info');
 
         if ($user) {
+            session()->put('active', 'info');
             $salutations = Salutation::orderBy('salutation')
                 ->pluck('salutation', 'salutation_id')
                 ->prepend('- Select Title -', '');

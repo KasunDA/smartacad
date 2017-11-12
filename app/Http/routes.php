@@ -16,14 +16,14 @@
 
 Route::group(['middleware' => ['web']], function () {
 
-    Route::get('/', function () {
-        if(\Illuminate\Support\Facades\Auth::check()){
-            return (\Illuminate\Support\Facades\Auth::user()->user_type_id == \App\Models\Admin\Accounts\Sponsor::USER_TYPE)
-                ? redirect('/home') : redirect('/dashboard');
-        }else{
-            return redirect('/auth/login');
-        }
-    });
+//    Route::get('/', function () {
+//        if(\Illuminate\Support\Facades\Auth::check()){
+//            return (\Illuminate\Support\Facades\Auth::user()->user_type_id == \App\Models\Admin\Accounts\Sponsor::USER_TYPE)
+//                ? redirect('/home') : redirect('/dashboard');
+//        }else{
+//            return redirect('/auth/login');
+//        }
+//    });
     
 //    Route::get('/phpinfo', function () {
 //        return view('/phpinfo');

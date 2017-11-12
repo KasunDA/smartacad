@@ -110,7 +110,7 @@ class Handler extends ExceptionHandler
         if ($e instanceof MethodNotAllowedHttpException){
             return response()->view('errors.custom', [
                 'code'=>'507.3',
-                'header'=>'Bad or Poor Network Issues',
+                'header'=>'Method Not Allowed',
                 'message'=>'<strong>Whoops!!!</strong> Something went wrong with your network kindly retry again and 
                     <strong>allow the page to load completely</strong><br>' . $e->getMessage() . ' <a href="/">Return Back home </a><br/>'
             ]);

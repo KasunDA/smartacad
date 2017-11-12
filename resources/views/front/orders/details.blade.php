@@ -213,7 +213,7 @@
 @section('layout-script')
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/wards-assessments"]');
+            setTabActive('[href="/wards-billings"]');
 
             setTableData($('#view_attendance_datatable')).init();
         });

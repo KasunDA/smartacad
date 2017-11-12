@@ -7,12 +7,10 @@ use App\Models\School\School;
 use App\Models\School\SchoolDatabase;
 use Illuminate\Http\Request;
 
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 
 class SchoolController extends Controller
@@ -142,19 +140,18 @@ class SchoolController extends Controller
     /**
      * Store the form for modifying an existing resource.
      * @param  Request $request
-     * @param  String $encodeId
      * @return Response
      */
-    public function update(Request $request, $encodeId)
+    public function update(Request $request)
     {
-        $school = School::findOrFail($this->decode($encodeId));
         $inputs = $request->all();
+        $school = School::findOrFail($inputs['school_id']);
         $validator = $this->validator($inputs);
 
         if ($validator->fails()) {
             $this->setFlashMessage('  Error!!! You have error(s) while filling the form.', 2);
         
-            return redirect('/schools/edit/' . $encodeId)
+            return redirect('/schools/edit/' . $this->encode($inputs['school_id']))
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -173,7 +170,7 @@ class SchoolController extends Controller
             $this->setFlashMessage($school->name . ' have successfully been updated.', 1);
         }
         
-        return redirect('/schools/edit');
+        return redirect('/schools');
     }
 
     /**

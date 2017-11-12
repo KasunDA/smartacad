@@ -2,10 +2,8 @@
 
 @section('page-level-css')
         <!-- BEGIN PAGE LEVEL PLUGINS -->
-<link href="{{ asset('assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}"
-      rel="stylesheet" type="text/css"/>
-<link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet"
-      type="text/css"/>
+<link href="{{ asset('assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}" rel="stylesheet" type="text/css"/>
+<link href="{{ asset('assets/global/plugins/bootstrap-select/css/bootstrap-select.css') }}" rel="stylesheet" type="text/css"/>
 <link href="{{ asset('assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css') }}" rel="stylesheet" type="text/css"/>
 <!-- END PAGE LEVEL PLUGINS -->
 @endsection
@@ -112,8 +110,8 @@
                                             </div>
                                             <div class="form-group">
                                                 <label class="control-label">Date Of Birth </label>
-                                                <input class="form-control date-picker" data-date-format="yyyy-mm-dd" name="dob" type="text"
-                                                       value="{!! ($user->dob) ?  $user->dob->format('Y-m-d') : old('dob') !!}" required/>
+                                                <input class="form-control date-picker" data-date-format="yyyy-mm-dd" placeholder="yyyy-mm-dd" name="dob" type="text"
+                                                       id="dob" value="{!! ($user->dob) ?  $user->dob->format('Y-m-d') : old('dob') !!}" required/>
                                             </div>
                                             <div class="form-group">
                                                 <label class="control-label">State </label>
@@ -223,12 +221,13 @@
 @endsection
 
 @section('layout-script')
-    <script src="{{ asset('assets/custom/js/users/profile.js') }}" type="text/javascript"></script>
-    <!-- BEGIN PAGE LEVEL SCRIPTS -->
-    <!-- END PAGE LEVEL SCRIPTS -->
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/profiles/edit"]');
+
+            $('#dob').datepicker();
+
+            getDependentListBox($('#state_id'), $('#lga_id'), '/list-box/lga/');
         });
     </script>
 @endsection
