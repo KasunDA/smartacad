@@ -52,9 +52,9 @@
                         {!! Form::hidden('user_id', $sponsor->user_id) !!}
                         <div class="form-body">
                             <div class="form-group">
-                                <label>Title <span class="text-danger">*</span></label>
+                                <label>Title </label>
                                 <div>
-                                    {!! Form::select('salutation_id', $salutations, $sponsor->salutation_id, ['class'=>'form-control selectpicker', 'required'=>'required']) !!}
+                                    {!! Form::select('salutation_id', $salutations, $sponsor->salutation_id, ['class'=>'form-control selectpicker']) !!}
                                 </div>
                             </div>
 
@@ -83,8 +83,9 @@
                                 {!! Form::text('phone_no2', $sponsor->phone_no2, ['placeholder'=>'Mobile No 2', 'class'=>'form-control']) !!}
                             </div>
                             <div class="form-group">
-                                <label class="control-label">Date Of Birth <span class="text-danger">*</span></label>
-                                <input class="form-control date-picker" data-date-format="yyyy-mm-dd" name="dob" type="text" value="{!! ($sponsor->dob) ?  $sponsor->dob->format('Y-m-d') : '' !!}" />
+                                <label class="control-label">Date Of Birth</label>
+                                <input class="form-control date-picker" data-date-format="yyyy-mm-dd" name="dob" type="text"
+                                       value="{!! ($sponsor->dob) ?  $sponsor->dob->format('Y-m-d') : '' !!}" />
                             </div>
                             <div class="form-group">
                                 <label class="control-label">State </label>

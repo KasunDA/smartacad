@@ -425,11 +425,10 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postMySetup(Request $request)
+    public function mySetup(Request $request)
     {
         $inputs = $request->all();
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
-
         if($term){
             //Process Only my exams so as to input scores
             Exam::processExams($term->academic_term_id, Auth::user()->user_id);
@@ -446,7 +445,7 @@ class ExamsController extends Controller
      * @param String $encodeTerm
      * @return \Illuminate\View\View
      */
-    public function getPrintStudentTerminalResult($encodeStud, $encodeTerm)
+    public function printStudentTerminalResult($encodeStud, $encodeTerm)
     {
         $student = Student::findOrFail($this->decode($encodeStud));
         $term = AcademicTerm::findOrFail($this->decode($encodeTerm));

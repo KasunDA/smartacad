@@ -168,22 +168,22 @@ class StaffController extends Controller
         $user = (empty($inputs['user_id'])) ? abort(305) : User::findOrFail($inputs['user_id']);
         
         $messages = [
-            'salutation_id.required' => 'Title is Required!',
+//            'salutation_id.required' => 'Title is Required!',
             'first_name.required' => 'First Name is Required!',
             'last_name.required' => 'Last Name is Required!',
             'email.unique' => 'This E-Mail Address Has Already Been Assigned!',
             'phone_no.unique' => 'The Mobile Number Has Already Been Assigned!',
             'gender.required' => 'Gender is Required!',
-            'dob.required' => 'Date of Birth is Required!',
+//            'dob.required' => 'Date of Birth is Required!',
         ];
         $validator = Validator::make($inputs, [
-            'salutation_id' => 'required',
+//            'salutation_id' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|max:255|unique:users,email,'.$user->user_id.',user_id',
             'phone_no' => 'required|max:15|min:11|unique:users,phone_no,'.$user->user_id.',user_id',
             'gender' => 'required',
-            'dob' => 'required',
+//            'dob' => 'required',
         ], $messages);
 
         if ($validator->fails()) {

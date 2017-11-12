@@ -44,7 +44,7 @@
                         <table class="table table-hover table-striped">
                             <tr>
                                 <th> Head Tutor </th>
-                                <td>{{ $attendance->classMaster->fullNames() }}</td>
+                                <td>{{ $attendance->takenBy->fullNames() }}</td>
                                 <th> Number of Students </th>
                                 <td>{{$attendance->details->count()}}</td>
                             </tr>
@@ -59,6 +59,12 @@
                                 <td>{{ $attendance->details()->present()->count() }}</td>
                                 <th> Absent </th>
                                 <td>{{ $attendance->details()->absent()->count() }}</td>
+                            </tr>
+                            <tr>
+                                <th> Date Taken </th>
+                                <td>{{ $attendance->attendance_date->format( 'D jS, M Y' ) }}</td>
+                                <th> </th>
+                                <td> </td>
                             </tr>
                         </table>
                     </div>

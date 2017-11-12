@@ -263,7 +263,7 @@ Route::group(['namespace' => 'Admin\MasterRecords\Subjects'], function () {
         Route::get('/assign-tutor/{classId}/{tutorId}', 'SubjectClassRoomsController@assignTutor');
         Route::post('/search-subjects', 'SubjectClassRoomsController@searchSubjects');
         Route::get('/manage-student/{id}/{termId}', 'SubjectClassRoomsController@manageStudent');
-        Route::post('/manage-student/{id?}/{termId?}', 'SubjectClassRoomsController@saveStudents');
+        Route::post('/manage-students', 'SubjectClassRoomsController@saveStudents');
         Route::get('/delete/{id}', 'SubjectClassRoomsController@delete');
     });
     
