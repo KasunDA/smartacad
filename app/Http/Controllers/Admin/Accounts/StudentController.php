@@ -262,6 +262,7 @@ class StudentController extends Controller
         $status = Status::pluck('status', 'status_id')
             ->prepend('- Select Status -', '');
 
+        session()->put('active', 'info');
         $states = State::orderBy('state')
             ->pluck('state', 'state_id')
             ->prepend('- Select State -', '');

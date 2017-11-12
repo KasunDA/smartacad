@@ -105,6 +105,6 @@ class GradesController extends Controller
     {
         $inputs = $request->all();
         
-        return redirect('/grades/index/' . $this->encode($inputs['classgroup_id']));
+        return redirect('/grades/' . $this->encode($inputs['classgroup_id']));
     }
 }

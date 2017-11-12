@@ -97,6 +97,6 @@ class ClassLevelsController extends Controller
     {
         $inputs = $request->all();
 
-        return redirect('/class-levels/index/' . $this->encode($inputs['class_group_id']));
+        return redirect('/class-levels/' . $this->encode($inputs['class_group_id']));
     }
 }

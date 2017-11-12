@@ -49,8 +49,7 @@ class ItemQuotesController extends Controller
 //        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
         $classgroups = ClassGroup::pluck('classgroup', 'classgroup_id')
             ->prepend('- Class Group -', '');
-        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
-            ->prepend('- Academic Year -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id');
         
         return view('admin.master-records.items.item-quotes',
             compact('items', 'item_quotes', 'classgroups', 'academic_year', 'item', 'academic_years')
@@ -73,12 +72,12 @@ class ItemQuotesController extends Controller
             $item_quote->amount = $inputs['amount'][$i];
             $item_quote->classgroup_id = $inputs['classgroup_id'][$i];
             $item_quote->academic_year_id = $inputs['academic_year_id'][$i];
-            $count = ($item_quote->save()) ? $count+1 : '';
+            $count = ($item_quote->save()) ? $count + 1 : $count;
         }
         
         if ($count > 0) $this->setFlashMessage($count . ' Item Quote has been successfully updated.', 1);
         
-        return redirect('/item-quotes');
+        return redirect()->back();
     }
     
     /**
@@ -106,6 +105,6 @@ class ItemQuotesController extends Controller
         $year = $this->encode($inputs['academic_year_id']);
         $item = $this->encode($inputs['item_id']);
 
-        return redirect('/item-quotes/index/' . $year . '/' . $item);
+        return redirect('/item-quotes/' . $year . '/' . $item);
     }
 }

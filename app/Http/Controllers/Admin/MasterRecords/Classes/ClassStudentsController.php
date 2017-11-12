@@ -140,7 +140,7 @@ class ClassStudentsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postViewStudents(Request $request)
+    public function viewStudents(Request $request)
     {
         session()->put('active', 'search');
         $inputs = $request->all();

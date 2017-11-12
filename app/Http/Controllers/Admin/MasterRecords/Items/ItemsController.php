@@ -47,7 +47,7 @@ class ItemsController extends Controller
             $item->description = $inputs['description'][$i] ?: null;
             $item->status = $inputs['status'][$i];
             $item->item_type_id = $inputs['item_type_id'][$i];
-            $count = ($item->save()) ? $count+1 : '';
+            $count = ($item->save()) ? $count + 1 : $count;
         }
         
         if ($count > 0) $this->setFlashMessage($count . ' Item has been successfully updated.', 1);

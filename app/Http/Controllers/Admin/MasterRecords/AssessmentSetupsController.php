@@ -73,7 +73,8 @@ class AssessmentSetupsController extends Controller
     public function academicYears(Request $request)
     {
         $inputs = $request->all();
-        return redirect('/assessment-setups/index/' . $this->encode($inputs['academic_year_id']));
+        
+        return redirect('/assessment-setups/' . $this->encode($inputs['academic_year_id']));
     }
 
 
@@ -202,7 +203,7 @@ class AssessmentSetupsController extends Controller
         }
         if($count > 0) $this->setFlashMessage($count . ' Assessment Setups Details has been successfully updated.', 1);
 
-        return redirect('/assessment-setups/details');
+        return redirect()->back();
     }
 
     /**

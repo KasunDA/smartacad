@@ -106,7 +106,7 @@ class ClassRoomsController extends Controller
     {
         $inputs = $request->all();
 
-        return redirect('/class-rooms/index/' . $this->encode($inputs['classlevel_id']));
+        return redirect('/class-rooms/' . $this->encode($inputs['classlevel_id']));
     }
 
     /**

@@ -65,7 +65,7 @@ class AcademicTermsController extends Controller
             if ($inputs['status'][$j] == '1') $status++;
         }
 
-        if ($status != 1) {
+        if ($status != 1 && empty(AcademicTerm::activeTerm())) {
             $this->setFlashMessage('Note!!! An Academic Term (Only One) Must Be Set To Active At Any Point In Time.', 2);
         } else {
             for ($i = 0; $i < count($inputs['academic_term_id']); $i++) {
@@ -110,7 +110,8 @@ class AcademicTermsController extends Controller
             if ($count > 0) $this->setFlashMessage($count . ' Academic Term has been successfully updated.', 1);
         }
         
-        return redirect('/academic-terms');
+//        return redirect('/academic-terms');
+        return redirect()->back();
     }
 
     /**
@@ -202,6 +203,6 @@ class AcademicTermsController extends Controller
     {
         $inputs = $request->all();
 
-        return redirect('/academic-terms/index/' . $this->encode($inputs['academic_year_id']));
+        return redirect('/academic-terms/' . $this->encode($inputs['academic_year_id']));
     }
 }

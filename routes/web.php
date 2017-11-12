@@ -157,12 +157,12 @@ Route::group(['namespace' => 'Admin\MasterRecords\Classes'], function () {
         Route::get('/{groupId?}', 'ClassLevelsController@index');
         Route::post('/', 'ClassLevelsController@save');
         Route::get('/delete/{id}', 'ClassLevelsController@delete');
-        Route::post('/class-groups', 'ClassLevelsController@classGroups');
+        Route::post('/class-groups/', 'ClassLevelsController@classGroups');
     });
 
     //Class Rooms Routes
     Route::group(['prefix'=>'/class-rooms'], function () {
-        Route::get('/{id?}', 'ClassRoomsController@index');
+        Route::get('/{levelId?}', 'ClassRoomsController@index');
         Route::post('/', 'ClassRoomsController@save');
         Route::get('/delete/{id}', 'ClassRoomsController@delete');
         Route::post('/levels', 'ClassRoomsController@levels');
@@ -186,10 +186,10 @@ Route::group(['namespace' => 'Admin\MasterRecords\Classes'], function () {
 Route::group(['namespace' => 'Admin\MasterRecords\Items'], function () {
     //Items Quotes Routes
     Route::group(['prefix'=>'/item-quotes'], function () {
-        Route::get('/{yearId?}/{termId?}', 'ItemQuotesController@index');
-        Route::post('/{yearId?}/{termId?}', 'ItemQuotesController@save');
         Route::get('/delete/{id}', 'ItemQuotesController@delete');
         Route::post('/academic-years', 'ItemQuotesController@academicYears');
+        Route::get('/{yearId?}/{termId?}', 'ItemQuotesController@index');
+        Route::post('/', 'ItemQuotesController@save');
     });
 
     //Items Routes
@@ -211,12 +211,13 @@ Route::group(['namespace' => 'Admin\MasterRecords\Items'], function () {
 Route::group(['namespace' => 'Admin\MasterRecords\Sessions'], function () {
     //Academic Terms Routes
     Route::group(['prefix'=>'/academic-terms'], function () {
-        Route::get('/{yearId?}', 'AcademicTermsController@index');
-        Route::post('/{yearId?}', 'AcademicTermsController@save');
-        Route::get('/delete/{id}', 'AcademicTermsController@delete');
         Route::get('/clones', 'AcademicTermsController@clone');
         Route::post('/validate-clone', 'AcademicTermsController@validateClone');
         Route::post('/cloning', 'AcademicTermsController@cloning');
+
+        Route::get('/{yearId?}', 'AcademicTermsController@index');
+        Route::post('/', 'AcademicTermsController@save');
+        Route::get('/delete/{id}', 'AcademicTermsController@delete');
         Route::post('/academic-years', 'AcademicTermsController@academicYears');
     });
 
@@ -281,31 +282,29 @@ Route::group(['namespace' => 'Admin\MasterRecords\Subjects'], function () {
     });
     
 });
+
 //Master Records
 Route::group(['namespace' => 'Admin\MasterRecords'], function () {
     //Assessment Setups Route
     Route::group(['prefix'=>'/assessment-setups'], function () {
-        Route::get('/', 'AssessmentSetupsController@index');
-        Route::get('/index/{yearId}', 'AssessmentSetupsController@index');
-        Route::post('/', 'AssessmentSetupsController@save');
-        Route::post('/index/{yearId}', 'AssessmentSetupsController@save');
-        Route::post('/academic-years', 'AssessmentSetupsController@academicYears');
-        Route::get('/delete/{id}', 'AssessmentSetupsController@delete');
-        
         Route::get('/details/{termId?}/{yearId?}', 'AssessmentSetupsController@details');
         Route::post('/terms', 'AssessmentSetupsController@terms');
         Route::post('/details/{termId?}/{yearId?}', 'AssessmentSetupsController@saveDetails');
         Route::get('/details-delete/{id?}/{groupId?}', 'AssessmentSetupsController@deleteDetails');
+
+        Route::get('/{yearId?}', 'AssessmentSetupsController@index');
+        Route::post('/', 'AssessmentSetupsController@save');
+        Route::post('/academic-years', 'AssessmentSetupsController@academicYears');
+        Route::get('/delete/{id}', 'AssessmentSetupsController@delete');
+
     });
     
     //Grades Route
     Route::group(['prefix'=>'/grades'], function () {
-        Route::get('/', 'GradesController@index');
-        Route::get('/index/{id}', 'GradesController@index');
-        Route::post('/', 'GradesController@save');
-        Route::post('/index/{id}', 'GradesController@save');
-        Route::get('/delete/{id}', 'GradesController@delete');
         Route::post('/class-groups', 'GradesController@classGroups');
+        Route::get('/{id?}', 'GradesController@index');
+        Route::post('/', 'GradesController@save');
+        Route::get('/delete/{id}', 'GradesController@delete');
     });
     
     //Menus Route

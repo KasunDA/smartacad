@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin\MasterRecords\Items;
 use App\Models\Admin\Items\ItemType;
 use Illuminate\Http\Request;
 
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 class ItemTypesController extends Controller
@@ -35,10 +34,10 @@ class ItemTypesController extends Controller
         for ($i = 0; $i < count($inputs['id']); $i++) {
             $item_type = ($inputs['id'][$i] > 0) ? ItemType::find($inputs['id'][$i]) : new ItemType();
             $item_type->item_type = $inputs['item_type'][$i];
-            $count = ($item_type->save()) ? $count+1 : '';
+            $count = ($item_type->save()) ? $count + 1 : $count;
         }
 
-        if ($count > 0) $this->setFlashMessage($count . ' Item Type has been successfully updated.', 1);
+        if ($count > 0) $this->setFlashMessage("{$count} Item Type has been successfully updated.", 1);
 
         return redirect('/item-types');
     }
