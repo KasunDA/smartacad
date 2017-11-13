@@ -2,6 +2,13 @@
 
 namespace App\Models\Admin\Users;
 
+use App\Models\Admin\Accounts\Students\Student;
+use App\Models\Admin\Assessments\Assessment;
+use App\Models\Admin\MasterRecords\Classes\ClassMaster;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
+use App\Models\Admin\RolesAndPermissions\Role;
+use App\Models\School\Setups\Lga;
+use App\Models\School\Setups\Salutation;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -133,7 +140,7 @@ class User extends Authenticatable
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function salutation(){
-        return $this->belongsTo('App\Models\School\Setups\Salutation');
+        return $this->belongsTo(Salutation::class, 'salutation_id');
     }
 
     /**
@@ -142,7 +149,7 @@ class User extends Authenticatable
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function lga(){
-        return $this->belongsTo('App\Models\School\Setups\Lga');
+        return $this->belongsTo(Lga::class, 'lga_id');
     }
 
     /**
@@ -151,7 +158,7 @@ class User extends Authenticatable
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function userType(){
-        return $this->belongsTo('App\Models\Admin\Users\UserType');
+        return $this->belongsTo(UserType::class, 'user_type_id');
     }
 
     /**
@@ -159,7 +166,7 @@ class User extends Authenticatable
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function students(){
-        return $this->hasMany('App\Models\Admin\Accounts\Students\Student', 'sponsor_id');
+        return $this->hasMany(Student::class, 'sponsor_id');
     }
 
     /**
@@ -167,7 +174,7 @@ class User extends Authenticatable
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function classMasters(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\Classes\ClassMaster', 'user_id');
+        return $this->hasMany(ClassMaster::class, 'user_id');
     }
 
     /**
@@ -176,7 +183,7 @@ class User extends Authenticatable
      */
     public function roles()
     {
-        return $this->belongsToMany('App\Models\Admin\RolesAndPermissions\Role', 'role_user', 'user_id', 'role_id');
+        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
     }
 
     /**
@@ -185,7 +192,7 @@ class User extends Authenticatable
      */
     public function assessments()
     {
-        return $this->hasManyThrough('App\Models\Admin\Assessments\Assessment', 'App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'tutor_id', 'subject_classroom_id');
+        return $this->hasManyThrough(Assessment::class, SubjectClassRoom::class, 'tutor_id', 'subject_classroom_id');
     }
 
     /**
@@ -193,7 +200,7 @@ class User extends Authenticatable
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function subjectClassRooms(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'tutor_id');
+        return $this->hasMany(SubjectClassRoom::class, 'tutor_id');
     }
 
     /**

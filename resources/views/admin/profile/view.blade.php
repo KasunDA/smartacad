@@ -35,27 +35,27 @@
             <div class="row">
                 <div class="col-md-9">
                     <div class="portlet light ">
-                        <div class="portlet-title tabbable-line">
-                            <h1 class="font-green sbold uppercase">{{ $user->fullNames() }}</h1>
-                            <ul class="list-inline">
-                                <li>
-                                    <i class="fa fa-user"></i>
-                                    Username: {{ $user->email }}
-                                </li>
-                                <li>
-                                    <i class="fa fa-check"></i>
-                                    Status: {!! ($user->status == 1) ? LabelHelper::success('Activated') : LabelHelper::danger('Deactivated') !!}
-                                </li>
-                                <br>Role(s):
-                                @foreach($user->roles()->get() as $role)
-                                    <li><i class="fa fa-tag"></i> {{ $role->display_name }}</li>
-                                @endforeach
-                            </ul>
-                            <div class="caption caption-md">
-                                <i class="icon-globe theme-font hide"></i>
-                                <span class="caption-subject font-blue-madison bold uppercase">Profile Details</span>
-                            </div>
-                        </div>
+                        {{--<div class="portlet-title tabbable-line">--}}
+                            {{--<h1 class="font-green sbold uppercase">{{ $user->fullNames() }}</h1>--}}
+                            {{--<ul class="list-inline">--}}
+                                {{--<li>--}}
+                                    {{--<i class="fa fa-user"></i>--}}
+                                    {{--Username: {{ $user->email }}--}}
+                                {{--</li>--}}
+                                {{--<li>--}}
+                                    {{--<i class="fa fa-check"></i>--}}
+                                    {{--Status: {!! ($user->status == 1) ? LabelHelper::success('Activated') : LabelHelper::danger('Deactivated') !!}--}}
+                                {{--</li>--}}
+                                {{--<br>Role(s):--}}
+                                {{--@foreach($user->roles()->get() as $role)--}}
+                                    {{--<li><i class="fa fa-tag"></i> {{ $role->display_name }}</li>--}}
+                                {{--@endforeach--}}
+                            {{--</ul>--}}
+                            {{--<div class="caption caption-md">--}}
+                                {{--<i class="icon-globe theme-font hide"></i>--}}
+                                {{--<span class="caption-subject font-blue-madison bold uppercase">Profile Details</span>--}}
+                            {{--</div>--}}
+                        {{--</div>--}}
                         <div class="portlet-body">
                             <div class="portlet sale-summary">
                                 <div class="portlet-body">
