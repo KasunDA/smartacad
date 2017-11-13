@@ -38,7 +38,7 @@ class ClassLevel extends Model
      */
 
     public function classRooms(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\Classes\ClassRoom', 'classlevel_id');
+        return $this->hasMany(ClassRoom::class, 'classlevel_id');
     }
 
     /**
@@ -47,7 +47,7 @@ class ClassLevel extends Model
      */
 
     public function classGroup(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassGroup', 'classgroup_id');
+        return $this->belongsTo(ClassGroup::class, 'classgroup_id');
     }
 
     /**

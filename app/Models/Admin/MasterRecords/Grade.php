@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\MasterRecords;
 
+use App\Models\Admin\MasterRecords\Classes\ClassGroup;
 use Illuminate\Database\Eloquent\Model;
 
 class Grade extends Model
@@ -37,6 +38,6 @@ class Grade extends Model
      */
 
     public function classGroup(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassGroup');
+        return $this->belongsTo(ClassGroup::class, 'classgroup_id');
     }
 }

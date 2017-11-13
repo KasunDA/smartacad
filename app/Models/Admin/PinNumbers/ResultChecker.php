@@ -2,6 +2,9 @@
 
 namespace App\Models\Admin\PinNumbers;
 
+use App\Models\Admin\Accounts\Students\Student;
+use App\Models\Admin\MasterRecords\AcademicTerm;
+use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use Illuminate\Database\Eloquent\Model;
 
 class ResultChecker extends Model
@@ -31,7 +34,7 @@ class ResultChecker extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function student(){
-        return $this->belongsTo('App\Models\Admin\Accounts\Students\Student', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id');
     }
 
     /**
@@ -39,7 +42,7 @@ class ResultChecker extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function classRoom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassRoom', 'classroom_id');
+        return $this->belongsTo(ClassRoom::class, 'classroom_id');
     }
 
     /**
@@ -47,6 +50,6 @@ class ResultChecker extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function academicTerm(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\AcademicTerm', 'academic_term_id');
+        return $this->belongsTo(AcademicTerm::class, 'academic_term_id');
     }
 }

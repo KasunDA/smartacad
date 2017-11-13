@@ -41,6 +41,6 @@ class State extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function lgas(){
-        return $this->hasMany('App\Models\School\Setups\Lga');
+        return $this->hasMany(Lga::class, 'state_id');
     }
 }

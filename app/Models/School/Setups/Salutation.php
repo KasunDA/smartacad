@@ -2,6 +2,7 @@
 
 namespace App\Models\School\Setups;
 
+use App\Models\Admin\Users\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Salutation extends Model
@@ -42,6 +43,6 @@ class Salutation extends Model
      */
 
     public function users(){
-        return $this->hasMany('App\Models\Admin\Users\User');
+        return $this->hasMany(User::class, 'salutation_id');
     }
 }

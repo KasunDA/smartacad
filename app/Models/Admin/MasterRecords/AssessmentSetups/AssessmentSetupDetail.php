@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\MasterRecords\AssessmentSetups;
 
+use App\Models\Admin\Assessments\Assessment;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
@@ -50,7 +51,7 @@ class AssessmentSetupDetail extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function assessmentSetup(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup', 'assessment_setup_id');
+        return $this->belongsTo(AssessmentSetup::class, 'assessment_setup_id');
     }
 
     /**
@@ -58,7 +59,7 @@ class AssessmentSetupDetail extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function assessments(){
-        return $this->hasMany('App\Models\Admin\Assessments\Assessment', 'assessment_setup_detail_id');
+        return $this->hasMany(Assessment::class, 'assessment_setup_detail_id');
     }
 
     /**

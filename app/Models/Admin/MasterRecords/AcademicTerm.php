@@ -2,7 +2,9 @@
 
 namespace App\Models\Admin\MasterRecords;
 
+use App\Models\Admin\Assessments\Remark;
 use App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -53,7 +55,7 @@ class AcademicTerm extends Model
      */
 
     public function academicYear(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\AcademicYear');
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 
     /**
@@ -69,7 +71,7 @@ class AcademicTerm extends Model
      * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
     public function subjectClassRooms(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'academic_term_id');
+        return $this->hasMany(SubjectClassRoom::class, 'academic_term_id');
     }
 
     /**
@@ -77,7 +79,7 @@ class AcademicTerm extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function remarks(){
-        return $this->hasMany('App\Models\Admin\Assessments\Remark', 'academic_term_id');
+        return $this->hasMany(Remark::class, 'academic_term_id');
     }
 
     /**

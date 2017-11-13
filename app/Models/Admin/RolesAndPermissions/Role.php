@@ -2,6 +2,9 @@
 
 namespace App\Models\Admin\RolesAndPermissions;
 
+use App\Models\Admin\Menus\Menu;
+use App\Models\Admin\Users\User;
+use App\Models\Admin\Users\UserType;
 use Zizaco\Entrust\EntrustRole;
 
 class Role extends EntrustRole
@@ -28,7 +31,7 @@ class Role extends EntrustRole
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function userType(){
-        return $this->belongsTo('App\Models\Admin\Users\UserType');
+        return $this->belongsTo(UserType::class, 'user_type_id');
     }
 
     /**
@@ -37,7 +40,7 @@ class Role extends EntrustRole
      */
     public function menus()
     {
-        return $this->belongsToMany('App\Models\Admin\Menus\Menu', 'menus_roles', 'role_id', 'menu_id');
+        return $this->belongsToMany(Menu::class, 'menus_roles', 'role_id', 'menu_id');
     }
 
     /**
@@ -46,6 +49,6 @@ class Role extends EntrustRole
      */
     public function users()
     {
-        return $this->belongsToMany('App\Models\Admin\Users\User', 'role_user', 'role_id', 'user_id');
+        return $this->belongsToMany(User::class, 'role_user', 'role_id', 'user_id');
     }
 }

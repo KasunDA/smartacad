@@ -36,6 +36,6 @@ class PinNumber extends Model
      */
 
     public function resultCheckers(){
-        return $this->hasMany('App\Models\Admin\RandomNumbers\ResultChecker');
+        return $this->hasMany(ResultChecker::class, 'pin_number_id');
     }
 }

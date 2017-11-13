@@ -2,6 +2,8 @@
 
 namespace App\Models\Admin\Assessments\Domains;
 
+use App\Models\Admin\Accounts\Students\Student;
+use App\Models\Admin\MasterRecords\AcademicTerm;
 use Illuminate\Database\Eloquent\Model;
 
 class DomainAssessment extends Model
@@ -36,7 +38,7 @@ class DomainAssessment extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function domainDetails(){
-        return $this->hasMany('App\Models\Admin\Assessments\Domains\DomainDetail', 'domain_assessment_id');
+        return $this->hasMany(DomainDetail::class, 'domain_assessment_id');
     }
 
     /**
@@ -44,7 +46,7 @@ class DomainAssessment extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function academicTerm(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\AcademicTerm', 'academic_term_id');
+        return $this->belongsTo(AcademicTerm::class, 'academic_term_id');
     }
 
     /**
@@ -52,6 +54,6 @@ class DomainAssessment extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function student(){
-        return $this->belongsTo('App\Models\Admin\Accounts\Students\Student', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id');
     }
 }

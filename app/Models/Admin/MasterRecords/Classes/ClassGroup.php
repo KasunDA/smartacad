@@ -3,6 +3,7 @@
 namespace App\Models\Admin\MasterRecords\Classes;
 
 use App\Models\Admin\Items\ItemQuote;
+use App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -63,6 +64,6 @@ class ClassGroup extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function assessmentSetups(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup', 'classgroup_id');
+        return $this->hasMany(AssessmentSetup::class, 'classgroup_id');
     }
 }

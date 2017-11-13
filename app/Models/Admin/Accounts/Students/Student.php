@@ -2,7 +2,17 @@
 
 namespace App\Models\Admin\Accounts\Students;
 
+use App\Models\Admin\Assessments\AssessmentDetail;
+use App\Models\Admin\Assessments\Domains\DomainAssessment;
+use App\Models\Admin\Assessments\Remark;
 use App\Models\Admin\Attendances\AttendanceDetail;
+use App\Models\Admin\Exams\ExamDetail;
+use App\Models\Admin\MasterRecords\AcademicTerm;
+use App\Models\Admin\MasterRecords\Classes\ClassRoom;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
+use App\Models\Admin\Users\User;
+use App\Models\School\Setups\Lga;
+use App\Models\School\Setups\Status;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -116,7 +126,10 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function currentClass($year){
-        $class = StudentClass::where('academic_year_id', $year)->where('student_id', $this->student_id)->first();
+        $class = StudentClass::where('academic_year_id', $year)
+            ->where('student_id', $this->student_id)
+            ->first();
+
         return ($class) ? $class->classRoom()->first() : null;
     }
 
@@ -125,7 +138,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function classRoom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassRoom', 'classroom_id');
+        return $this->belongsTo(ClassRoom::class, 'classroom_id');
     }
 
     /**
@@ -133,7 +146,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function status(){
-        return $this->belongsTo('App\Models\School\Setups\Status');
+        return $this->belongsTo(Status::class, 'status_id');
     }
 
     /**
@@ -141,7 +154,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function sponsor(){
-        return $this->belongsTo('App\Models\Admin\Users\User', 'sponsor_id');
+        return $this->belongsTo(User::class, 'sponsor_id');
     }
 
     /**
@@ -149,7 +162,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function termAdmitted(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\AcademicTerm', 'admitted_term_id');
+        return $this->belongsTo(AcademicTerm::class, 'admitted_term_id');
     }
 
     /**
@@ -157,7 +170,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function createdBy(){
-        return $this->belongsTo('App\Models\Admin\Users\User', 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
@@ -165,7 +178,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function lga(){
-        return $this->belongsTo('App\Models\School\Setups\Lga');
+        return $this->belongsTo(Lga::class, 'lga_id');
     }
 
     /**
@@ -173,7 +186,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function studentClass(){
-        return $this->hasMany('App\Models\Admin\Accounts\Students\StudentClass');
+        return $this->hasMany(StudentClass::class, 'student_id');
     }
 
     /**
@@ -181,7 +194,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function studentSubjects(){
-        return $this->hasMany('App\Models\Admin\Accounts\Students\StudentSubject');
+        return $this->hasMany(StudentSubject::class, 'student_id');
     }
 
     /**
@@ -189,7 +202,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\hasManyThrough
      */
     public function subjectClassRooms(){
-        return $this->hasManyThrough('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'App\Models\Admin\Accounts\Students\StudentSubject', 'student_id', 'subject_classroom_id');
+        return $this->hasManyThrough(SubjectClassRoom::class, StudentSubject::class, 'student_id', 'subject_classroom_id');
     }
 
     /**
@@ -197,7 +210,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function assessmentDetails(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\AssessmentDetail', 'student_id');
+        return $this->hasMany(AssessmentDetail::class, 'student_id');
     }
 
     /**
@@ -205,7 +218,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function examDetails(){
-        return $this->hasMany('App\Models\Admin\Exams\ExamDetail', 'student_id');
+        return $this->hasMany(ExamDetail::class, 'student_id');
     }
 
     /**
@@ -213,7 +226,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function remarks(){
-        return $this->hasMany('App\Models\Admin\Assessments\Remark', 'student_id');
+        return $this->hasMany(Remark::class, 'student_id');
     }
 
     /**
@@ -221,7 +234,7 @@ class Student extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function domainAssessment(){
-        return $this->hasMany('App\Models\Admin\Assessments\Domains\DomainAssessment', 'student_id');
+        return $this->hasMany(DomainAssessment::class, 'student_id');
     }
 
     /**
@@ -231,5 +244,4 @@ class Student extends Model
     public function attendanceDetails(){
         return $this->hasMany(AttendanceDetail::class, 'student_id');
     }
-
 }

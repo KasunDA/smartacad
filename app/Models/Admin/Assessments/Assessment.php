@@ -2,6 +2,8 @@
 
 namespace App\Models\Admin\Assessments;
 
+use App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetupDetail;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -41,7 +43,7 @@ class Assessment extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function assessmentSetupDetail(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetupDetail', 'assessment_setup_detail_id');
+        return $this->belongsTo(AssessmentSetupDetail::class, 'assessment_setup_detail_id');
     }
 
     /**
@@ -49,7 +51,7 @@ class Assessment extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function subjectClassroom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'subject_classroom_id');
+        return $this->belongsTo(SubjectClassRoom::class, 'subject_classroom_id');
     }
 
     /**
@@ -57,7 +59,7 @@ class Assessment extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function assessmentDetails(){
-        return $this->hasMany('App\Models\Admin\Assessments\AssessmentDetail', 'assessment_id');
+        return $this->hasMany(AssessmentDetail::class, 'assessment_id');
     }
 
     /**

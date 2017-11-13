@@ -40,6 +40,6 @@ class SchoolDatabase extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function school(){
-        return $this->belongsTo('App\Models\School\School');
+        return $this->belongsTo(School::class, 'school_id');
     }
 }

@@ -27,7 +27,7 @@ class Attendance extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function classroom(){
-        return $this->belongsTo(ClassRoom::class);
+        return $this->belongsTo(ClassRoom::class, 'classroom_id');
     }
 
     /**
@@ -36,7 +36,7 @@ class Attendance extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function academicTerm(){
-        return $this->belongsTo(AcademicTerm::class);
+        return $this->belongsTo(AcademicTerm::class, 'academic_term_id');
     }
 
     /**

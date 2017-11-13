@@ -2,6 +2,8 @@
 
 namespace App\Models\Admin\MasterRecords\Subjects;
 
+use App\Models\Admin\MasterRecords\Classes\ClassGroup;
+use App\Models\School\Setups\Subjects\Subject;
 use Baum\Node;
 
 /**
@@ -33,7 +35,7 @@ class CustomSubject extends Node {
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function subject(){
-        return $this->belongsTo('App\Models\School\Setups\Subjects\Subject', 'subject_id');
+        return $this->belongsTo(Subject::class, 'subject_id');
     }
 
     /**
@@ -42,7 +44,7 @@ class CustomSubject extends Node {
      */
 
     public function classGroup(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassGroup', 'classgroup_id');
+        return $this->belongsTo(ClassGroup::class, 'classgroup_id');
     }
   //////////////////////////////////////////////////////////////////////////////
 

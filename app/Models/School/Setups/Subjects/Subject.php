@@ -2,6 +2,8 @@
 
 namespace App\Models\School\Setups\Subjects;
 
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
+use App\Models\School\School;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -40,7 +42,7 @@ class Subject extends Model
      */
 
     public function subjectGroup(){
-        return $this->belongsTo('App\Models\School\Setups\Subjects\SubjectGroup');
+        return $this->belongsTo(SubjectGroup::class, 'subject_group_id');
     }
 
     /**
@@ -49,7 +51,8 @@ class Subject extends Model
      */
     public function schools()
     {
-        return $this->belongsToMany('App\Models\School\School', 'schools_subjects', 'subject_id', 'school_id')->withPivot('subject_alias');
+        return $this->belongsToMany(School::class, 'schools_subjects', 'subject_id', 'school_id')
+            ->withPivot('subject_alias');
     }
 
     /**
@@ -57,6 +60,6 @@ class Subject extends Model
      * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
     public function subjectClassRooms(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'subject_id');
+        return $this->hasMany(SubjectClassRoom::class, 'subject_id');
     }
 }

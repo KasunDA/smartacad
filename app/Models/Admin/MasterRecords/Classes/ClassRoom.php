@@ -2,7 +2,9 @@
 
 namespace App\Models\Admin\MasterRecords\Classes;
 
+use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\Attendances\Attendance;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -39,7 +41,7 @@ class ClassRoom extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function classLevel(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassLevel', 'classlevel_id');
+        return $this->belongsTo(ClassLevel::class, 'classlevel_id');
     }
 
     /**
@@ -47,7 +49,7 @@ class ClassRoom extends Model
      * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
     public function subjectClassRooms(){
-        return $this->hasMany('App\Models\Admin\Subjects\SubjectClassRoom', 'subject_classroom_id');
+        return $this->hasMany(SubjectClassRoom::class, 'classroom_id');
     }
 
     /**
@@ -55,7 +57,7 @@ class ClassRoom extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function studentClasses(){
-        return $this->hasMany('App\Models\Admin\Accounts\Students\StudentClass', 'classroom_id');
+        return $this->hasMany(StudentClass::class, 'classroom_id');
     }
 
     /**
@@ -63,7 +65,7 @@ class ClassRoom extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function classMasters(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\Classes\ClassMaster', 'classroom_id');
+        return $this->hasMany(ClassMaster::class, 'classroom_id');
     }
 
     /**

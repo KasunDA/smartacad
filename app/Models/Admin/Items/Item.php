@@ -24,7 +24,7 @@ class Item extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function itemType(){
-        return $this->belongsTo(ItemType::class);
+        return $this->belongsTo(ItemType::class, 'item_type_id');
     }
 
     /**
@@ -33,7 +33,7 @@ class Item extends Model
      */
 
     public function itemQuotes(){
-        return $this->hasMany(ItemQuote::class);
+        return $this->hasMany(ItemQuote::class, 'item_id');
     }
 
     /**
@@ -42,7 +42,7 @@ class Item extends Model
      */
 
     public function itemVariables(){
-        return $this->hasMany(ItemVariable::class);
+        return $this->hasMany(ItemVariable::class, 'item_id');
     }
 
     /**
@@ -51,6 +51,6 @@ class Item extends Model
      */
 
     public function orderItems(){
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'item_id');
     }
 }
