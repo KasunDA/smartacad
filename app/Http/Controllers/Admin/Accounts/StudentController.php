@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin\Accounts;
 
 use App\Helpers\LabelHelper;
-use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\MasterRecords\AcademicTerm;
@@ -87,7 +86,7 @@ class StudentController extends Controller
 
         //Filter by sponsor name
         $sponsors = (!empty($q))
-             ? User::where('user_type_id', Sponsor::USER_TYPE)
+             ? User::where('user_type_id', User::SPONSOR)
                 ->where(function ($query) use ($q) {
                     $query->orWhere('first_name', 'like', '%'.$q.'%')
                         ->orWhere('last_name', 'like', '%'.$q.'%');
@@ -346,7 +345,7 @@ class StudentController extends Controller
     {
         $response = array();
         $inputs = Input::get('term');
-        $sponsors = User::where('user_type_id', Sponsor::USER_TYPE)
+        $sponsors = User::where('user_type_id', User::SPONSOR)
             ->where('first_name', 'like', $inputs.'%')
             ->get();
         

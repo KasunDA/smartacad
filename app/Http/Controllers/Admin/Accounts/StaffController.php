@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin\Accounts;
 
 use App\Helpers\LabelHelper;
-use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
@@ -55,7 +54,7 @@ class StaffController extends Controller
         $iTotalRecords = User::whereIn(
                 'user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray()
             )
-            ->where('user_type_id', '<>', Sponsor::USER_TYPE)
+            ->where('user_type_id', '<>', User::SPONSOR)
             ->count();;
         
         $iDisplayLength = intval($_REQUEST['length']);
@@ -69,7 +68,7 @@ class StaffController extends Controller
         $staffs = User::whereIn(
                 'user_type_id', UserType::where('type', 2)->get(['user_type_id'])->toArray()
             )
-            ->where('user_type_id', '<>', Sponsor::USER_TYPE)
+            ->where('user_type_id', '<>', User::SPONSOR)
             ->where(function ($query) use ($q) {
                 if (!empty($q)){
                     $query->orWhere('first_name', 'like', '%'.$q.'%')

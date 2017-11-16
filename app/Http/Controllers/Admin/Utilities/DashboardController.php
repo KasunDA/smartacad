@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Admin\Utilities;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Accounts\Sponsor;
-use App\Models\Admin\Accounts\Staff;
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
@@ -12,9 +10,9 @@ use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassMaster;
 use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
-use Illuminate\Foundation\Auth\User;
 
 use App\Http\Requests;
+use App\Models\Admin\Users\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Psy\Util\Json;
@@ -51,11 +49,11 @@ class DashboardController extends Controller
             return redirect('/academic-terms');
         }
 
-        $sponsors_count = User::where('user_type_id', Sponsor::USER_TYPE)->count();
-        $staff_count = User::where('user_type_id', Staff::USER_TYPE)->count();
+        $sponsors_count = User::where('user_type_id', User::SPONSOR)->count();
+        $staff_count = User::where('user_type_id', User::STAFF)->count();
         $students_count = Student::count();
 
-        if(Auth::user()->user_type_id == Staff::USER_TYPE){
+        if(Auth::user()->user_type_id == User::STAFF){
             $unmarked = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
                 ->where('tutor_id', Auth::user()->user_id)
                 ->where(function ($query) {
@@ -71,7 +69,7 @@ class DashboardController extends Controller
 
             return view('admin.dashboards.staff', compact('marked', 'unmarked'));
 
-        }else if(Auth::user()->user_type_id == Sponsor::USER_TYPE){
+        }else if(Auth::user()->user_type_id == User::SPONSOR){
 
             return redirect('/home');
 
@@ -212,7 +210,7 @@ class DashboardController extends Controller
 
 //    public function getStaff(){
 //        $count = 0;
-//        $staffs = User::where('user_type_id', Staff::USER_TYPE)->get();
+//        $staffs = User::where('user_type_id', User::STAFF)->get();
 //        foreach($staffs as $staff){
 //            $msg = "Username: $staff->phone_no or $staff->email";
 //            $msg .= " and Password: password kindly visit this link portal.solidsteps.org to login";

@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Admin\Accounts\Sponsor;
+use App\Models\Admin\Users\User;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,7 +19,7 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
-            if(Auth::user()->user_type_id == Sponsor::USER_TYPE)
+            if(Auth::user()->user_type_id == User::SPONSOR)
                 // redirect to the PARENT / STUDENT page
                 return redirect('/home');
             return redirect()->intended();

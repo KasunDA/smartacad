@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\Utilities;
 
 use App\Helpers\LabelHelper;
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
@@ -97,7 +96,7 @@ class MessageController extends Controller
                     ->get(['user_type_id'])
                     ->toArray()
             )
-            ->where('user_type_id', '<>', Sponsor::USER_TYPE)
+            ->where('user_type_id', '<>', User::SPONSOR)
             ->where('status', 1)
             ->count();
         $iDisplayLength = intval($_REQUEST['length']);
@@ -108,7 +107,7 @@ class MessageController extends Controller
 
         //List of Sponsors
         $staffs = User::where('status', 1)
-            ->where('user_type_id', '<>', Sponsor::USER_TYPE)
+            ->where('user_type_id', '<>', User::SPONSOR)
             ->whereIn('user_type_id',
                 UserType::where('type', 2)
                     ->get(['user_type_id'])
@@ -223,7 +222,7 @@ class MessageController extends Controller
 
         if ($type == '#sponsor') {
             //TODO exclude not active students
-            $nos = User::where('user_type_id', Sponsor::USER_TYPE)
+            $nos = User::where('user_type_id', User::SPONSOR)
                 ->where('status', 1)
                 ->distinct()
                 ->pluck('phone_no')
@@ -234,7 +233,7 @@ class MessageController extends Controller
                         ->get(['user_type_id'])
                         ->toArray()
                 )
-                ->where('user_type_id', '<>', Sponsor::USER_TYPE)
+                ->where('user_type_id', '<>', User::SPONSOR)
                 ->where('status', 1)
                 ->distinct()
                 ->pluck('phone_no')

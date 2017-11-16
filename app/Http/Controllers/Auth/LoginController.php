@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Users\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -124,7 +123,7 @@ class LoginController extends Controller
 
         if ($this->guard()->attempt($credentials, $request->filled('remember'))) {
             //dd(Auth::user());
-            if(Auth::user()->user_type_id == Sponsor::USER_TYPE){
+            if(Auth::user()->user_type_id == User::SPONSOR){
                 // redirect to the PARENT / STUDENT page
                 return redirect('/home');
             }
@@ -177,7 +176,7 @@ class LoginController extends Controller
         if($user){
             Auth::login($user);
 
-            if($user->user_type_id == Sponsor::USER_TYPE)
+            if($user->user_type_id == User::SPONSOR)
                 // redirect to the PARENT / STUDENT page
                 return redirect('/home');
             return redirect('/dashboard');

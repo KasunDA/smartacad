@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\Users\User;
 use App\Models\School\School;
@@ -40,7 +39,7 @@ class Controller extends BaseController
         $this->middleware(function ($request, $next) {
             if(Auth::check()){
                 // render PARENT / STUDENT page
-                $this->view = (Auth::user()->user_type_id == Sponsor::USER_TYPE) ? 'front.' : 'admin.';
+                $this->view = (Auth::user()->user_type_id == User::SPONSOR) ? 'front.' : 'admin.';
 
                 if(empty(AcademicTerm::activeTerm()))
                     $this->setFlashMessage(

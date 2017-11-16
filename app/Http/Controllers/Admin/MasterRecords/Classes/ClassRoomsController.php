@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Admin\MasterRecords\Classes;
 
-use App\Models\Admin\Accounts\Staff;
-use App\Models\Admin\Accounts\Students\Student;
-use App\Models\Admin\Accounts\Students\StudentClass;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\MasterRecords\Classes\ClassMaster;
@@ -120,7 +117,7 @@ class ClassRoomsController extends Controller
             ->prepend('- Select Academic Year -', '');
         $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
             ->prepend('- Select Class Level -', '');
-        $tutors = User::where('user_type_id', Staff::USER_TYPE)
+        $tutors = User::where('user_type_id', User::STAFF)
             ->where('status', 1)
             ->orderBy('first_name')
             ->get();
