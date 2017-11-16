@@ -38,7 +38,7 @@ return [
     |
     */
 
-    'debug' => env('APP_DEBUG', false),
+    'debug' => in_array(env('APP_ENV'), ['local', 'development']) && env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
