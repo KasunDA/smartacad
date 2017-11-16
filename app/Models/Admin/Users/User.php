@@ -36,6 +36,8 @@ class User extends Authenticatable
      */
     const DEVELOPER = 1;
     const SUPER_ADMIN = 2;
+    const SPONSOR = 3;
+    const STAFF = 4;
 
     /**
      * Dates To Be Treated As Carbon Instance

@@ -40,30 +40,34 @@ class EntrustSetupTables extends Migration
         });
 
         // Create table for storing permissions
-        Schema::create('permissions', function (Blueprint $table) {
-            $table->increments('permission_id');
-            $table->string('name')->unique();
-            $table->string('display_name')->nullable();
-            $table->string('description')->nullable();
-            $table->string('uri')->nullable();
-            $table->timestamps();
+        if (!Schema::connection('admin_mysql')->hasTable('permissions')) {
+            Schema::connection('admin_mysql')->create('permissions', function (Blueprint $table) {
+                $table->increments('permission_id');
+                $table->string('name')->unique();
+                $table->string('display_name')->nullable();
+                $table->string('description')->nullable();
+                $table->string('uri')->nullable();
+                $table->timestamps();
 
-            $table->engine = 'InnoDB';
-        });
+                $table->engine = 'InnoDB';
+            });
+        }
 
         // Create table for associating permissions to roles (Many-to-Many)
-        Schema::create('permission_role', function (Blueprint $table) {
-            $table->integer('permission_id')->unsigned();
-            $table->integer('role_id')->unsigned();
+        if (!Schema::connection('admin_mysql')->hasTable('permission_role')) {
+            Schema::connection('admin_mysql')->create('permission_role', function (Blueprint $table) {
+                $table->integer('permission_id')->unsigned();
+                $table->integer('role_id')->unsigned();
 
-            $table->foreign('permission_id')->references('permission_id')->on('permissions')
-                ->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('role_id')->references('role_id')->on('roles')
-                ->onUpdate('cascade')->onDelete('cascade');
-            $table->primary(['permission_id', 'role_id']);
+                $table->foreign('permission_id')->references('permission_id')->on('permissions')
+                    ->onUpdate('cascade')->onDelete('cascade');
+                $table->foreign('role_id')->references('role_id')->on('roles')
+                    ->onUpdate('cascade')->onDelete('cascade');
+                $table->primary(['permission_id', 'role_id']);
 
-            $table->engine = 'InnoDB';
-        });
+                $table->engine = 'InnoDB';
+            });
+        }
     }
 
     /**
@@ -73,8 +77,13 @@ class EntrustSetupTables extends Migration
      */
     public function down()
     {
-        Schema::drop('permission_role');
-        Schema::drop('permissions');
+        if (Schema::connection('admin_mysql')->hasTable('permission_role')) {
+            Schema::connection('admin_mysql')->drop('permission_role');
+        }
+        
+        if (Schema::connection('admin_mysql')->hasTable('permissions')) {
+            Schema::connection('admin_mysql')->drop('permissions');
+        }
         Schema::drop('role_user');
         Schema::drop('roles');
     }
