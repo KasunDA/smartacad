@@ -145,7 +145,7 @@
                         <img src="/assets/global/img/loading.gif" alt="loading"/>
                     </div>
                     <div id="order_items_expected_stats_content" class="display-none">
-                        <div id="order_items_expected" class="chart" style="height: 350px;"> </div>
+                        <div id="order_items_expected" class="chart" style="height: 400px;"> </div>
                     </div>
                 </div>
             </div>
@@ -169,7 +169,7 @@
                         <img src="/assets/global/img/loading.gif" alt="loading"/>
                     </div>
                     <div id="orders_percentage_stats_content" class="display-none">
-                        <div id="orders_percentage" class="chart" style="height: 350px;"> </div>
+                        <div id="orders_percentage" class="chart" style="height: 400px;"> </div>
                     </div>
                 </div>
             </div>
@@ -193,7 +193,7 @@
                         <img src="/assets/global/img/loading.gif" alt="loading"/>
                     </div>
                     <div id="order_items_stats_content" class="display-none">
-                        <div id="order_items" class="chart" style="height: 350px;"> </div>
+                        <div id="order_items" class="chart" style="height: 400px;"> </div>
                     </div>
                 </div>
             </div>
@@ -218,7 +218,7 @@
                         <img src="/assets/global/img/loading.gif" alt="loading"/>
                     </div>
                     <div id="order_items_pending_stats_content" class="display-none">
-                        <div id="order_items_pending" class="chart" style="height: 350px;"> </div>
+                        <div id="order_items_pending" class="chart" style="height: 400px;"> </div>
                     </div>
                 </div>
             </div>
