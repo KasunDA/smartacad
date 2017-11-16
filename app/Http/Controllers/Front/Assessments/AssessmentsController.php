@@ -4,16 +4,13 @@ namespace App\Http\Controllers\Front\Assessments;
 
 use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\MasterRecords\AcademicTerm;
-use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetup;
-use App\Models\Admin\MasterRecords\Classes\ClassLevel;
 use App\Models\Admin\Assessments\AssessmentDetailView;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use stdClass;
 
 class AssessmentsController extends Controller
 {
@@ -21,7 +18,7 @@ class AssessmentsController extends Controller
      * Displays the Students of the sponsor
      * @return \Illuminate\View\View
      */
-    public function getIndex()
+    public function index()
     {
         $students = Auth::user()->students()->get();
 
@@ -34,7 +31,7 @@ class AssessmentsController extends Controller
      * @param String $encodeTerm
      * @return \Illuminate\View\View
      */
-    public function getPrintReport($encodeStud, $encodeTerm)
+    public function printReport($encodeStud, $encodeTerm)
     {
         $student = Student::findOrFail($this->decode($encodeStud));
         $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
@@ -68,7 +65,7 @@ class AssessmentsController extends Controller
      * @param String $encodeStud
      * @return \Illuminate\View\View
      */
-    public function getView($encodeStud)
+    public function view($encodeStud)
     {
         $student = Student::findOrFail($this->decode($encodeStud));
         $assessments = AssessmentDetailView::orderBy('assessment_id', 'desc')
@@ -85,7 +82,7 @@ class AssessmentsController extends Controller
      * @param String $encodeTerm
      * @return \Illuminate\View\View
      */
-    public function getDetails($encodeStud, $encodeTerm)
+    public function details($encodeStud, $encodeTerm)
     {
         $student = Student::findOrFail($this->decode($encodeStud));
         $term = AcademicTerm::findOrFail($this->decode($encodeTerm));

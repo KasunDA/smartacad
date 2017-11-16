@@ -118,9 +118,9 @@
                                             </tr>
                                             <tr>
                                                 <th>Amount Paid: </th>
-                                                <td>{{ CurrencyHelper::format($order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                                                <td>{{ CurrencyHelper::format($order->partPayments()->pluck('amount')->sum(), 2, true) }}</td>
                                                 <th>Outstanding: </th>
-                                                <td>{{ CurrencyHelper::format($order->amount - $order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                                                <td>{{ CurrencyHelper::format($order->amount - $order->partPayments()->pluck('amount')->sum(), 2, true) }}</td>
                                             </tr>
                                         @else
                                             <tr>
@@ -213,7 +213,7 @@
 @section('layout-script')
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/wards-assessments"]');
+            setTabActive('[href="/wards-billings"]');
 
             setTableData($('#view_attendance_datatable')).init();
         });

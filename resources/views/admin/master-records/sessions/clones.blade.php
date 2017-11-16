@@ -43,7 +43,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Academic Term <span class="text-danger">*</span></label>
-                                        {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->lists('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
+                                        {!! Form::select('academic_term_id', AcademicTerm::where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->pluck('academic_term', 'academic_term_id')->prepend('Select Academic Term', ''),
                                         AcademicTerm::activeTerm()->academic_term_id, ['class'=>'form-control', 'id'=>'academic_term_id', 'required'=>'required']) !!}
                                     </div>
                                 </div>

@@ -29,12 +29,12 @@ class AssessmentsController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
-            ->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
-            ->prepend('Select Class Level', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
+            ->prepend('- Select Academic Year -', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
+            ->prepend('- Select Class Level -', '');
 
         return view('admin.assessments.index', compact('academic_years', 'classlevels'));
     }
@@ -44,7 +44,7 @@ class AssessmentsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postSubjectAssigned(Request $request)
+    public function subjectAssigned(Request $request)
     {
         $inputs = $request->all();
         $response = array();
@@ -54,20 +54,25 @@ class AssessmentsController extends Controller
         //Filter by classlevel if its selected else only by classroom
         if($inputs['classlevel_id'] > 0){
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['classlevel_id'])->lists('classroom_id')->toArray())
+                ->whereIn(
+                    'classroom_id', 
+                    ClassRoom::where('classlevel_id', $inputs['classlevel_id'])
+                        ->pluck('classroom_id')
+                        ->toArray()
+                )
                 ->where(function ($query) use ($user_id) {
                     //If its not a developer admin filter by the logged in user else return all records in the class level
-                    if($user_id)
-                        $query->where('tutor_id', $user_id);
-                })->get();
+                    if($user_id) $query->where('tutor_id', $user_id);
+                })
+                ->get();
         }else{
 
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
                 ->where(function ($query) use ($user_id) {
                     //If its not a developer admin filter by the logged in user else return all records in the class room
-                    if($user_id)
-                        $query->where('tutor_id', $user_id);
-                })->get();
+                    if($user_id) $query->where('tutor_id', $user_id);
+                })
+                ->get();
         }
 
         //format the record sets as json readable
@@ -94,7 +99,7 @@ class AssessmentsController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getSubjectDetails($encodeId)
+    public function subjectDetails($encodeId)
     {
         $subject = SubjectClassRoom::findOrFail($this->decode($encodeId));
         $assessment_setup = AssessmentSetup::where('academic_term_id', $subject->academic_term_id)
@@ -111,7 +116,7 @@ class AssessmentsController extends Controller
      * @param Boolean $view
      * @return \Illuminate\View\View
      */
-    public function getInputScores($setup_id, $subject_id, $view = false)
+    public function inputScores($setup_id, $subject_id, $view = false)
     {
         $setup_detail_id = $this->getHashIds()->decode($setup_id)[0];
         $subject_classroom_id = $this->getHashIds()->decode($subject_id)[0];
@@ -127,7 +132,8 @@ class AssessmentsController extends Controller
                 $assessment = new Assessment();
                 $assessment->assessment_setup_detail_id = $setup_detail_id;
                 $assessment->subject_classroom_id = $subject_classroom_id;
-                if($assessment->save()){
+
+                if ($assessment->save()) {
                     Assessment::populatedAssessmentDetails($assessment->assessment_id);
                 }
             }else{
@@ -144,7 +150,7 @@ class AssessmentsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postInputScores(Request $request)
+    public function saveInputScores(Request $request)
     {
         $inputs = $request->all();
         $count = 0;
@@ -173,7 +179,7 @@ class AssessmentsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postSearchStudents(Request $request)
+    public function searchStudents(Request $request)
     {
         $inputs = $request->all();
         $students = (isset($inputs['view_classroom_id']))
@@ -217,7 +223,7 @@ class AssessmentsController extends Controller
      * @param String $encodeTerm
      * @return \Illuminate\View\View
      */
-    public function getReportDetails($encodeStud, $encodeTerm)
+    public function reportDetails($encodeStud, $encodeTerm)
     {
         $student = Student::findOrFail($this->decode($encodeStud));
         $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
@@ -228,6 +234,7 @@ class AssessmentsController extends Controller
             ->where('academic_term_id', $term->academic_term_id)
             ->where('classroom_id', $classroom->classroom_id)
             ->get();
+
         $subjectClasses = AssessmentDetailView::orderBy('subject_classroom_id')
             ->where('student_id', $student->student_id)
             ->where('academic_term_id', $term->academic_term_id)
@@ -254,7 +261,7 @@ class AssessmentsController extends Controller
      * @param String $encodeTerm
      * @return \Illuminate\View\View
      */
-    public function getPrintReport($encodeStud, $encodeTerm)
+    public function printReport($encodeStud, $encodeTerm)
     {
         $student = Student::findOrFail($this->decode($encodeStud));
         $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
@@ -330,7 +337,4 @@ class AssessmentsController extends Controller
             compact('student', 'assessments', 'term', 'classroom', 'setup_details', 'subjectClasses')
         );
     }
-
-
 }
-

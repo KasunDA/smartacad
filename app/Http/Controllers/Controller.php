@@ -22,9 +22,7 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-
     public $school_profile;
-    
     public $view;
 
     /**
@@ -39,16 +37,21 @@ class Controller extends BaseController
             $this->school_profile = School::findOrFail(env('SCHOOL_ID'));
         }
 
-        if(Auth::check()){
-            // render PARENT / STUDENT page
-            $this->view = (Auth::user()->user_type_id == Sponsor::USER_TYPE) ? 'front.' : 'admin.';
+        $this->middleware(function ($request, $next) {
+            if(Auth::check()){
+                // render PARENT / STUDENT page
+                $this->view = (Auth::user()->user_type_id == Sponsor::USER_TYPE) ? 'front.' : 'admin.';
 
-            if(empty(AcademicTerm::activeTerm()))
-                $this->setFlashMessage('Note!!! An Academic Term (Only One) Must Be Set To Active At Any Point In Time.', 2);
-        }
+                if(empty(AcademicTerm::activeTerm()))
+                    $this->setFlashMessage(
+                        'Note!!! An Academic Term (Only One) Must Be Set To Active At Any Point In Time.', 2
+                    );
+            }
+            //Check if the user has permission to perform such action
+            //$this->checkPermission();
 
-        //Check if the user has permission to perform such action
-//        $this->checkPermission();
+            return $next($request);
+        });
     }
 
     /**
@@ -63,7 +66,11 @@ class Controller extends BaseController
     
     public function decode($hashed){
         return !empty($hashed)
-            ? ((!empty($this->getHashIds()->decode($hashed))) ? $this->getHashIds()->decode($hashed)[0] : null)
+            ? (
+                (!empty($this->getHashIds()->decode($hashed))) 
+                    ? $this->getHashIds()->decode($hashed)[0] 
+                    : null
+            )
             : null;
     }
 
@@ -81,10 +88,10 @@ class Controller extends BaseController
         $class1 = 'alert-info';
         $class2 = 'fa fa-info fa-2x';
 
-        if($type == 1){
+        if ($type == 1) {
             $class1 = 'alert-success';
             $class2 = 'fa fa-thumbs-o-up fa-2x';
-        }elseif($type == 2){
+        } elseif($type == 2) {
             $class1 = 'alert-danger';
             $class2 = 'fa fa-thumbs-o-down fa-2x';
         }
@@ -104,10 +111,11 @@ class Controller extends BaseController
      * @return Response
      */
     protected function checkPermission(){
-        if(Auth::check()) {
+        if (Auth::check()) {
             $action = Route::currentRouteAction();
             $permission = substr($action, strripos($action, '\\') + 1);
             $method = explode('@', $permission)[1];
+            
             if (substr($method, 0, 4) !== 'post' && !Auth::user()->can($permission)) {
                 //        dd(Auth::user()->can($permission));
                 abort(403);
@@ -180,7 +188,9 @@ class Controller extends BaseController
         $password = "zuma123456";
 
         $client = new Client();
-        $res = $client->get("http://mcastmessaging.com/mcast_ws_v2/index.php?user=$username&password=$password&from=$msg_sender&to=$no&message=$message2&type=json");
+        $res = $client->get(
+            "http://mcastmessaging.com/mcast_ws_v2/index.php?user=$username&password=$password&from=$msg_sender&to=$no&message=$message2&type=json"
+        );
 
         return $res->getStatusCode(); //200
 

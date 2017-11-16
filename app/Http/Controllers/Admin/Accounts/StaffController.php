@@ -41,7 +41,7 @@ class StaffController extends Controller
      * Display a listing of the Users.
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         return view('admin.accounts.staffs.index');
     }
@@ -126,9 +126,10 @@ class StaffController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getView($encodeId)
+    public function view($encodeId)
     {
         $staff = User::findOrFail($this->decode($encodeId));
+        
         return view('admin.accounts.staffs.view', compact('staff'));
     }
 
@@ -137,15 +138,21 @@ class StaffController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getEdit($encodeId)
+    public function edit($encodeId)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
-
-        $staff = (empty($decodeId)) ? abort(305) : User::findOrFail($decodeId[0]);
-        $salutations = Salutation::orderBy('salutation')->lists('salutation', 'salutation_id')->prepend('Select Title', '');
-        $states = State::orderBy('state')->lists('state', 'state_id')->prepend('Select State', '');
+        $staff = User::findOrFail($this->decode($encodeId));
+        $salutations = Salutation::orderBy('salutation')
+            ->pluck('salutation', 'salutation_id')
+            ->prepend('- Select Title -', '');
+        $states = State::orderBy('state')
+            ->pluck('state', 'state_id')
+            ->prepend('- Select State -', '');
         $lga = ($staff->lga()->first()) ? $staff->lga()->first() : null;
-        $lgas = ($staff->lga_id > 0) ? Lga::where('state_id', $staff->lga()->first()->state_id)->lists('lga', 'lga_id')->prepend('Select L.G.A', '') : null;
+        $lgas = ($staff->lga_id > 0) 
+            ? Lga::where('state_id', $staff->lga()->first()->state_id)
+                ->pluck('lga', 'lga_id')
+                ->prepend('- Select L.G.A -', '') 
+            : null;
 
         return view('admin.accounts.staffs.edit', compact('staff', 'salutations', 'states', 'lga', 'lgas'));
     }
@@ -155,34 +162,36 @@ class StaffController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postEdit(Request $request)
+    public function update(Request $request)
     {
         $inputs = $request->all();
         $user = (empty($inputs['user_id'])) ? abort(305) : User::findOrFail($inputs['user_id']);
+        
         $messages = [
-            'salutation_id.required' => 'Title is Required!',
+//            'salutation_id.required' => 'Title is Required!',
             'first_name.required' => 'First Name is Required!',
             'last_name.required' => 'Last Name is Required!',
             'email.unique' => 'This E-Mail Address Has Already Been Assigned!',
             'phone_no.unique' => 'The Mobile Number Has Already Been Assigned!',
             'gender.required' => 'Gender is Required!',
-            'dob.required' => 'Date of Birth is Required!',
-//            'address.required' => 'Contact Address is Required!',
+//            'dob.required' => 'Date of Birth is Required!',
         ];
         $validator = Validator::make($inputs, [
-            'salutation_id' => 'required',
+//            'salutation_id' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|max:255|unique:users,email,'.$user->user_id.',user_id',
             'phone_no' => 'required|max:15|min:11|unique:users,phone_no,'.$user->user_id.',user_id',
             'gender' => 'required',
-            'dob' => 'required',
-//            'address' => 'required',
+//            'dob' => 'required',
         ], $messages);
 
         if ($validator->fails()) {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/staffs/edit/'.$this->getHashIds()->encode($inputs['user_id']))->withErrors($validator)->withInput();
+            
+            return redirect('/staffs/edit/'.$this->encode($inputs['user_id']))
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $user->update($inputs);

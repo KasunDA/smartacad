@@ -17,12 +17,16 @@ class SubjectsController extends Controller
      * @param Boolean $group_id
      * @return Response
      */
-    public function getIndex($group_id=false)
+    public function index($group_id=false)
     {
         $subject_group = ($group_id) ? SubjectGroup::findOrFail($this->decode($group_id)) : false;
+        $subjects = ($subject_group) 
+            ? $subject_group->subjects()->orderBy('subject')->get() 
+            : Subject::orderBy('subject')->get();
         
-        $subjects = ($subject_group) ? $subject_group->subjects()->orderBy('subject')->get() : Subject::orderBy('subject')->get();
-        $subject_groups = SubjectGroup::orderBy('subject_group')->lists('subject_group', 'subject_group_id')->prepend('- Subject Group -', '');
+        $subject_groups = SubjectGroup::orderBy('subject_group')
+            ->pluck('subject_group', 'subject_group_id')
+            ->prepend('- Subject Group -', '');
 
         return view('school.setups.subjects.subjects', compact('subjects', 'subject_groups', 'subject_group'));
     }
@@ -33,24 +37,26 @@ class SubjectsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postIndex(Request $request)
+    public function save(Request $request)
     {
         $inputs = $request->all();
         $count = 0;
 
-        for($i = 0; $i < count($inputs['subject_id']); $i++){
-            $subject = ($inputs['subject_id'][$i] > 0) ? Subject::find($inputs['subject_id'][$i]) : new Subject();
+        for ($i = 0; $i < count($inputs['subject_id']); $i++) {
+            $subject = ($inputs['subject_id'][$i] > 0) 
+                ? Subject::find($inputs['subject_id'][$i]) 
+                : new Subject();
+            
             $subject->subject = $inputs['subject'][$i];
             $subject->subject_group_id = $inputs['subject_group_id'][$i];
             $subject->subject_abbr = $inputs['subject_abbr'][$i];
-            if($subject->save()){
+            
+            if ($subject->save()) {
                 $count = $count+1;
             }
         }
-        // Set the flash message
-        if($count > 0)
-            $this->setFlashMessage($count . ' Subject has been successfully updated.', 1);
-        // redirect to the create a new inmate page
+        if($count > 0) $this->setFlashMessage($count . ' Subject has been successfully updated.', 1);
+        
         return redirect('/subjects');
     }
 
@@ -58,17 +64,13 @@ class SubjectsController extends Controller
      * Delete a Menu from the list of Menus using a given menu id
      * @param $id
      */
-    public function getDelete($id)
+    public function delete($id)
     {
         $subject = Subject::findOrFail($id);
-        //Delete The Record
-        $delete = ($subject !== null) ? $subject->delete() : null;
 
-        if($delete){
-            $this->setFlashMessage('  Deleted!!! '.$subject->subject.' Subject have been deleted.', 1);
-        }else{
-            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
-        }
+        ($subject->delete())
+            ? $this->setFlashMessage('  Deleted!!! '.$subject->subject.' Subject have been deleted.', 1)
+            : $this->setFlashMessage('Error!!! Unable to delete record.', 2);
     }
 
     /**
@@ -76,7 +78,7 @@ class SubjectsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postSubjectGroups(Request $request)
+    public function subjectGroups(Request $request)
     {
         $inputs = $request->all();
 

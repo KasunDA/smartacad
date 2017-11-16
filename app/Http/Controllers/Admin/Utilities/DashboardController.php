@@ -13,7 +13,6 @@ use App\Models\Admin\MasterRecords\Classes\ClassMaster;
 use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use Illuminate\Foundation\Auth\User;
-use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +43,7 @@ class DashboardController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         $term = AcademicTerm::activeTerm();
         if(empty($term)){
@@ -100,7 +99,7 @@ class DashboardController extends Controller
      * Gets The Number of Students Based on their gender
      * @return Response
      */
-    public function getStudentsGender()
+    public function studentsGender()
     {
         $male = Student::where('gender', 'Male')->where('status_id', Student::ACTIVE)->count();
         $female = Student::where('gender', 'Female')->where('status_id', Student::ACTIVE)->count();
@@ -114,7 +113,7 @@ class DashboardController extends Controller
      * Gets The Students Based on their class level
      * @return Response
      */
-    public function getStudentsClasslevel()
+    public function studentsClasslevel()
     {
         $classlevels = ClassLevel::all();
         $response = [];
@@ -138,7 +137,7 @@ class DashboardController extends Controller
      * @param $userId
      * @return Response
      */
-    public function getSubjectTutor($userId)
+    public function subjectTutor($userId)
     {
         $subjects = SubjectClassRoom::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->where('tutor_id', $userId)->get();
         $response = [];
@@ -163,7 +162,7 @@ class DashboardController extends Controller
      * @param $userId
      * @return Json
      */
-    public function getClassTeacher($userId)
+    public function classTeacher($userId)
     {
         $classes = ClassMaster::where('academic_year_id', AcademicYear::activeYear()->academic_year_id)->where('user_id', $userId)->get();
         $response = [];

@@ -20,19 +20,21 @@ class ClassGroupsController extends Controller
     {
         $this->middleware('auth');
         $this->school = School::mySchool();
-        if ($this->school->setup == School::CLASS_GROUP)
+        if ($this->school->setup == School::CLASS_GROUP) {
             $this->setFlashMessage('Warning!!! Kindly Setup the Class Groups records Before Proceeding.', 3);
-        else
+        } else {
             $this->middleware('setup');
+        }
     }
     /**
      * Display a listing of the Menus for Master Records.
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         $class_groups = ClassGroup::all();
+        
         return view('admin.master-records.classes.class-groups', compact('class_groups'));
     }
 
@@ -42,7 +44,7 @@ class ClassGroupsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postIndex(Request $request)
+    public function save(Request $request)
     {
         $inputs = $request->all();
         $count = 0;
@@ -63,10 +65,8 @@ class ClassGroupsController extends Controller
             return redirect('/class-levels');
         }
         
-        // Set the flash message
         if($count > 0) $this->setFlashMessage($count . ' Academic Year has been successfully updated.', 1);
         
-        // redirect to the create a new inmate page
         return redirect('/class-groups');
     }
 
@@ -74,16 +74,14 @@ class ClassGroupsController extends Controller
      * Delete a Menu from the list of Menus using a given menu id
      * @param $id
      */
-    public function getDelete($id)
+    public function delete($id)
     {
         $class_group = ClassGroup::findOrFail($id);
         //Delete The Record
         $delete = ($class_group !== null) ? $class_group->delete() : null;
 
-        if($delete){
-            $this->setFlashMessage('  Deleted!!! '.$class_group->classgroup.' Class Group have been deleted.', 1);
-        }else{
-            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
-        }
+        ($delete)
+            ? $this->setFlashMessage('  Deleted!!! '.$class_group->classgroup.' Class Group have been deleted.', 1)
+            : $this->setFlashMessage('Error!!! Unable to delete record.', 2);
     }
 }

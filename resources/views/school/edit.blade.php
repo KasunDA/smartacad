@@ -33,9 +33,9 @@
                 </div>
                 <div class="portlet-body form">
                     @include('errors.errors')
-                    <form method="POST" action="{{ url('/schools/edit/' . $hashIds->encode($school->school_id)) }}" accept-charset="UTF-8" class="form-horizontal" role="form" enctype="multipart/form-data">
-                        <input name="_method" type="hidden" value="PATCH">
+                    <form method="POST" action="{{ url('/schools/edit') }}" accept-charset="UTF-8" class="form-horizontal" role="form" enctype="multipart/form-data">
                         {!! csrf_field() !!}
+                        <input type="hidden" name="school_id" value="{{$school->school_id}}">
                         <div class="form-body">
 
                             <div class="form-group">

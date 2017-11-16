@@ -49,15 +49,15 @@ class OrdersController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
             ->prepend('- Academic Year -', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
             ->prepend('- Class Level -', '');
         $items = Item::where('status', 1)
             ->where('item_type_id', '<>', ItemType::TERMLY)
-            ->lists('name', 'id')
+            ->pluck('name', 'id')
             ->prepend('- Select Item -', '');
 
         return view('admin.orders.index', compact('academic_years', 'classlevels', 'items'));
@@ -68,7 +68,7 @@ class OrdersController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postSearch(Request $request)
+    public function search(Request $request)
     {
         session()->put('order-tab', 'view-order');
         $inputs = $request->all();
@@ -76,24 +76,24 @@ class OrdersController extends Controller
         $response['flag'] = 0;
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
 
-        if(!empty($inputs['classroom_id'])){
+        if (!empty($inputs['classroom_id'])) {
             $orders = OrderView::where('academic_term_id', $inputs['academic_term_id'])
                 ->where('classroom_id', $inputs['classroom_id'])
                 ->get();
-        }else{
+        } else {
             $orders = OrderView::where('academic_term_id', $inputs['academic_term_id'])
                 ->whereIn(
                     'classroom_id',
                     ClassRoom::where('classlevel_id', $inputs['classlevel_id'])
-                        ->lists('classroom_id')
+                        ->pluck('classroom_id')
                         ->toArray()
                 )
                 ->get();
         }
 
-        if(!empty($orders)){
+        if (!empty($orders)) {
             //All the students in the class room for the academic year
-            foreach($orders as $order){
+            foreach ($orders as $order) {
                 $object = new stdClass();
                 $status = ($order->paid) ? 'success' : 'danger';
                 
@@ -104,17 +104,17 @@ class OrdersController extends Controller
                 $object->fullname = $order->fullname;
                 $object->number = $order->number;
                 $object->status = '<span class="label label-sm label-'.$status.'">'.$order->status.'</span>';
+
                 $object->total_amount = CurrencyHelper::format((float) $order->total_amount);
                 $object->amount_paid = CurrencyHelper::format((float) $order->amount_paid);
-//                $object->outstanding = CurrencyHelper::format((float) ($order->amount - $order->amount_paid));
+                //$object->outstanding = CurrencyHelper::format((float) ($order->amount - $order->amount_paid));
                 $object->paid = $order->paid;
                 $object->is_part_payment = ($order->is_part_payment) ? LabelHelper::info('Part') : LabelHelper::default('Full') ;
                 $object->classroom = $order->classroom;
                 $output[] = $object;
             }
             //Sort The Students by name
-            usort($output, function($a, $b)
-            {
+            usort($output, function($a, $b) {
                 return strcmp($a->fullname, $b->fullname);
             });
 
@@ -130,26 +130,30 @@ class OrdersController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postSearchStudents(Request $request)
+    public function searchStudents(Request $request)
     {
         session()->put('order-tab', 'adjust-order');
         $inputs = $request->all();
         $students = $output = [];
         $term = AcademicTerm::findOrFail($inputs['view_academic_term_id']);
 
-        if(!empty($inputs['view_classroom_id'])){
+        if (!empty($inputs['view_classroom_id'])) {
             $students = StudentClass::where('academic_year_id', $inputs['view_academic_year_id'])
                 ->where('classroom_id', $inputs['view_classroom_id'])
-                ->whereIn('student_id', Student::where('status_id', 1)->lists('student_id')->toArray())
+                ->whereIn('student_id',
+                    Student::where('status_id', 1)
+                        ->pluck('student_id')
+                        ->toArray()
+                )
                 ->get();
         }
 
-        $response = array();
+        $response = [];
         $response['flag'] = 0;
 
-        if(!empty($students)){
+        if (!empty($students)) {
             //All the students in the class room for the academic year
-            foreach($students as $student){
+            foreach ($students as $student) {
                 $object = new stdClass();
                 $object->student_id = $this->encode($student->student_id);
                 $object->term_id = $this->encode($term->academic_term_id);
@@ -159,8 +163,7 @@ class OrdersController extends Controller
                 $output[] = $object;
             }
             //Sort The Students by name
-            usort($output, function($a, $b)
-            {
+            usort($output, function($a, $b) {
                 return strcmp($a->name, $b->name);
             });
 
@@ -176,45 +179,47 @@ class OrdersController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postOrderUpdate(Request $request)
+    public function orderUpdate(Request $request)
     {
         $discount = $paid = $is_part_payment = null;
         $inputs = $request->all();
         $order = Order::findOrFail($inputs['order_id']);
 
-        if($order->backend == Order::FRONTEND && $order->paid == Order::PAID){
+        if ($order->backend == Order::FRONTEND && $order->paid == Order::PAID) {
             $this->setFlashMessage('Warning!!! Order: '.$order->number.' status cannot be updated, kindly contact systems admin.', 2);
 
             return response()->json($order);
         }
 
-        if($order->paid != intval($inputs['paid'])){
+        if ($order->paid != intval($inputs['paid'])) {
             $paid = ' Status changed from ' . Order::ORDER_STATUSES[$order->paid] . ' to ' . Order::ORDER_STATUSES[$inputs['paid']] . ', ';
             $order->paid = $inputs['paid'];
             $order->status = Order::ORDER_STATUSES[intval($inputs['paid'])];
             $order->backend = ($order->paid == Order::PAID) ? Order::BACKEND : Order::FRONTEND;
         }
 
-        if($order->is_part_payment != intval($inputs['is_part_payment'])){
-            $is_part_payment = ' Payment Type changed from ' . PartPayment::PAYMENT_TYPES[$order->is_part_payment] . ' to ' . PartPayment::PAYMENT_TYPES[$order->is_part_payment];
+        if ($order->is_part_payment != intval($inputs['is_part_payment'])) {
+            $is_part_payment = ' Payment Type changed from '
+                . PartPayment::PAYMENT_TYPES[$order->is_part_payment] . ' to '
+                . PartPayment::PAYMENT_TYPES[$order->is_part_payment];
             $order->is_part_payment = $inputs['is_part_payment'];
         }
 
-        if($order->discount != intval($inputs['discount'])){
+        if ($order->discount != intval($inputs['discount'])) {
             var_dump($order->amount);
             $discount = ' Discount changed from ' . $order->discount . '% to ' . $inputs['discount'] . '%, ';
             $order->discount = intval($inputs['discount']);
             $order->amount = $order->getDiscountedAmount();
         }
 
-        if($order->save()){
+        if ($order->save()) {
             $order->updateAmount();
 
-            if($discount !== null || $paid !== null || $is_part_payment !== null)
+            if ($discount !== null || $paid !== null || $is_part_payment !== null) {
                 OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$order->id, 'comment'=>($discount . $paid . $is_part_payment)]);
-
+            }
             $this->setFlashMessage('  Updated!!! ' . $order->number . ' successfully modified.', 1);
-        }else{
+        } else {
             $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
         }
 
@@ -228,7 +233,7 @@ class OrdersController extends Controller
      * @param String $termId
      * @return Response
      */
-    public function getItems($studentId, $termId)
+    public function items($studentId, $termId)
     {
         $term = AcademicTerm::findOrFail($this->decode($termId));
         $student = Student::findOrFail($this->decode($studentId));
@@ -248,18 +253,18 @@ class OrdersController extends Controller
      * @param Int $itemId
      * @return Response
      */
-    public function getDeleteItem($itemId)
+    public function deleteItem($itemId)
     {
         $orderItem = OrderItem::findOrFail($itemId);
         $comment = 'Order Item: ' . $orderItem->id . ' Deleted on ' . date('Y-m-d h:i:s');
         $delete = !empty($orderItem) ? $orderItem->delete() : false;
 
-        if($delete){
+        if ($delete) {
             $orderItem->order->updateAmount();
             OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$orderItem->order_id, 'comment'=>$comment]);
 
             $this->setFlashMessage('  Deleted!!! ' . $orderItem->item->name . ' deleted from the student billings.', 1);
-        }else{
+        } else {
             $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
         }
     }
@@ -269,22 +274,24 @@ class OrdersController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postItemUpdateAmount(Request $request)
+    public function itemUpdateAmount(Request $request)
     {
         $inputs = $request->all();
         $item = OrderItem::findOrFail($inputs['order_item_id']);
-        $discount = ($item->discount != intval($inputs['discount'])) ? ' Item: ' . $item->id . ' Discount changed from ' . $item->discount . ' to ' . $inputs['discount'] : null;
+        $discount = ($item->discount != intval($inputs['discount']))
+            ? ' Item: ' . $item->id . ' Discount changed from ' . $item->discount . ' to ' . $inputs['discount']
+            : null;
         $item->discount = $inputs['discount'];
         $item->amount = $item->getDiscountedAmount();
 
-        if($item->save()){
+        if ($item->save()) {
             $item->order->updateAmount();
             $this->setFlashMessage('  Updated!!! ' . $item->item->name . ' successfully modified.', 1);
 
-            if($discount != null)
+            if ($discount != null) {
                 OrderLog::create(['user_id' => Auth::id(), 'order_id' => $item->order_id, 'comment' => $discount]);
-
-        }else{
+            }
+        } else {
             $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
         }
 
@@ -296,28 +303,35 @@ class OrdersController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postPartPayments(Request $request)
+    public function partPayments(Request $request)
     {
         $inputs = $request->all();
 
-        $part = (!empty($inputs['part_id']) || $inputs['part_id'] != '') ? PartPayment::find($inputs['part_id']) : new PartPayment();
-        if($part->amount != intval($inputs['amount']) && !empty($inputs['part_id']) || $inputs['part_id'] != ''){
-            $comment =  'Part Payment: ' . $part->id . ' Amount changed from ' . $part->amount . ' to ' . $inputs['amount'];
+        $part = (!empty($inputs['part_id']) || $inputs['part_id'] != '')
+            ? PartPayment::find($inputs['part_id'])
+            : new PartPayment();
+
+        if ($part->amount != intval($inputs['amount']) && !empty($inputs['part_id']) || $inputs['part_id'] != '') {
+            $comment =  'Part Payment: ' . $part->id . ' Amount changed from '
+                . $part->amount . ' to ' . $inputs['amount'];
         }
+
         $part->amount = $inputs['amount'];
         $part->order_id = $inputs['order_id'];
         $part->user_id = Auth::id();
 
-        if($part->save()){
+        if ($part->save()) {
             $part->order->paid = Order::PAID;
             $part->order->status = Order::paid();
             $part->order->updateAmount();
-            $this->setFlashMessage(" Updated!!! {$part->amount} Added on to Order: {$part->order->number} successfully.", 1);
+            $this->setFlashMessage(
+                " Updated!!! {$part->amount} Added on to Order: {$part->order->number} successfully.", 1
+            );
 
-            if(isset($comment))
+            if (isset($comment)) {
                 OrderLog::create(['user_id' => Auth::id(), 'order_id' => $part->order_id, 'comment' => $comment]);
-
-        }else{
+            }
+        } else {
             $this->setFlashMessage('Error!!! Unable to adjust record.', 2);
         }
 
@@ -330,22 +344,25 @@ class OrdersController extends Controller
      * @param Int $id
      * @return Response
      */
-    public function getDeletePartPayment($id)
+    public function deletePartPayment($id)
     {
         $part = PartPayment::findOrFail($id);
         $comment =  'Part Payment: ' . $part->id . ' Deleted on ' . date('Y-m-d h:i:s');
         $delete = !empty($part) ? $part->delete() : false;
 
-        if($delete){
-            if($part->order->partPayments->count() == 0){
+        if ($delete) {
+            if ($part->order->partPayments->count() == 0) {
                 $part->order->paid = Order::NOT_PAID;
                 $part->order->status = Order::notPaid();
             }
+
             $part->order->updateAmount();
             OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$part->order_id, 'comment'=>$comment]);
 
-            $this->setFlashMessage(" Deleted!!! ' . $part->amount . ' deleted from Order: {$part->order->number} successfully", 1);
-        }else{
+            $this->setFlashMessage(
+                " Deleted!!! ' . $part->amount . ' deleted from Order: {$part->order->number} successfully", 1
+            );
+        } else {
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
     }
@@ -356,11 +373,13 @@ class OrdersController extends Controller
      * @param Int $orderId
      * @return Response
      */
-    public function getStatus($orderId)
+    public function status($orderId)
     {
         $order = Order::findOrFail($orderId);
-        if($order->backend == Order::FRONTEND && $order->paid == Order::PAID){
-            $this->setFlashMessage('Warning!!! Order: '.$order->number.' status cannot be updated, kindly contact systems admin.', 2);
+        if ($order->backend == Order::FRONTEND && $order->paid == Order::PAID) {
+            $this->setFlashMessage(
+                'Warning!!! Order: '.$order->number.' status cannot be updated, kindly contact systems admin.', 2)
+            ;
 
             return response()->json($order);
         }
@@ -373,7 +392,7 @@ class OrdersController extends Controller
         $order->amount_paid = $order->paid == Order::PAID ? $order->amount : 0;
         $comment = 'Order: ' . $order->number . ' Status changed from ' . $stat;
 
-        if($order->save()){
+        if ($order->save()) {
             OrderLog::create(['user_id'=>Auth::id(), 'order_id'=>$order->id, 'comment'=>$comment]);
             $this->setFlashMessage('Updated!!! ' . $comment, 1);
         } else {
@@ -388,28 +407,30 @@ class OrdersController extends Controller
      * @param Boolean $term
      * @return Response
      */
-    public function getDashboard($term=false)
+    public function dashboard($term=false)
     {
-        $academic_term = ($term) ? AcademicTerm::findOrFail($this->decode($term)) : AcademicTerm::activeTerm();
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
-
+        $academic_term = ($term) 
+            ? AcademicTerm::findOrFail($this->decode($term)) 
+            : AcademicTerm::activeTerm();
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
+            ->prepend('- Academic Year -', '');
         $pendingAmount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
             ->notPaid()
             ->activeStudent()
-            ->lists('amount')
+            ->pluck('amount')
             ->sum();
         $paidAmount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
             ->paid()
             ->activeStudent()
-            ->lists('amount')
+            ->pluck('amount')
             ->sum();
         $totalAmount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
             ->activeStudent()
-            ->lists('amount')
+            ->pluck('amount')
             ->sum();
         $studentCount = OrderView::where('academic_term_id', $academic_term->academic_term_id)
             ->activeStudent()
-            ->lists('student_id')
+            ->pluck('student_id')
             ->count();
 
         return view('admin.orders.dashboard',
@@ -426,7 +447,7 @@ class OrdersController extends Controller
      * @param $termId
      * @return Response
      */
-    public function getPaidItems($termId)
+    public function paidItems($termId)
     {
         $items = ItemView::where('academic_term_id', $termId)
             ->select(DB::raw('SUM(amount) as amount, item_name'))
@@ -437,7 +458,7 @@ class OrdersController extends Controller
             ->orderBy('item_name')
             ->get(['amount', 'item_name']);
 
-        return $this->itemHelper($items);
+        return $this->_itemHelper($items);
     }
 
     /**
@@ -446,7 +467,7 @@ class OrdersController extends Controller
      * @param $termId
      * @return Response
      */
-    public function getPendingItems($termId)
+    public function pendingItems($termId)
     {
         $items = ItemView::where('academic_term_id', $termId)
             ->select(DB::raw('SUM(amount) as amount, item_name'))
@@ -457,7 +478,7 @@ class OrdersController extends Controller
             ->orderBy('item_name')
             ->get(['amount', 'item_name']);
 
-        return $this->itemHelper($items);
+        return $this->_itemHelper($items);
     }
 
     /**
@@ -466,7 +487,7 @@ class OrdersController extends Controller
      * @param $termId
      * @return Response
      */
-    public function getExpectedItems($termId)
+    public function expectedItems($termId)
     {
         $items = ItemView::where('academic_term_id', $termId)
             ->select(DB::raw('SUM(amount) as amount, item_name'))
@@ -476,7 +497,7 @@ class OrdersController extends Controller
             ->orderBy('item_name')
             ->get(['amount', 'item_name']);
 
-        return $this->itemHelper($items);
+        return $this->_itemHelper($items);
     }
 
     /**
@@ -484,10 +505,11 @@ class OrdersController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postDashboard(Request $request)
+    public function filterDashboard(Request $request)
     {
         $inputs = $request->all();
         $term = $this->encode($inputs['academic_term_id']);
+        
         return redirect('/orders/dashboard/' . $term );
     }
 
@@ -495,16 +517,18 @@ class OrdersController extends Controller
      * @param $items
      * @return mixed
      */
-    private function itemHelper($items){
+    private function _itemHelper($items){
         $response = [];
         $color = 0;
-        foreach($items as $item){
-            $response[] = array(
+        
+        foreach ($items as $item) {
+            $response[] = [
                 'item'=>$item->item_name,
                 'amount'=>$item->amount,
                 'color'=>$this->colors[$color++]
-            );
+            ];
         }
+        
         return response()->json($response);
     }
 
@@ -521,11 +545,11 @@ class OrdersController extends Controller
             ->notPaid()
             ->activeStudent()
             ->count();
-
         $paid = OrderView::where('academic_term_id', $term->academic_term_id)
             ->paid()
             ->activeStudent()
             ->count();
+        
         $response[] = ['label'=>'Paid', 'color'=>'#0F0', 'data'=>$paid, 'value'=>$paid];
         $response[] = ['label'=>'Not-Paid', 'color'=>'#F00', 'data'=>$notPaid, 'value'=>$notPaid];
 
@@ -576,11 +600,12 @@ class OrdersController extends Controller
         return $this->all($termId);
     }
 
-    public function postSummary(Request $request)
+    public function summary(Request $request)
     {
         $inputs = $request->all();
         $type =$inputs['order_type'];
         $term = $this->encode($inputs['academic_term_id']);
+        
         return redirect("/orders/{$type}/{$term}");
     }
 
@@ -595,7 +620,7 @@ class OrdersController extends Controller
     private function all($termId=false, $type='All-Orders', $condition=-1)
     {
         $term = ($termId) ? AcademicTerm::findOrFail($this->decode($termId)) : AcademicTerm::activeTerm();
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
         $conditions = "term=".$term->academic_term_id."&status=".$condition;
 
         return view('admin.orders.summary', compact('academic_years', 'term', 'type', 'conditions'));
@@ -623,30 +648,30 @@ class OrdersController extends Controller
         $orders = OrderView::where('academic_term_id', $termId)
             ->orderBy('fullname')
             ->where(function ($query) use ($q, $condition) {
-                if($condition != -1){
+                if ($condition != -1) {
                     $query->where('paid', $condition);
                 }
                 //Filter by either number, name, no, classroom
-                if (!empty($q))
+                if (!empty($q)) {
                     $query->orWhere('fullname', 'like', '%'.$q.'%')
                         ->orWhere('number', 'like', '%'.$q.'%')
                         ->orWhere('status', 'like', '%'.$q.'%')
                         ->orWhere('student_no', 'like', '%'.$q.'%')
                         ->orWhere('gender', 'like', '%'.$q.'%')
                         ->orWhere('classroom', 'like', '%'.$q.'%');
+                }
             });
         // iTotalDisplayRecords = filtered result count
         $iTotalDisplayRecords = $orders->count();
-
-        $records = array();
-        $records["data"] = array();
+        $records["data"] = $records = [];
 
         $end = $iDisplayStart + $iDisplayLength;
         $end = $end > $iTotalRecords ? $iTotalRecords : $end;
 
         $i = $iDisplayStart;
         $allOrders = $orders->skip($iDisplayStart)->take($iDisplayLength)->get();
-        foreach ($allOrders as $order){
+        
+        foreach ($allOrders as $order) {
             $number = '<a href="/order/items/'.$this->encode($order->student_id).'/'.$this->encode($term->academic_term_id).'"
                            class="btn btn-link btn-xs sbold"><span style="font-size: 14px">'.$order->number.'</span>
                         </a>';
@@ -664,16 +689,18 @@ class OrdersController extends Controller
                              data-statusText="'.$order->number.'Order status updated to NOT-PAID" data-action="/orders/status/'.$order->order_id.'" data-status="Updated"
                              class="btn btn-warning btn-xs btn-sm confirm-delete-btn"> <span class="fa fa-undo"></span> Undo
                         </button>';
-            if(!$order->paid)
+            if (!$order->paid) {
                 $action = '<button  data-confirm-text="Yes, Confirm Payment" data-name="'.$order->number.'" data-title="Order Status Update Confirmation"
                              data-message="Are you sure Order: <b>'.$order->number.'</b> meant for <b>'.$order->fullname.' has being PAID, for '.$term->academic_term.'?</b>"
                              data-statusText="'.$order->number.' Order status updated to PAID" data-confirm-button="#44b6ae" data-action="/orders/status/'.$order->order_id.'" data-status="Updated"
                              class="btn btn-success btn-xs btn-sm confirm-delete-btn"> <span class="fa fa-save"></span> Update
                         </button>';
-            $action .= '<a href="/order/items/'.$this->encode($order->student_id).'/'.$this->encode($term->academic_term_id).'"
+            }
+            
+            $action .= '<a href="/orders/items/'.$this->encode($order->student_id).'/'.$this->encode($term->academic_term_id).'"
                            class="btn btn-info btn-xs sbold"><i class="fa fa-eye"></i> View
                         </a>';
-            $records["data"][] = array(
+            $records["data"][] = [
                 ($i++ + 1),
                 $number,
                 CurrencyHelper::format($order->total_amount, 0, true),
@@ -684,7 +711,7 @@ class OrdersController extends Controller
                 $order->classroom,
                 $print,
                 $action
-            );
+            ];
         }
 
         $records["draw"] = $sEcho;

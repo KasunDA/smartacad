@@ -116,7 +116,7 @@
 @section('layout-script')
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/wards-assessments"]');
+            setTabActive('[href="/wards-billings"]');
 
             setTableData($('#billing_tabledata')).init();
         });

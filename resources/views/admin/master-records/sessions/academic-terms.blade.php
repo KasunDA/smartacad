@@ -77,13 +77,9 @@
                             </div>
                         </div>
                         <div class="col-md-12">
-                            {!! Form::open([
-                                'method'=>'POST',
-                                'class'=>'form',
-                                'role'=>'form'
-                            ])
-                        !!}
-                            <div class="table-responsive">
+                            <form method="post" action="/academic-terms" role="form" class="form">
+                                {!! csrf_field() !!}
+                                <div class="table-responsive">
                                 <table class="table table-bordered table-striped table-actions" id="academic_term_table">
                                     <thead>
                                     <tr>
@@ -169,7 +165,7 @@
                                     <button type="submit" class="btn blue pull-right">Submit</button>
                                 </div>
                             </div>
-                            {!! Form::close() !!}
+                            </form>
                         </div>
                     </div>
                 </div>

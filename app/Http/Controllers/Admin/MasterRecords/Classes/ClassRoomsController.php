@@ -29,10 +29,11 @@ class ClassRoomsController extends Controller
     {
         $this->middleware('auth');
         $this->school = School::mySchool();
-        if ($this->school->setup == School::CLASS_ROOM)
+        if ($this->school->setup == School::CLASS_ROOM) {
             $this->setFlashMessage('Warning!!! Kindly Setup the Class Rooms records Before Proceeding.', 3);
-        else
+        } else {
             $this->middleware('setup');
+        }
     }
     
     /**
@@ -40,12 +41,15 @@ class ClassRoomsController extends Controller
      * @param String $encodeId
      * @return Response
      */
-    public function getIndex($encodeId=null)
+    public function index($encodeId=null)
     {
-        $classlevel = ($encodeId == null) ? null : ClassLevel::findOrFail($this->getHashIds()->decode($encodeId)[0]);
+        $classlevel = ($encodeId == null) ? null : ClassLevel::findOrFail($this->decode($encodeId));
         $classrooms = ($classlevel == null) ? ClassRoom::all() : $classlevel->classRooms()->get();
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('All Class Level', '');
-        return view('admin.master-records.classes.class-rooms.index', compact('classlevels', 'classrooms', 'classlevel'));
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('- All Class Level -', '');
+
+        return view('admin.master-records.classes.class-rooms.index',
+            compact('classlevels', 'classrooms', 'classlevel')
+        );
     }
 
     /**
@@ -53,7 +57,7 @@ class ClassRoomsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postIndex(Request $request)
+    public function save(Request $request)
     {
         $inputs = $request->all();
         $count = 0;
@@ -74,10 +78,8 @@ class ClassRoomsController extends Controller
             return redirect('/school-subjects');
         }
         
-        // Set the flash message
         if($count > 0) $this->setFlashMessage($count . ' Academic Year has been successfully updated.', 1);
         
-        // redirect to the create a new inmate page
         return redirect('/class-rooms');
     }
 
@@ -85,17 +87,14 @@ class ClassRoomsController extends Controller
      * Delete a Menu from the list of Menus using a given menu id
      * @param $id
      */
-    public function getDelete($id)
+    public function delete($id)
     {
         $classroom = ClassRoom::findOrFail($id);
-        //Delete The Record
         $delete = ($classroom !== null) ? $classroom->delete() : null;
 
-        if($delete){
-            $this->setFlashMessage('  Deleted!!! '.$classroom->classroom.' Class Room have been deleted.', 1);
-        }else{
-            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
-        }
+        ($delete)
+            ? $this->setFlashMessage('  Deleted!!! '.$classroom->classroom.' Class Room have been deleted.', 1)
+            : $this->setFlashMessage('Error!!! Unable to delete record.', 2);
     }
 
     /**
@@ -103,10 +102,11 @@ class ClassRoomsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postLevels(Request $request)
+    public function levels(Request $request)
     {
         $inputs = $request->all();
-        return redirect('/class-rooms/index/' . $this->getHashIds()->encode($inputs['classlevel_id']));
+
+        return redirect('/class-rooms/' . $this->encode($inputs['classlevel_id']));
     }
 
     /**
@@ -114,12 +114,20 @@ class ClassRoomsController extends Controller
      *
      * @return Response
      */
-    public function getClassTeachers()
+    public function classTeachers()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
-        $tutors = User::where('user_type_id', Staff::USER_TYPE)->where('status', 1)->orderBy('first_name')->get();
-        return view('admin.master-records.classes.class-rooms.class-teacher', compact('academic_years', 'classlevels', 'tutors'));
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
+            ->prepend('- Select Academic Year -', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
+            ->prepend('- Select Class Level -', '');
+        $tutors = User::where('user_type_id', Staff::USER_TYPE)
+            ->where('status', 1)
+            ->orderBy('first_name')
+            ->get();
+
+        return view('admin.master-records.classes.class-rooms.class-teacher',
+            compact('academic_years', 'classlevels', 'tutors')
+        );
     }
 
     /**
@@ -127,16 +135,18 @@ class ClassRoomsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postClassTeachers(Request $request)
+    public function teachers(Request $request)
     {
         $inputs = $request->all();
-        $classrooms = ClassRoom::orderBy('classroom')->where('classlevel_id', $inputs['classlevel_id'])->get();
+        $classrooms = ClassRoom::orderBy('classroom')
+            ->where('classlevel_id', $inputs['classlevel_id'])
+            ->get();
 
         $response = array();
         $response['flag'] = 0;
         $classRooms = [];
 
-        if($classrooms){
+        if ($classrooms) {
             //All the Class Rooms in the class level
             foreach($classrooms as $classroom){
                 $object = new stdClass();
@@ -161,19 +171,19 @@ class ClassRoomsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postAssignClassTeachers(Request $request)
+    public function assignClassTeachers(Request $request)
     {
         $inputs = $request->all();
         $user_id = ($inputs['user_id'] > 0)  ? $inputs['user_id'] : false;
         $classMaster = ($inputs['class_master_id'] > 0) ? ClassMaster::find($inputs['class_master_id']) : new ClassMaster();
         $role = Role::where('name', Role::CLASS_TEACHER)->first();
 
-        if(isset($classMaster->user_id)) {
+        if (isset($classMaster->user_id)) {
             $userOld = $classMaster->user;
             if ($user_id) {
                 $userNew = User::find($inputs['user_id']);
             }
-        }elseif($user_id and !isset($classMaster->user_id)){
+        } elseif ($user_id and !isset($classMaster->user_id)) {
             $userNew = User::find($inputs['user_id']);
         }
 
@@ -181,12 +191,12 @@ class ClassRoomsController extends Controller
         $classMaster->academic_year_id = $inputs['year_id'];
         $classMaster->user_id = ($user_id) ? $user_id : null;
 
-        if($classMaster->save()){
-            if(isset($userNew)){
-                if(!$userNew->hasRole([Role::CLASS_TEACHER])) $userNew->roles()->attach($role->role_id);
+        if ($classMaster->save()) {
+            if (isset($userNew)) {
+                if (!$userNew->hasRole([Role::CLASS_TEACHER])) $userNew->roles()->attach($role->role_id);
             }
-            if(isset($userOld)){
-                if($userOld->hasRole([Role::CLASS_TEACHER]) and $userOld->classMasters()->where('academic_year_id', $inputs['year_id'])->count() == 0)
+            if (isset($userOld)) {
+                if ($userOld->hasRole([Role::CLASS_TEACHER]) && $userOld->classMasters()->where('academic_year_id', $inputs['year_id'])->count() == 0)
                     $userOld->roles()->detach($role->role_id);
             }
             echo json_encode($classMaster->class_master_id);

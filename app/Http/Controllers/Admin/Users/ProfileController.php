@@ -47,7 +47,7 @@ class ProfileController extends Controller
      * Displays the user profiles details
      * @return \Illuminate\View\View
      */
-    public function getIndex()
+    public function index()
     {
         $user = Auth::user();
 
@@ -59,26 +59,26 @@ class ProfileController extends Controller
      *
      * @return Response
      */
-    public function getEdit()
+    public function edit()
     {
         $user = Auth::user();
-        session()->put('active', 'info');
 
-        if($user){
+        if ($user) {
+            session()->put('active', 'info');
             $salutations = Salutation::orderBy('salutation')
-                ->lists('salutation', 'salutation_id')
+                ->pluck('salutation', 'salutation_id')
                 ->prepend('- Select Title -', '');
             $states = State::orderBy('state')
-                ->lists('state', 'state_id')
+                ->pluck('state', 'state_id')
                 ->prepend('- Select State -', '');
             $lga = ($user->lga()->first()) ? $user->lga()->first() : null;
            
             $lgas = ($user->lga_id > 0) 
                 ? Lga::where('state_id', $user->lga()->first()->state_id)
-                    ->lists('lga', 'lga_id')
+                    ->pluck('lga', 'lga_id')
                     ->prepend('- Select L. G. A -', '') 
                 : null;
-        }else{
+        } else {
             session()->put('active', 'avatar');
         }
 
@@ -90,7 +90,7 @@ class ProfileController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postEdit(Request $request)
+    public function update(Request $request)
     {
         $inputs = $request->all();
         $user = Auth::user();
@@ -117,6 +117,7 @@ class ProfileController extends Controller
 
         if ($validator->fails()) {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
+            
             return redirect('/profiles/edit')->withErrors($validator)->withInput();
         }
 
@@ -132,7 +133,7 @@ class ProfileController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function postChangePassword(Request $request)
+    public function changePassword(Request $request)
     {
         $inputs = $request->all();
         $user = Auth::user();
@@ -143,12 +144,14 @@ class ProfileController extends Controller
         //Validate if the password match the current password
         if (!Hash::check($inputs['password'], $user->password)) {
             return redirect('/profiles/edit')->withErrors([
-                'password' => 'Warning!!! ' . $user->fullNames() . ', Your Old Password Credential did not match your current'
+                'password' => 'Warning!!! ' . $user->fullNames()
+                    . ', Your Old Password Credential did not match your current'
             ]);
         }
         if ($request->password_confirmation !== $request->new_password) {
             return redirect('/profiles/edit')->withErrors([
-                'password' => 'Warning!!! ' . $user->fullNames() . ', Your New and Confirm Password Credential did not match'
+                'password' => 'Warning!!! ' . $user->fullNames() 
+                    . ', Your New and Confirm Password Credential did not match'
             ]);
         }
         
@@ -163,7 +166,7 @@ class ProfileController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
     */
-    public function postAvatar(Request $request)
+    public function uploadAvatar(Request $request)
     {
         if ($request->file('avatar')) {
             session()->put('active', 'avatar');
@@ -177,6 +180,7 @@ class ProfileController extends Controller
 
             $user->save();
             $this->setFlashMessage(' Your profile picture has been successfully uploaded.', 1);
+            
             return redirect('/profiles');
         }
     }

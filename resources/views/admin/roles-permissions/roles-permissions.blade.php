@@ -85,7 +85,7 @@
                                                     </div>
                                                     <div class="pull-right">
                                                         <label>
-                                                            @if( in_array($permissions[$i]->permission_id, array_values($role->perms()->get()->lists('permission_id')->toArray())))
+                                                            @if( in_array($permissions[$i]->permission_id, array_values($role->perms()->get()->pluck('permission_id')->toArray())))
                                                                 <input checked type="checkbox" name="permission_id[]"
                                                                        value="{{ $permissions[$i]->permission_id }}"
                                                                        class="permissions_check_box color_border"/>
@@ -118,7 +118,7 @@
                                                     </div>
                                                     <div class="pull-right">
                                                         <label>
-                                                            @if( in_array($permissions[$j]->permission_id, array_values($role->perms()->get()->lists('permission_id')->toArray())))
+                                                            @if( in_array($permissions[$j]->permission_id, array_values($role->perms()->get()->pluck('permission_id')->toArray())))
                                                                 <input checked type="checkbox" name="permission_id[]"
                                                                        value="{{ $permissions[$j]->permission_id }}"
                                                                        class="permissions_check_box color_border"/>
@@ -151,7 +151,7 @@
                                                     </div>
                                                     <div class="pull-right">
                                                         <label>
-                                                            @if( in_array($permissions[$k]->permission_id, array_values($role->perms()->get()->lists('permission_id')->toArray())))
+                                                            @if( in_array($permissions[$k]->permission_id, array_values($role->perms()->get()->pluck('permission_id')->toArray())))
                                                                 <input checked type="checkbox" name="permission_id[]"
                                                                        value="{{ $permissions[$k]->permission_id }}"
                                                                        class="permissions_check_box color_border"/>

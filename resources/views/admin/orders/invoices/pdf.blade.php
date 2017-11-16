@@ -237,7 +237,7 @@
                             <td>Installments</td>
                             <td>{{ $order->partPayments->count() }}</td>
                             <td>Outstanding: </td>
-                            <td class="amount">{{ CurrencyHelper::format($order->amount -$order->partPayments()->lists('amount')->sum(), 2, true) }}</td>
+                            <td class="amount">{{ CurrencyHelper::format($order->amount -$order->partPayments()->pluck('amount')->sum(), 2, true) }}</td>
                         </tr>
                     @endif
                 </table>

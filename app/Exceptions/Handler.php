@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
@@ -110,7 +111,7 @@ class Handler extends ExceptionHandler
         if ($e instanceof MethodNotAllowedHttpException){
             return response()->view('errors.custom', [
                 'code'=>'507.3',
-                'header'=>'Bad or Poor Network Issues',
+                'header'=>'Method Not Allowed',
                 'message'=>'<strong>Whoops!!!</strong> Something went wrong with your network kindly retry again and 
                     <strong>allow the page to load completely</strong><br>' . $e->getMessage() . ' <a href="/">Return Back home </a><br/>'
             ]);
@@ -142,5 +143,21 @@ class Handler extends ExceptionHandler
         ////////////////////////////////////////////////// end: KHEENGZ CUSTOM CODE ///////////////////////////////////////
 
         return parent::render($request, $e);
+    }
+
+    /**
+     * Convert an authentication exception into an unauthenticated response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Auth\AuthenticationException  $exception
+     * @return \Illuminate\Http\Response
+     */
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        if ($request->expectsJson()) {
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
+
+        return redirect()->guest('login');
     }
 }

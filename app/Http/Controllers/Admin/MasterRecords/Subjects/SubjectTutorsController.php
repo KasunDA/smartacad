@@ -21,11 +21,16 @@ class SubjectTutorsController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('Select Class Level', '');
-        return view('admin.master-records.subjects.subject-tutor', compact('academic_years', 'classlevels', 'school_subjects'));
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
+            ->prepend('- Academic Year ', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
+            ->prepend('- Class Level -', '');
+
+        return view('admin.master-records.subjects.subject-tutor',
+            compact('academic_years', 'classlevels', 'school_subjects')
+        );
     }
 
     /**
@@ -33,39 +38,53 @@ class SubjectTutorsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postSearchSubjects(Request $request)
+    public function searchSubjects(Request $request)
     {
         $inputs = $request->all();
-        $response = array();
+        $response = $ClassSubjects = [];
         $response['flag'] = 0;
-        $ClassSubjects = [];
         $tutor_id = Auth::user()->user_id;
 
-        if(isset($inputs['manage_classlevel_id']) and $inputs['manage_classlevel_id'] != ''){
-            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])->where('tutor_id', $tutor_id)
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])->lists('classroom_id')->toArray())->get();
-        }else{
-            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])->where('tutor_id', $tutor_id)->get();
+        if (isset($inputs['manage_classlevel_id']) && $inputs['manage_classlevel_id'] != '') {
+            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])
+                ->where('tutor_id', $tutor_id)
+                ->whereIn('classroom_id',
+                    ClassRoom::where('classlevel_id', $inputs['manage_classlevel_id'])
+                        ->pluck('classroom_id')
+                        ->toArray()
+                )
+                ->get();
+        } else {
+            $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['manage_academic_term_id'])
+                ->where('tutor_id', $tutor_id)
+                ->get();
         }
-        if(isset($class_subjects)){
-            foreach($class_subjects as $class_subject){
+
+        if (isset($class_subjects)) {
+            foreach ($class_subjects as $class_subject) {
                 $object = new stdClass();
                 $object->classroom = $class_subject->classRoom()->first()->classroom;
                 $object->subject = $class_subject->subject()->first()->subject;
                 $object->subject_classroom_id = $class_subject->subject_classroom_id;
                 $object->academic_term = $class_subject->academicTerm()->first()->academic_term;
-                $object->tutor = ($class_subject->tutor()->first()) ? $class_subject->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>';
-                $object->status = ($class_subject->exam_status_id == 2) ? '<span class="label label-danger">Not Setup</span>' : '<span class="label label-success">Already Setup</span>';
+                $object->tutor = ($class_subject->tutor()->first())
+                    ? $class_subject->tutor()->first()->fullNames()
+                    : '<span class="label label-danger">nil</span>';
+                $object->status = ($class_subject->exam_status_id == 2) ?
+                    '<span class="label label-danger">Not Setup</span>'
+                    : '<span class="label label-success">Already Setup</span>';
+
                 $ClassSubjects[] = $object;
             }
             //Sort The Subjects by name
-            usort($ClassSubjects, function($a, $b)
-            {
+            usort($ClassSubjects, function ($a, $b) {
                 return strcmp($a->subject, $b->subject);
             });
+
             $response['flag'] = 1;
             $response['ClassSubjects'] = isset($ClassSubjects) ? $ClassSubjects : [];
         }
+
         echo json_encode($response);
     }
 
@@ -75,35 +94,35 @@ class SubjectTutorsController extends Controller
      * @param Int $term
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function getManageStudent($id, $term)
+    public function manageStudent($id, $term)
     {
         $subject = SubjectClassRoom::findOrFail($id);
         $term = AcademicTerm::findOrFail($term);
-        $response = array();
+        $response = $students = [];
         $response['flag'] = 0;
-        $students = [];
 
-        if($subject){
+        if ($subject) {
             //All the students in the class room for the academic year
-            foreach($subject->classRoom()->first()->studentClasses()->where('academic_year_id', $term->academic_year_id)->get() as $student){
+            foreach ($subject->classRoom()->first()->studentClasses()->where('academic_year_id', $term->academic_year_id)->get() as $student) {
                 $object = new stdClass();
                 $object->student_id = $student->student_id;
                 $object->name = $student->student()->first()->fullNames();
                 $students[] = $object;
             }
             //All the students that registered the subject in the class room for the academic year
-            foreach($subject->studentSubjects()->get() as $student_subject){
+            foreach ($subject->studentSubjects()->get() as $student_subject) {
                 $res2[] = $student_subject->student_id;
             }
             //Sort The Students by name
-            usort($students, function($a, $b)
-            {
+            usort($students, function ($a, $b) {
                 return strcmp($a->name, $b->name);
             });
+
             $response['flag'] = 1;
             $response['Students'] = isset($students) ? $students : [];
             $response['Registered'] = isset($res2) ? $res2 : [];
         }
+
         echo json_encode($response);
     }
 
@@ -112,18 +131,22 @@ class SubjectTutorsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postManageStudents(Request $request)
+    public function saveStudents(Request $request)
     {
         $inputs = $request->all();
         $subject = SubjectClassRoom::findOrFail($inputs['subject_classroom_id']);
         $student_ids = implode(',', $inputs['student_id']);
-        if($subject->modifyStudentsSubject($student_ids)){
-            $this->setFlashMessage(count($inputs['student_id']) . ' Students has been enrolled for '
-                . $subject->subject()->first()->subject.' Subject in '.$subject->classRoom()->first()->classroom.' class room.', 1);
-        }else{
+
+        if ($subject->modifyStudentsSubject($student_ids)) {
+            $this->setFlashMessage(
+                count($inputs['student_id']) . ' Students has been enrolled for '
+                . $subject->subject()->first()->subject . ' Subject in '
+                . $subject->classRoom()->first()->classroom.' class room.', 1
+            );
+        } else {
             $this->setFlashMessage('Error!!! Unable to delete record.', 2);
         }
-//        $student_ids = rtrim($student_ids, ',') . ')';
+        //$student_ids = rtrim($student_ids, ',') . ')';
     }
 
     /**
@@ -131,35 +154,45 @@ class SubjectTutorsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postViewAssigned(Request $request)
+    public function viewAssigned(Request $request)
     {
         $inputs = $request->all();
-        $response = array();
+        $response = [];
         $response['flag'] = 0;
 
-        if(isset($inputs['view_classroom_id']) and $inputs['view_classroom_id'] != ''){
+        if (isset($inputs['view_classroom_id']) && $inputs['view_classroom_id'] != '') {
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['view_academic_term_id'])
-                ->where('classroom_id', $inputs['view_classroom_id'])->get();
-        }else{
+                ->where('classroom_id', $inputs['view_classroom_id'])
+                ->get();
+        } else {
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['view_academic_term_id'])
-                ->whereIn('classroom_id', ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])->lists('classroom_id')->toArray())->get();
+                ->whereIn('classroom_id',
+                    ClassRoom::where('classlevel_id', $inputs['view_classlevel_id'])
+                        ->pluck('classroom_id')
+                        ->toArray()
+                )
+                ->get();
         }
-        if(isset($class_subjects)){
-            foreach($class_subjects as $class_subject){
-                $res[] = array(
+
+        if (isset($class_subjects)) {
+            foreach ($class_subjects as $class_subject) {
+                $res[] = [
                     "classroom"=>$class_subject->classRoom()->first()->classroom,
                     "subject"=>$class_subject->subject()->first()->subject,
                     "subject_classroom_id"=>$class_subject->subject_classroom_id,
                     "academic_term"=>$class_subject->academicTerm()->first()->academic_term,
-                    "tutor"=>($class_subject->tutor()->first()) ? $class_subject->tutor()->first()->fullNames() : '<span class="label label-danger">nil</span>',
                     "tutor_id"=>($class_subject->tutor()->first()) ? $class_subject->tutor()->first()->user_id : -1,
-                );
+                    "tutor"=>($class_subject->tutor()->first())
+                        ? $class_subject->tutor()->first()->fullNames()
+                        : '<span class="label label-danger">nil</span>'
+                ];
             }
+
             $response['flag'] = 1;
             $response['ClassSubjects'] = isset($res) ? $res : [];
         }
+
         echo json_encode($response);
     }
-
     //TODO :: View Score // Add a second Tab
 }

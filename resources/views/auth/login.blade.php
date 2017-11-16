@@ -72,7 +72,7 @@ License: You must have a valid license purchased only from themeforest(the above
                 <p> There is one quality that one must possess to win, and that is definiteness of purpose, the
                     knowledge of what one wants and a burning desire to possess it.</p>
 
-                <form action="{{ url('/auth/login') }}" class="login-form" method="post">
+                <form action="{{ url('/login') }}" class="login-form" method="post">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                     <div class="row">
@@ -101,7 +101,7 @@ License: You must have a valid license purchased only from themeforest(the above
                     </div>
                 </form>
                 <!-- BEGIN FORGOT PASSWORD FORM -->
-                <form class="forget-form" action="{{ url('/auth/reset-password') }}" method="post">
+                <form class="forget-form" action="{{ url('/password/email') }}" method="post">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <h3 class="font-green">Forgot Password ?</h3>
 

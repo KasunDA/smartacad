@@ -149,7 +149,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/auth/logout') }}" class="nav-link">
+                    <a href="{{ url('/logout') }}" class="nav-link">
                         <i class="fa fa-power-off"></i> <span class="title">LOG OUT</span>
                     </a>
                 </li>

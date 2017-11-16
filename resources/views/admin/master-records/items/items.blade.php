@@ -39,86 +39,82 @@
                             </div>
                         </div>
                         <div class="col-md-12">
-                            {!! Form::open([
-                                'method'=>'POST',
-                                'class'=>'form',
-                                'role'=>'form',
-                            ])
-                        !!}
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped table-actions" id="item_table">
-                                    <thead>
-                                    <tr>
-                                        <th style="width: 5%;">s/no</th>
-                                        <th style="width: 20%;">Name <small class="font-red-thunderbird">*</small></th>
-                                        <th style="width: 40%;">Description</th>
-                                        <th style="width: 15%;">Item Type <small class="font-red-thunderbird">*</small></th>
-                                        <th style="width: 15%;">Status <small class="font-red-thunderbird">*</small></th>
-                                        <th style="width: 10%;">Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tfoot>
-                                    <tr>
-                                        <th style="width: 5%;">s/no</th>
-                                        <th style="width: 20%;">Name <small class="font-red-thunderbird">*</small></th>
-                                        <th style="width: 40%;">Description</th>
-                                        <th style="width: 15%;">Item Type <small class="font-red-thunderbird">*</small></th>
-                                        <th style="width: 15%;">Status <small class="font-red-thunderbird">*</small></th>
-                                        <th style="width: 10%;">Actions</th>
-                                    </tr>
-                                    </tfoot>
-                                    @if(count($items) > 0)
-                                        <tbody>
-                                        <?php $i = 1; ?>
-                                        @foreach($items as $item)
+                            <form method="post" action="/items" role="form" class="form">
+                                {!! csrf_field() !!}
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped table-actions" id="item_table">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 5%;">s/no</th>
+                                            <th style="width: 20%;">Name <small class="font-red-thunderbird">*</small></th>
+                                            <th style="width: 40%;">Description</th>
+                                            <th style="width: 15%;">Item Type <small class="font-red-thunderbird">*</small></th>
+                                            <th style="width: 15%;">Status <small class="font-red-thunderbird">*</small></th>
+                                            <th style="width: 10%;">Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tfoot>
+                                        <tr>
+                                            <th style="width: 5%;">s/no</th>
+                                            <th style="width: 20%;">Name <small class="font-red-thunderbird">*</small></th>
+                                            <th style="width: 40%;">Description</th>
+                                            <th style="width: 15%;">Item Type <small class="font-red-thunderbird">*</small></th>
+                                            <th style="width: 15%;">Status <small class="font-red-thunderbird">*</small></th>
+                                            <th style="width: 10%;">Actions</th>
+                                        </tr>
+                                        </tfoot>
+                                        @if(count($items) > 0)
+                                            <tbody>
+                                            <?php $i = 1; ?>
+                                            @foreach($items as $item)
+                                                <tr>
+                                                    <td class="text-center">{{$i++}} </td>
+                                                    <td>
+                                                        {!! Form::text('name[]', $item->name, ['placeholder'=>'Item Name', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                        {!! Form::hidden('id[]', $item->id, ['class'=>'form-control']) !!}
+                                                    </td>
+                                                    <td>{!! Form::text('description[]', $item->description, ['placeholder'=>'Description (Optional)', 'class'=>'form-control']) !!}</td>
+                                                    <td>{!! Form::select('item_type_id[]', $item_types, $item->item_type_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                    <td>{!! Form::select('status[]', [''=>'- Status -', 1=>'Active', 0=>'Inactive'], $item->status, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                    <td>
+                                                        <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$item->name}}" data-title="Delete Confirmation"
+                                                                 data-action="/items/delete/{{$item->id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
+                                                            <span class="fa fa-trash-o"></span> Delete
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        @else
                                             <tr>
-                                                <td class="text-center">{{$i++}} </td>
+                                                <td class="text-center">1</td>
                                                 <td>
-                                                    {!! Form::text('name[]', $item->name, ['placeholder'=>'Item Name', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                    {!! Form::hidden('id[]', $item->id, ['class'=>'form-control']) !!}
+                                                    {!! Form::text('name[]', '', ['placeholder'=>'Item Name', 'class'=>'form-control', 'required'=>'required']) !!}
+                                                    {!! Form::hidden('id[]', '-1', ['class'=>'form-control']) !!}
                                                 </td>
-                                                <td>{!! Form::text('description[]', $item->description, ['placeholder'=>'Description (Optional)', 'class'=>'form-control']) !!}</td>
-                                                <td>{!! Form::select('item_type_id[]', $item_types, $item->item_type_id, ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                                <td>{!! Form::select('status[]', [''=>'- Status -', 1=>'Active', 0=>'Inactive'], $item->status, ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                <td>{!! Form::text('description[]', '', ['placeholder'=>'Description (Optional)', 'class'=>'form-control']) !!}</td>
+                                                <td>{!! Form::select('item_type_id[]', $item_types, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
+                                                <td>{!! Form::select('status[]', [''=>'- Status -', 1=>'Active', 0=>'Inactive'],'', ['class'=>'form-control', 'required'=>'required']) !!}</td>
                                                 <td>
-                                                    <button  data-confirm-text="Yes, Delete it!!!" data-name="{{$item->name}}" data-title="Delete Confirmation"
-                                                             data-action="/items/delete/{{$item->id}}" class="btn btn-danger btn-xs btn-condensed btn-sm confirm-delete-btn">
-                                                        <span class="fa fa-trash-o"></span> Delete
+                                                    <button class="btn btn-danger btn-xs btn-condensed btn-sm">
+                                                        <span class="fa fa-times"></span> Remove
                                                     </button>
                                                 </td>
                                             </tr>
-                                        @endforeach
-                                        </tbody>
-                                    @else
-                                        <tr>
-                                            <td class="text-center">1</td>
-                                            <td>
-                                                {!! Form::text('name[]', '', ['placeholder'=>'Item Name', 'class'=>'form-control', 'required'=>'required']) !!}
-                                                {!! Form::hidden('id[]', '-1', ['class'=>'form-control']) !!}
-                                            </td>
-                                            <td>{!! Form::text('description[]', '', ['placeholder'=>'Description (Optional)', 'class'=>'form-control']) !!}</td>
-                                            <td>{!! Form::select('item_type_id[]', $item_types, '', ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                            <td>{!! Form::select('status[]', [''=>'- Status -', 1=>'Active', 0=>'Inactive'],'', ['class'=>'form-control', 'required'=>'required']) !!}</td>
-                                            <td>
-                                                <button class="btn btn-danger btn-xs btn-condensed btn-sm">
-                                                    <span class="fa fa-times"></span> Remove
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @endif
-                                </table>
-                                <div class="pull-left">
-                                    <div class="btn-group">
-                                        <button class="btn btn-sm green add_item"> Add New
-                                            <i class="fa fa-plus"></i>
-                                        </button>
+                                        @endif
+                                    </table>
+                                    <div class="pull-left">
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm green add_item"> Add New
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-actions noborder">
+                                        <button type="submit" class="btn blue pull-right">Submit</button>
                                     </div>
                                 </div>
-                                <div class="form-actions noborder">
-                                    <button type="submit" class="btn blue pull-right">Submit</button>
-                                </div>
-                            </div>
-                            {!! Form::close() !!}
+                            </form>
                         </div>
                     </div>
                 </div>

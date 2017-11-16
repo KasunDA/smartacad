@@ -16,18 +16,18 @@
 
 Route::group(['middleware' => ['web']], function () {
 
-    Route::get('/', function () {
-        if(\Illuminate\Support\Facades\Auth::check()){
-            return (\Illuminate\Support\Facades\Auth::user()->user_type_id == \App\Models\Admin\Accounts\Sponsor::USER_TYPE)
-                ? redirect('/home') : redirect('/dashboard');
-        }else{
-            return redirect('/auth/login');
-        }
-    });
+//    Route::get('/', function () {
+//        if(\Illuminate\Support\Facades\Auth::check()){
+//            return (\Illuminate\Support\Facades\Auth::user()->user_type_id == \App\Models\Admin\Accounts\Sponsor::USER_TYPE)
+//                ? redirect('/home') : redirect('/dashboard');
+//        }else{
+//            return redirect('/auth/login');
+//        }
+//    });
     
-    Route::get('/phpinfo', function () {
-        return view('/phpinfo');
-    });
+//    Route::get('/phpinfo', function () {
+//        return view('/phpinfo');
+//    });
     
     //Dependent List Box
 //    Route::group(array('prefix'=>'list-box'), function(){
@@ -39,156 +39,156 @@ Route::group(['middleware' => ['web']], function () {
 
     //Front End
     Route::controllers([
-        'home' => 'Front\HomeController',
-        'wards' => 'Front\Students\StudentController',
-        'wards-exams' => 'Front\Assessments\ExamsController',
-        'wards-assessments' => 'Front\Assessments\AssessmentsController',
-        'wards-attendances' => 'Front\Students\AttendancesController',
-        'wards-billings' => 'Front\Orders\BillingsController',
+//        'home' => 'Front\HomeController',
+//        'wards' => 'Front\Students\StudentController',
+//        'wards-exams' => 'Front\Assessments\ExamsController',
+//        'wards-assessments' => 'Front\Assessments\AssessmentsController',
+//        'wards-attendances' => 'Front\Students\AttendancesController',
+//        'wards-billings' => 'Front\Orders\BillingsController',
     ]);
 
-    Route::auth();
+//    Route::auth();
 
     //Fees / Orders Routes
-    Route::group(['prefix'=>'orders/', 'namespace' => 'Admin\Orders'], function () {
-        Route::get('/paid/{termId?}', 'OrdersController@paid')->name('paidOrders');
-        Route::get('/not-paid/{termId?}', 'OrdersController@notPaid')->name('notPaidOrders');
-        Route::get('/cancelled/{termId?}', 'OrdersController@cancelled')->name('cancelledOrders');
-        Route::get('/all-orders/{termId?}', 'OrdersController@allOrders')->name('allOrders');
-        Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
-        
-        Route::post('/summary', 'OrdersController@postSummary');
-        Route::post('/all-data', 'OrdersController@data');
-    });
+//    Route::group(['prefix'=>'orders/', 'namespace' => 'Admin\Orders'], function () {
+//        Route::get('/paid/{termId?}', 'OrdersController@paid')->name('paidOrders');
+//        Route::get('/not-paid/{termId?}', 'OrdersController@notPaid')->name('notPaidOrders');
+//        Route::get('/cancelled/{termId?}', 'OrdersController@cancelled')->name('cancelledOrders');
+//        Route::get('/all-orders/{termId?}', 'OrdersController@allOrders')->name('allOrders');
+//        Route::get('/percentage/{termId?}', 'OrdersController@percentage')->name('percentage');
+//
+//        Route::post('/summary', 'OrdersController@postSummary');
+//        Route::post('/all-data', 'OrdersController@data');
+//    });
 
-    //Invoice Routes
-    Route::group(['prefix'=>'invoices/', 'namespace' => 'Admin\Orders'], function () {
-        Route::get('/order/{orderId}', 'InvoicesController@order');
-        Route::get('/download/{orderId}', 'InvoicesController@download');
-        Route::get('/pdf/{orderId}', 'InvoicesController@pdf');
-    });
+//    //Invoice Routes
+//    Route::group(['prefix'=>'invoices/', 'namespace' => 'Admin\Orders'], function () {
+//        Route::get('/order/{orderId}', 'InvoicesController@order');
+//        Route::get('/download/{orderId}', 'InvoicesController@download');
+//        Route::get('/pdf/{orderId}', 'InvoicesController@pdf');
+//    });
 
 
     //Assessment Routes
-    Route::group(['prefix'=>'assessments/', 'namespace' => 'Admin\Assessments'], function () {
-        Route::get('/view/{studentId}', 'AssessmentsController@view');
-        Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
-    });
+//    Route::group(['prefix'=>'assessments/', 'namespace' => 'Admin\Assessments'], function () {
+//        Route::get('/view/{studentId}', 'AssessmentsController@view');
+//        Route::get('/details/{studentId}/{termId}', 'AssessmentsController@details');
+//    });
 
     //Exams Routes
-    Route::group(['prefix'=>'exams/', 'namespace' => 'Admin\Assessments'], function () {
-        Route::get('/view/{studentId}', 'ExamsController@view');
-        Route::get('/details/{studentId}/{termId}', 'ExamsController@details');
-    });
+//    Route::group(['prefix'=>'exams/', 'namespace' => 'Admin\Assessments'], function () {
+//        Route::get('/view/{studentId}', 'ExamsController@view');
+//        Route::get('/details/{studentId}/{termId}', 'ExamsController@details');
+//    });
 
     //Billings Routes
-    Route::group(['prefix'=>'billings/', 'namespace' => 'Admin\Orders'], function () {
-        Route::get('/view/{studentId}', 'BillingsController@view');
-        Route::get('/details/{studentId}/{orderId}', 'BillingsController@details');
-    });
+//    Route::group(['prefix'=>'billings/', 'namespace' => 'Admin\Orders'], function () {
+//        Route::get('/view/{studentId}', 'BillingsController@view');
+//        Route::get('/details/{studentId}/{orderId}', 'BillingsController@details');
+//    });
 
     //Staffs Routes
-    Route::group(['prefix'=>'staffs/', 'namespace' => 'Admin\Accounts'], function () {
-        Route::post('/all-staffs', 'StaffController@allStaffs');
-        Route::post('/staff-subjects', 'StaffController@staffSubjects');
-        
-        Route::get('/dashboard/{staffId}', 'StaffController@dashboard');
-        Route::get('/marked/{staffId}', 'StaffController@marked');
-        Route::get('/unmarked/{staffId}/', 'StaffController@unmarked');
-        
-        Route::get('/subject/{staffId}/', 'StaffController@subject');
-        Route::get('/subject-details/{subjectId}', 'StaffController@subjectDetails');
-        Route::get('/classroom/{staffId}/', 'StaffController@classroom');
-    });
+//    Route::group(['prefix'=>'staffs/', 'namespace' => 'Admin\Accounts'], function () {
+//        Route::post('/all-staffs', 'StaffController@allStaffs');
+//        Route::post('/staff-subjects', 'StaffController@staffSubjects');
+//        
+//        Route::get('/dashboard/{staffId}', 'StaffController@dashboard');
+//        Route::get('/marked/{staffId}', 'StaffController@marked');
+//        Route::get('/unmarked/{staffId}/', 'StaffController@unmarked');
+//        
+//        Route::get('/subject/{staffId}/', 'StaffController@subject');
+//        Route::get('/subject-details/{subjectId}', 'StaffController@subjectDetails');
+//        Route::get('/classroom/{staffId}/', 'StaffController@classroom');
+//    });
 
     //Profile Routes
-    Route::group(['prefix'=>'profiles/', 'namespace' => 'Admin\Users'], function () {
-        Route::get('/dashboard', 'ProfileController@dashboard');
-        Route::get('/subject', 'ProfileController@subject');
-        Route::get('/subject-details/{subjectId}', 'ProfileController@subjectDetails');
-        Route::get('/classroom', 'ProfileController@classroom');
-    });
+//    Route::group(['prefix'=>'profiles/', 'namespace' => 'Admin\Users'], function () {
+//        Route::get('/dashboard', 'ProfileController@dashboard');
+//        Route::get('/subject', 'ProfileController@subject');
+//        Route::get('/subject-details/{subjectId}', 'ProfileController@subjectDetails');
+//        Route::get('/classroom', 'ProfileController@classroom');
+//    });
 
     
     //Attendance Routes
-    Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {
-        Route::get('/', 'AttendancesController@index');
-        Route::get('/initiate/{classId}/{attendId?}', 'AttendancesController@initiate')->name('initiateAttendance');
-        Route::post('/initiate/{classId}/{attendId?}', 'AttendancesController@take');
-        Route::get('/adjust/{classId}', 'AttendancesController@adjust')->name('adjustAttendance');
-        Route::post('/classroom', 'AttendancesController@classroom');
-        Route::get('/classroom-details/{attendId}', 'AttendancesController@classroomDetails');
-        Route::post('/student', 'AttendancesController@student');
-        Route::get('/student-details/{studentClassId}/{termId}', 'AttendancesController@studentDetails');
-        //Student
-        Route::get('/view/{studentId}', 'AttendancesController@view');
-        Route::get('/details/{studentId}/{attendId}', 'AttendancesController@details');
-    });
+//    Route::group(['prefix'=>'attendances/', 'namespace' => 'Admin\Attendances'], function () {
+//        Route::get('/', 'AttendancesController@index');
+//        Route::get('/initiate/{classId}/{attendId?}', 'AttendancesController@initiate')->name('initiateAttendance');
+//        Route::post('/initiate/{classId}/{attendId?}', 'AttendancesController@take');
+//        Route::get('/adjust/{classId}', 'AttendancesController@adjust')->name('adjustAttendance');
+//        Route::post('/classroom', 'AttendancesController@classroom');
+//        Route::get('/classroom-details/{attendId}', 'AttendancesController@classroomDetails');
+//        Route::post('/student', 'AttendancesController@student');
+//        Route::get('/student-details/{studentClassId}/{termId}', 'AttendancesController@studentDetails');
+//        //Student
+//        Route::get('/view/{studentId}', 'AttendancesController@view');
+//        Route::get('/details/{studentId}/{attendId}', 'AttendancesController@details');
+//    });
     
     Route::controllers([
-        'auth' => 'Auth\AuthController',
-        'dashboard' => 'Admin\Utilities\DashboardController',
+//        'auth' => 'Auth\AuthController',
+//        'dashboard' => 'Admin\Utilities\DashboardController',
         //Dependent List Box
-        'list-box' => 'Admin\Utilities\ListBoxController',
+//        'list-box' => 'Admin\Utilities\ListBoxController',
         //Random Numbers
-        'pin-numbers' => 'Admin\Utilities\PinNumberController',
+//        'pin-numbers' => 'Admin\Utilities\PinNumberController',
 
         //Messaging
-        'messages' => 'Admin\Utilities\MessageController',
+//        'messages' => 'Admin\Utilities\MessageController',
         
-        'users' => 'Admin\Users\UserController',
-        'user-types' => 'Admin\Users\UserTypeController',
+//        'users' => 'Admin\Users\UserController',
+//        'user-types' => 'Admin\Users\UserTypeController',
 
-        'roles' => 'Admin\RolesAndPermission\RolesController',
-        'permissions' => 'Admin\RolesAndPermission\PermissionsController',
-        'profiles' => 'Admin\Users\ProfileController',
+//        'roles' => 'Admin\RolesAndPermission\RolesController',
+//        'permissions' => 'Admin\RolesAndPermission\PermissionsController',
+//        'profiles' => 'Admin\Users\ProfileController',
 
-        'schools' => 'School\SchoolController',
+//        'schools' => 'School\SchoolController',
         
         //Menus Route
-        'menus' => 'Admin\MasterRecords\MenuController',
+//        'menus' => 'Admin\MasterRecords\MenuController',
 
         //setup records
-        'salutations' => 'School\Setups\SalutationController',
-        'marital-statuses' => 'School\Setups\MaritalStatusController',
-        'school-banks' => 'School\Setups\BanksController',
+//        'salutations' => 'School\Setups\SalutationController',
+//        'marital-statuses' => 'School\Setups\MaritalStatusController',
+//        'school-banks' => 'School\Setups\SchoolBanksController',
 
-        'accounts' => 'Admin\Accounts\AccountsController',
-        'sponsors' => 'Admin\Accounts\SponsorController',
-        'staffs' => 'Admin\Accounts\StaffController',
-        'students' => 'Admin\Accounts\StudentController',
+//        'accounts' => 'Admin\Accounts\AccountsController',
+//        'sponsors' => 'Admin\Accounts\SponsorController',
+//        'staffs' => 'Admin\Accounts\StaffController',
+//        'students' => 'Admin\Accounts\StudentController',
 
         //Master Record
-        'academic-years' => 'Admin\MasterRecords\Sessions\AcademicYearsController',
-        'academic-terms' => 'Admin\MasterRecords\Sessions\AcademicTermsController',
-        'grades' => 'Admin\MasterRecords\GradesController',
-        'class-groups' => 'Admin\MasterRecords\Classes\ClassGroupsController',
-        'class-levels' => 'Admin\MasterRecords\Classes\ClassLevelsController',
-        'class-rooms' => 'Admin\MasterRecords\Classes\ClassRoomsController',
-        'class-students' => 'Admin\MasterRecords\Classes\ClassStudentsController',
+//        'academic-years' => 'Admin\MasterRecords\Sessions\AcademicYearsController',
+//        'academic-terms' => 'Admin\MasterRecords\Sessions\AcademicTermsController',
+//        'grades' => 'Admin\MasterRecords\GradesController',
+//        'class-groups' => 'Admin\MasterRecords\Classes\ClassGroupsController',
+//        'class-levels' => 'Admin\MasterRecords\Classes\ClassLevelsController',
+//        'class-rooms' => 'Admin\MasterRecords\Classes\ClassRoomsController',
+//        'class-students' => 'Admin\MasterRecords\Classes\ClassStudentsController',
 
         //Items Records
-        'item-types' => 'Admin\MasterRecords\Items\ItemTypesController',
-        'items' => 'Admin\MasterRecords\Items\ItemsController',
-        'item-quotes' => 'Admin\MasterRecords\Items\ItemQuotesController',
+//        'item-types' => 'Admin\MasterRecords\Items\ItemTypesController',
+//        'items' => 'Admin\MasterRecords\Items\ItemsController',
+//        'item-quotes' => 'Admin\MasterRecords\Items\ItemQuotesController',
 
         //Subjects
-        'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
-        'subjects' => 'School\Setups\Subjects\SubjectsController',
-        'subject-classrooms' => 'Admin\MasterRecords\Subjects\SubjectClassRoomsController',
-        'subject-tutors' => 'Admin\MasterRecords\Subjects\SubjectTutorsController',
-        'school-subjects' => 'Admin\MasterRecords\Subjects\SchoolSubjectsController',
-        'custom-subjects' => 'Admin\MasterRecords\Subjects\CustomSubjectsController',
+//        'subject-groups' => 'School\Setups\Subjects\SubjectGroupsController',
+//        'subjects' => 'School\Setups\Subjects\SubjectsController',
+//        'subject-classrooms' => 'Admin\MasterRecords\Subjects\SubjectClassRoomsController',
+//        'subject-tutors' => 'Admin\MasterRecords\Subjects\SubjectTutorsController',
+//        'school-subjects' => 'Admin\MasterRecords\Subjects\SchoolSubjectsController',
+//        'custom-subjects' => 'Admin\MasterRecords\Subjects\CustomSubjectsController',
 
         //Assessment Setup
-        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
-        'assessments' => 'Admin\Assessments\AssessmentsController',
-        'domains' => 'Admin\Assessments\DomainsController',
-        'exams' => 'Admin\Assessments\ExamsController',
+//        'assessment-setups' => 'Admin\MasterRecords\AssessmentSetupsController',
+//        'assessments' => 'Admin\Assessments\AssessmentsController',
+//        'domains' => 'Admin\Assessments\DomainsController',
+//        'exams' => 'Admin\Assessments\ExamsController',
 
         //Order Routes
-        'orders' => 'Admin\Orders\OrdersController',
-        'billings' => 'Admin\Orders\BillingsController',
+//        'orders' => 'Admin\Orders\OrdersController',
+//        'billings' => 'Admin\Orders\BillingsController',
     ]);
 });
 

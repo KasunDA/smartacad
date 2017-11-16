@@ -28,9 +28,10 @@ class AcademicYearsController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         $academic_years = AcademicYear::all();
+
         return view('admin.master-records.sessions.academic-years', compact('academic_years'));
     }
 
@@ -40,38 +41,41 @@ class AcademicYearsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postIndex(Request $request)
+    public function save(Request $request)
     {
         $inputs = $request->all();
         $count = $status = 0;
 
         // Validate TO Make Sure Only One Status is Set
-        for($j=0; $j<count($inputs['status']); $j++)
+        for ($j=0; $j<count($inputs['status']); $j++) {
             if($inputs['status'][$j] == '1') $status++;
+        }
 
-        if($status != 1) {
+        if ($status != 1) {
             $this->setFlashMessage('Note!!! An Academic Year (Only One) Must Be Set To Active At Any Point In Time.', 2);
-        }else{
+        } else {
 
-            for($i = 0; $i < count($inputs['academic_year_id']); $i++){
-                $academic_year = ($inputs['academic_year_id'][$i] > 0) ? AcademicYear::find($inputs['academic_year_id'][$i]) : new AcademicYear();
+            for ($i = 0; $i < count($inputs['academic_year_id']); $i++) {
+                $academic_year = ($inputs['academic_year_id'][$i] > 0)
+                    ? AcademicYear::find($inputs['academic_year_id'][$i])
+                    : new AcademicYear();
                 $academic_year->academic_year = $inputs['academic_year'][$i];
                 $academic_year->status = $inputs['status'][$i];
-                if($academic_year->save()){
+                if ($academic_year->save()) {
                     $count = $count+1;
                 }
             }
             //Update The Setup Process
-            if ($this->school->setup == School::ACADEMIC_YEAR){
+            if ($this->school->setup == School::ACADEMIC_YEAR) {
                 $this->school->setup = School::ACADEMIC_TERM;
                 $this->school->save();
+                
                 return redirect('/academic-terms');
             }
             
-            // Set the flash message
             if($count > 0) $this->setFlashMessage($count . ' Academic Year has been successfully updated.', 1);
         }
-        // redirect to the create a new inmate page
+        
         return redirect('/academic-years');
     }
 
@@ -79,16 +83,12 @@ class AcademicYearsController extends Controller
      * Delete a Menu from the list of Menus using a given menu id
      * @param $id
      */
-    public function getDelete($id)
+    public function delete($id)
     {
         $academic_year = AcademicYear::findOrFail($id);
-        //Delete The Record
-        $delete = ($academic_year !== null) ? $academic_year->delete() : null;
 
-        if($delete){
-            $this->setFlashMessage('  Deleted!!! '.$academic_year->academic_year.' Academic Year have been deleted.', 1);
-        }else{
-            $this->setFlashMessage('Error!!! Unable to delete record.', 2);
-        }
+        (($academic_year !== null) && $academic_year->delete())
+            ? $this->setFlashMessage('  Deleted!!! '.$academic_year->academic_year.' Academic Year have been deleted.', 1)
+            : $this->setFlashMessage('Error!!! Unable to delete record.', 2);
     }
 }

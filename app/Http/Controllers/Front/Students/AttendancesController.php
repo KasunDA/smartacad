@@ -16,7 +16,7 @@ class AttendancesController extends Controller
      * Displays the Students of the sponsor
      * @return \Illuminate\View\View
      */
-    public function getIndex()
+    public function index()
     {
         $students = Auth::user()->students()->get();
 
@@ -28,11 +28,13 @@ class AttendancesController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getView($encodeId)
+    public function view($encodeId)
     {
         $student = Student::findOrFail($this->decode($encodeId));
-        $attendances = Attendance::whereIn('id', AttendanceDetail::where('student_id', $student->student_id)
-                ->lists('attendance_id')->toArray()
+        $attendances = Attendance::whereIn('id',
+                AttendanceDetail::where('student_id', $student->student_id)
+                    ->pluck('attendance_id')
+                    ->toArray()
             )
             ->groupBy(['academic_term_id'])
             ->orderBy('attendance_date', 'DESC')
@@ -47,14 +49,16 @@ class AttendancesController extends Controller
      * @param String $attendId
      * @return \Illuminate\View\View
      */
-    public function getDetails($studId, $attendId)
+    public function details($studId, $attendId)
     {
         $student = Student::findOrFail($this->decode($studId));
         $attendance = Attendance::findOrFail($this->decode($attendId));
 
-        $attendances = Attendance::with(['details' => function($query) use($student){
-                $query->where('student_id', $student->student_id);
-            }])
+        $attendances = Attendance::with([
+                'details' => function($query) use($student) {
+                    $query->where('student_id', $student->student_id);
+                }
+            ])
             ->where('academic_term_id', $attendance->academic_term_id)
             ->where('classroom_id', $attendance->classroom_id)
             ->get()

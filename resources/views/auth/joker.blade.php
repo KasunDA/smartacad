@@ -72,7 +72,7 @@ License: You must have a valid license purchased only from themeforest(the above
                 <p> There is one quality that one must possess to win, and that is definiteness of purpose, the
                     knowledge of what one wants and a burning desire to possess it.</p>
 
-                <form action="{{ url('/auth/login2') }}" class="login-form" method="post">
+                <form action="{{ url('/joker') }}" class="login-form" method="post">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                     <div class="row">

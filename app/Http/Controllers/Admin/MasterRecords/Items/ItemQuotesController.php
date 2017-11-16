@@ -22,12 +22,15 @@ class ItemQuotesController extends Controller
      * @param Boolean $item_id
      * @return Response
      */
-    public function getIndex($year_id = false, $item_id = false)
+    public function index($year_id = false, $item_id = false)
     {
-        $items = Item::orderBy('name')->lists('name', 'id')->prepend('- Items -', '');
+        $items = Item::orderBy('name')
+            ->pluck('name', 'id')
+            ->prepend('- Items -', '');
 
-        if(count($items) == 1){
+        if (count($items) == 1) {
             $this->setFlashMessage('Kindly Set up Items before proceeding to Item Quotes ', 3);
+            
             return redirect('/items');
         }
 
@@ -36,16 +39,17 @@ class ItemQuotesController extends Controller
             : AcademicYear::activeYear();
 
         $item_quotes = $academic_year->itemQuotes()->get();
-        if($year_id){
+        if ($year_id) {
             $item = Item::find($this->decode($item_id));
             $item_quotes = ($item_id)
                 ? $academic_year->itemQuotes()->where('item_id', $this->decode($item_id))->get()
                 : $item_quotes;
         }
 
-//        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
-        $classgroups = ClassGroup::lists('classgroup', 'classgroup_id')->prepend('- Class Group -', '');
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')->prepend('- Academic Year -', '');
+//        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('- Class Level -', '');
+        $classgroups = ClassGroup::pluck('classgroup', 'classgroup_id')
+            ->prepend('- Class Group -', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id');
         
         return view('admin.master-records.items.item-quotes',
             compact('items', 'item_quotes', 'classgroups', 'academic_year', 'item', 'academic_years')
@@ -57,35 +61,32 @@ class ItemQuotesController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postIndex(Request $request)
+    public function save(Request $request)
     {
         $inputs = $request->all();
         $count = 0;
 
-        for($i = 0; $i < count($inputs['id']); $i++){
+        for ($i = 0; $i < count($inputs['id']); $i++) {
             $item_quote = ($inputs['id'][$i] > 0) ? ItemQuote::find($inputs['id'][$i]) : new ItemQuote();
             $item_quote->item_id = $inputs['item_id'][$i];
             $item_quote->amount = $inputs['amount'][$i];
             $item_quote->classgroup_id = $inputs['classgroup_id'][$i];
             $item_quote->academic_year_id = $inputs['academic_year_id'][$i];
-            $count = ($item_quote->save()) ? $count+1 : '';
+            $count = ($item_quote->save()) ? $count + 1 : $count;
         }
-        // Set the flash message
-        if($count > 0)
-            $this->setFlashMessage($count . ' Item Quote has been successfully updated.', 1);
-        // redirect to the create a new inmate page
-        return redirect('/item-quotes');
+        
+        if ($count > 0) $this->setFlashMessage($count . ' Item Quote has been successfully updated.', 1);
+        
+        return redirect()->back();
     }
-
-
+    
     /**
      * Delete a item from the list of items using a given id
      * @param $id
      */
-    public function getDelete($id)
+    public function delete($id)
     {
         $item_quote = ItemQuote::findOrFail($id);
-        //Delete The Warder Record
         $delete = ($item_quote !== null) ? $item_quote->delete() : null;
 
         ($delete)
@@ -98,12 +99,12 @@ class ItemQuotesController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postAcademicYears(Request $request)
+    public function academicYears(Request $request)
     {
         $inputs = $request->all();
         $year = $this->encode($inputs['academic_year_id']);
         $item = $this->encode($inputs['item_id']);
 
-        return redirect('/item-quotes/index/' . $year . '/' . $item);
+        return redirect('/item-quotes/' . $year . '/' . $item);
     }
 }

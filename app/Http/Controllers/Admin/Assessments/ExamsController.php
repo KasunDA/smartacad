@@ -34,12 +34,12 @@ class ExamsController extends Controller
      *
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
-            ->prepend('Select Academic Year', '');
-        $classlevels = ClassLevel::lists('classlevel', 'classlevel_id')
-            ->prepend('Select Class Level', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
+            ->prepend('- Select Academic Year -', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
+            ->prepend('- Select Class Level -', '');
 
         return view('admin.assessments.exams.index', compact('academic_years', 'classlevels'));
         //Keep track of selected tab
@@ -57,12 +57,12 @@ class ExamsController extends Controller
      * Display a listing of the Menus for Master Records.
      * @return Response
      */
-    public function getSetup()
+    public function setup()
     {
-        $academic_years = AcademicYear::lists('academic_year', 'academic_year_id')
-            ->prepend('Select Academic Year', '');
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
+            ->prepend('- Select Academic Year -', '');
 
-        return view('admin.assessments.exams.setup', compact('academic_years', 'classlevels', 'tutors'));
+        return view('admin.assessments.exams.setup', compact('academic_years'));
     }
 
     /**
@@ -70,14 +70,15 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postValidateAllSetup(Request $request)
+    public function validateAllSetup(Request $request)
     {
         $inputs = $request->all();
         $response = [];
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
         $view = SubjectAssessmentView::where('academic_term_id', $term->academic_term_id)
             ->where(function ($query) {
-                $query->whereNull('marked')->orWhere('marked', '<>', '1');
+                $query->whereNull('marked')
+                    ->orWhere('marked', '<>', '1');
             })
             ->count();
         if ($view > 0 ) {
@@ -99,13 +100,12 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postAllSetup(Request $request)
+    public function allSetup(Request $request)
     {
         $inputs = $request->all();
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
 
         if($term){
-            //Update
             Exam::processExams($term->academic_term_id);
             session()->put('exams-tab', 'setup-exam');
             $this->setFlashMessage('Exams for ' . $term->academic_term . ' Academic Term has been successfully setup.', 1);
@@ -119,7 +119,7 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postSubjectAssigned(Request $request)
+    public function subjectAssigned(Request $request)
     {
         $inputs = $request->all();
         $response = array();
@@ -131,14 +131,14 @@ class ExamsController extends Controller
             $class_subjects = SubjectClassRoom::where('academic_term_id', $inputs['academic_term_id'])
                 ->whereIn('classroom_id',
                     ClassRoom::where('classlevel_id', $inputs['classlevel_id'])
-                        ->lists('classroom_id')
+                        ->pluck('classroom_id')
                         ->toArray()
                 )
                 ->where(function ($query) use ($user_id) {
                     //If its not a developer admin filter by the logged in user else return all records in the class level
                     if($user_id) $query->where('tutor_id', $user_id);
                 })
-                ->lists('subject_classroom_id')
+                ->pluck('subject_classroom_id')
                 ->toArray();
 
         }else{
@@ -147,7 +147,7 @@ class ExamsController extends Controller
                     //If its not a developer admin filter by the logged in user else return all records in the class room
                     if($user_id) $query->where('tutor_id', $user_id);
                 })
-                ->lists('subject_classroom_id')
+                ->pluck('subject_classroom_id')
                 ->toArray();
         }
 
@@ -186,7 +186,7 @@ class ExamsController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getInputScores($encodeId)
+    public function inputScores($encodeId)
     {
         $exam = Exam::findOrFail($this->decode($encodeId));
         $subject = ($exam) ? $exam->subjectClassroom()->first() : null;
@@ -199,7 +199,7 @@ class ExamsController extends Controller
                 . ' Academic Year is due therefore editing has been disabled... Do contact your Systems Admin for further complains';
             $this->setFlashMessage($msg);
 
-            return redirect('/exams/view-scores/'.$this->getHashIds()->encode($exam->exam_id));
+            return redirect('/exams/view-scores/'.$this->encode($exam->exam_id));
         }
 
         return view('admin.assessments.exams.input-scores', compact('exam', 'subject'));
@@ -210,7 +210,7 @@ class ExamsController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getViewScores($encodeId)
+    public function viewScores($encodeId)
     {
         $exam = Exam::findOrFail($this->decode($encodeId));
         $subject = ($exam) ? $exam->subjectClassroom()->first() : null;
@@ -223,7 +223,7 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postInputScores(Request $request)
+    public function saveScores(Request $request)
     {
         $inputs = $request->all();
         $count = 0;
@@ -244,7 +244,7 @@ class ExamsController extends Controller
             $this->setFlashMessage($count . ' Students Scores has been successfully inputted.', 1);
         }
 
-        return redirect('/exams/view-scores/'.$this->getHashIds()->encode($exam->exam_id));
+        return redirect('/exams/view-scores/'.$this->encode($exam->exam_id));
     }
 
     /**
@@ -252,7 +252,7 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postSearchResults(Request $request)
+    public function searchResults(Request $request)
     {
         $inputs = $request->all();
 
@@ -275,8 +275,8 @@ class ExamsController extends Controller
             foreach($students as $student){
                 $object = new stdClass();
                 $object->student_id = $student->student_id;
-                $object->hashed_stud = $this->getHashIds()->encode($student->student_id);
-                $object->hashed_term = $this->getHashIds()->encode($inputs['view_academic_term_id']);
+                $object->hashed_stud = $this->encode($student->student_id);
+                $object->hashed_term = $this->encode($inputs['view_academic_term_id']);
                 $object->student_no = $student->student()->first()->student_no;
                 $object->name = $student->student()->first()->fullNames();
                 $object->gender = $student->student()->first()->gender;
@@ -297,9 +297,9 @@ class ExamsController extends Controller
             foreach($classrooms as $classroom){
                 $res[] = array(
                     "classroom"=>$classroom->classroom,
-                    "hashed_class"=>$this->getHashIds()->encode($classroom->classroom_id),
+                    "hashed_class"=>$this->encode($classroom->classroom_id),
                     "academic_term"=>$term->academic_term,
-                    "hashed_term"=>$this->getHashIds()->encode($term->academic_term_id),
+                    "hashed_term"=>$this->encode($term->academic_term_id),
                     "student_count"=>$classroom->studentClasses()->where('academic_year_id', $inputs['view_academic_year_id'])->count()
                 );
             }
@@ -317,7 +317,7 @@ class ExamsController extends Controller
      * @param String $encodeTerm
      * @return \Illuminate\View\View
      */
-    public function getStudentTerminalResult($encodeStud, $encodeTerm)
+    public function studentTerminalResult($encodeStud, $encodeTerm)
     {
         $student = Student::findOrFail($this->decode($encodeStud));
         $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
@@ -346,7 +346,7 @@ class ExamsController extends Controller
      * @param String $encodeTerm
      * @return \Illuminate\View\View
      */
-    public function getClassroomTerminalResult($encodeClass, $encodeTerm)
+    public function classroomTerminalResult($encodeClass, $encodeTerm)
     {
         $classroom = ClassRoom::findOrFail($this->decode($encodeClass));
         $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
@@ -363,7 +363,7 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postValidateMySetup(Request $request)
+    public function validateMySetup(Request $request)
     {
         $inputs = $request->all();
         $response = [];
@@ -371,7 +371,8 @@ class ExamsController extends Controller
         $view = SubjectAssessmentView::where('academic_term_id', $term->academic_term_id)
             ->where('tutor_id', Auth::user()->user_id)
             ->where(function ($query) {
-                $query->whereNull('marked')->orWhere('marked', '<>', '1');
+                $query->whereNull('marked')
+                    ->orWhere('marked', '<>', '1');
             })
             ->count();
 
@@ -393,7 +394,7 @@ class ExamsController extends Controller
      * Validate if my (Individual Staffs) exam has been setup then compute the C.A
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function getComputeCa()
+    public function computeCa()
     {
         $response = [];
         $term = AcademicTerm::activeTerm();
@@ -424,11 +425,10 @@ class ExamsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postMySetup(Request $request)
+    public function mySetup(Request $request)
     {
         $inputs = $request->all();
         $term = AcademicTerm::findOrFail($inputs['academic_term_id']);
-
         if($term){
             //Process Only my exams so as to input scores
             Exam::processExams($term->academic_term_id, Auth::user()->user_id);
@@ -445,7 +445,7 @@ class ExamsController extends Controller
      * @param String $encodeTerm
      * @return \Illuminate\View\View
      */
-    public function getPrintStudentTerminalResult($encodeStud, $encodeTerm)
+    public function printStudentTerminalResult($encodeStud, $encodeTerm)
     {
         $student = Student::findOrFail($this->decode($encodeStud));
         $term = AcademicTerm::findOrFail($this->decode($encodeTerm));
@@ -511,5 +511,4 @@ class ExamsController extends Controller
             compact('student', 'term', 'position', 'classroom', 'groups', 'exams')
         );
     }
-
 }

@@ -43,7 +43,7 @@
                                     <?php $collapse = ($i == 1) ? 'in' : 'collapse'; ?>
                                     <?php
                                         $j = 1;
-                                        $attendances = Attendance::whereIn('id', $student->attendanceDetails()->lists('attendance_id')->toArray())
+                                        $attendances = Attendance::whereIn('id', $student->attendanceDetails()->pluck('attendance_id')->toArray())
                                                 ->groupBy(['academic_term_id'])
                                                 ->orderBy('attendance_date', 'DESC')
                                                 ->get();

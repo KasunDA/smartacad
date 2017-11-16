@@ -29,10 +29,12 @@ class Kernel extends HttpKernel
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
         'api' => [
             'throttle:60,1',
+            'bindings'
         ],
     ];
 
@@ -45,10 +47,12 @@ class Kernel extends HttpKernel
      */
     protected $routeMiddleware = [
         'auth' => \App\Http\Middleware\Authenticate::class,
-        'setup' => \App\Http\Middleware\SetupMiddleware::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'setup' => \App\Http\Middleware\SetupMiddleware::class,
 //        'role' => \Zizaco\Entrust\Middleware\EntrustRole::class,
 //        'permission' => \Zizaco\Entrust\Middleware\EntrustPermission::class,
 //        'ability' => \Zizaco\Entrust\Middleware\EntrustAbility::class,

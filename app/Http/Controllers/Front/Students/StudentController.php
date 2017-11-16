@@ -50,7 +50,7 @@ class StudentController extends Controller
      * Display a listing of the Users.
      * @return Response
      */
-    public function getIndex()
+    public function index()
     {
         $students = Auth::user()->students()->get();
 
@@ -62,10 +62,10 @@ class StudentController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getView($encodeId)
+    public function view($encodeId)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
-        $student = (empty($decodeId)) ? abort(305) : Student::findOrFail($decodeId[0]);
+        $student = Student::findOrFail($this->decode($encodeId));
+        
         return view('front.students.view', compact('student'));
     }
     
@@ -74,15 +74,18 @@ class StudentController extends Controller
      * @param String $encodeId
      * @return \Illuminate\View\View
      */
-    public function getEdit($encodeId)
+    public function edit($encodeId)
     {
-        $decodeId = $this->getHashIds()->decode($encodeId);
-
-        $student = (empty($decodeId)) ? abort(305) : Student::findOrFail($decodeId[0]);
-        $status = Status::lists('status', 'status_id')->prepend('Select Status', '');
-        $states = State::orderBy('state')->lists('state', 'state_id')->prepend('- Select State -', '');
+        $student = Student::findOrFail($this->decode($encodeId));
+        $states = State::orderBy('state')
+            ->pluck('state', 'state_id')
+            ->prepend('- Select State -', '');
         $lga = ($student->lga()->first()) ? $student->lga()->first() : null;
-        $lgas = ($student->lga_id > 0) ? Lga::where('state_id', $student->lga()->first()->state_id)->lists('lga', 'lga_id')->prepend('- Select L.G.A -', '') : null;
+        $lgas = ($student->lga_id > 0) 
+            ? Lga::where('state_id', $student->lga()->first()->state_id)
+                ->pluck('lga', 'lga_id')
+                ->prepend('- Select L.G.A -', '') 
+            : null;
 
         return view('front.students.edit', compact('student', 'states', 'lga', 'lgas', 'status'));
     }
@@ -92,18 +95,23 @@ class StudentController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function postEdit(Request $request)
+    public function update(Request $request)
     {
         $inputs = $request->all();
-        $student = (empty($inputs['student_id'])) ? abort(305) : Student::findOrFail($inputs['student_id']);
+        $student = Student::findOrFail($inputs['student_id']);
 
-        if ($this->validator($inputs)->fails())
-        {
+        if ($this->validator($inputs)->fails()) {
             $this->setFlashMessage('Error!!! You have error(s) while filling the form.', 2);
-            return redirect('/wards/edit/'.$this->getHashIds()->encode($inputs['student_id']))->withErrors($this->validator($inputs))->withInput();
+            
+            return redirect('/wards/edit/' . $this->encode($inputs['student_id']))
+                ->withErrors($this->validator($inputs))
+                ->withInput();
         }
+        
         $student->update($inputs);
-        $this->setFlashMessage('Student ' . $student->fullNames() . ', Information has been successfully updated.', 1);
+        $this->setFlashMessage(
+            'Student ' . $student->fullNames() . ', Information has been successfully updated.', 1
+        );
 
         return redirect('/wards');
     }

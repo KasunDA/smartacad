@@ -95,9 +95,9 @@
                                             </tr>
                                         @endif
                                         <tr>
-                                        <td>Address.</td>
-                                            <td>{!! ($staff->address) ? $staff->address : LabelHelper::danger() !!}</td>
-                                        </tr>
+                                        {{--<td>Address.</td>--}}
+                                            {{--<td>{!! ($staff->address) ? $staff->address : LabelHelper::danger() !!}</td>--}}
+                                        {{--</tr>--}}
                                     </table>
                                 </div>
                             </div>
