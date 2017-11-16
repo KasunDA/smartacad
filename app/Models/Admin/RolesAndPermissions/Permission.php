@@ -6,6 +6,8 @@ use Zizaco\Entrust\EntrustPermission;
 
 class Permission extends EntrustPermission
 {
+    protected $connection = 'admin_mysql';
+    
     /**
      * The database table used by the model.
      *
