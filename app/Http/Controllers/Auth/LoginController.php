@@ -122,7 +122,7 @@ class LoginController extends Controller
 
         //////////////////////////////////////////////// end: KHEENGZ CUSTOM CODE //////////////////////////////////////////////
 
-        if ($this->guard()->attempt($credentials, $request->has('remember'))) {
+        if ($this->guard()->attempt($credentials, $request->filled('remember'))) {
             //dd(Auth::user());
             if(Auth::user()->user_type_id == Sponsor::USER_TYPE){
                 // redirect to the PARENT / STUDENT page
