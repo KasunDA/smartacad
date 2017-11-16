@@ -27,7 +27,7 @@ class OrderItem extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function order(){
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     /**
@@ -36,10 +36,12 @@ class OrderItem extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function item(){
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(Item::class, 'item_id');
     }
 
     public function getDiscountedAmount(){
-        return ($this->discount == 0) ? $this->item_amount : CurrencyHelper::discountedAmount($this->item_amount, (int) $this->discount);
+        return ($this->discount == 0) 
+            ? $this->item_amount
+            : CurrencyHelper::discountedAmount($this->item_amount, (int) $this->discount);
     }
 }

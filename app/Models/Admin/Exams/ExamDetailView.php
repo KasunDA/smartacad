@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\Exams;
 
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use Illuminate\Database\Eloquent\Model;
 
 class ExamDetailView extends Model
@@ -23,6 +24,6 @@ class ExamDetailView extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function subjectClassroom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'subject_classroom_id');
+        return $this->belongsTo(SubjectClassRoom::class, 'subject_classroom_id');
     }
 }

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderInitiate extends Model
 {
-
     use SoftDeletes;
 
     protected $fillable = [
@@ -23,7 +22,7 @@ class OrderInitiate extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function academicTerm(){
-        return $this->belongsTo(AcademicTerm::class);
+        return $this->belongsTo(AcademicTerm::class, 'academic_term_id');
     }
 
     /**
@@ -32,7 +31,7 @@ class OrderInitiate extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -41,6 +40,6 @@ class OrderInitiate extends Model
      */
 
     public function orders(){
-        return $this->hasMany(Order::class);
+        return $this->hasMany(Order::class, 'order_initiate_id');
     }
 }

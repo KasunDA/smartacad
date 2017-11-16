@@ -15,7 +15,6 @@ use phpDocumentor\Reflection\Types\Float_;
 
 class Order extends Model
 {
-
     use SoftDeletes;
 
     protected $fillable = [
@@ -108,7 +107,7 @@ class Order extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function student(){
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Student::class, 'student_id');
     }
 
     /**
@@ -117,7 +116,7 @@ class Order extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function sponsor(){
-        return $this->belongsTo(Sponsor::class);
+        return $this->belongsTo(Sponsor::class, 'sponsor_id');
     }
 
     /**
@@ -144,7 +143,7 @@ class Order extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function orderInitiate(){
-        return $this->belongsTo(OrderInitiate::class);
+        return $this->belongsTo(OrderInitiate::class, 'order_initiate_id');
     }
 
     /**
@@ -153,7 +152,7 @@ class Order extends Model
      */
 
     public function orderItems(){
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'order_id');
     }
 
     /**
@@ -162,16 +161,15 @@ class Order extends Model
      */
 
     public function orderLogs(){
-        return $this->hasMany(OrderLog::class);
+        return $this->hasMany(OrderLog::class, 'order_id');
     }
 
     /**
      * An Order May have many Part Payments
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-
     public function partPayments(){
-        return $this->hasMany(PartPayment::class);
+        return $this->hasMany(PartPayment::class, 'order_id');
     }
 
     /**
@@ -180,7 +178,9 @@ class Order extends Model
      * @return Float_
      */
     public function getDiscountedAmount(){
-        return ($this->discount == 0) ? $this->amount : CurrencyHelper::discountedAmount($this->total_amount, (int) $this->discount);
+        return ($this->discount == 0) 
+            ? $this->amount 
+            : CurrencyHelper::discountedAmount($this->total_amount, (int) $this->discount);
     }
 
     /**
@@ -191,12 +191,12 @@ class Order extends Model
      */
     public static function reComputeAmount($id){
         $order = self::find($id);
-        foreach ($order->orderItems as $item){
+        foreach ($order->orderItems as $item) {
             $item->amount = $item->getDiscountedAmount();
             $item->save();
         }
-
         $order->updateAmount();
+        
         return $order;
     }
 
@@ -210,7 +210,7 @@ class Order extends Model
         $this->amount = $this->getDiscountedAmount();
         $this->item_count = count($this->orderItems);
 
-        if($this->paid == self::PAID){
+        if ($this->paid == self::PAID) {
             $this->amount_paid = ($this->is_part_payment == PartPayment::PART_PAYMENT)
                 ? $this->partPayments()->pluck('amount')->sum()
                 : $this->amount;

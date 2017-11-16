@@ -2,7 +2,8 @@
 
 namespace App\Models\Admin\Accounts\Students;
 
-use Carbon\Carbon;
+use App\Models\Admin\MasterRecords\AcademicYear;
+use App\Models\Admin\MasterRecords\Classes\ClassRoom;
 use Illuminate\Database\Eloquent\Model;
 
 class StudentClass extends Model
@@ -35,7 +36,7 @@ class StudentClass extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function classRoom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassRoom', 'classroom_id');
+        return $this->belongsTo(ClassRoom::class, 'classroom_id');
     }
 
     /**
@@ -43,7 +44,7 @@ class StudentClass extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function academicYear(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\AcademicYear');
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 
     /**
@@ -51,6 +52,6 @@ class StudentClass extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function student(){
-        return $this->belongsTo('App\Models\Admin\Accounts\Students\Student', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id');
     }
 }

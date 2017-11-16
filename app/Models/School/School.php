@@ -3,6 +3,7 @@
 namespace App\Models\School;
 
 use App\Models\School\Banks\SchoolBank;
+use App\Models\School\Setups\Subjects\Subject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -85,9 +86,8 @@ class School extends Model
      * A School has one Database
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-
     public function database(){
-        return $this->hasOne('App\Models\School\SchoolDatabase', 'school_id');
+        return $this->hasOne(SchoolDatabase::class, 'school_id');
     }
 
     /**
@@ -96,14 +96,14 @@ class School extends Model
      */
     public function subjects()
     {
-        return $this->belongsToMany('App\Models\School\Setups\Subjects\Subject', 'schools_subjects', 'school_id', 'subject_id')->withPivot('subject_alias');
+        return $this->belongsToMany(Subject::class, 'schools_subjects', 'school_id', 'subject_id')
+            ->withPivot('subject_alias');
     }
 
     /**
      * A School has many Schools Bank
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-
     public function schoolBanks(){
         return $this->hasMany(SchoolBank::class, 'school_id');
     }

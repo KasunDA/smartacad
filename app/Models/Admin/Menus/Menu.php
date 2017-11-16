@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\Menus;
 
+use App\Models\Admin\RolesAndPermissions\Role;
 use Baum\Node;
 
 /**
@@ -34,7 +35,7 @@ class Menu extends Node {
      */
     public function roles()
     {
-        return $this->belongsToMany('App\Models\Admin\RolesAndPermissions\Role', 'menus_roles', 'menu_id', 'role_id');
+        return $this->belongsToMany(Role::class, 'menus_roles', 'menu_id', 'role_id');
     }
   //////////////////////////////////////////////////////////////////////////////
 

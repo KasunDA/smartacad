@@ -36,6 +36,6 @@ class Domain extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function domainDetails(){
-        return $this->hasMany('App\Models\Admin\Assessments\Domains\DomainDetail', 'domain_id');
+        return $this->hasMany(DomainDetail::class, 'domain_id');
     }
 }

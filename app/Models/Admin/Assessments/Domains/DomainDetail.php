@@ -36,6 +36,6 @@ class DomainDetail extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function domain(){
-        return $this->belongsTo('App\Models\Admin\Assessments\Domains\Domain', 'domain_id');
+        return $this->belongsTo(Domain::class, 'domain_id');
     }
 }

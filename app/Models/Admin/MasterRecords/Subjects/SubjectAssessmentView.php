@@ -2,6 +2,9 @@
 
 namespace App\Models\Admin\MasterRecords\Subjects;
 
+use App\Models\Admin\MasterRecords\Classes\ClassRoom;
+use App\Models\Admin\Users\User;
+use App\Models\School\Setups\Subjects\Subject;
 use Illuminate\Database\Eloquent\Model;
 
 class SubjectAssessmentView extends Model
@@ -19,7 +22,7 @@ class SubjectAssessmentView extends Model
      */
 
     public function classroom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassRoom', 'classroom_id');
+        return $this->belongsTo(ClassRoom::class, 'classroom_id');
     }
 
 
@@ -29,7 +32,7 @@ class SubjectAssessmentView extends Model
      */
 
     public function subject(){
-    return $this->belongsTo('App\Models\School\Setups\Subjects\Subject', 'subject_id');
+    return $this->belongsTo(Subject::class, 'subject_id');
     }
 
     /**
@@ -38,7 +41,7 @@ class SubjectAssessmentView extends Model
      */
 
     public function subjectClassRoom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'subject_classroom_id');
+        return $this->belongsTo(SubjectClassRoom::class, 'subject_classroom_id');
     }
 
     /**
@@ -46,6 +49,6 @@ class SubjectAssessmentView extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function tutor(){
-        return $this->belongsTo('App\Models\Admin\Users\User', 'tutor_id', 'user_id');
+        return $this->belongsTo(User::class, 'tutor_id', 'user_id');
     }
 }

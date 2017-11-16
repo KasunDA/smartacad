@@ -2,6 +2,8 @@
 
 namespace App\Models\Admin\Assessments;
 
+use App\Models\Admin\Accounts\Students\Student;
+use App\Models\Admin\MasterRecords\AcademicTerm;
 use Illuminate\Database\Eloquent\Model;
 
 class Remark extends Model
@@ -30,7 +32,7 @@ class Remark extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function academicTerm(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\AcademicTerm', 'academic_term_id');
+        return $this->belongsTo(AcademicTerm::class, 'academic_term_id');
     }
 
     /**
@@ -38,6 +40,6 @@ class Remark extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function student(){
-        return $this->belongsTo('App\Models\Admin\Accounts\Students\Student', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id');
     }
 }

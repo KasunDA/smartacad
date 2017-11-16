@@ -96,7 +96,8 @@ var ChartsPaidItems = function() {
                         "categoryAxis": {
                             "gridPosition": "start",
                             "axisAlpha": 0,
-                            "gridAlpha": 0
+                            "gridAlpha": 0,
+                            "labelRotation": 35
 
                         },
                         "exportConfig": {
@@ -177,7 +178,8 @@ var ChartsPendingItems = function() {
                         "categoryAxis": {
                             "gridPosition": "start",
                             "axisAlpha": 0,
-                            "gridAlpha": 0
+                            "gridAlpha": 0,
+                            "labelRotation": 35
 
                         },
                         "exportConfig": {
@@ -259,7 +261,8 @@ var ChartsExpectedItems = function() {
                         "categoryAxis": {
                             "gridPosition": "start",
                             "axisAlpha": 0,
-                            "gridAlpha": 0
+                            "gridAlpha": 0,
+                            "labelRotation": 35
 
                         },
                         "exportConfig": {

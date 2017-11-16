@@ -2,6 +2,8 @@
 
 namespace App\Models\Admin\MasterRecords\Subjects;
 
+use App\Models\School\School;
+use App\Models\School\Setups\Subjects\Subject;
 use Illuminate\Database\Eloquent\Model;
 
 class SchoolSubject extends Model
@@ -30,7 +32,7 @@ class SchoolSubject extends Model
      */
 
     public function school(){
-        return $this->belongsTo('App\Models\School\School', 'school_id');
+        return $this->belongsTo(School::class, 'school_id');
     }
 
 
@@ -40,6 +42,6 @@ class SchoolSubject extends Model
      */
 
     public function subjects(){
-    return $this->hasMany('App\Models\School\Setups\Subjects\Subject', 'subject_id');
+    return $this->hasMany(Subject::class, 'subject_id');
     }
 }

@@ -41,6 +41,6 @@ class Lga extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function state(){
-        return $this->belongsTo('App\Models\School\Setups\State');
+        return $this->belongsTo(State::class, 'state_id');
     }
 }

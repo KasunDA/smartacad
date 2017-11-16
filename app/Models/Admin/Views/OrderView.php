@@ -66,7 +66,7 @@ class OrderView extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function orderInitiate(){
-        return $this->belongsTo(OrderInitiate::class);
+        return $this->belongsTo(OrderInitiate::class, 'order_initiate_id');
     }
 
     /**
@@ -75,7 +75,7 @@ class OrderView extends Model
      */
 
     public function orderItems(){
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'order_id');
     }
 
     /**
@@ -84,7 +84,7 @@ class OrderView extends Model
      */
 
     public function orderLogs(){
-        return $this->hasMany(OrderLog::class);
+        return $this->hasMany(OrderLog::class, 'order_id');
     }
 
     public function getStatusLabel()

@@ -2,6 +2,8 @@
 
 namespace App\Models\Admin\MasterRecords\AssessmentSetups;
 
+use App\Models\Admin\MasterRecords\AcademicTerm;
+use App\Models\Admin\MasterRecords\Classes\ClassGroup;
 use Illuminate\Database\Eloquent\Model;
 
 class AssessmentSetup extends Model
@@ -40,7 +42,7 @@ class AssessmentSetup extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function academicTerm(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\AcademicTerm');
+        return $this->belongsTo(AcademicTerm::class, 'academic_term_id');
     }
 
     /**
@@ -48,7 +50,7 @@ class AssessmentSetup extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function classGroup(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Classes\ClassGroup', 'classgroup_id');
+        return $this->belongsTo(ClassGroup::class, 'classgroup_id');
     }
 
     /**
@@ -56,6 +58,6 @@ class AssessmentSetup extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function assessmentSetupDetails(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\AssessmentSetups\AssessmentSetupDetail', 'assessment_setup_id');
+        return $this->hasMany(AssessmentSetupDetail::class, 'assessment_setup_id');
     }
 }

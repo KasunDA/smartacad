@@ -23,7 +23,7 @@ class ItemQuote extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function item(){
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(Item::class, 'item_id');
     }
 
     /**
@@ -32,7 +32,7 @@ class ItemQuote extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function classLevel(){
-        return $this->belongsTo(ClassLevel::class);
+        return $this->belongsTo(ClassLevel::class, 'classlevel_id');
     }
 
     /**
@@ -41,7 +41,7 @@ class ItemQuote extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function classGroup(){
-        return $this->belongsTo(ClassGroup::class);
+        return $this->belongsTo(ClassGroup::class, 'classgroup_id');
     }
     
     /**
@@ -50,6 +50,6 @@ class ItemQuote extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function academicYear(){
-        return $this->belongsTo(AcademicYear::class);
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 }

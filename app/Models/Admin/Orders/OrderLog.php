@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderLog extends Model
 {
-
     use SoftDeletes;
 
     protected $fillable = [
@@ -23,7 +22,7 @@ class OrderLog extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function order(){
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     /**
@@ -32,6 +31,6 @@ class OrderLog extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

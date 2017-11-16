@@ -26,7 +26,7 @@ class ItemVariable extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function item(){
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(Item::class, 'item_id');
     }
 
     /**
@@ -35,7 +35,7 @@ class ItemVariable extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function student(){
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Student::class, 'student_id');
     }
 
     /**
@@ -53,6 +53,6 @@ class ItemVariable extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function academicTerm(){
-        return $this->belongsTo(AcademicTerm::class);
+        return $this->belongsTo(AcademicTerm::class, 'academic_term_id');
     }
 }

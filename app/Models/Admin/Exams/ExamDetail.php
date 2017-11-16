@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\Exams;
 
+use App\Models\Admin\Accounts\Students\Student;
 use Illuminate\Database\Eloquent\Model;
 
 class ExamDetail extends Model
@@ -41,7 +42,7 @@ class ExamDetail extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function student(){
-        return $this->belongsTo('App\Models\Admin\Accounts\Students\Student', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id');
     }
 
     /**
@@ -49,6 +50,6 @@ class ExamDetail extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function exam(){
-        return $this->belongsTo('App\Models\Admin\Exams\Exam', 'exam_id');
+        return $this->belongsTo(Exam::class, 'exam_id');
     }
 }

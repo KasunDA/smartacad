@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\Users;
 
+use App\Models\Admin\RolesAndPermissions\Role;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -35,7 +36,7 @@ class UserType extends Model
      */
 
     public function users(){
-        return $this->hasMany('App\Models\Admin\Users\User');
+        return $this->hasMany(User::class, 'user_type_id');
     }
 
     /**
@@ -44,6 +45,6 @@ class UserType extends Model
      */
 
     public function roles(){
-        return $this->belongsTo('App\Models\Admin\RolesAndPermissions\Role', 'user_type_id');
+        return $this->belongsTo(Role::class, 'user_type_id');
     }
 }

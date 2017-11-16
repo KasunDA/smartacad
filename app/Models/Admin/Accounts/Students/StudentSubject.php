@@ -2,7 +2,7 @@
 
 namespace App\Models\Admin\Accounts\Students;
 
-use Carbon\Carbon;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use Illuminate\Database\Eloquent\Model;
 
 class StudentSubject extends Model
@@ -35,7 +35,7 @@ class StudentSubject extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function subjectClassRoom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'subject_classroom_id');
+        return $this->belongsTo(SubjectClassRoom::class, 'subject_classroom_id');
     }
 
     /**
@@ -43,6 +43,6 @@ class StudentSubject extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function student(){
-        return $this->belongsTo('App\Models\Admin\Accounts\Students\Student');
+        return $this->belongsTo(Student::class, 'student_id');
     }
 }

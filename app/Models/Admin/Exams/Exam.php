@@ -2,7 +2,8 @@
 
 namespace App\Models\Admin\Exams;
 
-use Illuminate\Database\Connection;
+use App\Models\Admin\Accounts\Students\Student;
+use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use PDO;
@@ -42,7 +43,7 @@ class Exam extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function subjectClassroom(){
-        return $this->belongsTo('App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom', 'subject_classroom_id');
+        return $this->belongsTo(SubjectClassRoom::class, 'subject_classroom_id');
     }
 
     /**
@@ -50,7 +51,7 @@ class Exam extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function examDetails(){
-        return $this->hasMany('App\Models\Admin\Exams\ExamDetail', 'exam_id');
+        return $this->hasMany(ExamDetail::class, 'exam_id');
     }
 
     /**
@@ -59,7 +60,7 @@ class Exam extends Model
      */
     public function students()
     {
-        return $this->hasManyThrough('App\Models\Admin\Accounts\Students\Student', 'App\Models\Admin\Exams\ExamDetail', 'exam_id', 'student_id');
+        return $this->hasManyThrough(Student::class, ExamDetail::class, 'exam_id', 'student_id');
     }
 
     /**
@@ -101,5 +102,4 @@ class Exam extends Model
 
         return DB::select('call sp_terminalClassPosition(?,?,?)', array($term_id, $classroom_id, $student_id));
     }
-
 }

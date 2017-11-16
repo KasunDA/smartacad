@@ -37,7 +37,7 @@ class AcademicYear extends Model
      */
 
     public function academicTerms(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\AcademicTerm');
+        return $this->hasMany(AcademicTerm::class, 'academic_year_id');
     }
 
     /**
