@@ -20,13 +20,13 @@
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "3.1.0",
-        "filp/whoops": "2.1.12",
+        "filp/whoops": "2.1.13",
         "fzaninotto/faker": "1.7.1",
         "laravel/dusk": "2.0.7",
         "mockery/mockery": "1.0",
         "phpunit/phpunit": "6.4.4",
-        "symfony/css-selector": "3.3.12",
-        "symfony/dom-crawler": "3.3.12"
+        "symfony/css-selector": "3.3.13",
+        "symfony/dom-crawler": "3.3.13"
     },
     "autoload": {
         "classmap": [
