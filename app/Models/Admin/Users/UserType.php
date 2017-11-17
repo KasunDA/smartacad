@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserType extends Model
 {
-
     use SoftDeletes;
+
+    protected $connection = 'admin_mysql';
+    
     /**
      * The database table used by the model.
      *

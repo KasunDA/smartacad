@@ -12,7 +12,7 @@
 */
 
 //PHP Info
-use App\Models\Admin\Accounts\Sponsor;
+use App\Models\Admin\Users\User;
 
 Route::get('/phpinfo', function () {
     return view('/phpinfo');
@@ -20,7 +20,7 @@ Route::get('/phpinfo', function () {
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return (Auth::user()->user_type_id == Sponsor::USER_TYPE) ? redirect('/home') : redirect('/dashboard');
+        return (Auth::user()->user_type_id == User::SPONSOR) ? redirect('/home') : redirect('/dashboard');
     } else {
         return redirect('/login');
     }

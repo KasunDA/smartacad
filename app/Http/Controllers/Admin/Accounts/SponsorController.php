@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin\Accounts;
 
 use App\Helpers\LabelHelper;
-use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Users\User;
 use App\Models\School\Setups\Lga;
 use App\Models\School\Setups\Salutation;
@@ -32,7 +31,7 @@ class SponsorController extends Controller
      */
     public function data()
     {
-        $iTotalRecords = User::where('user_type_id', Sponsor::USER_TYPE)->orderBy('first_name')->count();;
+        $iTotalRecords = User::where('user_type_id', User::SPONSOR)->orderBy('first_name')->count();;
         $iDisplayLength = intval($_REQUEST['length']);
         $iDisplayLength = $iDisplayLength < 0 ? $iTotalRecords : $iDisplayLength;
         $iDisplayStart = intval($_REQUEST['start']);
@@ -41,7 +40,7 @@ class SponsorController extends Controller
         $q = @$_REQUEST['sSearch'];
 
         //List of Sponsors
-        $sponsors = User::where('user_type_id', Sponsor::USER_TYPE)
+        $sponsors = User::where('user_type_id', User::SPONSOR)
             ->orderBy('first_name')
             ->where(function ($query) use ($q) {
                 if (!empty($q)){

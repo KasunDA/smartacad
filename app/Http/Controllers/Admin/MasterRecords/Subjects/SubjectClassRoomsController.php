@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin\MasterRecords\Subjects;
 
-use App\Models\Admin\Accounts\Staff;
 use App\Models\Admin\MasterRecords\AcademicTerm;
 use App\Models\Admin\MasterRecords\AcademicYear;
 use App\Models\Admin\MasterRecords\Classes\ClassLevel;
@@ -27,7 +26,7 @@ class SubjectClassRoomsController extends Controller
     {
         $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')->prepend('- Select Academic Year -', '');
         $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')->prepend('- Select Class Level -', '');
-        $tutors = User::where('user_type_id', Staff::USER_TYPE)
+        $tutors = User::where('user_type_id', User::STAFF)
             ->where('status', 1)
             ->orderBy('first_name')
             ->get();

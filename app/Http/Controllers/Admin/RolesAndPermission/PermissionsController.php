@@ -34,8 +34,8 @@ class PermissionsController extends Controller
                 }
                 // You can also use explode('@', $action['controller']); here
                 // to separate the class name from the method
-                $pos = strpos($route->getUri(), '{');
-                $uri = ($pos) ? substr($route->getUri(), 0, $pos) : $route->getUri();
+                $pos = strpos($route->uri(), '{');
+                $uri = ($pos) ? substr($route->uri(), 0, $pos) : $route->uri();
                 $name = substr(strrchr($action['controller'], '\\'), 1);
 
                 if (in_array($uri, $temp)) {
