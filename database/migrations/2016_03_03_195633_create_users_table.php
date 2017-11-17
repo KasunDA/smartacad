@@ -13,6 +13,18 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
+        if (!Schema::connection('admin_mysql')->hasTable('user_types')) {
+            Schema::connection('admin_mysql')->create('user_types', function (Blueprint $table) {
+                $table->increments('user_type_id');
+                $table->string('user_type', 150);
+                $table->integer('type')->default(1);
+                $table->timestamps();
+                $table->softDeletes();
+
+                $table->engine = 'InnoDB';
+            });
+        }
+        
         Schema::create('users', function (Blueprint $table) {
             $table->increments('user_id');
             $table->string('password', 150);
@@ -47,5 +59,9 @@ class CreateUsersTable extends Migration
     public function down()
     {
         Schema::drop('users');
+
+        if (Schema::connection('admin_mysql')->hasTable('user_types')) {
+            Schema::connection('admin_mysql')->drop('user_types');
+        }
     }
 }

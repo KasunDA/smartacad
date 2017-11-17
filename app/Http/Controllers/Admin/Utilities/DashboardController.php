@@ -72,14 +72,8 @@ class DashboardController extends Controller
             return view('admin.dashboards.staff', compact('marked', 'unmarked'));
 
         }else if(Auth::user()->user_type_id == Sponsor::USER_TYPE){
-            $assessments = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
-                ->where('tutor_id', Auth::user()->user_id)
-                ->where(function ($query) {
-                    $query->whereNull('assessment_id')->orWhere('marked', '<>', 1);
-                })
-                ->get();
 
-            return view('front.dashboards.dashboard', compact('assessments'));
+            return redirect('/home');
 
         }else{
             $unmarked = DB::table('subjects_assessmentsviews')
