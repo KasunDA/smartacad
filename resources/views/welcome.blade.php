@@ -38,7 +38,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="{{ url('auth/login') }}"><i class="fa fa-off"> </i> Login</a></li>
+                <li><a href="{{ url('login') }}"><i class="fa fa-off"> </i> Login</a></li>
             </ul>
         </div><!--/.nav-collapse -->
     </div>
@@ -52,7 +52,7 @@
         <h1>School Management System</h1>
         <p>To help you manage your school</p>
         <p>
-            <a class="btn btn-lg btn-primary" href="{{ url('auth/login') }}" role="button"><i class="fa fa-off"> </i> Sign in &raquo;</a>
+            <a class="btn btn-lg btn-primary" href="{{ url('login') }}" role="button"><i class="fa fa-off"> </i> Sign in &raquo;</a>
         </p>
     </div>
 
