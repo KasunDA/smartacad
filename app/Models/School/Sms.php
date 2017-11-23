@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Models\Admin\MasterRecords;
+namespace App\Models\School;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Sms extends Model
 {
+    protected $connection = 'admin_mysql';
+
     /**
      * The database table used by the model.
      *
@@ -16,7 +18,7 @@ class Sms extends Model
      * The table permissions primary key
      * @var int
      */
-    protected $primaryKey = 'sms_id';
+    protected $primaryKey = 'id';
 
     /**
      * The attributes that are mass assignable.
