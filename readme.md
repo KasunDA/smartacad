@@ -18,6 +18,28 @@ Documentation for the framework can be found on the [Laravel website](http://lar
 
 Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
 
+## Technology Used
+**SmartAcad** is build with
+- Laravel 5.5 (PHP Framework)
+- MySQL (RDMS)
+- Javascript
+
+## SmartAcad
+It is an academic management and e-learning solution. With **SmartAcad®**, unlike any other academic management solution,
+Intelligence development modules engages the kids and develop their intellectual quotient. The rest of its kind in West Africa and completely online.
+That means absolutely no paperwork, hardware or software installations. All your schools information is kept on our secure servers and made accessible to students, teachers and parents.
+This means parents can check their child’s results, reports and other important info on the go.
+
+- Result management system
+- Smart messaging system
+- Finance management and school fees tracking
+- External examination registration system
+- Parents portal
+- Teacher portal
+- Assignment management system
+- Graphical performer analyzer
+- Electronic examination system
+
 ## Security Vulnerabilities
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
