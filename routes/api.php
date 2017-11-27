@@ -79,7 +79,7 @@ Route::get('/balance', function () {
         $message1 = 'Hello, Waziri Umaru Federal Polytechnic, Birinin Kebbi, Kebbi State, You have exhausted your ('
             . $sms->unit_bought . ') Units bought on ' . $sms->created_at->format('jS M, Y');
     }
-    //http://smartschool.ekaruztech.com/api/balance
+    //http://app.smartacad.com/api/balance
 
     return $message1;
 });
