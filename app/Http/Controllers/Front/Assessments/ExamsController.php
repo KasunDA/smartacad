@@ -141,17 +141,18 @@ class ExamsController extends Controller
      */
     public function verify(Request $request)
     {
-        $inputs = $request->all();
-        $student = Student::findOrFail($this->decode($inputs['student_id']));
-        $term = AcademicTerm::findOrFail($this->decode($inputs['term_id']));
-        $classroom = $student->currentClass($term->academicYear->academic_year_id);
+//        $inputs = $request->all();
+//        $student = Student::findOrFail($this->decode($inputs['student_id']));
+//        $term = AcademicTerm::findOrFail($this->decode($inputs['term_id']));
+//        $classroom = $student->currentClass($term->academicYear->academic_year_id);
+//
+//        $check = ResultChecker::where('student_id', $student->student_id)
+//            ->where('academic_term_id', $term->academic_term_id)
+//            ->where('classroom_id', $classroom->classroom_id)
+//            ->count();
 
-        $check = ResultChecker::where('student_id', $student->student_id)
-            ->where('academic_term_id', $term->academic_term_id)
-            ->where('classroom_id', $classroom->classroom_id)
-            ->count();
-
-        return response()->json(($check > 0) ? true : false);
+//        return response()->json(($check > 0) ? true : false);
+        return response()->json(true);
     }
 
     /**

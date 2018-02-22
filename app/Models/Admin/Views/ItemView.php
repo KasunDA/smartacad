@@ -2,7 +2,6 @@
 
 namespace App\Models\Admin\Views;
 
-use App\Models\Admin\Accounts\Sponsor;
 use App\Models\Admin\Orders\OrderInitiate;
 use App\Models\Admin\Orders\OrderItem;
 use App\Models\Admin\Orders\OrderLog;
@@ -47,15 +46,6 @@ class ItemView extends Model
      */
     public function scopeNotDeleted($query){
         return $query->where('deleted_at', null);
-    }
-
-    /**
-     * An Order belongs to a Sponsor
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function sponsor(){
-        return $this->belongsTo(Sponsor::class);
     }
 
     /**

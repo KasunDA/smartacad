@@ -511,4 +511,38 @@ class ExamsController extends Controller
             compact('student', 'term', 'position', 'classroom', 'groups', 'exams')
         );
     }
+
+    /**
+     * Displays a form for searching of academic year records based on class level
+     * @return \Illuminate\View\View
+     */
+    public function searchBroadSheet()
+    {
+        $academic_years = AcademicYear::pluck('academic_year', 'academic_year_id')
+            ->prepend('- Select Academic Year -', '');
+        $classlevels = ClassLevel::pluck('classlevel', 'classlevel_id')
+            ->prepend('- Select Class Level -', '');
+
+        return view('admin.assessments.exams.sheets.form', compact('academic_years', 'classlevels'));
+    }
+
+    /**
+     * Displays a sheet of academic year exams records based on class level
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function displayBroadSheet(Request $request)
+    {
+        $inputs = $request->all();
+        $academicYear = AcademicYear::findOrFail($inputs['academic_year_id']);
+        $classLevel = ClassLevel::findOrFail($inputs['classlevel_id']);
+        
+        $examsView = ExamDetailView::marked()
+            ->where('academic_year_id', $inputs['academic_year_id'])
+            ->where('classlevel_id', $inputs['classlevel_id'])
+            ->get();
+
+        return view('admin.assessments.exams.sheets.details', compact('examsView', 'classLevel', 'academicYear'));
+    }
 }

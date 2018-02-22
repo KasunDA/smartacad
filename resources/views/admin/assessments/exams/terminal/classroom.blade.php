@@ -91,7 +91,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @if(count($results) > 0)
+                            @if(!empty($results))
                                 <?php $i = 1; ?>
                                 @foreach($results as $result)
                                     <tr class="odd gradeX">

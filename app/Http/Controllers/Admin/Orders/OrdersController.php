@@ -672,7 +672,7 @@ class OrdersController extends Controller
         $allOrders = $orders->skip($iDisplayStart)->take($iDisplayLength)->get();
         
         foreach ($allOrders as $order) {
-            $number = '<a href="/order/items/'.$this->encode($order->student_id).'/'.$this->encode($term->academic_term_id).'"
+            $number = '<a href="/orders/items/'.$this->encode($order->student_id).'/'.$this->encode($term->academic_term_id).'"
                            class="btn btn-link btn-xs sbold"><span style="font-size: 14px">'.$order->number.'</span>
                         </a>';
             $name = '<a href="/students/view/'.$this->encode($order->student_id).'"
