@@ -2,6 +2,7 @@
 /node_modules
 /public/storage
 Homestead.yaml
+.env.testing
 Homestead.json
 .env
 /.idea
