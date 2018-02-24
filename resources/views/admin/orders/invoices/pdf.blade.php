@@ -1,10 +1,11 @@
 <!doctype html>
-<html><head>
+<html>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Invoice for {{$order->student->fullNames()}} in {{ $order->academicTerm->academic_term }}</title>
     <link rel="shortcut icon" href="{{ public_path($mySchool->getLogoPath()) }}" />
-    <style>
+    <style type="text/css">
         .invoice-box{
             max-width:800px;
             margin:auto;
@@ -143,7 +144,7 @@
                             Invoice To:<br>
                             <strong>{{ $order->student->fullNames() }}</strong><br>
                             <strong>{{ $order->classroom->classroom }}<strong><br>
-                                    <strong>{{ $order->academicTerm->academic_term }}<strong><br>
+                            <strong>{{ $order->academicTerm->academic_term }}<strong><br>
                         </td>
 
                         <td class="invoice-right">
