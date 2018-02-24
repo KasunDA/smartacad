@@ -71,51 +71,25 @@
                         <table class="table table-hover table-bordered table-striped">
                             <thead>
                                 <tr>
-                                    <th>#</th>
-                                    <th>Student ID</th>
-                                    <th>Student Name</th>
-                                    <th>Gender</th>
-                                    <th>Total Score</th>
-                                    <th>Position</th>
-                                    <th>View Detail</th>
+                                    @foreach($subjects as $subject)
+                                        <th>{{ str_replace('_', ' ',$subject) }}</th>
+                                    @endforeach
                                 </tr>
                             </thead>
                             <tbody>
-                            @if(!empty($examsView))
-                                @foreach($examsView as $view)
-                                    <tr class="odd gradeX">
-                                        <td class="center">{{ $loop->iteration }}</td>
-                                        <td>{{ $view->student_no }}</td>
-                                        <td>
-                                            <a target="_blank" href="{{ url('/students/view/'.$hashIds->encode($view->student->student_id)) }}" class="btn btn-link">
-                                                {{ $view->fullname }}
-                                            </a>
-                                        </td>
-                                        <td>{{ $view->student->gender }}</td>
-                                        <td>{{ $view->subject->subject }}</td>
-                                        <td>{{ $view->student_total }}</td>
-                                        <td>
-                                            <a target="_blank" href="{{ url('/exams/student-terminal-result/'.$hashIds->encode($view->student->student_id).'/'.$hashIds->encode($view->academic_year_id)) }}" class="btn btn-link">
-                                                <span class="fa fa-eye"></span> Print
-                                            </a>
-                                        </td>
+                            @if(!empty($examsStudents))
+                                @foreach($examsStudents as $view)
+                                    <?php $records = (array) $view; ?>
+                                    <tr>
+                                        @foreach($subjects as $subject)
+                                            <td>{{ $records[$subject] }}</td>
+                                        @endforeach
                                     </tr>
                                 @endforeach
                             @else
                                 <tr><th colspan="5">No Record Found</th></tr>
                             @endif
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Student ID</th>
-                                    <th>Student Name</th>
-                                    <th>Gender</th>
-                                    <th>Total Score</th>
-                                    <th>Position</th>
-                                    <th>View Detail</th>
-                                </tr>
-                            </tfoot>
                         </table>
                     </div>
                 </div>

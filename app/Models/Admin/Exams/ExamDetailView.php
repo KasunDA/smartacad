@@ -6,6 +6,8 @@ use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use App\Models\School\Setups\Subjects\Subject;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use PDO;
 
 class ExamDetailView extends Model
 {
@@ -56,12 +58,6 @@ class ExamDetailView extends Model
     public function student(){
         return $this->belongsTo(Student::class, 'student_id');
     }
-    
-//SELECT a.student_id, a.fullname, a.ca, a.exam, a.student_total, a.subject_id, b.subject,
-//a.academic_term, a.academic_term_id, a.academic_year_id
-//FROM smartacad.exams_detailsviews a, smartschools.subjects b
-//WHERE a.subject_id = b.subject_id and a.academic_year_id = 2
-//group by student_id, subject_id, academic_term_id, academic_term;
 
     /**
      * An Assessment Detail Belongs To A Student
@@ -69,5 +65,21 @@ class ExamDetailView extends Model
      */
     public function subjectClassroom(){
         return $this->belongsTo(SubjectClassRoom::class, 'subject_classroom_id');
+    }
+
+    /**
+     * Prepare the broad sheet query
+     *
+     * @param int $levelID
+     * @param int $yearID
+     * 
+     * @return mixed
+     */
+    public static function prepareBroadSheet($levelID, $yearID)
+    {
+        $pdo = DB::connection()->getPdo();
+        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+
+        return DB::select('call sp_examBroadSheet(?,?)', [$levelID, $yearID]);
     }
 }

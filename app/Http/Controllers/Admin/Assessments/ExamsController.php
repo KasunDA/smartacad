@@ -537,12 +537,18 @@ class ExamsController extends Controller
         $inputs = $request->all();
         $academicYear = AcademicYear::findOrFail($inputs['academic_year_id']);
         $classLevel = ClassLevel::findOrFail($inputs['classlevel_id']);
-        
-        $examsView = ExamDetailView::marked()
-            ->where('academic_year_id', $inputs['academic_year_id'])
-            ->where('classlevel_id', $inputs['classlevel_id'])
-            ->get();
 
-        return view('admin.assessments.exams.sheets.details', compact('examsView', 'classLevel', 'academicYear'));
+        $examsStudents = ExamDetailView::prepareBroadSheet(
+            $classLevel->classlevel_id,
+            $academicYear->academic_year_id
+        );
+
+        $subjects = is_array($examsStudents) ? (array) $examsStudents[0] : [];
+        $subjects = array_keys( $subjects );
+
+
+        return view('admin.assessments.exams.sheets.details',
+            compact('examsStudents', 'classLevel', 'academicYear', 'subjects')
+        );
     }
 }
