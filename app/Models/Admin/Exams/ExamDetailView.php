@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin\Exams;
 
+use App\Models\Admin\Accounts\Students\Student;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use App\Models\School\Setups\Subjects\Subject;
 use Illuminate\Database\Eloquent\Model;
@@ -46,6 +47,16 @@ class ExamDetailView extends Model
     public function subject(){
         return $this->belongsTo(Subject::class, 'subject_id');
     }
+
+    /**
+     * An exam belongs to a student
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+
+    public function student(){
+        return $this->belongsTo(Student::class, 'student_id');
+    }
+    
 //SELECT a.student_id, a.fullname, a.ca, a.exam, a.student_total, a.subject_id, b.subject,
 //a.academic_term, a.academic_term_id, a.academic_year_id
 //FROM smartacad.exams_detailsviews a, smartschools.subjects b

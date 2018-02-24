@@ -1,11 +1,9 @@
 <!doctype html>
-<html>
-<head>
+<html><head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Invoice for {{$order->student->fullNames()}} in {{ $order->academicTerm->academic_term }}</title>
     <link rel="shortcut icon" href="{{ public_path($mySchool->getLogoPath()) }}" />
-
     <style>
         .invoice-box{
             max-width:800px;
@@ -113,13 +111,9 @@
             page-break-after: always;
         }
     </style>
-
-</head>
-
-<body>
+</head><body>
 <div class="invoice-box">
     <table cellpadding="0" cellspacing="0">
-        <!-- School Details-->
         <tr class="top">
             <td colspan="5">
                 <table>
@@ -141,9 +135,6 @@
                 </table>
             </td>
         </tr>
-        <!-- / School Details-->
-
-        <!-- Order Details-->
         <tr class="information">
             <td colspan="5">
                 <table>
@@ -165,8 +156,6 @@
                 </table>
             </td>
         </tr>
-        <!-- / Order Details-->
-        <!-- Items Details-->
         <tr class="heading">
             <td width="1%">#</td>
             <td width="22%">Item</td>
@@ -189,9 +178,7 @@
             <td colspan="3"><strong>Total</strong></td>
             <td>{{ CurrencyHelper::format($total, 0, true)  }}</td>
         </tr>
-        <!-- / Items Details-->
         <tr>
-            <!-- Part Payment-->
             @if($order->is_part_payment)
                 <td colspan="2">
                     <table>
@@ -213,8 +200,6 @@
                     </table>
                 </td>
             @endif
-            <!-- /Part Payment-->
-            <!-- Payment Summary-->
             <td colspan="{{ ($order->is_part_payment) ? 2 : 3}}">
                 <table>
                     <tr class="heading">
@@ -242,10 +227,8 @@
                     @endif
                 </table>
             </td>
-            <!-- / Payment Summary-->
         </tr>
         <tr>
-            <!-- School Accounts -->
             <td colspan="3">
                 <table>
                     <tr class="heading">
@@ -271,15 +254,11 @@
                 </table>
             </td>
             <td colspan="1">
-                <!-- stamp logo (Paid/Not-Paid) -->
                 <div class="col-md-6 col-md-offset-1">
                     <img alt="{{ $order->status }}" src="/assets/custom/img/{{strtolower(Order::ORDER_STATUSES[$order->paid])}}.png" style="height:100px; width:100px" />
                 </div>
-                <!-- / stamp logo (Paid/Not-Paid) -->
             </td>
-            <!-- / School Accounts -->
         </tr>
     </table>
 </div>
-</body>
-</html>
+</body></html>
