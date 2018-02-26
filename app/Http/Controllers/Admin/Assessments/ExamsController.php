@@ -546,7 +546,6 @@ class ExamsController extends Controller
         $subjects = is_array($examsStudents) ? (array) $examsStudents[0] : [];
         $subjects = array_keys( $subjects );
 
-
         return view('admin.assessments.exams.sheets.details',
             compact('examsStudents', 'classLevel', 'academicYear', 'subjects')
         );
