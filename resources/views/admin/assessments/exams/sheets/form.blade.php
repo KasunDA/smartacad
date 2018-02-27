@@ -68,6 +68,15 @@
                                                         !!}
                                                     </div>
                                                 </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Class Room <small class="font-red">*</small></label>
+                                                    <div>
+                                                        {!! Form::select('classroom_id', [], '',
+                                                            ['class'=>'form-control', 'id'=>'classroom_id', 'required'=>'required'])
+                                                        !!}
+                                                    </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -119,6 +128,8 @@
     <script>
         jQuery(document).ready(function () {
             setTabActive('[href="/exams"]');
+
+            getDependentListBox($('#classlevel_id'), $('#classroom_id'), '/list-box/classroom/');
 
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN' : '{{ csrf_token() }}' } });
         });

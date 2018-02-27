@@ -17,15 +17,14 @@ use App\Models\Admin\MasterRecords\Subjects\SubjectAssessmentView;
 use App\Models\Admin\MasterRecords\Subjects\SubjectClassRoom;
 use App\Models\Admin\RolesAndPermissions\Role;
 use App\Models\Admin\Users\User;
-use Barryvdh\DomPDF\PDF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use stdClass;
+use PDF;
 
 class ExamsController extends Controller
 {
@@ -536,18 +535,60 @@ class ExamsController extends Controller
     {
         $inputs = $request->all();
         $academicYear = AcademicYear::findOrFail($inputs['academic_year_id']);
-        $classLevel = ClassLevel::findOrFail($inputs['classlevel_id']);
+        $classRoom = ClassRoom::findOrFail($inputs['classroom_id']);
 
-        $examsStudents = ExamDetailView::prepareBroadSheet(
-            $classLevel->classlevel_id,
+        $students = ExamDetailView::prepareBroadSheet(
+            $classRoom->classroom_id,
             $academicYear->academic_year_id
         );
 
-        $subjects = is_array($examsStudents) ? (array) $examsStudents[0] : [];
+        $subjects = is_array($students) ? (array) $students[0] : [];
         $subjects = array_keys( $subjects );
 
+        $examsStudents = collect($students);
+        $examsStudents = $examsStudents->sortBy('Name')->groupBy('student_id');
+
         return view('admin.assessments.exams.sheets.details',
-            compact('examsStudents', 'classLevel', 'academicYear', 'subjects')
+            compact('examsStudents', 'classRoom', 'academicYear', 'subjects')
         );
+    }
+
+    /**
+     * Print Details of a student exams broad sheets as pdf
+     *
+     * @param $roomId
+     * @param $yearId
+     * @param null $type
+     *
+     * @return Response
+     */
+    public function pdf($roomId, $yearId, $type=null)
+    {
+        $academicYear = AcademicYear::findOrFail($this->decode($yearId));
+        $classRoom = ClassRoom::findOrFail($this->decode($roomId));
+        $fileName = "{$classRoom->classroom} {$academicYear->academic_year} sheet.pdf";
+        
+        $students = ExamDetailView::prepareBroadSheet(
+            $classRoom->classroom_id,
+            $academicYear->academic_year_id
+        );
+
+        $subjects = is_array($students) ? (array) $students[0] : [];
+        $subjects = array_keys( $subjects );
+
+        $examsStudents = collect($students);
+        $examsStudents = $examsStudents->sortBy('Name')->groupBy('student_id');
+
+        if ($type == 'show') {
+            return view('admin.assessments.exams.sheets.show',
+                compact('examsStudents', 'classRoom', 'academicYear', 'subjects')
+            );
+        }
+
+        $pdf = PDF::loadView('admin.assessments.exams.sheets.pdf',
+            compact('examsStudents', 'classRoom', 'academicYear', 'subjects')
+        );
+
+        return ($type == 'download')  ? $pdf->download($fileName) : $pdf->stream($fileName);
     }
 }

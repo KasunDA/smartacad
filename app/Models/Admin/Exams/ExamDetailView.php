@@ -70,16 +70,16 @@ class ExamDetailView extends Model
     /**
      * Prepare the broad sheet query
      *
-     * @param int $levelID
+     * @param int $classID
      * @param int $yearID
      * 
      * @return mixed
      */
-    public static function prepareBroadSheet($levelID, $yearID)
+    public static function prepareBroadSheet($classID, $yearID)
     {
         $pdo = DB::connection()->getPdo();
         $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
-        return DB::select('call sp_examBroadSheet(?,?)', [$levelID, $yearID]);
+        return DB::select('call sp_examBroadSheet(?,?)', [$classID, $yearID]);
     }
 }
