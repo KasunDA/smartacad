@@ -65,12 +65,5 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true
-    },
-    "extra": {
-        "laravel": {
-            "dont-discover": [
-                "barryvdh/laravel-debugbar"
-            ]
-        }
     }
 }
