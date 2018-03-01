@@ -6,7 +6,7 @@
     "type": "project",
     "require": {
         "php": ">=7.0",
-        "laravel/framework": "^5.5.21",
+        "laravel/framework": "5.5.28",
         "laravel/tinker": "^1.0.2",
         "laravelcollective/html": "^5.5.1",
         "hashids/hashids": "2.0",

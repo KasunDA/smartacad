@@ -191,7 +191,7 @@ class ExamsController extends Controller
         $subject = ($exam) ? $exam->subjectClassroom()->first() : null;
 
         $now = Carbon::now('Africa/Lagos');
-        $diff = $now->diffInDays(AcademicTerm::activeTerm()->term_ends, false);
+        $diff = $now->diffInDays($subject->academicTerm->term_ends, false);
 
         if($diff < 0 && !Auth::user()->hasRole([Role::DEVELOPER, Role::SUPER_ADMIN])){
             $msg = 'Exams for '.$subject->academicTerm()->first()->academic_term
