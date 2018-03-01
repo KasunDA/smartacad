@@ -465,7 +465,7 @@ Route::group(['namespace' => 'Admin\Utilities'], function () {
 
     //Pin Numbers Routes
     Route::group(['prefix'=>'/pin-numbers'], function() {
-        Route::get('/{no?}', 'PinNumberController@index');
+        Route::get('/index/{no?}', 'PinNumberController@index');
         Route::get('/generate/{no?}', 'PinNumberController@generate');
         Route::get('/insert', 'PinNumberController@insert');
     });

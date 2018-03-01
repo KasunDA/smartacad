@@ -49,7 +49,7 @@ class PinNumberController extends Controller
      * @param Int $number
      * @return Response
      */
-    public function getGenerate($number = null)//http://localhost:8000/pin-numbers/generate/200
+    public function generate($number = null)//http://localhost:8000/pin-numbers/generate/200
     {
         if ($number) {
             $out = '';
