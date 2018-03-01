@@ -585,10 +585,10 @@ class ExamsController extends Controller
             );
         }
 
-//        $pdf = PDF::loadView('admin.assessments.exams.sheets.pdf',
-//            compact('examsStudents', 'classRoom', 'academicYear', 'subjects')
-//        );
-//
-//        return ($type == 'download')  ? $pdf->download($fileName) : $pdf->stream($fileName);
+        $pdf = PDF::loadView('admin.assessments.exams.sheets.pdf',
+            compact('examsStudents', 'classRoom', 'academicYear', 'subjects')
+        );
+
+        return ($type == 'download')  ? $pdf->download($fileName) : $pdf->stream($fileName);
     }
 }
