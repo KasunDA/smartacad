@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Admin\Menus\Menu;
 use App\Models\School\School;
 use Hashids\Hashids;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Dusk\DuskServiceProvider;
@@ -18,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+//        Blade::withoutDoubleEncoding();
+
         //Preload the Menu Level One
         if(Schema::hasTable('menus')){
             $menus = Menu::roots()->where('active', 1)->where('type', 1)->get();
