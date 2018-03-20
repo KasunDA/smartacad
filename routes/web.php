@@ -127,7 +127,9 @@ Route::group(['namespace' => 'Admin\Assessments', 'prefix'=>'/exams'], function 
     Route::get('/details/{studentId}/{termId}', 'ExamsController@details');
     Route::get('/broad-sheet', 'ExamsController@searchBroadSheet');
     Route::post('/broad-sheet', 'ExamsController@displayBroadSheet');
-    Route::get('/broad-sheet/{class}/{year}/{type?}', 'ExamsController@pdf');
+    
+    Route::get('/broad-sheet/{class}/{year}', 'ExamsController@pdf');
+    Route::get('/excel/{class}/{year}', 'ExamsController@excel');
 });
 
 //Attendance Routes

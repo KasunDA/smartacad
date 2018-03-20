@@ -17,6 +17,7 @@
         "laravel/tinker": "^1.0.2",
         "laravelcollective/html": "^5.5.1",
         "league/flysystem-aws-s3-v3": "1.0.18",
+        "maatwebsite/excel": "2.1.27",
         "zizaco/entrust": "1.9.1"
     },
     "require-dev": {

@@ -37,13 +37,10 @@
                         <span class="caption-subject font-green bold uppercase">Class Level Summary</span>
                     </div>
                     <div class="pull-right">
-                        <a target="_blank" href="{{ url("/exams/broad-sheet/{$hashIds->encode($classRoom->classroom_id)}/{$hashIds->encode($academicYear->academic_year_id)}/show") }}" class="btn btn-warning btn-xs sbold">
+                        <a target="_blank" href="{{ url("/exams/broad-sheet/{$hashIds->encode($classRoom->classroom_id)}/{$hashIds->encode($academicYear->academic_year_id)}") }}" class="btn btn-warning btn-xs sbold">
                             <i class="fa fa-file"></i> View
                         </a>
-                        <a target="_blank" href="{{ url("/exams/broad-sheet/{$hashIds->encode($classRoom->classroom_id)}/{$hashIds->encode($academicYear->academic_year_id)}") }}" class="btn btn-default btn-xs sbold">
-                            <i class="fa fa-file"></i> PDF
-                        </a>
-                        <a target="_blank" href="{{ url("/exams/broad-sheet/{$hashIds->encode($classRoom->classroom_id)}/{$hashIds->encode($academicYear->academic_year_id)}/download") }}" class="btn btn-primary btn-xs sbold">
+                        <a target="_blank" href="{{ url("/exams/excel/{$hashIds->encode($classRoom->classroom_id)}/{$hashIds->encode($academicYear->academic_year_id)}") }}" class="btn btn-primary btn-xs sbold">
                             <i class="fa fa-download"></i> Download
                         </a>
                     </div>
@@ -76,13 +73,10 @@
                         <span class="caption-subject font-green bold uppercase">List of Students, Terminal Subjects.</span>
                     </div>
                     <div class="pull-right">
-                        <a target="_blank" href="{{ url("/exams/broad-sheet/{$hashIds->encode($classRoom->classroom_id)}/{$hashIds->encode($academicYear->academic_year_id)}/show") }}" class="btn btn-warning btn-xs sbold">
+                        <a target="_blank" href="{{ url("/exams/broad-sheet/{$hashIds->encode($classRoom->classroom_id)}/{$hashIds->encode($academicYear->academic_year_id)}") }}" class="btn btn-warning btn-xs sbold">
                             <i class="fa fa-file"></i> View
                         </a>
-                        <a target="_blank" href="{{ url("/exams/broad-sheet/{$hashIds->encode($classRoom->classroom_id)}/{$hashIds->encode($academicYear->academic_year_id)}") }}" class="btn btn-default btn-xs sbold">
-                            <i class="fa fa-file"></i> PDF
-                        </a>
-                        <a target="_blank" href="{{ url("/exams/broad-sheet/{$hashIds->encode($classRoom->classroom_id)}/{$hashIds->encode($academicYear->academic_year_id)}/download") }}" class="btn btn-primary btn-xs sbold">
+                        <a target="_blank" href="{{ url("/exams/excel/{$hashIds->encode($classRoom->classroom_id)}/{$hashIds->encode($academicYear->academic_year_id)}") }}" class="btn btn-primary btn-xs sbold">
                             <i class="fa fa-download"></i> Download
                         </a>
                     </div>

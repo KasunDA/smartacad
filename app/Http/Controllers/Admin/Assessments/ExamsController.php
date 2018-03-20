@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use stdClass;
 use PDF;
 
@@ -558,16 +559,14 @@ class ExamsController extends Controller
      *
      * @param $roomId
      * @param $yearId
-     * @param null $type
      *
      * @return Response
      */
-    public function pdf($roomId, $yearId, $type=null)
+    public function pdf($roomId, $yearId)
     {
         $academicYear = AcademicYear::findOrFail($this->decode($yearId));
         $classRoom = ClassRoom::findOrFail($this->decode($roomId));
-        $fileName = "{$classRoom->classroom} {$academicYear->academic_year} sheet.pdf";
-        
+
         $students = ExamDetailView::prepareBroadSheet(
             $classRoom->classroom_id,
             $academicYear->academic_year_id
@@ -579,16 +578,180 @@ class ExamsController extends Controller
         $examsStudents = collect($students);
         $examsStudents = $examsStudents->sortBy('Name')->groupBy('student_id');
 
-        if ($type == 'show') {
-            return view('admin.assessments.exams.sheets.show',
-                compact('examsStudents', 'classRoom', 'academicYear', 'subjects')
-            );
-        }
-
-        $pdf = PDF::loadView('admin.assessments.exams.sheets.pdf',
+        return view('admin.assessments.exams.sheets.show',
             compact('examsStudents', 'classRoom', 'academicYear', 'subjects')
         );
+    }
 
-        return ($type == 'download')  ? $pdf->download($fileName) : $pdf->stream($fileName);
+    /**
+     * Print Details of a student exams broad sheets as excel
+     *
+     * @param $roomId
+     * @param $yearId
+     *
+     * @return void
+     */
+    public function excel($roomId, $yearId)
+    {
+        $academicYear = AcademicYear::findOrFail($this->decode($yearId));
+        $classRoom = ClassRoom::findOrFail($this->decode($roomId));
+        $mySchool = $this->school_profile;
+        $fileName = "{$classRoom->classroom} {$academicYear->academic_year}";
+
+        $students = ExamDetailView::prepareBroadSheet(
+            $classRoom->classroom_id,
+            $academicYear->academic_year_id
+        );
+
+        $subjects = is_array($students) ? (array) $students[0] : [];
+        $subjects = array_keys( $subjects );
+
+        $examsStudents = collect($students);
+        $examsStudents = $examsStudents->sortBy('Name')->groupBy('student_id');
+
+        Excel::create($fileName, function($excel) use ($examsStudents, $subjects, $classRoom, $academicYear, $mySchool, $fileName) {
+
+            $excel->sheet($fileName, function($sheet) use ($examsStudents, $subjects, $classRoom, $academicYear, $mySchool) {
+                $sheet->setPaperSize('A3');
+                $row = 1;
+                //School name
+                $sheet->mergeCells("C{$row}:I{$row}");
+                $sheet->cells("C{$row}:F{$row}", function($cells) {
+                    $cells->setFontSize(28);
+                    $cells->setFontWeight('bold');
+                    $cells->setAlignment('center');
+                });
+                $sheet->row($row++, ['','', strtoupper($mySchool->full_name), '', '', '', '', '', '']);
+
+                //School Address
+                $sheet->mergeCells("C{$row}:J{$row}");
+                $sheet->cells("C{$row}:F{$row}", function($cells) {
+                    $cells->setFontSize(16);
+                    $cells->setFontWeight('bold');
+                    $cells->setAlignment('center');
+                });
+                $sheet->row($row++, ['','', $mySchool->address, '', '', '', '', '', '', '']);
+
+                //Class room and academic term
+                $sheet->mergeCells("C{$row}:F{$row}");
+                $sheet->mergeCells("G{$row}:J{$row}");
+                $sheet->cells("C{$row}:J{$row}", function($cells) {
+                    $cells->setFontSize(16);
+                    $cells->setFontWeight('bold');
+                    $cells->setAlignment('center');
+                });
+                $sheet->row($row++, ['','', "Class Room: {$classRoom->classroom}", '', '', '', "Academic Year: {$academicYear->academic_year}", '', '', '']);
+
+                // Subjects
+                $sheet->cells("A{$row}:BY{$row}", function($cells) {
+                    $cells->setFontSize(14);
+                    $cells->setFontWeight('bold');
+                    $cells->setAlignment('center');
+                });
+
+                $subjectHeader = $termHeader = [];
+                $i = 1;
+                $sheet->mergeCells("C{$row}:F{$row}");
+                $sheet->cells("C{$row}:F{$row}", function($cells) {
+                    $cells->setAlignment('center');
+                });
+                $sheet->mergeCells("G{$row}:J{$row}");
+                $sheet->cells("G{$row}:J{$row}", function($cells) {
+                    $cells->setAlignment('center');
+                });
+                $sheet->mergeCells("k{$row}:N{$row}");
+                $sheet->cells("K{$row}:N{$row}", function($cells) {
+                    $cells->setAlignment('center');
+                });
+                $sheet->mergeCells("O{$row}:R{$row}");
+                $sheet->cells("O{$row}:R{$row}", function($cells) {
+                    $cells->setAlignment('center');
+                });
+                foreach($subjects as $subject) {
+                    if ($i == 4) {
+                        $subjectHeader[] = '';
+                        $subjectHeader[] = 'Subjects';
+                    }
+                    if ($i > 4) {
+                        if ($i == 5) {
+                            $subjectHeader[] = str_replace('_', ' ', $subject);
+                            $subjectHeader[] = '';
+                            $subjectHeader[] = '';
+                            $subjectHeader[] = '';
+                        } else if ($i == 6) {
+                            $subjectHeader[] = str_replace('_', ' ', $subject);
+                            $subjectHeader[] = '';
+                            $subjectHeader[] = '';
+                            $subjectHeader[] = '';
+                        } else if ($i == 7) {
+                            $subjectHeader[] = str_replace('_', ' ', $subject);
+                            $subjectHeader[] = '';
+                            $subjectHeader[] = '';
+                            $subjectHeader[] = '';
+                        } else if ($i == 8) {
+                            $subjectHeader[] = str_replace('_', ' ', $subject);
+                            $subjectHeader[] = '';
+                            $subjectHeader[] = '';
+                            $subjectHeader[] = '';
+                        } else {
+                            $subjectHeader[] = str_replace('_', ' ', $subject);
+                        }
+                    }
+                    $i++;
+                }
+                $sheet->row($row++, $subjectHeader);
+
+                // Academic Terms
+                $sheet->cells("A{$row}:BY{$row}", function($cells) {
+                    $cells->setFontSize(13);
+                    $cells->setFontWeight('bold');
+                    $cells->setAlignment('right');
+                });
+                $termHeader[0] = '#';
+                $termHeader[1] = 'Name';
+                for($i = 0; $i < count($subjects) - 4; $i++) {
+                    $termHeader[] = '1st';
+                    $termHeader[] = '2nd';
+                    $termHeader[] = '3rd';
+                    $termHeader[] = 'Sum';
+                }
+                $sheet->row($row++, $termHeader);
+
+                // Displays Subject Scores
+                $count = 1;
+                foreach ($examsStudents as $student) {
+                    $score = [];
+                    $score[0] = $count++;
+                    $score[1] = $student[0]->Name;
+                    $first = $second = $third = null;
+
+                    foreach($student as $exam) {
+                        if($exam->term_type_id == 1) $first = $exam;
+                        if($exam->term_type_id == 2) $second = $exam;
+                        if($exam->term_type_id == 3) $third = $exam;
+                    }
+                    $j = 1;
+                    foreach($subjects as $subject) {
+                        if($j > 4) {
+                            $score[] = !empty($first) && $first->{$subject} ? number_format($first->{$subject}, 1) : 'n/a';
+                            $score[] = !empty($second) && $second->{$subject} ? number_format($second->{$subject}, 1) : 'n/a';
+                            $score[] = !empty($third) && $third->{$subject} ? number_format($third->{$subject}, 1) : 'n/a';
+                            $score[] = number_format(($first->{$subject} ?? 0) + ($second->{$subject} ?? 0) + ($third->{$subject} ?? 0), 1);
+                        }
+                        $j++;
+                    }
+                    $sheet->row($row++, $score);
+                }
+
+//                $sheet->setMergeColumn(array(
+//                    'columns' => array('B','C','D','E'),
+//                    'rows' => array(
+//                        array(2,3),
+//                        array(5,11),
+//                    )
+//                ));
+            });
+
+        })->export('xlsx');
     }
 }

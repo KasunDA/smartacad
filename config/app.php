@@ -167,6 +167,7 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Baum\Providers\BaumServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -229,6 +230,7 @@ return [
         'Entrust'   => Zizaco\Entrust\EntrustFacade::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
 
         //Blade Helpers
         'AcademicYear' => App\Models\Admin\MasterRecords\AcademicYear::class,
