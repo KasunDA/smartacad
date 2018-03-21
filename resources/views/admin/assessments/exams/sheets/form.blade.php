@@ -8,7 +8,7 @@
     <link href="{{ asset('assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
-@section('title', 'Examination')
+@section('title', 'Examination :: Broad Sheet')
 
 @section('breadcrumb')
     <li>

@@ -1,6 +1,6 @@
 @extends('admin.layout.default')
 
-@section('title', 'Terminal Class Room Assessments')
+@section('title', 'Examination :: Broad Sheet')
 
 @section('breadcrumb')
     <li>
