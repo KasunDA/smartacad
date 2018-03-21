@@ -706,9 +706,9 @@ class ExamsController extends Controller
                     $j = 1;
                     foreach($subjects as $subject) {
                         if($j > 4) {
-                            $score[] = !empty($first) && $first->{$subject} ? number_format($first->{$subject}, 1) : 'n/a';
-                            $score[] = !empty($second) && $second->{$subject} ? number_format($second->{$subject}, 1) : 'n/a';
-                            $score[] = !empty($third) && $third->{$subject} ? number_format($third->{$subject}, 1) : 'n/a';
+                            $score[] = !empty($first) && $first->{$subject} ? number_format($first->{$subject}, 1) : '';
+                            $score[] = !empty($second) && $second->{$subject} ? number_format($second->{$subject}, 1) : '';
+                            $score[] = !empty($third) && $third->{$subject} ? number_format($third->{$subject}, 1) : '';
                             $score[] = number_format(($first->{$subject} ?? 0) + ($second->{$subject} ?? 0) + ($third->{$subject} ?? 0), 1);
                         }
                         $j++;
