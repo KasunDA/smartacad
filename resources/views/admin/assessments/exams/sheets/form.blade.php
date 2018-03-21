@@ -127,7 +127,7 @@
     <script src="{{ asset('assets/custom/js/assessments/exam.js') }}" type="text/javascript"></script>
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/exams"]');
+            setTabActive('[href="/exams/broad-sheet"]');
 
             getDependentListBox($('#classlevel_id'), $('#classroom_id'), '/list-box/classroom/');
 

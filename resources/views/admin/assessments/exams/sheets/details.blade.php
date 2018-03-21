@@ -146,7 +146,7 @@
 @section('layout-script')
     <script>
         jQuery(document).ready(function () {
-            setTabActive('[href="/exams"]');
+            setTabActive('[href="/exams/broad-sheet"]');
         });
     </script>
 @endsection

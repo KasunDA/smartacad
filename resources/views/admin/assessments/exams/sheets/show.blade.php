@@ -111,6 +111,7 @@
         $('.print-button').click(function () {
             $('.invoice-box').printArea()
         })
+        setTabActive('[href="/exams/broad-sheet"]');
     })
 </script>
 
