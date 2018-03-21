@@ -12,7 +12,6 @@
         "guzzlehttp/guzzle": "^6.3.0",
         "hashids/hashids": "2.0",
         "intervention/image": "2.4.1",
-        "laravel/dusk": "2.0.14",
         "laravel/framework": "5.5.28",
         "laravel/tinker": "^1.0.2",
         "laravelcollective/html": "^5.5.1",
@@ -24,6 +23,7 @@
         "barryvdh/laravel-debugbar": "3.1.0",
         "filp/whoops": "2.1.13",
         "fzaninotto/faker": "1.7.1",
+        "laravel/dusk": "2.0.14",
         "mockery/mockery": "1.0",
         "phpunit/phpunit": "6.4.4",
         "symfony/css-selector": "3.3.13",
@@ -40,6 +40,13 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": [
+                "laravel/dusk"
+            ]
         }
     },
     "scripts": {
