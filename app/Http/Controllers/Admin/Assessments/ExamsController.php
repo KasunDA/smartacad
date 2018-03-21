@@ -650,54 +650,27 @@ class ExamsController extends Controller
                 });
 
                 $subjectHeader = $termHeader = [];
-                $i = 1;
-                $sheet->mergeCells("C{$row}:F{$row}");
-                $sheet->cells("C{$row}:F{$row}", function($cells) {
-                    $cells->setAlignment('center');
-                });
-                $sheet->mergeCells("G{$row}:J{$row}");
-                $sheet->cells("G{$row}:J{$row}", function($cells) {
-                    $cells->setAlignment('center');
-                });
-                $sheet->mergeCells("k{$row}:N{$row}");
-                $sheet->cells("K{$row}:N{$row}", function($cells) {
-                    $cells->setAlignment('center');
-                });
-                $sheet->mergeCells("O{$row}:R{$row}");
-                $sheet->cells("O{$row}:R{$row}", function($cells) {
-                    $cells->setAlignment('center');
-                });
+                $i = 1; $start = 3;
+
                 foreach($subjects as $subject) {
+                    $columnStart = $this->_getNameFromNumber($start);
+                    $columnEnd = $this->_getNameFromNumber($start + 3);
+
+                    $sheet->mergeCells("{$columnStart}{$row}:{$columnEnd}{$row}");
+                    $sheet->cells("{$columnStart}{$row}:{$columnEnd}{$row}", function($cells) {
+                        $cells->setAlignment('center');
+                    });
                     if ($i == 4) {
                         $subjectHeader[] = '';
                         $subjectHeader[] = 'Subjects';
                     }
                     if ($i > 4) {
-                        if ($i == 5) {
-                            $subjectHeader[] = str_replace('_', ' ', $subject);
-                            $subjectHeader[] = '';
-                            $subjectHeader[] = '';
-                            $subjectHeader[] = '';
-                        } else if ($i == 6) {
-                            $subjectHeader[] = str_replace('_', ' ', $subject);
-                            $subjectHeader[] = '';
-                            $subjectHeader[] = '';
-                            $subjectHeader[] = '';
-                        } else if ($i == 7) {
-                            $subjectHeader[] = str_replace('_', ' ', $subject);
-                            $subjectHeader[] = '';
-                            $subjectHeader[] = '';
-                            $subjectHeader[] = '';
-                        } else if ($i == 8) {
-                            $subjectHeader[] = str_replace('_', ' ', $subject);
-                            $subjectHeader[] = '';
-                            $subjectHeader[] = '';
-                            $subjectHeader[] = '';
-                        } else {
-                            $subjectHeader[] = str_replace('_', ' ', $subject);
-                        }
+                        $subjectHeader[] = str_replace('_', ' ', $subject);
+                        $subjectHeader[] = '';
+                        $subjectHeader[] = '';
+                        $subjectHeader[] = '';
                     }
-                    $i++;
+                    $i++; $start += 4;
                 }
                 $sheet->row($row++, $subjectHeader);
 
@@ -740,18 +713,23 @@ class ExamsController extends Controller
                         }
                         $j++;
                     }
+                    $sheet->setSize("C{$row}", 35, 20);
+                    $sheet->setSize("B{$row}", 40, 20);
                     $sheet->row($row++, $score);
                 }
-
-//                $sheet->setMergeColumn(array(
-//                    'columns' => array('B','C','D','E'),
-//                    'rows' => array(
-//                        array(2,3),
-//                        array(5,11),
-//                    )
-//                ));
             });
 
         })->export('xlsx');
+    }
+
+    private function _getNameFromNumber($num) {
+        $numeric = ($num - 1) % 26;
+        $letter = chr(65 + $numeric);
+        $num2 = intval(($num - 1) / 26);
+        if ($num2 > 0) {
+            return $this->_getNameFromNumber($num2) . $letter;
+        } else {
+            return $letter;
+        }
     }
 }
