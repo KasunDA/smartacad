@@ -12,22 +12,27 @@ jQuery(document).ready(function() {
         if($('#serial_number').val() == ''){// || $('#pin_number').val() == ''){
             set_msg_box($('#msg_box_modal'), 'Serial and Pin numbers are required', 2);
         }else {
+            $('#result_checker_btn').prop('disabled', true);
+            $('#result_checker_btn').button('loading');
             $.ajax({
                 type: "POST",
                 url: '/wards-exams/result-checker',
                 data: values,
                 success: function (data) {
-                    console.log(data);
                     // var obj = $.parseJSON(data);
                     if(data.flag == true){
                         set_msg_box($('#msg_box_modal'), 'Proceed', 1);
                         window.location.replace('/wards-exams/terminal-result/' + data.url);
                     }else {
                         set_msg_box($('#msg_box_modal'), data.msg, 2);
+                        $('#result_checker_btn').prop('disabled', false);
+                        $('#result_checker_btn').button('reset');
                     }
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     set_msg_box($('#msg_box_modal'), 'Error...Kindly Try Again', 2);
+                    $('#result_checker_btn').prop('disabled', false);
+                    $('#result_checker_btn').button('reset');
                 }
             });
         }

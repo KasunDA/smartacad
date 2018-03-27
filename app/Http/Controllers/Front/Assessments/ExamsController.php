@@ -141,18 +141,18 @@ class ExamsController extends Controller
      */
     public function verify(Request $request)
     {
-//        $inputs = $request->all();
-//        $student = Student::findOrFail($this->decode($inputs['student_id']));
-//        $term = AcademicTerm::findOrFail($this->decode($inputs['term_id']));
-//        $classroom = $student->currentClass($term->academicYear->academic_year_id);
-//
-//        $check = ResultChecker::where('student_id', $student->student_id)
-//            ->where('academic_term_id', $term->academic_term_id)
-//            ->where('classroom_id', $classroom->classroom_id)
-//            ->count();
+        $inputs = $request->all();
+        $student = Student::findOrFail($this->decode($inputs['student_id']));
+        $term = AcademicTerm::findOrFail($this->decode($inputs['term_id']));
+        $classroom = $student->currentClass($term->academicYear->academic_year_id);
 
-//        return response()->json(($check > 0) ? true : false);
-        return response()->json(true);
+        $check = ResultChecker::where('student_id', $student->student_id)
+            ->where('academic_term_id', $term->academic_term_id)
+            ->where('classroom_id', $classroom->classroom_id)
+            ->count();
+
+        return response()->json(($check > 0) ? true : false);
+//        return response()->json(true);
     }
 
     /**
@@ -167,29 +167,28 @@ class ExamsController extends Controller
         $student = Student::findOrFail($this->decode($inputs['student_id']));
         $term = AcademicTerm::findOrFail($this->decode($inputs['academic_term_id']));
         $classroom = $student->currentClass($term->academicYear()->first()->academic_year_id);
-        $inp = $inputs['serial_number'];
 
-        if (count($inp) != 20) {
-            $response['msg'] = 'Incomplete Serial Number Entered!!! Carefully check and retry again.';
+        if (strlen($inputs['serial_number']) != 8 || strlen($inputs['pin_number']) != 12) {
+            $response['msg'] = 'Incomplete Serial/Pin Number Entered!!! Carefully check and retry again.';
         }
 
-        $p = substr($inp, 0, 12);
-        $s = substr($inp, 12);
+//        $p = substr($inp, 0, 12);
+//        $s = substr($inp, 12);
 
         $pin = '';
         $space = (PinNumber::SPACING > 0) ? (PinNumber::NUMBER_OF_DIGITS / PinNumber::SPACING) : 4;
 
         for ($k=0; $k < $space; $k++) {
-            $pin .= substr($p, ($k * $space), $space) . ' ';
+            $pin .= substr($inputs['pin_number'], ($k * $space), $space) . ' ';
         }
         
-        $serial = substr($s, 0, 4) . ' ' . substr($s, 4, 4);
+        $serial = substr($inputs['serial_number'], 0, 4) . ' ' . substr($inputs['serial_number'], 4, 4);
         $pinNo = PinNumber::where('serial_number', trim($serial))
             ->where('pin_number', trim($pin))
             ->where('status', 1)
             ->first();
 
-        if (count($pinNo) > 0) {
+        if ($pinNo) {
             ResultChecker::create([
                 'pin_number_id'=>$pinNo->pin_number_id,
                 'student_id'=>$student->student_id,

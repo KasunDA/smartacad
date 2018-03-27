@@ -392,6 +392,7 @@ class ExamsController extends Controller
 
     /**
      * Validate if my (Individual Staffs) exam has been setup then compute the C.A
+     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function computeCa()
@@ -422,7 +423,9 @@ class ExamsController extends Controller
 
     /**
      * Process My (Individual Staffs) Exam Set Up
+     *
      * @param Request $request
+     *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function mySetup(Request $request)
@@ -441,8 +444,10 @@ class ExamsController extends Controller
 
     /**
      * Displays a printable details of the subjects students scores for a specific academic term
+     *
      * @param String $encodeStud
      * @param String $encodeTerm
+     *
      * @return \Illuminate\View\View
      */
     public function printStudentTerminalResult($encodeStud, $encodeTerm)
@@ -468,7 +473,9 @@ class ExamsController extends Controller
 
     /**
      * Displays the summary of students terminal exams results
+     *
      * @param String $encodeStud
+     *
      * @return \Illuminate\View\View
      */
     public function view($encodeStud)
@@ -485,8 +492,10 @@ class ExamsController extends Controller
 
     /**
      * Displays the details of students terminal exams based on class and term
+     *
      * @param String $encodeStud
      * @param String $encodeTerm
+     *
      * @return \Illuminate\View\View
      */
     public function details($encodeStud, $encodeTerm)
@@ -514,6 +523,7 @@ class ExamsController extends Controller
 
     /**
      * Displays a form for searching of academic year records based on class level
+     *
      * @return \Illuminate\View\View
      */
     public function searchBroadSheet()
