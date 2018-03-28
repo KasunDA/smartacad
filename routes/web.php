@@ -167,13 +167,13 @@ Route::group(['namespace' => 'Admin\MasterRecords\Classes'], function () {
 
     //Class Rooms Routes
     Route::group(['prefix'=>'/class-rooms'], function () {
+        Route::get('/class-teachers', 'ClassRoomsController@classTeachers');
+        Route::post('/class-teachers', 'ClassRoomsController@teachers');
+        Route::post('/assign-class-teachers', 'ClassRoomsController@assignClassTeachers');
         Route::get('/{levelId?}', 'ClassRoomsController@index');
         Route::post('/', 'ClassRoomsController@save');
         Route::get('/delete/{id}', 'ClassRoomsController@delete');
         Route::post('/levels', 'ClassRoomsController@levels');
-        Route::get('/class-teachers', 'ClassRoomsController@classTeachers');
-        Route::post('/class-teachers', 'ClassRoomsController@teachers');
-        Route::post('/assign-class-teachers', 'ClassRoomsController@assignClassTeachers');
     });
 
     //Class Students Routes
@@ -278,11 +278,10 @@ Route::group(['namespace' => 'Admin\MasterRecords\Subjects'], function () {
         Route::get('/', 'SubjectTutorsController@index');
         Route::post('/search-subjects', 'SubjectTutorsController@searchSubjects');
         Route::get('/manage-student/{id}/{termId}', 'SubjectTutorsController@manageStudent');
-        Route::post('/manage-student/{id?}/{termId?}', 'SubjectTutorsController@saveStudents');
+        Route::post('/manage-students/{id?}/{termId?}', 'SubjectTutorsController@saveStudents');
         Route::post('/view-assigned', 'SubjectTutorsController@viewAssigned');
         
         Route::get('/assign-tutor/{classId}/{tutorId}', 'SubjectClassRoomsController@assignTutor');
-        Route::post('/search-subjects', 'SubjectClassRoomsController@searchSubjects');
         Route::get('/delete/{id}', 'SubjectClassRoomsController@delete');
     });
     
