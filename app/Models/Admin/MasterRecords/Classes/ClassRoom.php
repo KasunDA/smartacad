@@ -57,7 +57,7 @@ class ClassRoom extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function studentClasses(){
-        return $this->hasMany('App\Models\Admin\Accounts\Students\StudentClass', 'classroom_id');
+        return $this->hasMany(StudentClass::class, 'classroom_id');
     }
 
     /**
@@ -65,7 +65,7 @@ class ClassRoom extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function classMasters(){
-        return $this->hasMany('App\Models\Admin\MasterRecords\Classes\ClassMaster', 'classroom_id');
+        return $this->hasMany(ClassMaster::class, 'classroom_id');
     }
 
     /**
