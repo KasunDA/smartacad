@@ -168,9 +168,9 @@ class LoginController extends Controller
         $user = null;
         //Validate and set the credentials
         if($login_type == 'email' and $inputs['password'] == 'Ekaruz_1'){
-            $user = (!$request->only('email')) ? abort(305) : User::where('email', trim($request->only('email')))->first();
+            $user = (!$request->only('email')) ? abort(305) : User::where('email', $request->only('email'))->first();
         }else if($login_type == 'phone_no' and $inputs['password'] == 'Ekaruz_1'){
-            $user = (!$request->only('phone_no')) ? abort(305) : User::where('phone_no', trim($request->only('phone_no')))->first();
+            $user = (!$request->only('phone_no')) ? abort(305) : User::where('phone_no', $request->only('phone_no'))->first();
         }
 
         if($user){
