@@ -50,7 +50,7 @@ class DomainsController extends Controller
         $response['term'] = $term->academic_term;
 
         //Returns All the class rooms for the super admins only
-        if(Auth::user()->user_type_id == User::DEVELOPER or Auth::user()->user_type_id == User::SUPER_ADMIN){
+        if(Auth::user()->user_type_id == User::DEVELOPER || Auth::user()->user_type_id == User::SUPER_ADMIN){
             $classrooms = ClassRoom::all();
             //format the record sets as json readable
             if($classrooms->count() > 0){
@@ -61,11 +61,8 @@ class DomainsController extends Controller
                         "hashed_class_id"=>$this->getHashIds()->encode($classroom->classroom_id),
                         "hashed_term_id"=>$this->getHashIds()->encode($term->academic_term_id),
                         "class_master"=>($classroom->classMasters()->count() > 0
-                            && $classroom->classMasters()
-                                ->where('academic_year_id', $term->academic_year_id)
-                                ->first()
-                                ->user()
-                                ->count() > 0)
+                            && isset($classroom->classMasters()
+                                ->where('academic_year_id', $term->academic_year_id)->first()->user))
                                 ? $classroom->classMasters()
                                     ->where('academic_year_id', $term->academic_year_id)
                                     ->first()

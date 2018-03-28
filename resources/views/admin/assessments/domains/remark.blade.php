@@ -101,7 +101,7 @@
                                 </tfoot>
                             </table>
                             <div class="form-actions noborder">
-                                <button type="submit" class="btn blue pull-right">Save Scores</button>
+                                <button type="submit" class="btn blue pull-right">Save Remarks</button>
                             </div>
                         </div>
                     {!! Form::close() !!}

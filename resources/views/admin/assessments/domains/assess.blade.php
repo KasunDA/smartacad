@@ -98,7 +98,7 @@
                             </div>
                             <div class="form-actions noborder">
                                 <button type="submit" class="btn blue pull-right">
-                                    <i class="fa fa-save"></i> Save Records
+                                    <i class="fa fa-save"></i> Submit
                                 </button>
                             </div>
                         {!! Form::close() !!}
