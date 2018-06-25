@@ -84,25 +84,36 @@
                                                     <tbody>
                                                     <?php $i=1; ?>
                                                     @foreach($classrooms as $classroom)
-                                                        <tr role="row" class="heading">
-                                                            <td>{{ $i++ }}</td>
-                                                            <td>{{ $classroom->classroom->classroom }} ::
-                                                                {{$classroom->classroom->studentClasses->where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->count()}} Student(s)
-                                                            </td>
-                                                            <td>{{ AcademicTerm::activeTerm()->academic_term }}</td>
-                                                            <td>{{ $classroom->user->simpleNameNSalutation() }}</td>
-                                                            <td>{{ $classroom->classroom->attendances()->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->count() }}</td>
-                                                            <td>
-                                                                <a href="{{ route('initiateAttendance', ['classId'=>$hashIds->encode($classroom->classroom_id)]) }}" class="btn btn-info btn-xs">
-                                                                    <i class="fa fa-check-square-o"></i>
-                                                                </a>
-                                                            </td>
-                                                            <td>
-                                                                <a href="{{ route('adjustAttendance', ['classId'=>$hashIds->encode($classroom->classroom_id)]) }}" class="btn btn-warning btn-xs">
-                                                                    <i class="fa fa-edit"></i>
-                                                                </a>
-                                                            </td>
-                                                        </tr>
+                                                        @if(isset($classroom->classroom))
+                                                            <tr role="row" class="heading">
+                                                                <td>{{ $i++ }}</td>
+                                                                <td>
+                                                                    {!! isset($classroom->classroom) ? $classroom->classroom->classroom : LabelHelper::default() !!} ::
+                                                                    {!! isset($classroom->classroom)
+                                                                        ? $classroom->classroom->studentClasses->where('academic_year_id', AcademicTerm::activeTerm()->academic_year_id)->count() . ' Student(s)'
+                                                                        : LabelHelper::default() !!}
+                                                                </td>
+                                                                <td>{{ AcademicTerm::activeTerm()->academic_term }}</td>
+                                                                <td>
+                                                                    {!! isset($classroom->user) ? $classroom->user->simpleNameNSalutation() : LabelHelper::default() !!} ::
+                                                                </td>
+                                                                <td>
+                                                                    {!! isset($classroom->classroom)
+                                                                        ? $classroom->classroom->attendances()->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)->count()
+                                                                        : LabelHelper::default() !!}
+                                                                </td>
+                                                                <td>
+                                                                    <a href="{{ route('initiateAttendance', ['classId'=>$hashIds->encode($classroom->classroom_id)]) }}" class="btn btn-info btn-xs">
+                                                                        <i class="fa fa-check-square-o"></i>
+                                                                    </a>
+                                                                </td>
+                                                                <td>
+                                                                    <a href="{{ route('adjustAttendance', ['classId'=>$hashIds->encode($classroom->classroom_id)]) }}" class="btn btn-warning btn-xs">
+                                                                        <i class="fa fa-edit"></i>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        @endif
                                                     @endforeach
                                                     </tbody>
 
