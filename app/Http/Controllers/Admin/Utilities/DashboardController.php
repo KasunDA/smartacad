@@ -56,6 +56,7 @@ class DashboardController extends Controller
         if(Auth::user()->user_type_id == User::STAFF){
             $unmarked = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
                 ->where('tutor_id', Auth::user()->user_id)
+                ->whereNull('classroom_deleted_at')
                 ->where(function ($query) {
                     $query->whereNull('assessment_id')->orWhere('marked', '<>', 1);
                 })
@@ -64,6 +65,7 @@ class DashboardController extends Controller
             $marked = SubjectAssessmentView::where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
                 ->where('tutor_id', Auth::user()->user_id)
                 ->where('marked', 1)
+                ->whereNull('classroom_deleted_at')
                 ->groupBy('subject', 'subject_id')
                 ->get();
 
@@ -77,6 +79,7 @@ class DashboardController extends Controller
             $unmarked = DB::table('subjects_assessmentsviews')
                 ->select('tutor', 'tutor_id', DB::raw('COUNT(subject_classroom_id) AS subjects'))
                 ->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
+                ->whereNull('classroom_deleted_at')
                 ->where(function ($query) {
                     $query->whereNull('assessment_id')->orWhere('marked', '<>', 1);
                 })

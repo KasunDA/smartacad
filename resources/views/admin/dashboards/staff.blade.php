@@ -186,6 +186,7 @@
                                                                 ->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
                                                                 ->where('tutor_id', $mark->tutor_id)
                                                                 ->where('subject_id', $mark->subject_id)
+                                                                ->whereNull('classroom_deleted_at')
                                                                 ->where('marked', 1)
                                                                 ->get();
                                                         ?>
