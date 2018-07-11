@@ -140,7 +140,10 @@
                                                                 $assessments = DB::table('subjects_assessmentsviews')
                                                                     ->select('subject', 'classroom', 'academic_term', 'description', 'number', 'submission_date')
                                                                     ->where('academic_term_id', AcademicTerm::activeTerm()->academic_term_id)
-                                                                    ->where('tutor_id', $unmark->tutor_id)->where(function ($query) { $query->whereNull('assessment_id')->orWhere('marked', 2); })->get();
+                                                                    ->where('tutor_id', $unmark->tutor_id)
+                                                                    ->whereNotNull('classroom_deleted_at')
+                                                                    ->where(function ($query) { $query->whereNull('assessment_id')->orWhere('marked', 2); })
+                                                                    ->get();
                                                             ?>
                                                             @foreach($assessments as $assessment)
                                                                 <tr class="odd gradeX">
