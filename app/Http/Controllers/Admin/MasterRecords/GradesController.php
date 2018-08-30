@@ -21,8 +21,8 @@ class GradesController extends Controller
     {
         $this->middleware('auth');
         $this->school = School::mySchool();
-        
-        ($this->school->setup == School::GRADE)
+
+        ((int) $this->school->setup === School::GRADE)
             ? $this->setFlashMessage('Warning!!! Kindly Setup the Grades records Before Proceeding.', 3)
             : $this->middleware('setup');
     }

@@ -26,9 +26,9 @@ class AssessmentSetupsController extends Controller
         $this->middleware('auth');
         $this->school = School::mySchool();
 
-        if ($this->school->setup == School::ASSESSMENT) {
+        if ((int) $this->school->setup === School::ASSESSMENT) {
             $this->setFlashMessage('Warning!!! Kindly Setup the Assessments records Before Proceeding.', 3);
-        } elseif ($this->school->setup == School::ASSESSMENT_DETAIL) {
+        } elseif ((int) $this->school->setup === School::ASSESSMENT_DETAIL) {
             $this->setFlashMessage('Warning!!! Kindly Setup the Assessment Details records Before Proceeding.', 3);
         } else {
             $this->middleware('setup');

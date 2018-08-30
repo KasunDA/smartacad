@@ -22,7 +22,7 @@ class SchoolSubjectsController extends Controller
         $this->middleware('auth');
         $this->school = School::mySchool();
 
-        ($this->school->setup == School::SUBJECT)
+        ((int) $this->school->setup === School::SUBJECT)
             ? $this->setFlashMessage('Warning!!! Kindly Setup the Subjects records Before Proceeding.', 3)
             : $this->middleware('setup');
     }
