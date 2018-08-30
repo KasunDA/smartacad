@@ -20,11 +20,10 @@ class ClassGroupsController extends Controller
     {
         $this->middleware('auth');
         $this->school = School::mySchool();
-        if ($this->school->setup == School::CLASS_GROUP) {
-            $this->setFlashMessage('Warning!!! Kindly Setup the Class Groups records Before Proceeding.', 3);
-        } else {
-            $this->middleware('setup');
-        }
+
+        $this->school->setup === School::CLASS_GROUP
+            ? $this->setFlashMessage('Warning!!! Kindly Setup the Class Groups records Before Proceeding.', 3)
+            : $this->middleware('setup');
     }
     /**
      * Display a listing of the Menus for Master Records.

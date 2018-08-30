@@ -26,11 +26,10 @@ class ClassRoomsController extends Controller
     {
         $this->middleware('auth');
         $this->school = School::mySchool();
-        if ($this->school->setup == School::CLASS_ROOM) {
-            $this->setFlashMessage('Warning!!! Kindly Setup the Class Rooms records Before Proceeding.', 3);
-        } else {
-            $this->middleware('setup');
-        }
+
+        $this->school->setup === School::CLASS_ROOM
+            ? $this->setFlashMessage('Warning!!! Kindly Setup the Class Rooms records Before Proceeding.', 3)
+            : $this->middleware('setup');
     }
     
     /**

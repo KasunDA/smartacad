@@ -19,8 +19,10 @@ class AcademicYearsController extends Controller
     {
         $this->middleware('auth');
         $this->school = School::mySchool();
-        if ($this->school->setup == School::ACADEMIC_YEAR)
+
+        if ($this->school->setup == School::ACADEMIC_YEAR) {
             $this->setFlashMessage('Warning!!! Kindly Setup the Academic Years records Before Proceeding.', 3);
+        }
     }
     
     /**

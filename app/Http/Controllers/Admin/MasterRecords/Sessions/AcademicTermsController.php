@@ -24,7 +24,7 @@ class AcademicTermsController extends Controller
         $this->middleware('auth');
         $this->school = School::mySchool();
         
-        ($this->school->setup == School::ACADEMIC_TERM)
+        $this->school->setup === School::ACADEMIC_TERM
             ? $this->setFlashMessage('Warning!!! Kindly Setup the Academic Terms records Before Proceeding.', 3)
             : $this->middleware('setup');
     }
