@@ -22,7 +22,7 @@ class ClassLevelsController extends Controller
         $this->middleware('auth');
         $this->school = School::mySchool();
 
-        $this->school->setup === School::CLASS_LEVEL
+        ((int) $this->school->setup === School::CLASS_LEVEL)
             ? $this->setFlashMessage('Warning!!! Kindly Setup the Class Levels records Before Proceeding.', 3)
             : $this->middleware('setup');
     }

@@ -27,7 +27,7 @@ class ClassRoomsController extends Controller
         $this->middleware('auth');
         $this->school = School::mySchool();
 
-        $this->school->setup === School::CLASS_ROOM
+        ((int) $this->school->setup === School::CLASS_ROOM)
             ? $this->setFlashMessage('Warning!!! Kindly Setup the Class Rooms records Before Proceeding.', 3)
             : $this->middleware('setup');
     }
