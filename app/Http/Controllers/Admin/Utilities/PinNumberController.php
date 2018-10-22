@@ -20,6 +20,8 @@ class PinNumberController extends Controller
 
     /**
      * Display a listing of the resource.
+     * url: //http://localhost:8000/pin-numbers/index
+     *
      * @param Int $number
      * @return Response
      */
@@ -46,10 +48,12 @@ class PinNumberController extends Controller
 
     /**
      * Display a listing of the resource.
+     * url: //http://localhost:8000/pin-numbers/generate/200
+     *
      * @param Int $number
      * @return Response
      */
-    public function generate($number = null)//http://localhost:8000/pin-numbers/generate/200
+    public function generate($number = null)
     {
         if ($number) {
             $out = '';
@@ -80,9 +84,11 @@ class PinNumberController extends Controller
 
     /**
      * Display a listing of the resource.
+     * url: //http://localhost:8000/pin-numbers/insert
+     *
      * @return Response
      */
-    public function insert()//http://localhost:8000/pin-numbers/insert
+    public function insert()
     {
         $count = 0;
         $randoms = Pin::whereNotIn('pin', PinNumber::get(['pin_number'])
